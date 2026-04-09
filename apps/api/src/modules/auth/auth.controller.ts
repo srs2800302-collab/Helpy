@@ -1,15 +1,21 @@
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { RequestOtpDto } from './dto/request-otp.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { AuthService } from './auth.service';
-import type { RequestOtpDto } from './dto/request-otp.dto';
-import type { VerifyOtpDto } from './dto/verify-otp.dto';
 
+@ApiTags('auth')
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  requestOtp(dto: RequestOtpDto) {
+  @Post('request-otp')
+  requestOtp(@Body() dto: RequestOtpDto) {
     return this.authService.requestOtp(dto);
   }
 
-  verifyOtp(dto: VerifyOtpDto) {
+  @Post('verify-otp')
+  verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.authService.verifyOtp(dto);
   }
 }

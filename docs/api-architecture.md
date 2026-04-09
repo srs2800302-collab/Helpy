@@ -1,23 +1,22 @@
 # Fixi API Architecture
 
 ## Current scope
-This stage sets a TypeScript backend bootstrap without requiring local runtime.
+NestJS bootstrap is added with:
+- AppModule
+- PrismaModule
+- HealthModule
+- AuthModule
+- global validation pipe
+- global error filter
+- Swagger
 
-## Current modules
-- app
-- config
-- health
-- prisma
-- auth
-
-## Response contract
-All handlers should return:
-- success: true + data
-- success: false + error
+## Current endpoints
+- GET /api/v1/health
+- POST /api/v1/auth/request-otp
+- POST /api/v1/auth/verify-otp
 
 ## Next backend step
-- replace plain classes with NestJS modules/controllers/providers
-- add validation
-- add Prisma integration for real persistence
-- add JWT issuance
-- add role-based guards
+- real auth persistence via Prisma
+- user/profile creation
+- JWT auth
+- role selection endpoint
