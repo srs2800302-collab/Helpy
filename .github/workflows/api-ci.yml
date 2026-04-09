@@ -12,6 +12,7 @@ on:
       - stage-1-4-auth-persistence
       - stage-2-profiles
       - stage-3-jobs
+      - stage-4-uploads
   pull_request:
 
 jobs:
