@@ -20,3 +20,11 @@ export interface AuthResponse {
   isNewUser: boolean;
   needsRoleSelection: boolean;
 }
+
+export interface RequestOtpResult {
+  sent: boolean;
+  expiresInSeconds: number;
+  debugCode?: string;
+}
+
+export interface VerifyOtpResult extends AuthResponse {}

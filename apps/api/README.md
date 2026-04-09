@@ -8,11 +8,11 @@ Current backend foundation:
 - Swagger bootstrap
 - Prisma module/service
 - Health module
-- Auth module skeleton
+- Auth module with OTP persistence
+- Users module with role selection
 
 Planned next:
-- real OTP persistence
-- JWT issuance
-- users/profiles modules
-- role-based guards
-- payments/jobs/offers/chat modules
+- real JWT issuance
+- auth guards
+- current user endpoint
+- categories/jobs/profiles modules
