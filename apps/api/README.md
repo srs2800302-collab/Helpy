@@ -16,9 +16,10 @@ Current backend foundation:
 - Uploads module
 - Payments module
 - Offers module
+- Chat module
 
 Planned next:
-- chat
 - reviews
 - disputes
+- admin
 - real auth guards
