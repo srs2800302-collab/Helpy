@@ -7,6 +7,7 @@ on:
       - stage-0-foundation
       - stage-1-auth
       - stage-1-1-api-bootstrap
+      - stage-1-2-prisma-domain
   pull_request:
 
 jobs:
@@ -29,6 +30,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Prisma format
+        run: npm run prisma:format
+
+      - name: Prisma validate
+        run: npm run prisma:validate
+
+      - name: Prisma generate
+        run: npm run prisma:generate
 
       - name: Typecheck
         run: npm run typecheck
