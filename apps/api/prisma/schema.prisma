@@ -6,3 +6,49 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserRole {
+  client
+  master
+  admin
+}
+
+enum OtpSessionStatus {
+  pending
+  verified
+  expired
+  cancelled
+}
+
+model User {
+  id              String      @id @default(cuid())
+  phone           String      @unique
+  role            UserRole?
+  isActive        Boolean     @default(true)
+  isPhoneVerified Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  otpSessions     OtpSession[]
+
+  @@map("users")
+}
+
+model OtpSession {
+  id            String           @id @default(cuid())
+  phone         String
+  code          String
+  status        OtpSessionStatus @default(pending)
+  expiresAt     DateTime
+  verifiedAt    DateTime?
+  attemptsCount Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  userId        String?
+
+  user          User?            @relation(fields: [userId], references: [id])
+
+  @@index([phone, status])
+  @@index([expiresAt])
+  @@map("otp_sessions")
+}
