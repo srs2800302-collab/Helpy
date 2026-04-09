@@ -10,6 +10,7 @@ on:
       - stage-1-2-prisma-domain
       - stage-1-3-nest-bootstrap
       - stage-1-4-auth-persistence
+      - stage-2-profiles
   pull_request:
 
 jobs:
