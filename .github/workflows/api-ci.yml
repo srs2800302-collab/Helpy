@@ -17,6 +17,7 @@ on:
       - stage-6-marketplace-offers
       - stage-7-chat
       - stage-8-reviews
+      - stage-9-admin-foundation
   pull_request:
 
 jobs:

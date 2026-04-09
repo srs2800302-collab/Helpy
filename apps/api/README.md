@@ -18,8 +18,11 @@ Current backend foundation:
 - Offers module
 - Chat module
 - Reviews module
+- Disputes module
+- Admin module
 
 Planned next:
-- disputes
-- admin
 - real auth guards
+- current user endpoint
+- mobile auth integration
+- admin panel app
