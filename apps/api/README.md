@@ -14,9 +14,10 @@ Current backend foundation:
 - Profiles module
 - Jobs module
 - Uploads module
+- Payments module
 
 Planned next:
-- payments
 - offers
+- selection flow
+- chat
 - real auth guards
-- real S3 provider
