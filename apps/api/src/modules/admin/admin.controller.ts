@@ -1,10 +1,16 @@
-import { Controller, Get, Param, Patch } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { MasterVerificationStatus } from '@prisma/client';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { BearerAuthGuard } from '../../common/guards/bearer-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import { ok } from '../../common/types/api-response.type';
 import { AdminService } from './admin.service';
 
 @ApiTags('admin')
+@ApiBearerAuth()
+@UseGuards(BearerAuthGuard, RolesGuard)
+@Roles('admin')
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}

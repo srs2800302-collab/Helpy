@@ -18,6 +18,7 @@ on:
       - stage-7-chat
       - stage-8-reviews
       - stage-9-admin-foundation
+      - stage-10-auth-guards
   pull_request:
 
 jobs:

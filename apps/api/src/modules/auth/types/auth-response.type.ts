@@ -28,3 +28,14 @@ export interface RequestOtpResult {
 }
 
 export interface VerifyOtpResult extends AuthResponse {}
+
+export interface CurrentUserResponse {
+  id: string;
+  phone: string;
+  role: UserRole | null;
+  isActive: boolean;
+  isPhoneVerified: boolean;
+  createdAt: string;
+  clientProfileExists: boolean;
+  masterProfileExists: boolean;
+}

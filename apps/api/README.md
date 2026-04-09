@@ -9,7 +9,9 @@ Current backend foundation:
 - Prisma module/service
 - Health module
 - Auth module with OTP persistence
-- Users module with role selection
+- bearer auth guard
+- roles guard
+- current user endpoint
 - Categories module
 - Profiles module
 - Jobs module
@@ -22,7 +24,7 @@ Current backend foundation:
 - Admin module
 
 Planned next:
-- real auth guards
-- current user endpoint
+- ownership cleanup across modules
 - mobile auth integration
 - admin panel app
+- real JWT

@@ -4,13 +4,18 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { OtpSessionStatus } from '@prisma/client';
+import { OtpSessionStatus, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { OTP_EXPIRES_IN_SECONDS, OTP_MAX_ATTEMPTS } from './constants/auth.constants';
 import { RequestOtpDto } from './dto/request-otp.dto';
+import { SelectMyRoleDto } from './dto/select-my-role.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
-import type { AuthResponse, RequestOtpResult } from './types/auth-response.type';
+import type {
+  AuthResponse,
+  CurrentUserResponse,
+  RequestOtpResult,
+} from './types/auth-response.type';
 import { generateOtpCode } from './utils/otp.util';
 
 @Injectable()
@@ -138,5 +143,42 @@ export class AuthService {
         needsRoleSelection: !user.role,
       },
     };
+  }
+
+  async getCurrentUser(userId: string): Promise<{ success: true; data: CurrentUserResponse }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        clientProfile: true,
+        masterProfile: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        phone: user.phone,
+        role: user.role,
+        isActive: user.isActive,
+        isPhoneVerified: user.isPhoneVerified,
+        createdAt: user.createdAt.toISOString(),
+        clientProfileExists: Boolean(user.clientProfile),
+        masterProfileExists: Boolean(user.masterProfile),
+      },
+    };
+  }
+
+  async selectMyRole(
+    userId: string,
+    dto: SelectMyRoleDto,
+  ): Promise<{ success: true; data: CurrentUserResponse }> {
+    const role = dto.role === 'client' ? UserRole.client : UserRole.master;
+    await this.usersService.setRole(userId, role);
+    return this.getCurrentUser(userId);
   }
 }
