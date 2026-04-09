@@ -12,9 +12,10 @@ Current backend foundation:
 - Users module with role selection
 - Categories module
 - Profiles module
+- Jobs module
 
 Planned next:
-- real JWT issuance
-- auth guards
-- current user endpoint
-- jobs/offers/payments modules
+- uploads
+- payments
+- offers
+- real auth guards
