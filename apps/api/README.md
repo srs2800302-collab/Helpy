@@ -15,9 +15,10 @@ Current backend foundation:
 - Jobs module
 - Uploads module
 - Payments module
+- Offers module
 
 Planned next:
-- offers
-- selection flow
 - chat
+- reviews
+- disputes
 - real auth guards
