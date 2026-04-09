@@ -1,0 +1,26 @@
+name: Repo Check
+
+on:
+  push:
+    branches:
+      - main
+      - stage-0-foundation
+  pull_request:
+
+jobs:
+  repo-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate repository structure
+        run: |
+          test -d apps/mobile
+          test -d apps/api
+          test -d apps/admin
+          test -d packages/shared-types
+          test -d infrastructure
+          test -d docs
+          test -f README.md
+          test -f package.json

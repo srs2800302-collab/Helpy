@@ -1,0 +1,14 @@
+{
+  "name": "fixi-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/api",
+    "apps/admin",
+    "packages/shared-types"
+  ],
+  "scripts": {
+    "lint": "echo \"root lint placeholder\"",
+    "test": "echo \"root test placeholder\""
+  }
+}

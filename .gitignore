@@ -1,8 +1,56 @@
-.gradle/
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+.npm/
+.pnpm-store/
+
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
 build/
-**/build/
-local.properties
+
+# Android / iOS
+**/android/.gradle/
+**/android/app/build/
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/
+
+# Next
+.next/
+out/
+
+# Coverage
+coverage/
+lcov.info
+
+# Prisma
+apps/api/prisma/dev.db
+apps/api/prisma/dev.db-journal
+
+# IDE
 .idea/
-*.iml
-*.jks
-*.keystore
+.vscode/
+
+# Misc
+tmp/
+temp/
