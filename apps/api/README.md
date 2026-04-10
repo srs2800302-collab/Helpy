@@ -1,8 +1,15 @@
 # Fixi API
 
+Current backend foundation:
+- TypeScript bootstrap
+- app module
+- config reader
+- health module
+- prisma service skeleton
+- auth module skeleton
+
 Planned stack:
 - NestJS
-- TypeScript
 - Prisma
 - PostgreSQL
 - JWT

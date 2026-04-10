@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - stage-0-foundation
+      - stage-1-auth
+      - stage-1-1-api-bootstrap
   pull_request:
 
 jobs:
@@ -18,8 +20,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify API files
-        run: |
-          test -f package.json
-          test -f prisma/schema.prisma
-          test -f .env.example
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
