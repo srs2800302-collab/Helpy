@@ -53,5 +53,7 @@
   "rating": "คะแนน",
   "comment": "ความคิดเห็น",
   "submit_review": "ส่งรีวิว",
-  "review_created": "สร้างรีวิวแล้ว"
+  "review_created": "สร้างรีวิวแล้ว",
+  "validation_phone_invalid": "กรอกหมายเลขโทรศัพท์ให้ถูกต้อง",
+  "validation_otp_invalid": "กรอกรหัส 6 หลัก"
 }

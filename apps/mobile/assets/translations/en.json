@@ -53,5 +53,7 @@
   "rating": "Rating",
   "comment": "Comment",
   "submit_review": "Submit review",
-  "review_created": "Review created"
+  "review_created": "Review created",
+  "validation_phone_invalid": "Enter a valid phone number",
+  "validation_otp_invalid": "Enter the 6-digit code"
 }
