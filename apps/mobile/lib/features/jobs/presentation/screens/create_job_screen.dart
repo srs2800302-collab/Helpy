@@ -38,11 +38,11 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         child: Column(
           children: [
             DropdownButtonFormField<String>(
-              value: jobsState.selectedCategoryId,
+              initialValue: jobsState.selectedCategoryId,
               items: categoriesState.items
                   .map(
                     (item) => DropdownMenuItem<String>(
-                      value: item.id,
+                      initialValue: item.id,
                       child: Text(item.slug),
                     ),
                   )
