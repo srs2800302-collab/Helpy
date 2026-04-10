@@ -48,18 +48,37 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   void setPhone(String value) {
-    state = state.copyWith(phone: value, clearError: true);
+    state = state.copyWith(
+      phone: value,
+      clearError: true,
+    );
   }
 
   void setOtpCode(String value) {
-    state = state.copyWith(otpCode: value, clearError: true);
+    state = state.copyWith(
+      otpCode: value,
+      clearError: true,
+    );
   }
 
   Future<bool> requestOtp() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    final normalizedPhone = _normalizePhone(state.phone);
+
+    if (!_isPhoneValid(normalizedPhone)) {
+      state = state.copyWith(
+        errorMessage: 'Enter a valid phone number',
+      );
+      return false;
+    }
+
+    state = state.copyWith(
+      isLoading: true,
+      clearError: true,
+      phone: normalizedPhone,
+    );
 
     try {
-      await ref.read(authApiProvider).requestOtp(state.phone.trim());
+      await ref.read(authApiProvider).requestOtp(normalizedPhone);
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {
@@ -73,12 +92,34 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<bool> verifyOtp() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    final normalizedPhone = _normalizePhone(state.phone);
+    final normalizedOtp = _normalizeOtp(state.otpCode);
+
+    if (!_isPhoneValid(normalizedPhone)) {
+      state = state.copyWith(
+        errorMessage: 'Enter a valid phone number',
+      );
+      return false;
+    }
+
+    if (!_isOtpValid(normalizedOtp)) {
+      state = state.copyWith(
+        errorMessage: 'Enter the 6-digit code',
+      );
+      return false;
+    }
+
+    state = state.copyWith(
+      isLoading: true,
+      clearError: true,
+      phone: normalizedPhone,
+      otpCode: normalizedOtp,
+    );
 
     try {
       final session = await ref.read(authApiProvider).verifyOtp(
-            state.phone.trim(),
-            state.otpCode.trim(),
+            normalizedPhone,
+            normalizedOtp,
           );
 
       final storage = ref.read(tokenStorageProvider);
@@ -127,5 +168,27 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await ref.read(tokenStorageProvider).clearAll();
     state = const AuthState(initialized: true);
+  }
+
+  String _normalizePhone(String value) {
+    final trimmed = value.trim();
+    if (trimmed.startsWith('+')) {
+      final digits = trimmed.substring(1).replaceAll(RegExp(r'\D'), '');
+      return '+$digits';
+    }
+    return trimmed.replaceAll(RegExp(r'\D'), '');
+  }
+
+  String _normalizeOtp(String value) {
+    return value.replaceAll(RegExp(r'\D'), '');
+  }
+
+  bool _isPhoneValid(String value) {
+    final digits = value.replaceAll(RegExp(r'\D'), '');
+    return digits.length >= 9 && digits.length <= 15;
+  }
+
+  bool _isOtpValid(String value) {
+    return value.length == 6;
   }
 }
