@@ -1,77 +1,74 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
 abstract class TokenStorage {
   Future<void> saveAccessToken(String token);
-  Future<void> saveRefreshToken(String token);
   Future<String?> getAccessToken();
+  Future<void> clearAccessToken();
+
+  Future<void> saveRefreshToken(String token);
   Future<String?> getRefreshToken();
-  Future<void> clear();
+  Future<void> clearRefreshToken();
+
+  Future<void> clearAll();
 }
 
 class FileTokenStorage implements TokenStorage {
-  static const _fileName = 'fixi_auth_tokens.json';
+  final File _accessTokenFile;
+  final File _refreshTokenFile;
 
-  Future<File> _getFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/$_fileName');
-  }
-
-  Future<Map<String, dynamic>> _readJson() async {
-    try {
-      final file = await _getFile();
-      if (!await file.exists()) {
-        return {};
-      }
-
-      final raw = await file.readAsString();
-      if (raw.trim().isEmpty) {
-        return {};
-      }
-
-      return json.decode(raw) as Map<String, dynamic>;
-    } catch (_) {
-      return {};
-    }
-  }
-
-  Future<void> _writeJson(Map<String, dynamic> data) async {
-    final file = await _getFile();
-    await file.writeAsString(json.encode(data));
-  }
+  FileTokenStorage({
+    String accessTokenPath = '.fixi_access_token',
+    String refreshTokenPath = '.fixi_refresh_token',
+  })  : _accessTokenFile = File(accessTokenPath),
+        _refreshTokenFile = File(refreshTokenPath);
 
   @override
   Future<void> saveAccessToken(String token) async {
-    final data = await _readJson();
-    data['accessToken'] = token;
-    await _writeJson(data);
-  }
-
-  @override
-  Future<void> saveRefreshToken(String token) async {
-    final data = await _readJson();
-    data['refreshToken'] = token;
-    await _writeJson(data);
+    await _accessTokenFile.writeAsString(token, flush: true);
   }
 
   @override
   Future<String?> getAccessToken() async {
-    final data = await _readJson();
-    return data['accessToken'] as String?;
+    if (!await _accessTokenFile.exists()) return null;
+
+    final value = await _accessTokenFile.readAsString();
+    final trimmed = value.trim();
+
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  @override
+  Future<void> clearAccessToken() async {
+    if (await _accessTokenFile.exists()) {
+      await _accessTokenFile.delete();
+    }
+  }
+
+  @override
+  Future<void> saveRefreshToken(String token) async {
+    await _refreshTokenFile.writeAsString(token, flush: true);
   }
 
   @override
   Future<String?> getRefreshToken() async {
-    final data = await _readJson();
-    return data['refreshToken'] as String?;
+    if (!await _refreshTokenFile.exists()) return null;
+
+    final value = await _refreshTokenFile.readAsString();
+    final trimmed = value.trim();
+
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   @override
-  Future<void> clear() async {
-    final file = await _getFile();
-    if (await file.exists()) {
-      await file.delete();
+  Future<void> clearRefreshToken() async {
+    if (await _refreshTokenFile.exists()) {
+      await _refreshTokenFile.delete();
     }
+  }
+
+  @override
+  Future<void> clearAll() async {
+    await clearAccessToken();
+    await clearRefreshToken();
   }
 }

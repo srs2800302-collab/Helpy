@@ -41,15 +41,22 @@ final tokenStorageProvider = Provider<TokenStorage>((ref) {
   return FileTokenStorage();
 });
 
+final authApiProvider = Provider<AuthApi>((ref) {
+  return AuthApi(ref.read(apiClientProvider));
+});
+
 final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient(
     config: ref.read(appConfigProvider),
     tokenStorage: ref.read(tokenStorageProvider),
+    refreshTokensFn: (refreshToken) async {
+      final session = await ref.read(authApiProvider).refreshAccessToken(refreshToken);
+      return RefreshTokensResult(
+        accessToken: session.accessToken,
+        refreshToken: session.refreshToken,
+      );
+    },
   );
-});
-
-final authApiProvider = Provider<AuthApi>((ref) {
-  return AuthApi(ref.read(apiClientProvider));
 });
 
 final categoriesApiProvider = Provider<CategoriesApi>((ref) {
