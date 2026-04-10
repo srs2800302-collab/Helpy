@@ -1,20 +1,43 @@
+import Link from 'next/link';
+
 import { AdminNav } from '@/components/admin-nav';
 import { fetchAdminPayments, hasAdminApiBaseUrl } from '@/lib/admin-api';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPaymentsPage() {
-  const payments = await fetchAdminPayments();
+const paymentStatuses = ['pending', 'paid', 'failed', 'refunded', 'cancelled'];
+
+export default async function AdminPaymentsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ status?: string }>;
+}) {
+  const params = (await searchParams) ?? {};
+  const status = params.status?.trim() || '';
+  const payments = await fetchAdminPayments(status || undefined);
   const hasApiBaseUrl = hasAdminApiBaseUrl();
 
   return (
     <main style={{ maxWidth: 1100, margin: '0 auto', padding: 24 }}>
       <h1 style={{ marginTop: 0 }}>Payments</h1>
-      <p style={{ color: '#4b5563' }}>
-        Admin payments list from API.
-      </p>
+      <p style={{ color: '#4b5563' }}>Admin payments list from API.</p>
 
       <AdminNav />
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+        <Link href="/payments" style={status ? filterLinkStyle : activeFilterLinkStyle}>
+          All
+        </Link>
+        {paymentStatuses.map((item) => (
+          <Link
+            key={item}
+            href={`/payments?status=${item}`}
+            style={status === item ? activeFilterLinkStyle : filterLinkStyle}
+          >
+            {item}
+          </Link>
+        ))}
+      </div>
 
       {!hasApiBaseUrl && (
         <div style={noticeStyle}>
@@ -24,7 +47,7 @@ export default async function AdminPaymentsPage() {
 
       {hasApiBaseUrl && payments.length === 0 && (
         <div style={noticeStyle}>
-          No payments returned from API or API is currently unavailable.
+          No payments returned for current filter or API is currently unavailable.
         </div>
       )}
 
@@ -80,6 +103,24 @@ const noticeStyle = {
   border: '1px solid #fdba74',
   borderRadius: 8,
   color: '#9a3412',
+};
+
+const filterLinkStyle = {
+  display: 'inline-block',
+  padding: '8px 12px',
+  border: '1px solid #d1d5db',
+  borderRadius: 999,
+  textDecoration: 'none',
+  color: '#374151',
+  background: '#fff',
+  fontSize: 14,
+};
+
+const activeFilterLinkStyle = {
+  ...filterLinkStyle,
+  border: '1px solid #111827',
+  color: '#111827',
+  background: '#f3f4f6',
 };
 
 const thStyle = {
