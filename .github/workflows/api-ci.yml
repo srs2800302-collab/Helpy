@@ -19,6 +19,7 @@ on:
       - stage-8-reviews
       - stage-9-admin-foundation
       - stage-10-auth-guards
+      - stage-s1-ci-stabilization-from-m8
   pull_request:
 
 jobs:
@@ -27,6 +28,10 @@ jobs:
     defaults:
       run:
         working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fixi
+      JWT_ACCESS_SECRET: ci_access_secret
+      JWT_REFRESH_SECRET: ci_refresh_secret
 
     steps:
       - name: Checkout
