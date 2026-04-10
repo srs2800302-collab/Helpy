@@ -65,12 +65,16 @@ class ClientJobDetailsScreen extends StatelessWidget {
       );
     } else if (job.status == 'completed') {
       primaryAction = ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(
+        onPressed: () async {
+          final reviewed = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
               builder: (_) => CreateReviewScreen(jobId: job.id),
             ),
           );
+
+          if (reviewed == true && context.mounted) {
+            Navigator.of(context).pop(true);
+          }
         },
         child: Text(l10n.t('review')),
       );

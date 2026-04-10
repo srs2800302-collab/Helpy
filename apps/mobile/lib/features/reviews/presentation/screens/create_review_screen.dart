@@ -18,7 +18,6 @@ class CreateReviewScreen extends ConsumerWidget {
     final state = ref.watch(reviewsControllerProvider);
     final controller = ref.read(reviewsControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
-
     final isBusy = state.isSubmitting;
 
     return Scaffold(
@@ -98,7 +97,7 @@ class CreateReviewScreen extends ConsumerWidget {
                     : () async {
                         final ok = await controller.createReview(jobId: jobId);
                         if (ok && context.mounted) {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(true);
                         }
                       },
                 child: isBusy
