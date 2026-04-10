@@ -8,6 +8,7 @@ import { OffersModule } from './modules/offers/offers.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -24,6 +25,7 @@ import { UsersModule } from './modules/users/users.module';
     PaymentsModule,
     OffersModule,
     ChatModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}

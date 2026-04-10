@@ -16,6 +16,7 @@ on:
       - stage-5-payments
       - stage-6-marketplace-offers
       - stage-7-chat
+      - stage-8-reviews
   pull_request:
 
 jobs:
