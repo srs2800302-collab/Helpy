@@ -17,6 +17,11 @@ on:
       - stage-s1-ci-stabilization-from-m8
       - stage-s2-ci-fixes
       - stage-s3-ci-finalize
+      - stage-mobile-payment-flow
+      - stage-client-job-details
+      - stage-master-execution
+      - stage-review-completion-polish
+      - stage-deploy-readiness
   pull_request:
 
 jobs:

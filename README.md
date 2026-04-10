@@ -2,43 +2,115 @@
 
 Android-first MVP marketplace for home services in Pattaya.
 
-## Product
-Client creates a job, masters respond, client selects one, pays deposit, then work is completed and reviewed.
+## Product scope
 
-## Roles
-- Client
-- Master
-- Admin
+Fixi is a pragmatic MVP for:
+- client job creation
+- master offers
+- deposit payment flow
+- job execution
+- chat
+- reviews
+- admin operations
 
-## MVP
-- OTP auth
-- Profiles
-- Job creation
-- Photo upload
-- Deposit payment
-- Offers from masters
-- Master selection
-- Chat
-- Completion
-- Reviews
-- Admin panel
+## Monorepo structure
+
+/apps
+  /api
+  /mobile
+  /admin
+/packages
+  /shared-types
+/infrastructure
+/docs
 
 ## Stack
-- Mobile: Flutter
-- API: NestJS + TypeScript + Prisma + PostgreSQL
-- Admin: Next.js
-- Infra: Docker + Nginx + S3 + PostgreSQL
 
-## Repo structure
-- apps/mobile
-- apps/api
-- apps/admin
-- packages/shared-types
-- infrastructure
-- docs
+### Mobile
+- Flutter
+- Riverpod
+- go_router
+- Dio
+- intl
 
-## Rules
-- Work from Termux
-- Bash only
-- No local builds
-- CI via GitHub Actions only
+### Backend
+- NestJS
+- Prisma
+- PostgreSQL
+- Swagger
+- JWT
+
+### Admin
+- Next.js
+
+## Current MVP status
+
+### Mobile
+- OTP auth
+- role selection
+- create job
+- deposit payment stub
+- job lifecycle
+- marketplace
+- offers
+- chat
+- master execution
+- reviews
+
+### Backend
+- auth
+- jobs
+- offers
+- payments
+- chat
+- reviews
+- disputes
+- admin read endpoints
+
+### Admin
+- jobs page
+- payments page
+- disputes page
+- status filters
+- dispute status actions
+
+## Environment examples
+
+API: apps/api/.env.example  
+Mobile: apps/mobile/.env.example  
+Admin: apps/admin/.env.example  
+
+## CI
+
+- API CI
+- Mobile CI
+- Admin CI
+- Repo Check
+
+## Deploy readiness checklist
+
+### Required before real launch
+- production env values
+- production PostgreSQL
+- production API URL
+- S3/file upload setup
+- SMS provider for OTP
+- real payment provider instead of stub
+- admin auth protection
+- refund moderation policy
+- dispute moderation SOP
+- monitoring and logging
+- backup strategy
+
+### Nice-to-have next
+- admin payment actions
+- admin job details page
+- master profile moderation UI
+- upload flow
+- better localization coverage
+- production release pipeline
+
+## Workflow
+
+Development is done from Termux and bash.  
+Build validation goes through GitHub Actions.

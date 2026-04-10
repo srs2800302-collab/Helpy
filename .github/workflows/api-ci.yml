@@ -22,6 +22,10 @@ on:
       - stage-s1-ci-stabilization-from-m8
       - stage-s2-ci-fixes
       - stage-s3-ci-finalize
+      - stage-payments-lifecycle
+      - stage-admin-api-read
+      - stage-admin-disputes
+      - stage-deploy-readiness
   pull_request:
 
 jobs:
