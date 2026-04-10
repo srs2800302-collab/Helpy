@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../client_offers/presentation/screens/job_offers_screen.dart';
-import '../../../payments/presentation/screens/job_payment_screen.dart';
+import 'client_job_details_screen.dart';
 
 class ClientJobsScreen extends ConsumerStatefulWidget {
   const ClientJobsScreen({super.key});
@@ -89,44 +88,6 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
-                            final canOpenOffers =
-                                item.status == 'open' || item.status == 'master_selected';
-                            final canPayDeposit = item.status == 'awaiting_payment';
-
-                            Widget? trailing;
-                            if (canOpenOffers) {
-                              trailing = OutlinedButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => JobOffersScreen(
-                                        jobId: item.id,
-                                        jobTitle: item.title,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text(l10n.t('job_offers')),
-                              );
-                            } else if (canPayDeposit) {
-                              trailing = ElevatedButton(
-                                onPressed: () async {
-                                  final paid = await Navigator.of(context).push<bool>(
-                                    MaterialPageRoute(
-                                      builder: (_) => JobPaymentScreen(
-                                        jobId: item.id,
-                                        jobTitle: item.title,
-                                      ),
-                                    ),
-                                  );
-
-                                  if (paid == true && mounted) {
-                                    await _refresh();
-                                  }
-                                },
-                                child: Text(l10n.t('pay_deposit')),
-                              );
-                            }
 
                             return Card(
                               child: ListTile(
@@ -135,7 +96,18 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                   '${item.categorySlug} • ${item.status}\n${item.addressText ?? ''}',
                                 ),
                                 isThreeLine: true,
-                                trailing: trailing,
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () async {
+                                  final changed = await Navigator.of(context).push<bool>(
+                                    MaterialPageRoute(
+                                      builder: (_) => ClientJobDetailsScreen(job: item),
+                                    ),
+                                  );
+
+                                  if (changed == true && mounted) {
+                                    await _refresh();
+                                  }
+                                },
                               ),
                             );
                           },
