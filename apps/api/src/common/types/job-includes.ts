@@ -1,4 +1,4 @@
-import { Prisma, SortOrder } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 export function buildJobInclude(): Prisma.JobInclude {
   return {
@@ -12,18 +12,18 @@ export function buildJobInclude(): Prisma.JobInclude {
     category: true,
     photos: {
       orderBy: [
-        { sortOrder: SortOrder.asc },
-        { createdAt: SortOrder.asc },
+        { sortOrder: Prisma.SortOrder.asc },
+        { createdAt: Prisma.SortOrder.asc },
       ],
     },
     offers: {
       orderBy: [
-        { createdAt: SortOrder.desc },
+        { createdAt: Prisma.SortOrder.desc },
       ],
     },
     payments: {
       orderBy: [
-        { createdAt: SortOrder.desc },
+        { createdAt: Prisma.SortOrder.desc },
       ],
     },
   };
@@ -36,8 +36,8 @@ export function buildOfferInclude(): Prisma.JobOfferInclude {
         category: true,
         photos: {
           orderBy: [
-            { sortOrder: SortOrder.asc },
-            { createdAt: SortOrder.asc },
+            { sortOrder: Prisma.SortOrder.asc },
+            { createdAt: Prisma.SortOrder.asc },
           ],
         },
       },

@@ -5,37 +5,41 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import type { Response } from 'express';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost): void {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
+    const response = ctx.getResponse<any>();
+    const request = ctx.getRequest<any>();
 
-    if (exception instanceof HttpException) {
-      const status = exception.getStatus();
-      const exceptionResponse = exception.getResponse();
+    const statusCode =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
-      response.status(status).json({
-        success: false,
-        error: {
-          code: `HTTP_${status}`,
-          message:
-            typeof exceptionResponse === 'string'
-              ? exceptionResponse
-              : (exceptionResponse as { message?: string }).message ?? 'Request failed',
-          details: typeof exceptionResponse === 'object' ? exceptionResponse : undefined,
-        },
-      });
-      return;
+    const exceptionResponse =
+      exception instanceof HttpException ? exception.getResponse() : null;
+
+    let message: string | string[] = 'Internal server error';
+
+    if (typeof exceptionResponse === 'string') {
+      message = exceptionResponse;
+    } else if (
+      exceptionResponse &&
+      typeof exceptionResponse === 'object' &&
+      'message' in exceptionResponse
+    ) {
+      message = (exceptionResponse as { message?: string | string[] }).message ?? message;
     }
 
-    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    response.status(statusCode).json({
       success: false,
       error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Internal server error',
+        statusCode,
+        message,
+        path: request.url,
+        timestamp: new Date().toISOString(),
       },
     });
   }
