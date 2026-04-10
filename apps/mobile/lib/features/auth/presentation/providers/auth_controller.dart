@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 import '../../domain/auth_session.dart';
 import 'auth_state.dart';
@@ -14,7 +15,6 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final storage = ref.read(tokenStorageProvider);
       final accessToken = await storage.getAccessToken();
-      final refreshToken = await storage.getRefreshToken();
 
       if (accessToken == null || accessToken.isEmpty) {
         state = state.copyWith(
@@ -26,10 +26,7 @@ class AuthController extends StateNotifier<AuthState> {
       }
 
       final api = ref.read(authApiProvider);
-      final current = await api.getCurrentUser(
-        accessToken: accessToken,
-        refreshToken: refreshToken ?? '',
-      );
+      final current = await api.getCurrentUser();
 
       state = state.copyWith(
         isLoading: false,
@@ -103,16 +100,11 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final current = state.session;
-      if (current == null) {
-        throw Exception('No active session');
-      }
+      final updated = await ref.read(authApiProvider).selectRole(role);
 
-      final updated = await ref.read(authApiProvider).selectRole(
-            role: role == UserRole.client ? 'client' : 'master',
-            accessToken: current.accessToken,
-            refreshToken: current.refreshToken,
-          );
+      final storage = ref.read(tokenStorageProvider);
+      await storage.saveAccessToken(updated.accessToken);
+      await storage.saveRefreshToken(updated.refreshToken);
 
       state = state.copyWith(
         isLoading: false,

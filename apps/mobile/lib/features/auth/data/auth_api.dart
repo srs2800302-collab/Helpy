@@ -70,14 +70,16 @@ class AuthApi {
     final tokens = json['tokens'] as Map<String, dynamic>;
 
     final role = _mapRole(user['role']?.toString());
+    final isNewUser = role == null;
 
     return AuthSession(
       userId: user['id'].toString(),
       phone: user['phone'].toString(),
       role: role,
+      isNewUser: isNewUser,
+      needsRoleSelection: isNewUser,
       accessToken: tokens['accessToken'].toString(),
       refreshToken: tokens['refreshToken']?.toString() ?? '',
-      needsRoleSelection: role == null,
     );
   }
 
