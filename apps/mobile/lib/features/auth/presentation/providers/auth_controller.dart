@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/auth_session.dart';
 import 'auth_state.dart';
 
@@ -66,7 +67,7 @@ class AuthController extends StateNotifier<AuthState> {
 
     if (!_isPhoneValid(normalizedPhone)) {
       state = state.copyWith(
-        errorMessage: 'Enter a valid phone number',
+        errorMessage: _t('validation_phone_invalid'),
       );
       return false;
     }
@@ -97,14 +98,14 @@ class AuthController extends StateNotifier<AuthState> {
 
     if (!_isPhoneValid(normalizedPhone)) {
       state = state.copyWith(
-        errorMessage: 'Enter a valid phone number',
+        errorMessage: _t('validation_phone_invalid'),
       );
       return false;
     }
 
     if (!_isOtpValid(normalizedOtp)) {
       state = state.copyWith(
-        errorMessage: 'Enter the 6-digit code',
+        errorMessage: _t('validation_otp_invalid'),
       );
       return false;
     }
@@ -190,5 +191,9 @@ class AuthController extends StateNotifier<AuthState> {
 
   bool _isOtpValid(String value) {
     return value.length == 6;
+  }
+
+  String _t(String key) {
+    return AppLocalizations.instance.t(key);
   }
 }

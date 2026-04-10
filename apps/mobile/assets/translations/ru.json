@@ -53,5 +53,7 @@
   "rating": "Оценка",
   "comment": "Комментарий",
   "submit_review": "Отправить отзыв",
-  "review_created": "Отзыв создан"
+  "review_created": "Отзыв создан",
+  "validation_phone_invalid": "Введите корректный номер телефона",
+  "validation_otp_invalid": "Введите 6-значный код"
 }
