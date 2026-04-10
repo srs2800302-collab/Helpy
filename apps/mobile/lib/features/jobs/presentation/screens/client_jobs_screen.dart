@@ -29,7 +29,6 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(jobsControllerProvider);
-    final controller = ref.read(jobsControllerProvider.notifier);
 
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
