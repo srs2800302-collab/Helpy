@@ -1,0 +1,67 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fixi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fixi-network
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    container_name: fixi-api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+    networks:
+      - fixi-network
+
+  admin:
+    build:
+      context: ..
+      dockerfile: apps/admin/Dockerfile
+    container_name: fixi-admin
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: production
+      FIXI_ADMIN_API_BASE_URL: ${FIXI_ADMIN_API_BASE_URL}
+    networks:
+      - fixi-network
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: fixi-nginx
+    restart: unless-stopped
+    depends_on:
+      - api
+      - admin
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - fixi-network
+
+volumes:
+  postgres_data:
+
+networks:
+  fixi-network:
+    driver: bridge
