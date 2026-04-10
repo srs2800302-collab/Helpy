@@ -18,8 +18,27 @@ export class PaymentsService {
       throw new NotFoundException('Job not found');
     }
 
+    if (job.clientUserId !== dto.userId) {
+      throw new BadRequestException('Only job owner can create deposit');
+    }
+
     if (job.status !== JobStatus.awaiting_payment) {
       throw new BadRequestException('Deposit can be created only for awaiting_payment job');
+    }
+
+    const existingDeposit = await this.prisma.payment.findFirst({
+      where: {
+        jobId: dto.jobId,
+        type: PaymentType.deposit,
+        status: {
+          in: [PaymentStatus.pending, PaymentStatus.paid],
+        },
+      },
+      orderBy: [{ createdAt: 'desc' }],
+    });
+
+    if (existingDeposit) {
+      return existingDeposit;
     }
 
     const user = await this.prisma.user.findUnique({
@@ -71,7 +90,11 @@ export class PaymentsService {
       where: { id: payment.jobId },
     });
 
-    if (job && job.status === JobStatus.awaiting_payment && payment.type === PaymentType.deposit) {
+    if (
+      job &&
+      job.status === JobStatus.awaiting_payment &&
+      payment.type === PaymentType.deposit
+    ) {
       await this.prisma.job.update({
         where: { id: job.id },
         data: {
@@ -122,6 +145,30 @@ export class PaymentsService {
 
     if (!payment) {
       throw new NotFoundException('Payment not found');
+    }
+
+    return payment;
+  }
+
+  async getDepositByJob(jobId: string) {
+    const job = await this.prisma.job.findUnique({
+      where: { id: jobId },
+    });
+
+    if (!job) {
+      throw new NotFoundException('Job not found');
+    }
+
+    const payment = await this.prisma.payment.findFirst({
+      where: {
+        jobId,
+        type: PaymentType.deposit,
+      },
+      orderBy: [{ createdAt: 'desc' }],
+    });
+
+    if (!payment) {
+      throw new NotFoundException('Deposit payment not found');
     }
 
     return payment;

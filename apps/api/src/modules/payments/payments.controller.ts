@@ -17,8 +17,17 @@ export class PaymentsController {
     return ok(payment);
   }
 
+  @Get('job/:jobId/deposit')
+  async getDepositByJob(@Param('jobId') jobId: string) {
+    const payment = await this.paymentsService.getDepositByJob(jobId);
+    return ok(payment);
+  }
+
   @Patch(':paymentId/mark-paid')
-  async markPaid(@Param('paymentId') paymentId: string, @Body() dto: MarkPaymentPaidDto) {
+  async markPaid(
+    @Param('paymentId') paymentId: string,
+    @Body() dto: MarkPaymentPaidDto,
+  ) {
     const payment = await this.paymentsService.markPaid(paymentId, dto);
     return ok(payment);
   }
