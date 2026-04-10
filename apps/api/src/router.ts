@@ -19,4 +19,5 @@ export async function handleRequest(request: Request) {
     return createJob(request);
   }
 
-  return new Response('Not Found', { status: 404
+  return new Response('Not Found', { status: 404 });
+}
