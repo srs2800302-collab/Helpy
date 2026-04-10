@@ -42,10 +42,17 @@ final tokenStorageProvider = Provider<TokenStorage>((ref) {
 });
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient(
+  final client = ApiClient(
     config: ref.read(appConfigProvider),
     tokenStorage: ref.read(tokenStorageProvider),
   );
+
+  client.setRefreshTokensFn((refreshToken) async {
+    final authApi = AuthApi(client);
+    return authApi.refreshAccessToken(refreshToken);
+  });
+
+  return client;
 });
 
 final authApiProvider = Provider<AuthApi>((ref) {
