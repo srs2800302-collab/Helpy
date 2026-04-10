@@ -1,41 +1,32 @@
 import { AdminNav } from '@/components/admin-nav';
+import { fetchAdminJobs, hasAdminApiBaseUrl } from '@/lib/admin-api';
 
-const mockJobs = [
-  {
-    id: 'job_001',
-    title: 'Fix leaking sink',
-    category: 'plumbing',
-    client: '+66 900000001',
-    status: 'open',
-    createdAt: '2026-04-10 12:00',
-  },
-  {
-    id: 'job_002',
-    title: 'Aircon cleaning',
-    category: 'aircon',
-    client: '+66 900000002',
-    status: 'awaiting_payment',
-    createdAt: '2026-04-10 13:15',
-  },
-  {
-    id: 'job_003',
-    title: 'Door lock replacement',
-    category: 'locks',
-    client: '+66 900000003',
-    status: 'completed',
-    createdAt: '2026-04-10 14:40',
-  },
-];
+export const dynamic = 'force-dynamic';
 
-export default function AdminJobsPage() {
+export default async function AdminJobsPage() {
+  const jobs = await fetchAdminJobs();
+  const hasApiBaseUrl = hasAdminApiBaseUrl();
+
   return (
     <main style={{ maxWidth: 1100, margin: '0 auto', padding: 24 }}>
       <h1 style={{ marginTop: 0 }}>Jobs</h1>
       <p style={{ color: '#4b5563' }}>
-        MVP placeholder table. Next pass will connect this page to API.
+        Admin jobs list from API.
       </p>
 
       <AdminNav />
+
+      {!hasApiBaseUrl && (
+        <div style={noticeStyle}>
+          FIXI_ADMIN_API_BASE_URL is not configured. Showing empty state.
+        </div>
+      )}
+
+      {hasApiBaseUrl && jobs.length === 0 && (
+        <div style={noticeStyle}>
+          No jobs returned from API or API is currently unavailable.
+        </div>
+      )}
 
       <div
         style={{
@@ -56,13 +47,13 @@ export default function AdminJobsPage() {
             </tr>
           </thead>
           <tbody>
-            {mockJobs.map((job) => (
+            {jobs.map((job) => (
               <tr key={job.id}>
-                <td style={tdStyle}>{job.title}</td>
-                <td style={tdStyle}>{job.category}</td>
-                <td style={tdStyle}>{job.client}</td>
-                <td style={tdStyle}>{job.status}</td>
-                <td style={tdStyle}>{job.createdAt}</td>
+                <td style={tdStyle}>{job.title || '-'}</td>
+                <td style={tdStyle}>{job.category?.slug || '-'}</td>
+                <td style={tdStyle}>{job.client?.phone || job.clientUserId}</td>
+                <td style={tdStyle}>{job.status || '-'}</td>
+                <td style={tdStyle}>{formatDate(job.createdAt)}</td>
               </tr>
             ))}
           </tbody>
@@ -71,6 +62,21 @@ export default function AdminJobsPage() {
     </main>
   );
 }
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString();
+}
+
+const noticeStyle = {
+  marginBottom: 16,
+  padding: 12,
+  background: '#fff7ed',
+  border: '1px solid #fdba74',
+  borderRadius: 8,
+  color: '#9a3412',
+};
 
 const thStyle = {
   textAlign: 'left' as const,
