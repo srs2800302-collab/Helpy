@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { JobStatus, Prisma } from '@prisma/client';
+import { buildJobInclude } from '../../common/types/job-includes';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { ListClientJobsQueryDto } from './dto/list-client-jobs-query.dto';
@@ -40,7 +41,7 @@ export class JobsService {
           dto.locationLng !== undefined ? new Prisma.Decimal(dto.locationLng) : undefined,
         status: JobStatus.draft,
       },
-      include: this.jobInclude(),
+      include: buildJobInclude(),
     });
   }
 
@@ -70,18 +71,18 @@ export class JobsService {
     return this.prisma.job.update({
       where: { id: jobId },
       data: {
-        ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
-        ...(dto.title !== undefined ? { title: dto.title } : {}),
-        ...(dto.description !== undefined ? { description: dto.description } : {}),
-        ...(dto.addressText !== undefined ? { addressText: dto.addressText } : {}),
-        ...(dto.locationLat !== undefined
+        ...(dto.categoryId != null ? { categoryId: dto.categoryId } : {}),
+        ...(dto.title != null ? { title: dto.title } : {}),
+        ...(dto.description != null ? { description: dto.description } : {}),
+        ...(dto.addressText != null ? { addressText: dto.addressText } : {}),
+        ...(dto.locationLat != null
           ? { locationLat: new Prisma.Decimal(dto.locationLat) }
           : {}),
-        ...(dto.locationLng !== undefined
+        ...(dto.locationLng != null
           ? { locationLng: new Prisma.Decimal(dto.locationLng) }
           : {}),
       },
-      include: this.jobInclude(),
+      include: buildJobInclude(),
     });
   }
 
@@ -103,14 +104,14 @@ export class JobsService {
       data: {
         status: JobStatus.awaiting_payment,
       },
-      include: this.jobInclude(),
+      include: buildJobInclude(),
     });
   }
 
   async getById(jobId: string) {
     const job = await this.prisma.job.findUnique({
       where: { id: jobId },
-      include: this.jobInclude(),
+      include: buildJobInclude(),
     });
 
     if (!job) {
@@ -126,7 +127,7 @@ export class JobsService {
         clientUserId: query.clientUserId,
         ...(query.status ? { status: query.status as JobStatus } : {}),
       },
-      include: this.jobInclude(),
+      include: buildJobInclude(),
       orderBy: [{ createdAt: 'desc' }],
     });
   }
@@ -155,30 +156,8 @@ export class JobsService {
         ...(query.categoryId ? { categoryId: query.categoryId } : {}),
         ...(allowedCategoryIds ? { categoryId: { in: allowedCategoryIds } } : {}),
       },
-      include: this.jobInclude(),
+      include: buildJobInclude(),
       orderBy: [{ createdAt: 'desc' }],
     });
-  }
-
-  private jobInclude() {
-    return {
-      client: {
-        select: {
-          id: true,
-          phone: true,
-          role: true,
-        },
-      },
-      category: true,
-      photos: {
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      },
-      offers: {
-        orderBy: [{ createdAt: 'desc' }],
-      },
-      payments: {
-        orderBy: [{ createdAt: 'desc' }],
-      },
-    } as const;
   }
 }
