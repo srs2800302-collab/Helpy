@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import '../../domain/review_summary.dart';
 
 class ReviewsState {
@@ -74,7 +76,11 @@ class ReviewsController extends StateNotifier<ReviewsState> {
       return false;
     }
 
-    state = state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(
+      isSubmitting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
 
     try {
       await ref.read(reviewsApiProvider).createReview(
@@ -91,16 +97,20 @@ class ReviewsController extends StateNotifier<ReviewsState> {
       );
       return true;
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
       return false;
     }
   }
 
   Future<void> loadMasterSummary(String masterUserId) async {
-    state = state.copyWith(isLoadingSummary: true, clearError: true);
+    state = state.copyWith(
+      isLoadingSummary: true,
+      clearError: true,
+    );
 
     try {
       final summary = await ref.read(reviewsApiProvider).getMasterSummary(masterUserId);
@@ -109,9 +119,10 @@ class ReviewsController extends StateNotifier<ReviewsState> {
         summary: summary,
       );
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoadingSummary: false,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
     }
   }
