@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ok } from '../../common/types/api-response.type';
 import { CreateDepositDto } from './dto/create-deposit.dto';
@@ -15,6 +15,12 @@ export class PaymentsController {
   async createDeposit(@Body() dto: CreateDepositDto) {
     const payment = await this.paymentsService.createDeposit(dto);
     return ok(payment);
+  }
+
+  @Get('admin/all')
+  async listAdminPayments(@Query('status') status?: string) {
+    const payments = await this.paymentsService.listAdminPayments(status);
+    return ok(payments);
   }
 
   @Get('job/:jobId/deposit')
