@@ -79,6 +79,16 @@ export class DisputesService {
     });
   }
 
+  async listAdminDisputes(status?: string) {
+    return this.prisma.dispute.findMany({
+      where: {
+        ...(status ? { status: status as DisputeStatus } : {}),
+      },
+      include: this.disputeInclude(),
+      orderBy: [{ createdAt: 'desc' }],
+    });
+  }
+
   private disputeInclude() {
     return {
       job: {
