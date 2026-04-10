@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 
@@ -19,6 +20,8 @@ class CreateOfferScreen extends ConsumerWidget {
     final controller = ref.read(offersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
 
+    final isBusy = state.isSubmitting;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(jobTitle),
@@ -29,6 +32,7 @@ class CreateOfferScreen extends ConsumerWidget {
           children: [
             TextField(
               onChanged: controller.setMessage,
+              enabled: !isBusy,
               maxLines: 4,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -38,6 +42,7 @@ class CreateOfferScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             TextField(
               onChanged: controller.setPriceComment,
+              enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('offer_price_comment'),
@@ -45,23 +50,39 @@ class CreateOfferScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             if (state.errorMessage != null) ...[
-              Text(
-                state.errorMessage!,
-                style: const TextStyle(color: Colors.red),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  state.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
               const SizedBox(height: 12),
             ],
             if (state.successMessage != null) ...[
-              Text(
-                state.successMessage!,
-                style: const TextStyle(color: Colors.green),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.green),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  state.successMessage!,
+                  style: const TextStyle(color: Colors.green),
+                ),
               ),
               const SizedBox(height: 12),
             ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: state.isSubmitting
+                onPressed: isBusy
                     ? null
                     : () async {
                         final ok = await controller.createOffer(jobId: jobId);
@@ -69,7 +90,13 @@ class CreateOfferScreen extends ConsumerWidget {
                           Navigator.of(context).pop();
                         }
                       },
-                child: Text(l10n.t('send_offer')),
+                child: isBusy
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l10n.t('send_offer')),
               ),
             ),
           ],
