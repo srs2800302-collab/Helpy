@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 
@@ -30,6 +31,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     final categoriesState = ref.watch(categoriesControllerProvider);
     final jobsController = ref.read(jobsControllerProvider.notifier);
 
+    final isBusy = jobsState.isSubmitting;
+    final isCategoriesLoading = categoriesState.isLoading && categoriesState.items.isEmpty;
+    final canSubmit = !isBusy && !isCategoriesLoading;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('create_job')),
@@ -38,6 +43,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            if (isCategoriesLoading) ...[
+              const LinearProgressIndicator(),
+              const SizedBox(height: 16),
+            ],
             DropdownButtonFormField<String>(
               value: jobsState.selectedCategoryId,
               items: categoriesState.items
@@ -48,7 +57,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                     ),
                   )
                   .toList(),
-              onChanged: jobsState.isSubmitting ? null : jobsController.setSelectedCategoryId,
+              onChanged: canSubmit ? jobsController.setSelectedCategoryId : null,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('select_category'),
@@ -57,6 +66,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             const SizedBox(height: 16),
             TextField(
               onChanged: jobsController.setTitle,
+              enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('job_title'),
@@ -65,6 +75,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             const SizedBox(height: 16),
             TextField(
               onChanged: jobsController.setDescription,
+              enabled: !isBusy,
               maxLines: 4,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -74,6 +85,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             const SizedBox(height: 16),
             TextField(
               onChanged: jobsController.setAddressText,
+              enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('job_address'),
@@ -81,31 +93,53 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             ),
             const SizedBox(height: 16),
             if (jobsState.errorMessage != null) ...[
-              Text(
-                jobsState.errorMessage!,
-                style: const TextStyle(color: Colors.red),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  jobsState.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
               const SizedBox(height: 12),
             ],
             if (jobsState.successMessage != null) ...[
-              Text(
-                jobsState.successMessage!,
-                style: const TextStyle(color: Colors.green),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.green),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  jobsState.successMessage!,
+                  style: const TextStyle(color: Colors.green),
+                ),
               ),
               const SizedBox(height: 12),
             ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: jobsState.isSubmitting
-                    ? null
-                    : () async {
+                onPressed: canSubmit
+                    ? () async {
                         final ok = await jobsController.createDraft();
                         if (ok && context.mounted) {
                           Navigator.of(context).pop();
                         }
-                      },
-                child: Text(l10n.t('save_draft')),
+                      }
+                    : null,
+                child: isBusy
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l10n.t('save_draft')),
               ),
             ),
           ],
