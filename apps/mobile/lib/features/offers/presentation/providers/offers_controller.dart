@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import 'offers_state.dart';
 
 class OffersController extends StateNotifier<OffersState> {
@@ -30,7 +32,11 @@ class OffersController extends StateNotifier<OffersState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(
+      isLoading: true,
+      clearError: true,
+      clearSuccess: true,
+    );
 
     try {
       final items = await ref.read(offersApiProvider).listMasterOffers(
@@ -43,10 +49,11 @@ class OffersController extends StateNotifier<OffersState> {
         items: items,
       );
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
         initialized: true,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
     }
   }
@@ -60,15 +67,20 @@ class OffersController extends StateNotifier<OffersState> {
       return false;
     }
 
-    state = state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(
+      isSubmitting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
 
     try {
       final created = await ref.read(offersApiProvider).createOffer(
             jobId: jobId,
             masterUserId: session.userId,
             message: state.message.trim().isEmpty ? null : state.message.trim(),
-            priceComment:
-                state.priceComment.trim().isEmpty ? null : state.priceComment.trim(),
+            priceComment: state.priceComment.trim().isEmpty
+                ? null
+                : state.priceComment.trim(),
           );
 
       state = state.copyWith(
@@ -80,9 +92,10 @@ class OffersController extends StateNotifier<OffersState> {
       );
       return true;
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
       return false;
     }
