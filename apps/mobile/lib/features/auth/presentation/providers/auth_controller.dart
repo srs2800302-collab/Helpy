@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import '../../domain/auth_session.dart';
 import 'auth_state.dart';
 
@@ -35,11 +36,13 @@ class AuthController extends StateNotifier<AuthState> {
       );
     } catch (e) {
       await ref.read(tokenStorageProvider).clearAll();
+      final appError = ApiErrorMapper.map(e);
+
       state = state.copyWith(
         isLoading: false,
         initialized: true,
         clearSession: true,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
     }
   }
@@ -60,9 +63,10 @@ class AuthController extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
       return false;
     }
@@ -88,9 +92,10 @@ class AuthController extends StateNotifier<AuthState> {
       );
       return true;
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
       return false;
     }
@@ -111,9 +116,10 @@ class AuthController extends StateNotifier<AuthState> {
         session: updated,
       );
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
     }
   }
