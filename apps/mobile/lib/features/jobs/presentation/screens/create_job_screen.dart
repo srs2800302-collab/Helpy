@@ -33,7 +33,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
     final isBusy = jobsState.isSubmitting;
     final isCategoriesLoading = categoriesState.isLoading && categoriesState.items.isEmpty;
-    final canSubmit = !isBusy && !isCategoriesLoading;
+    final canSubmit = !isBusy && !isCategoriesLoading && jobsState.canSubmitDraft;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,10 +57,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                     ),
                   )
                   .toList(),
-              onChanged: canSubmit ? jobsController.setSelectedCategoryId : null,
+              onChanged: !isBusy && !isCategoriesLoading
+                  ? jobsController.setSelectedCategoryId
+                  : null,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('select_category'),
+                helperText: jobsState.hasSelectedCategory ? null : l10n.t('select_category'),
               ),
             ),
             const SizedBox(height: 16),
@@ -70,6 +73,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('job_title'),
+                helperText: jobsState.trimmedTitle.isEmpty || jobsState.isTitleValid
+                    ? null
+                    : 'Minimum 3 characters',
               ),
             ),
             const SizedBox(height: 16),
@@ -80,6 +86,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('job_description'),
+                helperText: jobsState.trimmedDescription.isEmpty || jobsState.isDescriptionValid
+                    ? null
+                    : 'Minimum 10 characters or leave empty',
               ),
             ),
             const SizedBox(height: 16),

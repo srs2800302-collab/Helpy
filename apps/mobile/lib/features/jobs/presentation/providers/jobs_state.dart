@@ -25,6 +25,18 @@ class JobsState {
     this.successMessage,
   });
 
+  String get trimmedTitle => title.trim();
+  String get trimmedDescription => description.trim();
+  String get trimmedAddressText => addressText.trim();
+
+  bool get hasSelectedCategory => (selectedCategoryId ?? '').isNotEmpty;
+  bool get isTitleValid => trimmedTitle.length >= 3;
+  bool get isDescriptionValid => trimmedDescription.isEmpty || trimmedDescription.length >= 10;
+
+  bool get canSubmitDraft {
+    return hasSelectedCategory && isTitleValid && isDescriptionValid;
+  }
+
   JobsState copyWith({
     bool? isLoading,
     bool? isSubmitting,
