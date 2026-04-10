@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 class CreateReviewScreen extends ConsumerWidget {
   final String jobId;
@@ -16,12 +17,13 @@ class CreateReviewScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(reviewsControllerProvider);
     final controller = ref.read(reviewsControllerProvider.notifier);
+    final l10n = AppLocalizations.of(context);
 
     final isBusy = state.isSubmitting;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Review'),
+        title: Text(l10n.t('review')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -42,9 +44,9 @@ class CreateReviewScreen extends ConsumerWidget {
                   : (value) {
                       if (value != null) controller.setRating(value);
                     },
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Rating',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: l10n.t('rating'),
               ),
             ),
             const SizedBox(height: 16),
@@ -52,9 +54,9 @@ class CreateReviewScreen extends ConsumerWidget {
               onChanged: controller.setComment,
               enabled: !isBusy,
               maxLines: 4,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Comment',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: l10n.t('comment'),
               ),
             ),
             const SizedBox(height: 16),
@@ -105,7 +107,7 @@ class CreateReviewScreen extends ConsumerWidget {
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Submit review'),
+                    : Text(l10n.t('submit_review')),
               ),
             ),
           ],

@@ -39,7 +39,7 @@ class VerifyOtpScreen extends ConsumerWidget {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintText: l10n.t('otp_hint'),
-                labelText: 'OTP',
+                labelText: l10n.t('enter_otp'),
               ),
             ),
             const SizedBox(height: 16),
