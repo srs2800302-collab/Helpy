@@ -5,7 +5,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../client_home/presentation/screens/client_home_screen.dart';
 import '../../../master_home/presentation/screens/master_home_screen.dart';
-import '../../domain/auth_session.dart';
+import '../../../auth/domain/auth_session.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
