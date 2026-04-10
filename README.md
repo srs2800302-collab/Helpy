@@ -76,9 +76,9 @@ Fixi is a pragmatic MVP for:
 
 ## Environment examples
 
-API: apps/api/.env.example  
-Mobile: apps/mobile/.env.example  
-Admin: apps/admin/.env.example  
+API: apps/api/.env.example
+Mobile: apps/mobile/.env.example
+Admin: apps/admin/.env.example
 
 ## CI
 
@@ -93,7 +93,7 @@ Admin: apps/admin/.env.example
 - production env values
 - production PostgreSQL
 - production API URL
-- S3/file upload setup
+k S3/file upload setup
 - SMS provider for OTP
 - real payment provider instead of stub
 - admin auth protection
@@ -112,5 +112,5 @@ Admin: apps/admin/.env.example
 
 ## Workflow
 
-Development is done from Termux and bash.  
+Development is done from Termux and bash.
 Build validation goes through GitHub Actions.
