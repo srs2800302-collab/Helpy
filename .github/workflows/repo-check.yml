@@ -4,23 +4,59 @@ on:
   push:
     branches:
       - main
-      - stage-0-foundation
+      - stage-s1-ci-stabilization-from-m8
+      - stage-s2-ci-fixes
+      - stage-s3-ci-finalize
   pull_request:
 
 jobs:
   repo-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Debug repository structure
+        run: |
+          pwd
+          ls -la
+          echo
+          echo "apps:"
+          ls -la apps || true
+          echo
+          echo "packages:"
+          ls -la packages || true
+          echo
+          echo "infrastructure:"
+          ls -la infrastructure || true
+          echo
+          echo "docs:"
+          ls -la docs || true
 
       - name: Validate repository structure
         run: |
-          test -d apps/mobile
-          test -d apps/api
-          test -d apps/admin
-          test -d packages/shared-types
-          test -d infrastructure
-          test -d docs
-          test -f README.md
-          test -f package.json
+          check_path() {
+            local target="$1"
+            local kind="$2"
+            if [ "$kind" = "dir" ]; then
+              if [ ! -d "$target" ]; then
+                echo "Missing directory: $target"
+                exit 1
+              fi
+              echo "OK dir: $target"
+            else
+              if [ ! -f "$target" ]; then
+                echo "Missing file: $target"
+                exit 1
+              fi
+              echo "OK file: $target"
+            fi
+          }
+
+          check_path apps/mobile dir
+          check_path apps/api dir
+          check_path apps/admin dir
+          check_path packages/shared-types dir
+          check_path infrastructure dir
+          check_path docs dir
+          check_path README.md file
+          check_path package.json file

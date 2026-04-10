@@ -5,6 +5,23 @@ on:
     branches:
       - main
       - stage-0-foundation
+      - stage-1-auth
+      - stage-1-1-api-bootstrap
+      - stage-1-2-prisma-domain
+      - stage-1-3-nest-bootstrap
+      - stage-1-4-auth-persistence
+      - stage-2-profiles
+      - stage-3-jobs
+      - stage-4-uploads
+      - stage-5-payments
+      - stage-6-marketplace-offers
+      - stage-7-chat
+      - stage-8-reviews
+      - stage-9-admin-foundation
+      - stage-10-auth-guards
+      - stage-s1-ci-stabilization-from-m8
+      - stage-s2-ci-fixes
+      - stage-s3-ci-finalize
   pull_request:
 
 jobs:
@@ -13,13 +30,36 @@ jobs:
     defaults:
       run:
         working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fixi
+      JWT_ACCESS_SECRET: ci_access_secret
+      JWT_REFRESH_SECRET: ci_refresh_secret
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify API files
-        run: |
-          test -f package.json
-          test -f prisma/schema.prisma
-          test -f .env.example
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prisma format
+        run: npm run prisma:format
+
+      - name: Prisma validate
+        run: npm run prisma:validate
+
+      - name: Prisma generate
+        run: npm run prisma:generate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
