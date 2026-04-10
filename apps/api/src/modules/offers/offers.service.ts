@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { JobOfferStatus, JobStatus } from '@prisma/client';
+import { buildOfferInclude } from '../../common/types/job-includes';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 
@@ -72,7 +73,7 @@ export class OffersService {
           priceComment: dto.priceComment,
           status: JobOfferStatus.active,
         },
-        include: this.offerInclude(),
+        include: buildOfferInclude(),
       });
     }
 
@@ -84,7 +85,7 @@ export class OffersService {
         priceComment: dto.priceComment,
         status: JobOfferStatus.active,
       },
-      include: this.offerInclude(),
+      include: buildOfferInclude(),
     });
   }
 
@@ -110,7 +111,7 @@ export class OffersService {
       data: {
         status: JobOfferStatus.withdrawn,
       },
-      include: this.offerInclude(),
+      include: buildOfferInclude(),
     });
   }
 
@@ -129,7 +130,7 @@ export class OffersService {
 
     return this.prisma.jobOffer.findMany({
       where: { jobId },
-      include: this.offerInclude(),
+      include: buildOfferInclude(),
       orderBy: [{ createdAt: 'desc' }],
     });
   }
@@ -191,7 +192,7 @@ export class OffersService {
   async getOfferById(offerId: string) {
     const offer = await this.prisma.jobOffer.findUnique({
       where: { id: offerId },
-      include: this.offerInclude(),
+      include: buildOfferInclude(),
     });
 
     if (!offer) {
@@ -204,29 +205,8 @@ export class OffersService {
   async listMasterOffers(masterUserId: string) {
     return this.prisma.jobOffer.findMany({
       where: { masterUserId },
-      include: this.offerInclude(),
+      include: buildOfferInclude(),
       orderBy: [{ createdAt: 'desc' }],
     });
-  }
-
-  private offerInclude() {
-    return {
-      job: {
-        include: {
-          category: true,
-          photos: {
-            orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-          },
-        },
-      },
-      master: {
-        select: {
-          id: true,
-          phone: true,
-          role: true,
-          masterProfile: true,
-        },
-      },
-    } as const;
   }
 }

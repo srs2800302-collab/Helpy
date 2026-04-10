@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { JobStatus } from '@prisma/client';
+import { buildJobInclude } from '../../common/types/job-includes';
 import { PrismaService } from '../prisma/prisma.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { UpdateJobStatusDto } from './dto/update-job-status.dto';
@@ -43,7 +44,13 @@ export class ChatService {
       throw new NotFoundException('Job not found');
     }
 
-    if (![JobStatus.master_selected, JobStatus.in_progress, JobStatus.completed].includes(job.status)) {
+    const allowedStatuses: JobStatus[] = [
+      JobStatus.master_selected,
+      JobStatus.in_progress,
+      JobStatus.completed,
+    ];
+
+    if (!allowedStatuses.includes(job.status)) {
       throw new BadRequestException('Chat is available only after master selection');
     }
 
@@ -83,15 +90,13 @@ export class ChatService {
         throw new BadRequestException('Job can move to in_progress only from master_selected');
       }
 
-      const updated = await this.prisma.job.update({
+      return this.prisma.job.update({
         where: { id: jobId },
         data: {
           status: JobStatus.in_progress,
         },
-        include: this.jobInclude(),
+        include: buildJobInclude(),
       });
-
-      return updated;
     }
 
     if (dto.status === 'completed') {
@@ -99,16 +104,14 @@ export class ChatService {
         throw new BadRequestException('Job can move to completed only from in_progress');
       }
 
-      const updated = await this.prisma.job.update({
+      return this.prisma.job.update({
         where: { id: jobId },
         data: {
           status: JobStatus.completed,
           completedAt: new Date(),
         },
-        include: this.jobInclude(),
+        include: buildJobInclude(),
       });
-
-      return updated;
     }
 
     throw new BadRequestException('Unsupported status transition');
@@ -124,27 +127,5 @@ export class ChatService {
     if (!allowed) {
       throw new BadRequestException('User is not a participant of this job chat');
     }
-  }
-
-  private jobInclude() {
-    return {
-      client: {
-        select: {
-          id: true,
-          phone: true,
-          role: true,
-        },
-      },
-      category: true,
-      photos: {
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-      },
-      offers: {
-        orderBy: [{ createdAt: 'desc' }],
-      },
-      payments: {
-        orderBy: [{ createdAt: 'desc' }],
-      },
-    } as const;
   }
 }
