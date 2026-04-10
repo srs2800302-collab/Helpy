@@ -133,6 +133,33 @@ export async function fetchAdminDisputes(status?: string): Promise<AdminDisputeR
   }
 }
 
+export async function updateDisputeStatus(input: {
+  disputeId: string;
+  status: 'open' | 'in_review' | 'resolved' | 'rejected';
+  resolutionNote?: string;
+}): Promise<boolean> {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) return false;
+
+  try {
+    const response = await fetch(`${baseUrl}/disputes/${input.disputeId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: input.status,
+        resolutionNote: input.resolutionNote?.trim() || undefined,
+      }),
+      cache: 'no-store',
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export function hasAdminApiBaseUrl(): boolean {
   return !!getApiBaseUrl();
 }
