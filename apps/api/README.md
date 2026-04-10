@@ -1,29 +1,18 @@
 # Fixi API
 
 Current backend foundation:
-- TypeScript bootstrap
-- app module
-- config reader
-- health module
-- prisma service skeleton
-- auth module skeleton
+- NestJS bootstrap
+- AppModule
+- global validation
+- global error filter
+- Swagger bootstrap
+- Prisma module/service
+- Health module
+- Auth module skeleton
 
-Planned stack:
-- NestJS
-- Prisma
-- PostgreSQL
-- JWT
-- Swagger
-- WebSocket for chat
-
-Modules:
-- Auth
-- Users
-- Categories
-- Jobs
-- Uploads
-- Payments
-- Offers
-- Chat
-- Reviews
-- Admin
+Planned next:
+- real OTP persistence
+- JWT issuance
+- users/profiles modules
+- role-based guards
+- payments/jobs/offers/chat modules
