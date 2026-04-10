@@ -12,7 +12,7 @@ const linkStyle = {
 
 export function AdminNav() {
   return (
-    <nav style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+    <nav style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
       <Link href="/" style={linkStyle}>
         Dashboard
       </Link>
@@ -21,6 +21,9 @@ export function AdminNav() {
       </Link>
       <Link href="/payments" style={linkStyle}>
         Payments
+      </Link>
+      <Link href="/disputes" style={linkStyle}>
+        Disputes
       </Link>
     </nav>
   );

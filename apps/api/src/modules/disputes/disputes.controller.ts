@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ok } from '../../common/types/api-response.type';
 import { CreateDisputeDto } from './dto/create-dispute.dto';
@@ -23,6 +23,12 @@ export class DisputesController {
   ) {
     const dispute = await this.disputesService.updateStatus(disputeId, dto);
     return ok(dispute);
+  }
+
+  @Get('admin/all')
+  async listAdminDisputes(@Query('status') status?: string) {
+    const disputes = await this.disputesService.listAdminDisputes(status);
+    return ok(disputes);
   }
 
   @Get(':disputeId')
