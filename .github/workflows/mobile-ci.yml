@@ -11,6 +11,8 @@ on:
       - stage-m3-client-create-job
       - stage-m4-master-marketplace
       - stage-m5-client-select-master
+      - stage-m6-chat-execution
+      - stage-m7-reviews-polish
   pull_request:
 
 jobs:
