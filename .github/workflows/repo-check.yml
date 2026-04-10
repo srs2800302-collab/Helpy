@@ -7,6 +7,13 @@ on:
       - stage-s1-ci-stabilization-from-m8
       - stage-s2-ci-fixes
       - stage-s3-ci-finalize
+      - stage-admin-foundation
+      - stage-admin-api-read
+      - stage-admin-api-wiring
+      - stage-admin-filters
+      - stage-admin-disputes
+      - stage-admin-dispute-actions
+      - stage-deploy-readiness
   pull_request:
 
 jobs:

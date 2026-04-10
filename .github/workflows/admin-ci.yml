@@ -1,0 +1,38 @@
+name: Admin CI
+
+on:
+  push:
+    branches:
+      - main
+      - stage-admin-foundation
+      - stage-admin-api-read
+      - stage-admin-api-wiring
+      - stage-admin-filters
+      - stage-admin-disputes
+      - stage-admin-dispute-actions
+      - stage-deploy-readiness
+  pull_request:
+
+jobs:
+  admin-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/admin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/admin/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
