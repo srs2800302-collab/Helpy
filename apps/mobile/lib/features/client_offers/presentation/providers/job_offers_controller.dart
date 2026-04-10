@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import '../../../offers/domain/offer_item.dart';
 import 'job_offers_state.dart';
 
@@ -15,7 +17,11 @@ class JobOffersController extends StateNotifier<JobOffersState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(
+      isLoading: true,
+      clearError: true,
+      clearSuccess: true,
+    );
 
     try {
       final items = await ref.read(offersApiProvider).listJobOffers(
@@ -29,10 +35,11 @@ class JobOffersController extends StateNotifier<JobOffersState> {
         items: items,
       );
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
         initialized: true,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
     }
   }
@@ -44,7 +51,11 @@ class JobOffersController extends StateNotifier<JobOffersState> {
       return false;
     }
 
-    state = state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(
+      isSubmitting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
 
     try {
       final selected = await ref.read(offersApiProvider).selectOffer(
@@ -81,9 +92,10 @@ class JobOffersController extends StateNotifier<JobOffersState> {
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();
       return true;
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
       return false;
     }
