@@ -1,37 +1,32 @@
 import { AdminNav } from '@/components/admin-nav';
+import { fetchAdminPayments, hasAdminApiBaseUrl } from '@/lib/admin-api';
 
-const mockPayments = [
-  {
-    id: 'pay_001',
-    jobId: 'job_001',
-    userId: 'user_001',
-    type: 'deposit',
-    status: 'paid',
-    amount: '100.00',
-    currency: 'THB',
-    createdAt: '2026-04-10 12:05',
-  },
-  {
-    id: 'pay_002',
-    jobId: 'job_002',
-    userId: 'user_002',
-    type: 'deposit',
-    status: 'pending',
-    amount: '100.00',
-    currency: 'THB',
-    createdAt: '2026-04-10 13:20',
-  },
-];
+export const dynamic = 'force-dynamic';
 
-export default function AdminPaymentsPage() {
+export default async function AdminPaymentsPage() {
+  const payments = await fetchAdminPayments();
+  const hasApiBaseUrl = hasAdminApiBaseUrl();
+
   return (
     <main style={{ maxWidth: 1100, margin: '0 auto', padding: 24 }}>
       <h1 style={{ marginTop: 0 }}>Payments</h1>
       <p style={{ color: '#4b5563' }}>
-        MVP placeholder table. Next pass will connect this page to API.
+        Admin payments list from API.
       </p>
 
       <AdminNav />
+
+      {!hasApiBaseUrl && (
+        <div style={noticeStyle}>
+          FIXI_ADMIN_API_BASE_URL is not configured. Showing empty state.
+        </div>
+      )}
+
+      {hasApiBaseUrl && payments.length === 0 && (
+        <div style={noticeStyle}>
+          No payments returned from API or API is currently unavailable.
+        </div>
+      )}
 
       <div
         style={{
@@ -53,7 +48,7 @@ export default function AdminPaymentsPage() {
             </tr>
           </thead>
           <tbody>
-            {mockPayments.map((payment) => (
+            {payments.map((payment) => (
               <tr key={payment.id}>
                 <td style={tdStyle}>{payment.jobId}</td>
                 <td style={tdStyle}>{payment.userId}</td>
@@ -62,7 +57,7 @@ export default function AdminPaymentsPage() {
                 <td style={tdStyle}>
                   {payment.amount} {payment.currency}
                 </td>
-                <td style={tdStyle}>{payment.createdAt}</td>
+                <td style={tdStyle}>{formatDate(payment.createdAt)}</td>
               </tr>
             ))}
           </tbody>
@@ -71,6 +66,21 @@ export default function AdminPaymentsPage() {
     </main>
   );
 }
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString();
+}
+
+const noticeStyle = {
+  marginBottom: 16,
+  padding: 12,
+  background: '#fff7ed',
+  border: '1px solid #fdba74',
+  borderRadius: 8,
+  color: '#9a3412',
+};
 
 const thStyle = {
   textAlign: 'left' as const,
