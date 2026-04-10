@@ -1,8 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../../app/providers.dart';
-import '../../../../core/errors/api_error_mapper.dart';
-import '../../domain/job_item.dart';
 import 'jobs_state.dart';
 
 class JobsController extends StateNotifier<JobsState> {
@@ -10,81 +7,108 @@ class JobsController extends StateNotifier<JobsState> {
 
   JobsController(this.ref) : super(const JobsState());
 
+  void setSelectedCategoryId(String? value) {
+    state = state.copyWith(
+      selectedCategoryId: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  void setTitle(String value) {
+    state = state.copyWith(
+      title: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  void setDescription(String value) {
+    state = state.copyWith(
+      description: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  void setAddressText(String value) {
+    state = state.copyWith(
+      addressText: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
   Future<void> loadClientJobs() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) {
+      state = state.copyWith(errorMessage: 'No active session');
+      return;
+    }
+
+    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
 
     try {
-      final session = ref.read(authControllerProvider).session;
-      if (session == null) {
-        throw const FormatException('No active session');
-      }
-
-      final items = await ref.read(jobsApiProvider).getClientJobs(
+      final items = await ref.read(jobsApiProvider).listClientJobs(
             clientUserId: session.userId,
           );
 
       state = state.copyWith(
         isLoading: false,
+        initialized: true,
         items: items,
       );
     } catch (e) {
-      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: appError.message,
-        items: const <JobItem>[],
+        initialized: true,
+        errorMessage: e.toString(),
       );
     }
   }
 
-  Future<bool> createDraft({
-    required String categoryId,
-    required String title,
-    required String description,
-    required String addressText,
-  }) async {
-    state = state.copyWith(isLoading: true, clearError: true);
-
-    try {
-      final session = ref.read(authControllerProvider).session;
-      if (session == null) {
-        throw const FormatException('No active session');
-      }
-
-      await ref.read(jobsApiProvider).createDraft(
-            clientUserId: session.userId,
-            categoryId: categoryId,
-            title: title,
-            description: description,
-            addressText: addressText,
-          );
-
-      await loadClientJobs();
-      return true;
-    } catch (e) {
-      final appError = ApiErrorMapper.map(e);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: appError.message,
-      );
+  Future<bool> createDraft() async {
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) {
+      state = state.copyWith(errorMessage: 'No active session');
       return false;
     }
-  }
 
-  Future<bool> submitForPayment({
-    required String jobId,
-  }) async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    if ((state.selectedCategoryId ?? '').isEmpty) {
+      state = state.copyWith(errorMessage: 'Category is required');
+      return false;
+    }
+
+    if (state.title.trim().length < 3) {
+      state = state.copyWith(errorMessage: 'Title is too short');
+      return false;
+    }
+
+    state = state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true);
 
     try {
-      await ref.read(jobsApiProvider).submitForPayment(jobId);
-      await loadClientJobs();
+      final created = await ref.read(jobsApiProvider).createDraft(
+            clientUserId: session.userId,
+            categoryId: state.selectedCategoryId!,
+            title: state.title.trim(),
+            description: state.description.trim().isEmpty ? null : state.description.trim(),
+            addressText: state.addressText.trim().isEmpty ? null : state.addressText.trim(),
+          );
+
+      state = state.copyWith(
+        isSubmitting: false,
+        items: [created, ...state.items],
+        title: '',
+        description: '',
+        addressText: '',
+        clearSelectedCategory: true,
+        successMessage: 'Job created',
+      );
       return true;
     } catch (e) {
-      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
-        isLoading: false,
-        errorMessage: appError.message,
+        isSubmitting: false,
+        errorMessage: e.toString(),
       );
       return false;
     }

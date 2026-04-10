@@ -1,30 +1,45 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../../app/providers.dart';
-import '../../../../core/errors/api_error_mapper.dart';
 import '../../domain/review_summary.dart';
 
 class ReviewsState {
-  final bool isLoading;
-  final List<ReviewSummary> items;
+  final bool isSubmitting;
+  final bool isLoadingSummary;
+  final int rating;
+  final String comment;
   final String? errorMessage;
+  final String? successMessage;
+  final ReviewSummary? summary;
 
   const ReviewsState({
-    this.isLoading = false,
-    this.items = const [],
+    this.isSubmitting = false,
+    this.isLoadingSummary = false,
+    this.rating = 5,
+    this.comment = '',
     this.errorMessage,
+    this.successMessage,
+    this.summary,
   });
 
   ReviewsState copyWith({
-    bool? isLoading,
-    List<ReviewSummary>? items,
+    bool? isSubmitting,
+    bool? isLoadingSummary,
+    int? rating,
+    String? comment,
     String? errorMessage,
+    String? successMessage,
+    ReviewSummary? summary,
     bool clearError = false,
+    bool clearSuccess = false,
   }) {
     return ReviewsState(
-      isLoading: isLoading ?? this.isLoading,
-      items: items ?? this.items,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      isLoadingSummary: isLoadingSummary ?? this.isLoadingSummary,
+      rating: rating ?? this.rating,
+      comment: comment ?? this.comment,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
+      summary: summary ?? this.summary,
     );
   }
 }
@@ -34,62 +49,70 @@ class ReviewsController extends StateNotifier<ReviewsState> {
 
   ReviewsController(this.ref) : super(const ReviewsState());
 
-  Future<void> loadMyReviews() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+  void setRating(int value) {
+    state = state.copyWith(
+      rating: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
 
-    try {
-      final session = ref.read(authControllerProvider).session;
-      if (session == null) {
-        throw const FormatException('No active session');
-      }
-
-      final items = await ref.read(reviewsApiProvider).getMyReviews(
-            userId: session.userId,
-          );
-
-      state = state.copyWith(
-        isLoading: false,
-        items: items,
-      );
-    } catch (e) {
-      final appError = ApiErrorMapper.map(e);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: appError.message,
-        items: const <ReviewSummary>[],
-      );
-    }
+  void setComment(String value) {
+    state = state.copyWith(
+      comment: value,
+      clearError: true,
+      clearSuccess: true,
+    );
   }
 
   Future<bool> createReview({
     required String jobId,
-    required int rating,
-    required String comment,
   }) async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) {
+      state = state.copyWith(errorMessage: 'No active session');
+      return false;
+    }
+
+    state = state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true);
 
     try {
-      final session = ref.read(authControllerProvider).session;
-      if (session == null) {
-        throw const FormatException('No active session');
-      }
-
       await ref.read(reviewsApiProvider).createReview(
             jobId: jobId,
-            authorUserId: session.userId,
-            rating: rating,
-            comment: comment,
+            clientUserId: session.userId,
+            rating: state.rating,
+            comment: state.comment.trim().isEmpty ? null : state.comment.trim(),
           );
 
-      await loadMyReviews();
+      state = state.copyWith(
+        isSubmitting: false,
+        comment: '',
+        successMessage: 'Review created',
+      );
       return true;
     } catch (e) {
-      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
-        isLoading: false,
-        errorMessage: appError.message,
+        isSubmitting: false,
+        errorMessage: e.toString(),
       );
       return false;
+    }
+  }
+
+  Future<void> loadMasterSummary(String masterUserId) async {
+    state = state.copyWith(isLoadingSummary: true, clearError: true);
+
+    try {
+      final summary = await ref.read(reviewsApiProvider).getMasterSummary(masterUserId);
+      state = state.copyWith(
+        isLoadingSummary: false,
+        summary: summary,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingSummary: false,
+        errorMessage: e.toString(),
+      );
     }
   }
 }
