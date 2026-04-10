@@ -18,7 +18,7 @@ class FixiApp extends ConsumerStatefulWidget {
 class _FixiAppState extends ConsumerState<FixiApp> {
   late final AuthRouterNotifier _routerNotifier;
   late final Object _authListener;
-  late final router;
+  late final GoRouter router;
 
   @override
   void initState() {
