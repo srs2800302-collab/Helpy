@@ -40,7 +40,7 @@ class LoginPhoneScreen extends ConsumerWidget {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintText: l10n.t('phone_hint'),
-                labelText: 'Phone',
+                labelText: l10n.t('enter_phone'),
               ),
             ),
             const SizedBox(height: 16),

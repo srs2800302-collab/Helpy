@@ -60,9 +60,7 @@ GoRouter createRouter(ValueNotifier<AuthState> authNotifier) {
       ),
       GoRoute(
         path: '/home',
-        builder: (context, state) => HomeScreen(
-          role: authNotifier.value.session?.role,
-        ),
+        builder: (context, state) => const HomeScreen(),
       ),
     ],
   );

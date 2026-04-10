@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -25,13 +26,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatControllerProvider);
     final controller = ref.read(chatControllerProvider.notifier);
+    final l10n = AppLocalizations.of(context);
 
     final isBusy = state.isLoading;
     final hasMessages = state.messages.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Text(l10n.t('chat')),
       ),
       body: Column(
         children: [
@@ -69,8 +71,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             )
                             .toList(),
                       )
-                    : const Center(
-                        child: Text('No messages yet'),
+                    : Center(
+                        child: Text(l10n.t('not_implemented')),
                       ),
           ),
           SafeArea(
@@ -83,9 +85,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     child: TextField(
                       onChanged: controller.setInput,
                       enabled: !isBusy,
-                      decoration: const InputDecoration(
-                        hintText: 'Message',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText: l10n.t('message_hint'),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
