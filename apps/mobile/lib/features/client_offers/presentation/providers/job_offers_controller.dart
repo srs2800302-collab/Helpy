@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import '../../../offers/domain/offer_item.dart';
 import 'job_offers_state.dart';
 
@@ -9,81 +11,56 @@ class JobOffersController extends StateNotifier<JobOffersState> {
   JobOffersController(this.ref) : super(const JobOffersState());
 
   Future<void> loadJobOffers(String jobId) async {
-    final session = ref.read(authControllerProvider).session;
-    if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
-      return;
-    }
-
-    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(
+      isLoading: true,
+      clearError: true,
+      currentJobId: jobId,
+    );
 
     try {
-      final items = await ref.read(offersApiProvider).listJobOffers(
-            jobId: jobId,
-            clientUserId: session.userId,
-          );
+      final items = await ref.read(offersApiProvider).getJobOffers(jobId: jobId);
 
       state = state.copyWith(
         isLoading: false,
-        initialized: true,
         items: items,
+        currentJobId: jobId,
       );
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
-        initialized: true,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
+        items: const <OfferItem>[],
+        currentJobId: jobId,
       );
     }
   }
 
-  Future<bool> selectOffer(String offerId) async {
-    final session = ref.read(authControllerProvider).session;
-    if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
-      return false;
-    }
-
-    state = state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true);
+  Future<bool> selectOffer({
+    required String offerId,
+    required String jobId,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final selected = await ref.read(offersApiProvider).selectOffer(
+      final session = ref.read(authControllerProvider).session;
+      if (session == null) {
+        throw const FormatException('No active session');
+      }
+
+      await ref.read(offersApiProvider).selectOffer(
             offerId: offerId,
             clientUserId: session.userId,
           );
 
-      final updated = state.items.map((item) {
-        if (item.id == selected.id) {
-          return selected;
-        }
-        if (item.jobId == selected.jobId && item.status == 'active') {
-          return OfferItem(
-            id: item.id,
-            jobId: item.jobId,
-            masterUserId: item.masterUserId,
-            message: item.message,
-            priceComment: item.priceComment,
-            status: 'rejected',
-            jobTitle: item.jobTitle,
-            categorySlug: item.categorySlug,
-            createdAt: item.createdAt,
-          );
-        }
-        return item;
-      }).toList();
-
-      state = state.copyWith(
-        isSubmitting: false,
-        items: updated,
-        successMessage: 'Master selected',
-      );
-
+      await loadJobOffers(jobId);
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();
       return true;
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
-        isSubmitting: false,
-        errorMessage: e.toString(),
+        isLoading: false,
+        errorMessage: appError.message,
       );
       return false;
     }

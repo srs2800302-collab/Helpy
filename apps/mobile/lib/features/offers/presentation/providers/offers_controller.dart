@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
+import '../../../../core/errors/api_error_mapper.dart';
+import '../../domain/offer_item.dart';
 import 'offers_state.dart';
 
 class OffersController extends StateNotifier<OffersState> {
@@ -7,82 +10,88 @@ class OffersController extends StateNotifier<OffersState> {
 
   OffersController(this.ref) : super(const OffersState());
 
-  void setMessage(String value) {
-    state = state.copyWith(
-      message: value,
-      clearError: true,
-      clearSuccess: true,
-    );
-  }
-
-  void setPriceComment(String value) {
-    state = state.copyWith(
-      priceComment: value,
-      clearError: true,
-      clearSuccess: true,
-    );
-  }
-
-  Future<void> loadMyOffers() async {
-    final session = ref.read(authControllerProvider).session;
-    if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
-      return;
-    }
-
-    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+  Future<void> loadMasterOffers() async {
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final items = await ref.read(offersApiProvider).listMasterOffers(
+      final session = ref.read(authControllerProvider).session;
+      if (session == null) {
+        throw const FormatException('No active session');
+      }
+
+      final items = await ref.read(offersApiProvider).getMasterOffers(
             masterUserId: session.userId,
           );
 
       state = state.copyWith(
         isLoading: false,
-        initialized: true,
         items: items,
       );
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
-        initialized: true,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
+        items: const <OfferItem>[],
       );
     }
   }
 
   Future<bool> createOffer({
     required String jobId,
+    required String message,
+    required String priceComment,
   }) async {
-    final session = ref.read(authControllerProvider).session;
-    if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
-      return false;
-    }
-
-    state = state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final created = await ref.read(offersApiProvider).createOffer(
+      final session = ref.read(authControllerProvider).session;
+      if (session == null) {
+        throw const FormatException('No active session');
+      }
+
+      await ref.read(offersApiProvider).createOffer(
             jobId: jobId,
             masterUserId: session.userId,
-            message: state.message.trim().isEmpty ? null : state.message.trim(),
-            priceComment:
-                state.priceComment.trim().isEmpty ? null : state.priceComment.trim(),
+            message: message,
+            priceComment: priceComment,
           );
 
-      state = state.copyWith(
-        isSubmitting: false,
-        items: [created, ...state.items],
-        message: '',
-        priceComment: '',
-        successMessage: 'Offer created',
-      );
+      await loadMasterOffers();
       return true;
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
-        isSubmitting: false,
-        errorMessage: e.toString(),
+        isLoading: false,
+        errorMessage: appError.message,
+      );
+      return false;
+    }
+  }
+
+  Future<bool> withdrawOffer({
+    required String offerId,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    try {
+      final session = ref.read(authControllerProvider).session;
+      if (session == null) {
+        throw const FormatException('No active session');
+      }
+
+      await ref.read(offersApiProvider).withdrawOffer(
+            offerId: offerId,
+            masterUserId: session.userId,
+          );
+
+      await loadMasterOffers();
+      return true;
+    } catch (e) {
+      final appError = ApiErrorMapper.map(e);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: appError.message,
       );
       return false;
     }
