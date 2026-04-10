@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../jobs/presentation/screens/client_jobs_screen.dart';
+import '../../../jobs/presentation/screens/create_job_screen.dart';
 
 class ClientHomeScreen extends ConsumerStatefulWidget {
   const ClientHomeScreen({super.key});
@@ -16,6 +18,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     super.initState();
     Future.microtask(() {
       ref.read(categoriesControllerProvider.notifier).load();
+      ref.read(jobsControllerProvider.notifier).loadClientJobs();
     });
   }
 
@@ -23,6 +26,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final categoriesState = ref.watch(categoriesControllerProvider);
+    final jobsState = ref.watch(jobsControllerProvider);
     final authController = ref.read(authControllerProvider.notifier);
     final categoriesController = ref.read(categoriesControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
@@ -40,10 +44,23 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const CreateJobScreen(),
+            ),
+          );
+          if (mounted) {
+            ref.read(jobsControllerProvider.notifier).loadClientJobs();
+          }
+        },
+        label: Text(l10n.t('create_job')),
+        icon: const Icon(Icons.add),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             Text('User ID: ${authState.session?.userId ?? '-'}'),
             const SizedBox(height: 8),
@@ -71,21 +88,52 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 ],
               )
             else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: categoriesState.items.length,
-                  itemBuilder: (context, index) {
-                    final item = categoriesState.items[index];
-                    return Card(
+              ...categoriesState.items.take(5).map(
+                    (item) => Card(
                       child: ListTile(
                         title: Text(item.slug),
                         subtitle: Text('sortOrder: ${item.sortOrder}'),
                       ),
+                    ),
+                  ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.t('my_jobs'),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ClientJobsScreen(),
+                      ),
                     );
                   },
+                  child: Text(l10n.t('my_jobs')),
                 ),
-              ),
-            const SizedBox(height: 16),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (jobsState.isLoading)
+              Text(l10n.t('loading'))
+            else if (jobsState.errorMessage != null)
+              Text('${l10n.t('error')}: ${jobsState.errorMessage}')
+            else if (jobsState.items.isEmpty)
+              Text(l10n.t('empty_jobs'))
+            else
+              ...jobsState.items.take(3).map(
+                    (item) => Card(
+                      child: ListTile(
+                        title: Text(item.title),
+                        subtitle: Text('${item.categorySlug} • ${item.status}'),
+                      ),
+                    ),
+                  ),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
                 await authController.logout();

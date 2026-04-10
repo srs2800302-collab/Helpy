@@ -21,5 +21,14 @@
   "categories": "Categories",
   "refresh": "Refresh",
   "error": "Error",
-  "retry": "Retry"
+  "retry": "Retry",
+  "create_job": "Create job",
+  "my_jobs": "My jobs",
+  "job_title": "Job title",
+  "job_description": "Description",
+  "job_address": "Address",
+  "save_draft": "Save draft",
+  "select_category": "Select category",
+  "job_created": "Job created",
+  "empty_jobs": "No jobs yet"
 }

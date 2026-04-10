@@ -8,6 +8,7 @@ on:
       - stage-10-auth-guards
       - stage-m1-mobile-foundation
       - stage-m2-mobile-auth-routing
+      - stage-m3-client-create-job
   pull_request:
 
 jobs:

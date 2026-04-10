@@ -13,6 +13,8 @@ Current mobile foundation:
 - role selection
 - client/master home split
 - categories loading
+- client create job flow
+- client jobs list
 
 Current flow:
 - splash
@@ -20,9 +22,11 @@ Current flow:
 - verify otp
 - select role if needed
 - client/master home
+- client create job draft
+- client view own jobs
 
 Next:
-- jobs creation flow
-- profile bootstrap
-- categories selection for master
-- persistent secure storage replacement
+- job details
+- submit for payment
+- master marketplace feed
+- profile setup screens

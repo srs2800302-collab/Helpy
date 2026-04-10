@@ -8,6 +8,9 @@ import '../features/auth/presentation/providers/auth_state.dart';
 import '../features/categories/data/categories_api.dart';
 import '../features/categories/presentation/providers/categories_controller.dart';
 import '../features/categories/presentation/providers/categories_state.dart';
+import '../features/jobs/data/jobs_api.dart';
+import '../features/jobs/presentation/providers/jobs_controller.dart';
+import '../features/jobs/presentation/providers/jobs_state.dart';
 
 final appConfigProvider = Provider<AppConfig>((ref) {
   return AppConfig.dev();
@@ -32,6 +35,10 @@ final categoriesApiProvider = Provider<CategoriesApi>((ref) {
   return CategoriesApi(ref.read(apiClientProvider));
 });
 
+final jobsApiProvider = Provider<JobsApi>((ref) {
+  return JobsApi(ref.read(apiClientProvider));
+});
+
 final authControllerProvider =
     StateNotifierProvider<AuthController, AuthState>((ref) {
   return AuthController(ref);
@@ -40,4 +47,9 @@ final authControllerProvider =
 final categoriesControllerProvider =
     StateNotifierProvider<CategoriesController, CategoriesState>((ref) {
   return CategoriesController(ref);
+});
+
+final jobsControllerProvider =
+    StateNotifierProvider<JobsController, JobsState>((ref) {
+  return JobsController(ref);
 });

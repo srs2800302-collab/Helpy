@@ -21,5 +21,14 @@
   "categories": "Категории",
   "refresh": "Обновить",
   "error": "Ошибка",
-  "retry": "Повторить"
+  "retry": "Повторить",
+  "create_job": "Создать заказ",
+  "my_jobs": "Мои заказы",
+  "job_title": "Название заказа",
+  "job_description": "Описание",
+  "job_address": "Адрес",
+  "save_draft": "Сохранить черновик",
+  "select_category": "Выберите категорию",
+  "job_created": "Заказ создан",
+  "empty_jobs": "Заказов пока нет"
 }

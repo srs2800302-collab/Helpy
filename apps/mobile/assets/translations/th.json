@@ -21,5 +21,14 @@
   "categories": "หมวดหมู่",
   "refresh": "รีเฟรช",
   "error": "ข้อผิดพลาด",
-  "retry": "ลองใหม่"
+  "retry": "ลองใหม่",
+  "create_job": "สร้างงาน",
+  "my_jobs": "งานของฉัน",
+  "job_title": "ชื่องาน",
+  "job_description": "รายละเอียด",
+  "job_address": "ที่อยู่",
+  "save_draft": "บันทึกฉบับร่าง",
+  "select_category": "เลือกหมวดหมู่",
+  "job_created": "สร้างงานแล้ว",
+  "empty_jobs": "ยังไม่มีงาน"
 }
