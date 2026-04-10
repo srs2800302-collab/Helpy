@@ -1,4 +1,4 @@
-import { getJobs } from './jobs';
+import { createJob, getJobs } from './jobs';
 
 export async function handleRequest(request: Request) {
   const url = new URL(request.url);
@@ -15,5 +15,8 @@ export async function handleRequest(request: Request) {
     return getJobs();
   }
 
-  return new Response('Not Found', { status: 404 });
-}
+  if (url.pathname === '/api/v1/jobs' && request.method === 'POST') {
+    return createJob(request);
+  }
+
+  return new Response('Not Found', { status: 404
