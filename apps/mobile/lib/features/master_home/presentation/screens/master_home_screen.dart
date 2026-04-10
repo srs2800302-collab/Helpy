@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
@@ -23,6 +24,12 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     });
   }
 
+  Future<void> _refreshAll() async {
+    await ref.read(categoriesControllerProvider.notifier).load();
+    await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
+    await ref.read(offersControllerProvider.notifier).loadMyOffers();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
@@ -30,50 +37,120 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final marketplaceState = ref.watch(marketplaceControllerProvider);
     final offersState = ref.watch(offersControllerProvider);
     final authController = ref.read(authControllerProvider.notifier);
-    final categoriesController = ref.read(categoriesControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+
+    final isRefreshing =
+        categoriesState.isLoading || marketplaceState.isLoading || offersState.isLoading;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('master_home_title')),
         actions: [
           IconButton(
-            onPressed: categoriesState.isLoading
-                ? null
-                : () => categoriesController.load(),
+            onPressed: isRefreshing ? null : _refreshAll,
             icon: const Icon(Icons.refresh),
             tooltip: l10n.t('refresh'),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: RefreshIndicator(
+        onRefresh: _refreshAll,
         child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            Text('User ID: ${authState.session?.userId ?? '-'}'),
-            const SizedBox(height: 8),
-            Text('Phone: ${authState.session?.phone ?? '-'}'),
-            const SizedBox(height: 8),
-            Text('Role: ${authState.session?.role?.name ?? 'null'}'),
-            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.t('master_home_title'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text('User ID: ${authState.session?.userId ?? '-'}'),
+                    const SizedBox(height: 6),
+                    Text('Phone: ${authState.session?.phone ?? '-'}'),
+                    const SizedBox(height: 6),
+                    Text('Role: ${authState.session?.role?.name ?? 'null'}'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (categoriesState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    categoriesState.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
+            if (marketplaceState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    marketplaceState.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
+            if (offersState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    offersState.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
             Text(
               l10n.t('categories'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
-            if (categoriesState.isLoading)
-              Text(l10n.t('loading'))
-            else if (categoriesState.errorMessage != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${l10n.t('error')}: ${categoriesState.errorMessage}'),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => categoriesController.load(),
-                    child: Text(l10n.t('retry')),
-                  ),
-                ],
+            if (categoriesState.isLoading && categoriesState.items.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (categoriesState.items.isEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(l10n.t('loading')),
+                ),
               )
             else
               ...categoriesState.items.take(5).map(
@@ -90,7 +167,10 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                 Expanded(
                   child: Text(
                     l10n.t('open_jobs'),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 TextButton(
@@ -106,12 +186,20 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            if (marketplaceState.isLoading)
-              Text(l10n.t('loading'))
-            else if (marketplaceState.errorMessage != null)
-              Text('${l10n.t('error')}: ${marketplaceState.errorMessage}')
+            if (marketplaceState.isLoading && marketplaceState.items.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(),
+                ),
+              )
             else if (marketplaceState.items.isEmpty)
-              Text(l10n.t('empty_jobs'))
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(l10n.t('empty_jobs')),
+                ),
+              )
             else
               ...marketplaceState.items.take(3).map(
                     (item) => Card(
@@ -127,7 +215,10 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                 Expanded(
                   child: Text(
                     l10n.t('my_offers'),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 TextButton(
@@ -143,12 +234,20 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            if (offersState.isLoading)
-              Text(l10n.t('loading'))
-            else if (offersState.errorMessage != null)
-              Text('${l10n.t('error')}: ${offersState.errorMessage}')
+            if (offersState.isLoading && offersState.items.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(),
+                ),
+              )
             else if (offersState.items.isEmpty)
-              Text(l10n.t('empty_offers'))
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(l10n.t('empty_offers')),
+                ),
+              )
             else
               ...offersState.items.take(3).map(
                     (item) => Card(
