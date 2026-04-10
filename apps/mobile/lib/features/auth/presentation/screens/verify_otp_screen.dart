@@ -49,21 +49,7 @@ class VerifyOtpScreen extends ConsumerWidget {
                 onPressed: state.isLoading
                     ? null
                     : () async {
-                        final ok = await controller.verifyOtp();
-                        if (!context.mounted || !ok) return;
-
-                        final session = ref.read(authControllerProvider).session;
-                        if (session != null && session.needsRoleSelection) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/select-role',
-                            (_) => false,
-                          );
-                        } else {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/home',
-                            (_) => false,
-                          );
-                        }
+                        await controller.verifyOtp();
                       },
                 child: Text(l10n.t('verify')),
               ),

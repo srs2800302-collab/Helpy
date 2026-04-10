@@ -14,6 +14,7 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final storage = ref.read(tokenStorageProvider);
       final accessToken = await storage.getAccessToken();
+      final refreshToken = await storage.getRefreshToken();
 
       if (accessToken == null || accessToken.isEmpty) {
         state = state.copyWith(
@@ -25,20 +26,15 @@ class AuthController extends StateNotifier<AuthState> {
       }
 
       final api = ref.read(authApiProvider);
-      final current = await api.getCurrentUser();
+      final current = await api.getCurrentUser(
+        accessToken: accessToken,
+        refreshToken: refreshToken ?? '',
+      );
 
       state = state.copyWith(
         isLoading: false,
         initialized: true,
-        session: AuthSession(
-          userId: current.userId,
-          phone: current.phone,
-          role: current.role,
-          isNewUser: false,
-          needsRoleSelection: current.needsRoleSelection,
-          accessToken: accessToken,
-          refreshToken: await storage.getRefreshToken() ?? '',
-        ),
+        session: current,
       );
     } catch (e) {
       await ref.read(tokenStorageProvider).clear();
@@ -90,6 +86,7 @@ class AuthController extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isLoading: false,
+        initialized: true,
         session: session,
       );
       return true;
@@ -106,21 +103,20 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
+      final current = state.session;
+      if (current == null) {
+        throw Exception('No active session');
+      }
+
       final updated = await ref.read(authApiProvider).selectRole(
-            role == UserRole.client ? 'client' : 'master',
+            role: role == UserRole.client ? 'client' : 'master',
+            accessToken: current.accessToken,
+            refreshToken: current.refreshToken,
           );
 
       state = state.copyWith(
         isLoading: false,
-        session: AuthSession(
-          userId: state.session!.userId,
-          phone: updated.phone,
-          role: updated.role,
-          isNewUser: false,
-          needsRoleSelection: updated.needsRoleSelection,
-          accessToken: state.session!.accessToken,
-          refreshToken: state.session!.refreshToken,
-        ),
+        session: updated,
       );
     } catch (e) {
       state = state.copyWith(

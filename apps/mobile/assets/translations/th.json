@@ -14,6 +14,12 @@
   "client": "ลูกค้า",
   "master": "ช่าง",
   "home_title": "หน้าหลัก",
+  "client_home_title": "หน้าหลักลูกค้า",
+  "master_home_title": "หน้าหลักช่าง",
   "not_implemented": "ยังไม่พร้อมใช้งาน",
-  "logout": "ออกจากระบบ"
+  "logout": "ออกจากระบบ",
+  "categories": "หมวดหมู่",
+  "refresh": "รีเฟรช",
+  "error": "ข้อผิดพลาด",
+  "retry": "ลองใหม่"
 }
