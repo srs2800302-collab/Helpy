@@ -30,5 +30,13 @@
   "save_draft": "Сохранить черновик",
   "select_category": "Выберите категорию",
   "job_created": "Заказ создан",
-  "empty_jobs": "Заказов пока нет"
+  "empty_jobs": "Заказов пока нет",
+  "marketplace": "Маркетплейс",
+  "open_jobs": "Открытые заказы",
+  "my_offers": "Мои отклики",
+  "offer_message": "Сообщение",
+  "offer_price_comment": "Комментарий по цене",
+  "send_offer": "Отправить отклик",
+  "offer_created": "Отклик создан",
+  "empty_offers": "Откликов пока нет"
 }
