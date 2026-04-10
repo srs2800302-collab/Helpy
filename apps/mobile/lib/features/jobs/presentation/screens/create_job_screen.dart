@@ -38,7 +38,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // ignore: deprecated_member_use
             DropdownButtonFormField<String>(
               value: jobsState.selectedCategoryId,
               items: categoriesState.items
