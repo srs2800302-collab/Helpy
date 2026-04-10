@@ -20,27 +20,33 @@ export async function handleRequest(request: Request, env: any) {
     return createJob(request, env);
   }
 
-  // offers list
-  if (url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) && request.method === 'GET') {
+  if (
+    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) &&
+    request.method === 'GET'
+  ) {
     const jobId = url.pathname.split('/')[4];
     return getOffers(jobId, env);
   }
 
-  // create offer
-  if (url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) && request.method === 'POST') {
+  if (
+    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) &&
+    request.method === 'POST'
+  ) {
     const jobId = url.pathname.split('/')[4];
     return createOffer(jobId, request, env);
   }
 
-  if (url.pathname.startsWith('/api/v1/jobs/') && request.method === 'GET') {
-    const jobId = url.pathname.split('/').pop();
-    return getJobById(jobId!, env);
+  if (
+    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/status$/) &&
+    request.method === 'PATCH'
+  ) {
+    const jobId = url.pathname.split('/')[4];
+    return updateJobStatus(jobId, request, env);
   }
 
-  if (url.pathname.startsWith('/api/v1/jobs/') && request.method === 'PATCH') {
-    const segments = url.pathname.split('/');
-    const jobId = segments[segments.length - 2];
-    return updateJobStatus(jobId, request, env);
+  if (url.pathname.match(/^\/api\/v1\/jobs\/[^/]+$/) && request.method === 'GET') {
+    const jobId = url.pathname.split('/')[4];
+    return getJobById(jobId, env);
   }
 
   return new Response('Not Found', { status: 404 });
