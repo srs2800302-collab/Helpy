@@ -13,6 +13,7 @@ on:
       - stage-m5-client-select-master
       - stage-m6-chat-execution
       - stage-m7-reviews-polish
+      - stage-m8-mobile-cleanup
   pull_request:
 
 jobs:
