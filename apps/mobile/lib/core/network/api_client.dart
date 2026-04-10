@@ -18,15 +18,14 @@ class RefreshTokensResult {
 class ApiClient {
   final Dio _dio;
   final TokenStorage _tokenStorage;
-  final RefreshTokensFn? _refreshTokensFn;
 
+  RefreshTokensFn? _refreshTokensFn;
   bool _isRefreshing = false;
   Future<RefreshTokensResult?>? _refreshFuture;
 
   ApiClient({
     required AppConfig config,
     required TokenStorage tokenStorage,
-    RefreshTokensFn? refreshTokensFn,
   })  : _dio = Dio(
           BaseOptions(
             baseUrl: config.apiBaseUrl,
@@ -34,8 +33,7 @@ class ApiClient {
             receiveTimeout: const Duration(seconds: 10),
           ),
         ),
-        _tokenStorage = tokenStorage,
-        _refreshTokensFn = refreshTokensFn {
+        _tokenStorage = tokenStorage {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -110,6 +108,10 @@ class ApiClient {
     );
   }
 
+  void setRefreshTokensFn(RefreshTokensFn fn) {
+    _refreshTokensFn = fn;
+  }
+
   Dio get dio => _dio;
 
   Future<Response<T>> get<T>(
@@ -169,7 +171,9 @@ class ApiClient {
 
   Future<RefreshTokensResult?> _tryRefreshTokens() async {
     final refreshToken = await _tokenStorage.getRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty || _refreshTokensFn == null) {
+    final fn = _refreshTokensFn;
+
+    if (refreshToken == null || refreshToken.isEmpty || fn == null) {
       return null;
     }
 
@@ -178,7 +182,7 @@ class ApiClient {
     }
 
     _isRefreshing = true;
-    _refreshFuture = _refreshTokensFn!(refreshToken);
+    _refreshFuture = fn(refreshToken);
 
     try {
       final result = await _refreshFuture;
@@ -186,8 +190,9 @@ class ApiClient {
 
       await _tokenStorage.saveAccessToken(result.accessToken);
 
-      if (result.refreshToken != null && result.refreshToken!.isNotEmpty) {
-        await _tokenStorage.saveRefreshToken(result.refreshToken!);
+      final nextRefreshToken = result.refreshToken;
+      if (nextRefreshToken != null && nextRefreshToken.isNotEmpty) {
+        await _tokenStorage.saveRefreshToken(nextRefreshToken);
       }
 
       return result;

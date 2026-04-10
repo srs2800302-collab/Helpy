@@ -43,7 +43,7 @@ class AuthApi {
     return _mapSession(response.data['data'] as Map<String, dynamic>);
   }
 
-  Future<AuthSession> refreshAccessToken(String refreshToken) async {
+  Future<RefreshTokensResult?> refreshAccessToken(String refreshToken) async {
     final response = await apiClient.post(
       '/auth/refresh',
       data: {
@@ -51,30 +51,31 @@ class AuthApi {
       },
     );
 
-    return _mapSession(response.data['data'] as Map<String, dynamic>);
-  }
+    final data = response.data['data'] as Map<String, dynamic>;
+    final tokens = data['tokens'] as Map<String, dynamic>?;
 
-  AuthSession _mapSession(Map<String, dynamic> json) {
-    return AuthSession(
-      userId: json['user']['id'] as String,
-      phone: json['user']['phone'] as String,
-      role: _mapRole(json['user']['role'] as String?),
-      accessToken: json['tokens']['accessToken'] as String,
-      refreshToken: json['tokens']['refreshToken'] as String?,
-      needsRoleSelection: (json['user']['role'] as String?) == null,
+    final accessToken = tokens?['accessToken']?.toString();
+    if (accessToken == null || accessToken.isEmpty) {
+      return null;
+    }
+
+    return RefreshTokensResult(
+      accessToken: accessToken,
+      refreshToken: tokens?['refreshToken']?.toString(),
     );
   }
 
-  AuthRole? _mapRole(String? value) {
-    switch (value) {
-      case 'client':
-        return AuthRole.client;
-      case 'master':
-        return AuthRole.master;
-      case 'admin':
-        return AuthRole.admin;
-      default:
-        return null;
-    }
+  AuthSession _mapSession(Map<String, dynamic> json) {
+    final user = json['user'] as Map<String, dynamic>;
+    final tokens = json['tokens'] as Map<String, dynamic>;
+
+    return AuthSession(
+      userId: user['id'].toString(),
+      phone: user['phone'].toString(),
+      role: user['role']?.toString(),
+      accessToken: tokens['accessToken'].toString(),
+      refreshToken: tokens['refreshToken']?.toString() ?? '',
+      isNewUser: user['role'] == null,
+    );
   }
 }

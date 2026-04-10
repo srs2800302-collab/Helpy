@@ -37,7 +37,7 @@ class AuthController extends StateNotifier<AuthState> {
         session: current,
       );
     } catch (e) {
-      await ref.read(tokenStorageProvider).clear();
+      await ref.read(tokenStorageProvider).clearAll();
       state = state.copyWith(
         isLoading: false,
         initialized: true,
@@ -127,7 +127,7 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
-    await ref.read(tokenStorageProvider).clear();
+    await ref.read(tokenStorageProvider).clearAll();
     state = const AuthState(initialized: true);
   }
 }
