@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 
@@ -26,74 +27,109 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
     });
   }
 
+  Future<void> _refresh() async {
+    await ref.read(jobOffersControllerProvider.notifier).loadJobOffers(widget.jobId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(jobOffersControllerProvider);
     final controller = ref.read(jobOffersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
 
+    final isInitialLoading = state.isLoading && state.items.isEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.jobTitle),
         actions: [
           IconButton(
-            onPressed: state.isLoading
-                ? null
-                : () => controller.loadJobOffers(widget.jobId),
+            onPressed: state.isLoading ? null : _refresh,
             icon: const Icon(Icons.refresh),
+            tooltip: l10n.t('refresh'),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: state.isLoading
-            ? Center(child: Text(l10n.t('loading')))
-            : state.errorMessage != null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${l10n.t('error')}: ${state.errorMessage}'),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () => controller.loadJobOffers(widget.jobId),
-                        child: Text(l10n.t('retry')),
-                      ),
-                    ],
-                  )
-                : state.items.isEmpty
-                    ? Center(child: Text(l10n.t('empty_offers')))
-                    : ListView.builder(
-                        itemCount: state.items.length,
-                        itemBuilder: (context, index) {
-                          final item = state.items[index];
-                          final canSelect = item.status == 'active' && !state.isSubmitting;
-
-                          return Card(
-                            child: ListTile(
-                              title: Text(item.jobTitle),
-                              subtitle: Text(
-                                '${item.categorySlug} • ${item.status}\n${item.message ?? ''}\n${item.priceComment ?? ''}',
-                              ),
-                              isThreeLine: true,
-                              trailing: ElevatedButton(
-                                onPressed: canSelect
-                                    ? () async {
-                                        final ok = await controller.selectOffer(item.id);
-                                        if (ok && context.mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(l10n.t('master_selected')),
-                                            ),
-                                          );
-                                        }
-                                      }
-                                    : null,
-                                child: Text(l10n.t('select_master')),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: isInitialLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : state.errorMessage != null && state.items.isEmpty
+                  ? ListView(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.red),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            state.errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: _refresh,
+                          child: Text(l10n.t('retry')),
+                        ),
+                      ],
+                    )
+                  : state.items.isEmpty
+                      ? ListView(
+                          children: [
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(l10n.t('empty_offers')),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ],
+                        )
+                      : ListView.builder(
+                          itemCount: state.items.length,
+                          itemBuilder: (context, index) {
+                            final item = state.items[index];
+                            final canSelect = item.status == 'active' && !state.isSubmitting;
+
+                            return Card(
+                              child: ListTile(
+                                title: Text(item.jobTitle),
+                                subtitle: Text(
+                                  '${item.categorySlug} • ${item.status}\n${item.message ?? ''}\n${item.priceComment ?? ''}',
+                                ),
+                                isThreeLine: true,
+                                trailing: ElevatedButton(
+                                  onPressed: canSelect
+                                      ? () async {
+                                          final ok = await controller.selectOffer(item.id);
+                                          if (ok && context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(l10n.t('master_selected')),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      : null,
+                                  child: state.isSubmitting
+                                      ? const SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      : Text(l10n.t('select_master')),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+        ),
       ),
     );
   }
