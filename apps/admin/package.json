@@ -1,0 +1,10 @@
+{
+  "name": "@fixi/admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"admin build placeholder\"",
+    "lint": "echo \"admin lint placeholder\"",
+    "test": "echo \"admin test placeholder\""
+  }
+}
