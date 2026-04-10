@@ -1,5 +1,7 @@
 import { handleRequest } from './router';
 
 export default {
-  fetch: handleRequest,
+  fetch(request: Request, env: any) {
+    return handleRequest(request, env);
+  },
 };

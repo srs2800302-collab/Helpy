@@ -1,6 +1,6 @@
 import { createJob, getJobById, getJobs, updateJobStatus } from './jobs';
 
-export async function handleRequest(request: Request) {
+export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
 
   if (url.pathname === '/health') {
@@ -12,11 +12,11 @@ export async function handleRequest(request: Request) {
   }
 
   if (url.pathname === '/api/v1/jobs' && request.method === 'GET') {
-    return getJobs();
+    return getJobs(env);
   }
 
   if (url.pathname === '/api/v1/jobs' && request.method === 'POST') {
-    return createJob(request);
+    return createJob(request, env);
   }
 
   if (url.pathname.startsWith('/api/v1/jobs/') && request.method === 'GET') {
@@ -24,15 +24,12 @@ export async function handleRequest(request: Request) {
 
     if (!jobId) {
       return Response.json(
-        {
-          success: false,
-          error: 'Job id is required',
-        },
-        { status: 400 },
+        { success: false, error: 'Job id is required' },
+        { status: 400 }
       );
     }
 
-    return getJobById(jobId);
+    return getJobById(jobId, env);
   }
 
   if (url.pathname.startsWith('/api/v1/jobs/') && request.method === 'PATCH') {
@@ -44,7 +41,7 @@ export async function handleRequest(request: Request) {
       return new Response('Not Found', { status: 404 });
     }
 
-    return updateJobStatus(jobId, request);
+    return updateJobStatus(jobId, request, env);
   }
 
   return new Response('Not Found', { status: 404 });
