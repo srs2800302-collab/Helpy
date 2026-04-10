@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../core/localization/app_localizations.dart';
 import '../features/auth/presentation/providers/auth_state.dart';
 import 'providers.dart';
@@ -16,21 +18,26 @@ class FixiApp extends ConsumerStatefulWidget {
 
 class _FixiAppState extends ConsumerState<FixiApp> {
   late final AuthRouterNotifier _routerNotifier;
+  late final Object _authListener;
+  late final GoRouter router;
 
   @override
   void initState() {
     super.initState();
     _routerNotifier = AuthRouterNotifier(const AuthState());
+    router = createRouter(_routerNotifier);
+
+    _authListener = ref.listenManual<AuthState>(
+      authControllerProvider,
+      (_, next) {
+        _routerNotifier.update(next);
+      },
+      fireImmediately: true,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AuthState>(authControllerProvider, (_, next) {
-      _routerNotifier.update(next);
-    });
-
-    final router = createRouter(_routerNotifier);
-
     return MaterialApp.router(
       title: 'Fixi',
       theme: buildAppTheme(),
@@ -51,6 +58,7 @@ class _FixiAppState extends ConsumerState<FixiApp> {
 
   @override
   void dispose() {
+    (_authListener as ProviderSubscription<AuthState>).close();
     _routerNotifier.dispose();
     super.dispose();
   }
