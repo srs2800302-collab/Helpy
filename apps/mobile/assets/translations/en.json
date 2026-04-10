@@ -14,6 +14,12 @@
   "client": "Client",
   "master": "Master",
   "home_title": "Home",
+  "client_home_title": "Client home",
+  "master_home_title": "Master home",
   "not_implemented": "Not implemented yet",
-  "logout": "Logout"
+  "logout": "Logout",
+  "categories": "Categories",
+  "refresh": "Refresh",
+  "error": "Error",
+  "retry": "Retry"
 }

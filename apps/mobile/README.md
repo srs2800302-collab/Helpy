@@ -5,23 +5,24 @@ Current mobile foundation:
 - Riverpod state management
 - go_router routing
 - Dio API client
-- in-memory token storage contract
+- file-based token storage contract
 - RU / EN / TH localization
 - splash screen
 - auth flow screens wiring
+- auth-based router redirects
 - role selection
-- simple home screen
+- client/master home split
+- categories loading
 
 Current flow:
 - splash
 - login phone
 - verify otp
 - select role if needed
-- home
+- client/master home
 
 Next:
-- persistent token storage
-- auth redirect logic in router
 - jobs creation flow
-- categories loading
-- client/master home separation
+- profile bootstrap
+- categories selection for master
+- persistent secure storage replacement

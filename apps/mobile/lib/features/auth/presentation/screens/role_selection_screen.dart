@@ -39,15 +39,7 @@ class RoleSelectionScreen extends ConsumerWidget {
               child: OutlinedButton(
                 onPressed: state.isLoading
                     ? null
-                    : () async {
-                        await controller.selectRole(UserRole.client);
-                        if (context.mounted) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/home',
-                            (_) => false,
-                          );
-                        }
-                      },
+                    : () => controller.selectRole(UserRole.client),
                 child: Text(l10n.t('client')),
               ),
             ),
@@ -57,15 +49,7 @@ class RoleSelectionScreen extends ConsumerWidget {
               child: OutlinedButton(
                 onPressed: state.isLoading
                     ? null
-                    : () async {
-                        await controller.selectRole(UserRole.master);
-                        if (context.mounted) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/home',
-                            (_) => false,
-                          );
-                        }
-                      },
+                    : () => controller.selectRole(UserRole.master),
                 child: Text(l10n.t('master')),
               ),
             ),

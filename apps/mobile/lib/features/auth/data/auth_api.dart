@@ -39,7 +39,10 @@ class AuthApi {
     );
   }
 
-  Future<AuthSession> getCurrentUser() async {
+  Future<AuthSession> getCurrentUser({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
     final response = await apiClient.dio.get('/auth/me');
     final data = response.data['data'] as Map<String, dynamic>;
 
@@ -49,12 +52,16 @@ class AuthApi {
       role: _parseRole(data['role'] as String?),
       isNewUser: false,
       needsRoleSelection: (data['role'] == null),
-      accessToken: '',
-      refreshToken: '',
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     );
   }
 
-  Future<AuthSession> selectRole(String role) async {
+  Future<AuthSession> selectRole({
+    required String role,
+    required String accessToken,
+    required String refreshToken,
+  }) async {
     final response = await apiClient.dio.post(
       '/auth/select-role',
       data: {'role': role},
@@ -67,8 +74,8 @@ class AuthApi {
       role: _parseRole(data['role'] as String?),
       isNewUser: false,
       needsRoleSelection: (data['role'] == null),
-      accessToken: '',
-      refreshToken: '',
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     );
   }
 

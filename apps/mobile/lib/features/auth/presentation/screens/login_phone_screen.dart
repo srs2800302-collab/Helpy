@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 
@@ -51,7 +52,7 @@ class LoginPhoneScreen extends ConsumerWidget {
                     : () async {
                         final ok = await controller.requestOtp();
                         if (ok && context.mounted) {
-                          Navigator.of(context).pushNamed('/verify-otp');
+                          context.go('/verify-otp');
                         }
                       },
                 child: Text(l10n.t('request_otp')),

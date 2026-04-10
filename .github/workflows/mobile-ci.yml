@@ -5,8 +5,9 @@ on:
     branches:
       - main
       - stage-0-foundation
-      - stage-m1-mobile-foundation
       - stage-10-auth-guards
+      - stage-m1-mobile-foundation
+      - stage-m2-mobile-auth-routing
   pull_request:
 
 jobs:

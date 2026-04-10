@@ -14,6 +14,12 @@
   "client": "Клиент",
   "master": "Мастер",
   "home_title": "Главная",
+  "client_home_title": "Главная клиента",
+  "master_home_title": "Главная мастера",
   "not_implemented": "Пока не реализовано",
-  "logout": "Выйти"
+  "logout": "Выйти",
+  "categories": "Категории",
+  "refresh": "Обновить",
+  "error": "Ошибка",
+  "retry": "Повторить"
 }

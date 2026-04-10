@@ -1,49 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/providers.dart';
-import '../../../../core/localization/app_localizations.dart';
+import '../../../auth/domain/auth_session.dart';
+import '../../../client_home/presentation/screens/client_home_screen.dart';
+import '../../../master_home/presentation/screens/master_home_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  final UserRole? role;
+
+  const HomeScreen({
+    super.key,
+    required this.role,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authControllerProvider);
-    final controller = ref.read(authControllerProvider.notifier);
-    final l10n = AppLocalizations.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.t('home_title')),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('User ID: ${authState.session?.userId ?? '-'}'),
-            const SizedBox(height: 8),
-            Text('Phone: ${authState.session?.phone ?? '-'}'),
-            const SizedBox(height: 8),
-            Text('Role: ${authState.session?.role?.name ?? 'null'}'),
-            const SizedBox(height: 24),
-            Text(l10n.t('not_implemented')),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                await controller.logout();
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login',
-                    (_) => false,
-                  );
-                }
-              },
-              child: Text(l10n.t('logout')),
-            ),
-          ],
-        ),
-      ),
-    );
+  Widget build(BuildContext context) {
+    switch (role) {
+      case UserRole.client:
+        return const ClientHomeScreen();
+      case UserRole.master:
+        return const MasterHomeScreen();
+      case UserRole.admin:
+        return const ClientHomeScreen();
+      case null:
+        return const Scaffold(
+          body: Center(
+            child: Text('Role is not selected'),
+          ),
+        );
+    }
   }
 }
