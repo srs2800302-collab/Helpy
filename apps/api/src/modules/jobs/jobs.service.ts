@@ -36,9 +36,9 @@ export class JobsService {
         description: dto.description,
         addressText: dto.addressText,
         locationLat:
-          dto.locationLat !== undefined ? new Prisma.Decimal(dto.locationLat) : undefined,
+            dto.locationLat !== undefined ? new Prisma.Decimal(dto.locationLat) : undefined,
         locationLng:
-          dto.locationLng !== undefined ? new Prisma.Decimal(dto.locationLng) : undefined,
+            dto.locationLng !== undefined ? new Prisma.Decimal(dto.locationLng) : undefined,
         status: JobStatus.draft,
       },
       include: buildJobInclude(),
@@ -76,11 +76,11 @@ export class JobsService {
         ...(dto.description != null ? { description: dto.description } : {}),
         ...(dto.addressText != null ? { addressText: dto.addressText } : {}),
         ...(dto.locationLat != null
-          ? { locationLat: new Prisma.Decimal(dto.locationLat) }
-          : {}),
+            ? { locationLat: new Prisma.Decimal(dto.locationLat) }
+            : {}),
         ...(dto.locationLng != null
-          ? { locationLng: new Prisma.Decimal(dto.locationLng) }
-          : {}),
+            ? { locationLng: new Prisma.Decimal(dto.locationLng) }
+            : {}),
       },
       include: buildJobInclude(),
     });
@@ -126,6 +126,16 @@ export class JobsService {
       where: {
         clientUserId: query.clientUserId,
         ...(query.status ? { status: query.status as JobStatus } : {}),
+      },
+      include: buildJobInclude(),
+      orderBy: [{ createdAt: 'desc' }],
+    });
+  }
+
+  async listAdminJobs(status?: string) {
+    return this.prisma.job.findMany({
+      where: {
+        ...(status ? { status: status as JobStatus } : {}),
       },
       include: buildJobInclude(),
       orderBy: [{ createdAt: 'desc' }],

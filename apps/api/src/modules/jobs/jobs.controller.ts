@@ -30,6 +30,12 @@ export class JobsController {
     return ok(job);
   }
 
+  @Get('admin/all')
+  async listAdminJobs(@Query('status') status?: string) {
+    const jobs = await this.jobsService.listAdminJobs(status);
+    return ok(jobs);
+  }
+
   @Get(':jobId')
   async getById(@Param('jobId') jobId: string) {
     const job = await this.jobsService.getById(jobId);

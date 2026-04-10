@@ -188,4 +188,13 @@ export class PaymentsService {
       orderBy: [{ createdAt: 'desc' }],
     });
   }
+
+  async listAdminPayments(status?: string) {
+    return this.prisma.payment.findMany({
+      where: {
+        ...(status ? { status: status as PaymentStatus } : {}),
+      },
+      orderBy: [{ createdAt: 'desc' }],
+    });
+  }
 }
