@@ -55,5 +55,8 @@
   "submit_review": "ส่งรีวิว",
   "review_created": "สร้างรีวิวแล้ว",
   "validation_phone_invalid": "กรอกหมายเลขโทรศัพท์ให้ถูกต้อง",
-  "validation_otp_invalid": "กรอกรหัส 6 หลัก"
+  "validation_otp_invalid": "กรอกรหัส 6 หลัก",
+  "deposit_payment": "ชำระเงินมัดจำ",
+  "pay_deposit": "ชำระเงินมัดจำ",
+  "payment_successful": "ชำระเงินสำเร็จ"
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../payments/presentation/screens/job_payment_screen.dart';
 
 class CreateJobScreen extends ConsumerStatefulWidget {
   const CreateJobScreen({super.key});
@@ -33,7 +34,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
     final isBusy = jobsState.isSubmitting;
     final isCategoriesLoading = categoriesState.isLoading && categoriesState.items.isEmpty;
-    final canSubmit = !isBusy && !isCategoriesLoading;
+    final canSubmit = !isBusy &&
+        !isCategoriesLoading &&
+        (jobsState.selectedCategoryId ?? '').isNotEmpty &&
+        jobsState.title.trim().length >= 3;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +61,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                     ),
                   )
                   .toList(),
-              onChanged: canSubmit ? jobsController.setSelectedCategoryId : null,
+              onChanged: canSubmit || !isBusy ? jobsController.setSelectedCategoryId : null,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('select_category'),
@@ -127,9 +131,20 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               child: ElevatedButton(
                 onPressed: canSubmit
                     ? () async {
-                        final ok = await jobsController.createDraft();
-                        if (ok && context.mounted) {
-                          Navigator.of(context).pop();
+                        final job = await jobsController.createDraftAndSubmitForPayment();
+                        if (job != null && context.mounted) {
+                          final paid = await Navigator.of(context).push<bool>(
+                            MaterialPageRoute(
+                              builder: (_) => JobPaymentScreen(
+                                jobId: job.id,
+                                jobTitle: job.title,
+                              ),
+                            ),
+                          );
+
+                          if (paid == true && context.mounted) {
+                            Navigator.of(context).pop();
+                          }
                         }
                       }
                     : null,

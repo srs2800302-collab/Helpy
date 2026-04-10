@@ -27,6 +27,13 @@ class JobsApi {
     return _mapJob(response.data['data'] as Map<String, dynamic>);
   }
 
+  Future<JobItem> submitForPayment({
+    required String jobId,
+  }) async {
+    final response = await apiClient.dio.post('/jobs/$jobId/submit');
+    return _mapJob(response.data['data'] as Map<String, dynamic>);
+  }
+
   Future<List<JobItem>> listClientJobs({
     required String clientUserId,
   }) async {
