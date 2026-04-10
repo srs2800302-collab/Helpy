@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../client_offers/presentation/screens/job_offers_screen.dart';
 
 class ClientJobsScreen extends ConsumerStatefulWidget {
   const ClientJobsScreen({super.key});
@@ -59,6 +60,9 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                         itemCount: state.items.length,
                         itemBuilder: (context, index) {
                           final item = state.items[index];
+                          final canOpenOffers =
+                              item.status == 'open' || item.status == 'master_selected';
+
                           return Card(
                             child: ListTile(
                               title: Text(item.title),
@@ -66,6 +70,21 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                 '${item.categorySlug} • ${item.status}\n${item.addressText ?? ''}',
                               ),
                               isThreeLine: true,
+                              trailing: canOpenOffers
+                                  ? OutlinedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => JobOffersScreen(
+                                              jobId: item.id,
+                                              jobTitle: item.title,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(l10n.t('job_offers')),
+                                    )
+                                  : null,
                             ),
                           );
                         },

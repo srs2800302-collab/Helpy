@@ -10,6 +10,7 @@ on:
       - stage-m2-mobile-auth-routing
       - stage-m3-client-create-job
       - stage-m4-master-marketplace
+      - stage-m5-client-select-master
   pull_request:
 
 jobs:

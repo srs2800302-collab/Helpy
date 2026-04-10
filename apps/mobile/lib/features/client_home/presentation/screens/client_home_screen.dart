@@ -130,6 +130,21 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                       child: ListTile(
                         title: Text(item.title),
                         subtitle: Text('${item.categorySlug} • ${item.status}'),
+                        trailing: (item.status == 'open' || item.status == 'master_selected')
+                            ? OutlinedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => JobOffersScreen(
+                                        jobId: item.id,
+                                        jobTitle: item.title,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Text(l10n.t('job_offers')),
+                              )
+                            : null,
                       ),
                     ),
                   ),

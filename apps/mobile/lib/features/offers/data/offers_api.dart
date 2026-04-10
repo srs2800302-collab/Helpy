@@ -36,6 +36,37 @@ class OffersApi {
         .toList();
   }
 
+  Future<List<OfferItem>> listJobOffers({
+    required String jobId,
+    required String clientUserId,
+  }) async {
+    final response = await apiClient.dio.get(
+      '/offers/job/$jobId',
+      queryParameters: {
+        'clientUserId': clientUserId,
+      },
+    );
+    final data = response.data['data'] as List<dynamic>;
+
+    return data
+        .map((item) => _mapOffer(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<OfferItem> selectOffer({
+    required String offerId,
+    required String clientUserId,
+  }) async {
+    final response = await apiClient.dio.patch(
+      '/offers/$offerId/select',
+      data: {
+        'clientUserId': clientUserId,
+      },
+    );
+
+    return _mapOffer(response.data['data'] as Map<String, dynamic>);
+  }
+
   OfferItem _mapOffer(Map<String, dynamic> json) {
     final job = json['job'] as Map<String, dynamic>? ?? {};
     final category = job['category'] as Map<String, dynamic>? ?? {};

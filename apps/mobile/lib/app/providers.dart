@@ -8,6 +8,8 @@ import '../features/auth/presentation/providers/auth_state.dart';
 import '../features/categories/data/categories_api.dart';
 import '../features/categories/presentation/providers/categories_controller.dart';
 import '../features/categories/presentation/providers/categories_state.dart';
+import '../features/client_offers/presentation/providers/job_offers_controller.dart';
+import '../features/client_offers/presentation/providers/job_offers_state.dart';
 import '../features/jobs/data/jobs_api.dart';
 import '../features/jobs/presentation/providers/jobs_controller.dart';
 import '../features/jobs/presentation/providers/jobs_state.dart';
@@ -76,4 +78,9 @@ final marketplaceControllerProvider =
 final offersControllerProvider =
     StateNotifierProvider<OffersController, OffersState>((ref) {
   return OffersController(ref);
+});
+
+final jobOffersControllerProvider =
+    StateNotifierProvider<JobOffersController, JobOffersState>((ref) {
+  return JobOffersController(ref);
 });

@@ -38,5 +38,8 @@
   "offer_price_comment": "Комментарий по цене",
   "send_offer": "Отправить отклик",
   "offer_created": "Отклик создан",
-  "empty_offers": "Откликов пока нет"
+  "empty_offers": "Откликов пока нет",
+  "job_offers": "Отклики по заказу",
+  "select_master": "Выбрать мастера",
+  "master_selected": "Мастер выбран"
 }

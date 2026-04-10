@@ -18,6 +18,8 @@ Current mobile foundation:
 - master marketplace feed
 - master create offer flow
 - master offers list
+- client offers list by job
+- client select master flow
 
 Current flow:
 - splash
@@ -30,9 +32,10 @@ Current flow:
 - master browse open jobs
 - master create offer
 - master view own offers
+- client view offers and select master
 
 Next:
-- client view offers on job
-- client select master
-- chat screens
+- chat UI
+- job execution flow
+- reviews UI
 - profile setup screens

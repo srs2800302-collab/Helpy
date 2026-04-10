@@ -38,5 +38,8 @@
   "offer_price_comment": "Price comment",
   "send_offer": "Send offer",
   "offer_created": "Offer created",
-  "empty_offers": "No offers yet"
+  "empty_offers": "No offers yet",
+  "job_offers": "Job offers",
+  "select_master": "Select master",
+  "master_selected": "Master selected"
 }
