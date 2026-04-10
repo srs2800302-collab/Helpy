@@ -21,6 +21,25 @@ export async function getJobs() {
   });
 }
 
+export async function getJobById(jobId: string) {
+  const job = mockJobs.find((item) => item.id === jobId);
+
+  if (!job) {
+    return Response.json(
+      {
+        success: false,
+        error: 'Job not found',
+      },
+      { status: 404 },
+    );
+  }
+
+  return Response.json({
+    success: true,
+    data: job,
+  });
+}
+
 export async function createJob(request: Request) {
   let body: CreateJobBody;
 
