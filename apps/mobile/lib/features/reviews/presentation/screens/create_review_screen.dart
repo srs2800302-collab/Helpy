@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 
 class CreateReviewScreen extends ConsumerWidget {
@@ -15,6 +16,8 @@ class CreateReviewScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(reviewsControllerProvider);
     final controller = ref.read(reviewsControllerProvider.notifier);
+
+    final isBusy = state.isSubmitting;
 
     return Scaffold(
       appBar: AppBar(
@@ -34,9 +37,11 @@ class CreateReviewScreen extends ConsumerWidget {
                     ),
                   )
                   .toList(),
-              onChanged: (value) {
-                if (value != null) controller.setRating(value);
-              },
+              onChanged: isBusy
+                  ? null
+                  : (value) {
+                      if (value != null) controller.setRating(value);
+                    },
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Rating',
@@ -45,6 +50,7 @@ class CreateReviewScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             TextField(
               onChanged: controller.setComment,
+              enabled: !isBusy,
               maxLines: 4,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -53,23 +59,39 @@ class CreateReviewScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             if (state.errorMessage != null) ...[
-              Text(
-                state.errorMessage!,
-                style: const TextStyle(color: Colors.red),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  state.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
               const SizedBox(height: 12),
             ],
             if (state.successMessage != null) ...[
-              Text(
-                state.successMessage!,
-                style: const TextStyle(color: Colors.green),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.green),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  state.successMessage!,
+                  style: const TextStyle(color: Colors.green),
+                ),
               ),
               const SizedBox(height: 12),
             ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: state.isSubmitting
+                onPressed: isBusy
                     ? null
                     : () async {
                         final ok = await controller.createReview(jobId: jobId);
@@ -77,7 +99,13 @@ class CreateReviewScreen extends ConsumerWidget {
                           Navigator.of(context).pop();
                         }
                       },
-                child: const Text('Submit review'),
+                child: isBusy
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Submit review'),
               ),
             ),
           ],
