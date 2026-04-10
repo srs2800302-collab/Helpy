@@ -1,0 +1,19 @@
+{
+  "app_name": "Fixi",
+  "loading": "Loading",
+  "login_title": "Login",
+  "enter_phone": "Enter your phone number",
+  "phone_hint": "+66...",
+  "request_otp": "Request code",
+  "verify_title": "Verification",
+  "enter_otp": "Enter code",
+  "otp_hint": "123456",
+  "verify": "Verify",
+  "choose_role": "Choose role",
+  "who_are_you": "Who are you in Fixi?",
+  "client": "Client",
+  "master": "Master",
+  "home_title": "Home",
+  "not_implemented": "Not implemented yet",
+  "logout": "Logout"
+}

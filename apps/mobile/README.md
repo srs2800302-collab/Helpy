@@ -1,16 +1,27 @@
 # Fixi Mobile
 
-Planned stack:
-- Flutter
-- Riverpod
-- go_router
-- Dio
-- intl
-- FCM
-- Google Maps
+Current mobile foundation:
+- Flutter app structure
+- Riverpod state management
+- go_router routing
+- Dio API client
+- in-memory token storage contract
+- RU / EN / TH localization
+- splash screen
+- auth flow screens wiring
+- role selection
+- simple home screen
 
-Architecture:
-- feature-based structure
-- no API calls in UI
-- state handled separately
-- localization first
+Current flow:
+- splash
+- login phone
+- verify otp
+- select role if needed
+- home
+
+Next:
+- persistent token storage
+- auth redirect logic in router
+- jobs creation flow
+- categories loading
+- client/master home separation
