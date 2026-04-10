@@ -1,4 +1,5 @@
 import { createJob, getJobById, getJobs, updateJobStatus } from './jobs';
+import { createOffer, getOffers } from './offers';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -19,28 +20,26 @@ export async function handleRequest(request: Request, env: any) {
     return createJob(request, env);
   }
 
+  // offers list
+  if (url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) && request.method === 'GET') {
+    const jobId = url.pathname.split('/')[4];
+    return getOffers(jobId, env);
+  }
+
+  // create offer
+  if (url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) && request.method === 'POST') {
+    const jobId = url.pathname.split('/')[4];
+    return createOffer(jobId, request, env);
+  }
+
   if (url.pathname.startsWith('/api/v1/jobs/') && request.method === 'GET') {
     const jobId = url.pathname.split('/').pop();
-
-    if (!jobId) {
-      return Response.json(
-        { success: false, error: 'Job id is required' },
-        { status: 400 }
-      );
-    }
-
-    return getJobById(jobId, env);
+    return getJobById(jobId!, env);
   }
 
   if (url.pathname.startsWith('/api/v1/jobs/') && request.method === 'PATCH') {
     const segments = url.pathname.split('/');
     const jobId = segments[segments.length - 2];
-    const action = segments[segments.length - 1];
-
-    if (!jobId || action !== 'status') {
-      return new Response('Not Found', { status: 404 });
-    }
-
     return updateJobStatus(jobId, request, env);
   }
 
