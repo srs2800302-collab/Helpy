@@ -3,11 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../auth/domain/auth_session.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String jobId;
+  final bool canStartWork;
+  final bool canCompleteJob;
 
-  const ChatScreen({super.key, required this.jobId});
+  const ChatScreen({
+    super.key,
+    required this.jobId,
+    this.canStartWork = false,
+    this.canCompleteJob = false,
+  });
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -84,6 +92,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     final isBusy = state.isLoading;
     final hasMessages = state.messages.isNotEmpty;
+    final isMaster = session?.role == UserRole.master;
+    final showStartWork = isMaster && widget.canStartWork;
+    final showCompleteJob = isMaster && widget.canCompleteJob;
+    final showExecutionActions = showStartWork || showCompleteJob;
 
     return Scaffold(
       appBar: AppBar(
@@ -91,28 +103,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
       body: Column(
         children: [
-          if (session != null) ...[
+          if (showExecutionActions)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: Row(
                 children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: isBusy ? null : _startWork,
-                      child: Text(l10n.t('start_work')),
+                  if (showStartWork)
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: isBusy ? null : _startWork,
+                        child: Text(l10n.t('start_work')),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: isBusy ? null : _completeJob,
-                      child: Text(l10n.t('complete_job')),
+                  if (showStartWork && showCompleteJob)
+                    const SizedBox(width: 8),
+                  if (showCompleteJob)
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: isBusy ? null : _completeJob,
+                        child: Text(l10n.t('complete_job')),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
-          ],
           if (state.errorMessage != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
