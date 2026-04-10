@@ -15,10 +15,7 @@ class AuthApi {
     );
   }
 
-  Future<AuthSession> verifyOtp({
-    required String phone,
-    required String code,
-  }) async {
+  Future<AuthSession> verifyOtp(String phone, String code) async {
     final response = await apiClient.post(
       '/auth/verify-otp',
       data: {
@@ -30,16 +27,19 @@ class AuthApi {
     return _mapSession(response.data['data'] as Map<String, dynamic>);
   }
 
-  Future<AuthSession> selectMyRole({
-    required String role,
-  }) async {
+  Future<AuthSession> selectRole(UserRole role) async {
     final response = await apiClient.post(
       '/auth/select-my-role',
       data: {
-        'role': role,
+        'role': _roleToApiValue(role),
       },
     );
 
+    return _mapSession(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<AuthSession> getCurrentUser() async {
+    final response = await apiClient.get('/auth/me');
     return _mapSession(response.data['data'] as Map<String, dynamic>);
   }
 
@@ -69,13 +69,39 @@ class AuthApi {
     final user = json['user'] as Map<String, dynamic>;
     final tokens = json['tokens'] as Map<String, dynamic>;
 
+    final role = _mapRole(user['role']?.toString());
+
     return AuthSession(
       userId: user['id'].toString(),
       phone: user['phone'].toString(),
-      role: user['role']?.toString(),
+      role: role,
       accessToken: tokens['accessToken'].toString(),
       refreshToken: tokens['refreshToken']?.toString() ?? '',
-      isNewUser: user['role'] == null,
+      needsRoleSelection: role == null,
     );
+  }
+
+  UserRole? _mapRole(String? value) {
+    switch (value) {
+      case 'client':
+        return UserRole.client;
+      case 'master':
+        return UserRole.master;
+      case 'admin':
+        return UserRole.admin;
+      default:
+        return null;
+    }
+  }
+
+  String _roleToApiValue(UserRole role) {
+    switch (role) {
+      case UserRole.client:
+        return 'client';
+      case UserRole.master:
+        return 'master';
+      case UserRole.admin:
+        return 'admin';
+    }
   }
 }
