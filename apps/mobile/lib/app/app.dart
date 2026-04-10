@@ -19,6 +19,7 @@ class FixiApp extends ConsumerStatefulWidget {
 class _FixiAppState extends ConsumerState<FixiApp> {
   late final AuthRouterNotifier _routerNotifier;
   late final Object _authListener;
+  late final Object _sessionExpiredListener;
   late final GoRouter router;
 
   @override
@@ -33,6 +34,14 @@ class _FixiAppState extends ConsumerState<FixiApp> {
         _routerNotifier.update(next);
       },
       fireImmediately: true,
+    );
+
+    _sessionExpiredListener = ref.listenManual<int>(
+      sessionExpiredTickProvider,
+      (previous, next) async {
+        if (previous == next) return;
+        await ref.read(authControllerProvider.notifier).handleSessionExpired();
+      },
     );
   }
 
@@ -59,6 +68,7 @@ class _FixiAppState extends ConsumerState<FixiApp> {
   @override
   void dispose() {
     (_authListener as ProviderSubscription<AuthState>).close();
+    (_sessionExpiredListener as ProviderSubscription<int>).close();
     _routerNotifier.dispose();
     super.dispose();
   }

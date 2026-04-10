@@ -41,6 +41,10 @@ final tokenStorageProvider = Provider<TokenStorage>((ref) {
   return FileTokenStorage();
 });
 
+final sessionExpiredTickProvider = StateProvider<int>((ref) {
+  return 0;
+});
+
 final apiClientProvider = Provider<ApiClient>((ref) {
   final client = ApiClient(
     config: ref.read(appConfigProvider),
@@ -50,6 +54,10 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   client.setRefreshTokensFn((refreshToken) async {
     final authApi = AuthApi(client);
     return authApi.refreshAccessToken(refreshToken);
+  });
+
+  client.setUnauthorizedHandler(() {
+    ref.read(sessionExpiredTickProvider.notifier).state++;
   });
 
   return client;

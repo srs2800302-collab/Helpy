@@ -167,6 +167,18 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> handleSessionExpired() async {
+    await ref.read(tokenStorageProvider).clearAll();
+    state = state.copyWith(
+      isLoading: false,
+      initialized: true,
+      phone: '',
+      otpCode: '',
+      clearSession: true,
+      clearError: true,
+    );
+  }
+
   Future<void> logout() async {
     await ref.read(tokenStorageProvider).clearAll();
     state = const AuthState(initialized: true);
