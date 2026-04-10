@@ -33,6 +33,8 @@ import '../features/chat/presentation/providers/chat_controller.dart';
 import '../features/reviews/data/reviews_api.dart';
 import '../features/reviews/presentation/providers/reviews_controller.dart';
 
+import '../features/payments/data/payments_api.dart';
+
 final appConfigProvider = Provider<AppConfig>((ref) {
   return AppConfig.dev();
 });
@@ -89,6 +91,10 @@ final chatApiProvider = Provider<ChatApi>((ref) {
 
 final reviewsApiProvider = Provider<ReviewsApi>((ref) {
   return ReviewsApi(ref.read(apiClientProvider));
+});
+
+final paymentsApiProvider = Provider<PaymentsApi>((ref) {
+  return PaymentsApi(ref.read(apiClientProvider));
 });
 
 final authControllerProvider =

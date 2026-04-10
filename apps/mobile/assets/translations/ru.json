@@ -55,5 +55,8 @@
   "submit_review": "Отправить отзыв",
   "review_created": "Отзыв создан",
   "validation_phone_invalid": "Введите корректный номер телефона",
-  "validation_otp_invalid": "Введите 6-значный код"
+  "validation_otp_invalid": "Введите 6-значный код",
+  "deposit_payment": "Оплата депозита",
+  "pay_deposit": "Оплатить депозит",
+  "payment_successful": "Оплата прошла успешно"
 }

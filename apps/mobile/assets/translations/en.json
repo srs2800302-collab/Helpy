@@ -55,5 +55,8 @@
   "submit_review": "Submit review",
   "review_created": "Review created",
   "validation_phone_invalid": "Enter a valid phone number",
-  "validation_otp_invalid": "Enter the 6-digit code"
+  "validation_otp_invalid": "Enter the 6-digit code",
+  "deposit_payment": "Deposit payment",
+  "pay_deposit": "Pay deposit",
+  "payment_successful": "Payment completed successfully"
 }

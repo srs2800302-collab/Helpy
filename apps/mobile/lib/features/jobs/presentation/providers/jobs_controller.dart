@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
+import '../../domain/job_item.dart';
 import 'jobs_state.dart';
 
 class JobsController extends StateNotifier<JobsState> {
@@ -74,21 +75,21 @@ class JobsController extends StateNotifier<JobsState> {
     }
   }
 
-  Future<bool> createDraft() async {
+  Future<JobItem?> createDraftAndSubmitForPayment() async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
       state = state.copyWith(errorMessage: 'No active session');
-      return false;
+      return null;
     }
 
     if ((state.selectedCategoryId ?? '').isEmpty) {
       state = state.copyWith(errorMessage: 'Category is required');
-      return false;
+      return null;
     }
 
     if (state.title.trim().length < 3) {
       state = state.copyWith(errorMessage: 'Title is too short');
-      return false;
+      return null;
     }
 
     state = state.copyWith(
@@ -106,23 +107,33 @@ class JobsController extends StateNotifier<JobsState> {
             addressText: state.addressText.trim().isEmpty ? null : state.addressText.trim(),
           );
 
+      final submitted = await ref.read(jobsApiProvider).submitForPayment(
+            jobId: created.id,
+          );
+
+      final nextItems = [
+        submitted,
+        ...state.items.where((item) => item.id != submitted.id),
+      ];
+
       state = state.copyWith(
         isSubmitting: false,
-        items: [created, ...state.items],
+        items: nextItems,
         title: '',
         description: '',
         addressText: '',
         clearSelectedCategory: true,
         successMessage: 'Job created',
       );
-      return true;
+
+      return submitted;
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isSubmitting: false,
         errorMessage: appError.message,
       );
-      return false;
+      return null;
     }
   }
 }
