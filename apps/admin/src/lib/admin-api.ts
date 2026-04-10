@@ -35,12 +35,17 @@ function getApiBaseUrl(): string | null {
   return value.replace(/\/+$/, '');
 }
 
-export async function fetchAdminJobs(): Promise<AdminJobRow[]> {
+export async function fetchAdminJobs(status?: string): Promise<AdminJobRow[]> {
   const baseUrl = getApiBaseUrl();
   if (!baseUrl) return [];
 
+  const query = new URLSearchParams();
+  if (status) query.set('status', status);
+
+  const url = `${baseUrl}/jobs/admin/all${query.toString() ? `?${query}` : ''}`;
+
   try {
-    const response = await fetch(`${baseUrl}/jobs/admin/all`, {
+    const response = await fetch(url, {
       cache: 'no-store',
     });
 
@@ -55,12 +60,17 @@ export async function fetchAdminJobs(): Promise<AdminJobRow[]> {
   }
 }
 
-export async function fetchAdminPayments(): Promise<AdminPaymentRow[]> {
+export async function fetchAdminPayments(status?: string): Promise<AdminPaymentRow[]> {
   const baseUrl = getApiBaseUrl();
   if (!baseUrl) return [];
 
+  const query = new URLSearchParams();
+  if (status) query.set('status', status);
+
+  const url = `${baseUrl}/payments/admin/all${query.toString() ? `?${query}` : ''}`;
+
   try {
-    const response = await fetch(`${baseUrl}/payments/admin/all`, {
+    const response = await fetch(url, {
       cache: 'no-store',
     });
 
