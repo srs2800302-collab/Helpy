@@ -19,6 +19,16 @@ class AuthState {
 
   bool get isAuthenticated => session != null;
 
+  bool get isPhoneValid {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    return digits.length >= 9 && digits.length <= 15;
+  }
+
+  bool get isOtpValid {
+    final digits = otpCode.replaceAll(RegExp(r'\D'), '');
+    return digits.length == 6;
+  }
+
   AuthState copyWith({
     bool? isLoading,
     bool? initialized,
