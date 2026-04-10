@@ -20,6 +20,7 @@ class ApiClient {
   final TokenStorage _tokenStorage;
 
   RefreshTokensFn? _refreshTokensFn;
+  void Function()? _unauthorizedHandler;
   bool _isRefreshing = false;
   Future<RefreshTokensResult?>? _refreshFuture;
 
@@ -100,6 +101,7 @@ class ApiClient {
             }
 
             await _tokenStorage.clearAll();
+            _unauthorizedHandler?.call();
           }
 
           handler.next(error);
@@ -110,6 +112,10 @@ class ApiClient {
 
   void setRefreshTokensFn(RefreshTokensFn fn) {
     _refreshTokensFn = fn;
+  }
+
+  void setUnauthorizedHandler(void Function() fn) {
+    _unauthorizedHandler = fn;
   }
 
   Dio get dio => _dio;
