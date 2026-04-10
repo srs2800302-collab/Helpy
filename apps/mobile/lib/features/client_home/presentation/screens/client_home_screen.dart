@@ -24,21 +24,27 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     });
   }
 
+  Future<void> _refreshAll() async {
+    await ref.read(categoriesControllerProvider.notifier).load();
+    await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final categoriesState = ref.watch(categoriesControllerProvider);
     final jobsState = ref.watch(jobsControllerProvider);
     final authController = ref.read(authControllerProvider.notifier);
-    final categoriesController = ref.read(categoriesControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+
+    final isRefreshing = categoriesState.isLoading || jobsState.isLoading;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('client_home_title')),
         actions: [
           IconButton(
-            onPressed: categoriesState.isLoading ? null : () => categoriesController.load(),
+            onPressed: isRefreshing ? null : _refreshAll,
             icon: const Icon(Icons.refresh),
             tooltip: l10n.t('refresh'),
           ),
@@ -52,40 +58,94 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
             ),
           );
           if (mounted) {
-            ref.read(jobsControllerProvider.notifier).loadClientJobs();
+            await ref.read(jobsControllerProvider.notifier).loadClientJobs();
           }
         },
         label: Text(l10n.t('create_job')),
         icon: const Icon(Icons.add),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: RefreshIndicator(
+        onRefresh: _refreshAll,
         child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            Text('User ID: ${authState.session?.userId ?? '-'}'),
-            const SizedBox(height: 8),
-            Text('Phone: ${authState.session?.phone ?? '-'}'),
-            const SizedBox(height: 8),
-            Text('Role: ${authState.session?.role?.name ?? 'null'}'),
-            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.t('client_home_title'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text('User ID: ${authState.session?.userId ?? '-'}'),
+                    const SizedBox(height: 6),
+                    Text('Phone: ${authState.session?.phone ?? '-'}'),
+                    const SizedBox(height: 6),
+                    Text('Role: ${authState.session?.role?.name ?? 'null'}'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (categoriesState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    categoriesState.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
+            if (jobsState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    jobsState.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
             Text(
               l10n.t('categories'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
-            if (categoriesState.isLoading)
-              Text(l10n.t('loading'))
-            else if (categoriesState.errorMessage != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${l10n.t('error')}: ${categoriesState.errorMessage}'),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => categoriesController.load(),
-                    child: Text(l10n.t('retry')),
-                  ),
-                ],
+            if (categoriesState.isLoading && categoriesState.items.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (categoriesState.items.isEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(l10n.t('loading')),
+                ),
               )
             else
               ...categoriesState.items.take(5).map(
@@ -102,7 +162,10 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 Expanded(
                   child: Text(
                     l10n.t('my_jobs'),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 TextButton(
@@ -118,12 +181,20 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            if (jobsState.isLoading)
-              Text(l10n.t('loading'))
-            else if (jobsState.errorMessage != null)
-              Text('${l10n.t('error')}: ${jobsState.errorMessage}')
+            if (jobsState.isLoading && jobsState.items.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(),
+                ),
+              )
             else if (jobsState.items.isEmpty)
-              Text(l10n.t('empty_jobs'))
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(l10n.t('empty_jobs')),
+                ),
+              )
             else
               ...jobsState.items.take(3).map(
                     (item) => Card(
