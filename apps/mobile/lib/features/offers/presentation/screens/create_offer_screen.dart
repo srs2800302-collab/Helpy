@@ -21,6 +21,9 @@ class CreateOfferScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
 
     final isBusy = state.isSubmitting;
+    final trimmedMessage = state.message.trim();
+    final trimmedPriceComment = state.priceComment.trim();
+    final hasAnyContent = trimmedMessage.isNotEmpty || trimmedPriceComment.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -37,6 +40,7 @@ class CreateOfferScreen extends ConsumerWidget {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('offer_message'),
+                helperText: hasAnyContent ? null : 'Enter a message or price comment',
               ),
             ),
             const SizedBox(height: 16),
@@ -46,6 +50,7 @@ class CreateOfferScreen extends ConsumerWidget {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('offer_price_comment'),
+                helperText: hasAnyContent ? null : 'Enter a message or price comment',
               ),
             ),
             const SizedBox(height: 16),
@@ -82,7 +87,7 @@ class CreateOfferScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isBusy
+                onPressed: isBusy || !hasAnyContent
                     ? null
                     : () async {
                         final ok = await controller.createOffer(jobId: jobId);

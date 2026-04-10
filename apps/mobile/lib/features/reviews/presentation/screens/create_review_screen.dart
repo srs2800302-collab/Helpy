@@ -20,6 +20,8 @@ class CreateReviewScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
 
     final isBusy = state.isSubmitting;
+    final trimmedComment = state.comment.trim();
+    final isCommentValid = trimmedComment.length >= 3;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,6 +59,9 @@ class CreateReviewScreen extends ConsumerWidget {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('comment'),
+                helperText: trimmedComment.isEmpty || isCommentValid
+                    ? null
+                    : 'Minimum 3 characters',
               ),
             ),
             const SizedBox(height: 16),
@@ -93,7 +98,7 @@ class CreateReviewScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isBusy
+                onPressed: isBusy || !isCommentValid
                     ? null
                     : () async {
                         final ok = await controller.createReview(jobId: jobId);
