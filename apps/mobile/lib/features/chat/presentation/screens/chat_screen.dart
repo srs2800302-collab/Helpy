@@ -22,10 +22,64 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
+  Future<void> _startWork() async {
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) return;
+
+    try {
+      await ref.read(chatApiProvider).startWork(
+            jobId: widget.jobId,
+            actorUserId: session.userId,
+          );
+
+      await ref.read(chatControllerProvider.notifier).load(widget.jobId);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).t('job_started')),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
+  Future<void> _completeJob() async {
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) return;
+
+    try {
+      await ref.read(chatApiProvider).completeJob(
+            jobId: widget.jobId,
+            actorUserId: session.userId,
+          );
+
+      await ref.read(chatControllerProvider.notifier).load(widget.jobId);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).t('job_completed')),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(chatControllerProvider);
     final controller = ref.read(chatControllerProvider.notifier);
+    final authState = ref.watch(authControllerProvider);
+    final session = authState.session;
     final l10n = AppLocalizations.of(context);
 
     final isBusy = state.isLoading;
@@ -37,6 +91,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
       body: Column(
         children: [
+          if (session != null) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: isBusy ? null : _startWork,
+                      child: Text(l10n.t('start_work')),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: isBusy ? null : _completeJob,
+                      child: Text(l10n.t('complete_job')),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           if (state.errorMessage != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
