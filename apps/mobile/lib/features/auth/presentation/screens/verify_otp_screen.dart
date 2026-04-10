@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 
@@ -12,6 +13,8 @@ class VerifyOtpScreen extends ConsumerWidget {
     final controller = ref.read(authControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
 
+    final isBusy = state.isLoading;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('verify_title')),
@@ -23,12 +26,16 @@ class VerifyOtpScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             Text(
               l10n.t('enter_otp'),
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
               keyboardType: TextInputType.number,
               onChanged: controller.setOtpCode,
+              enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintText: l10n.t('otp_hint'),
@@ -37,21 +44,35 @@ class VerifyOtpScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             if (state.errorMessage != null) ...[
-              Text(
-                state.errorMessage!,
-                style: const TextStyle(color: Colors.red),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  state.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
               const SizedBox(height: 16),
             ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: state.isLoading
+                onPressed: isBusy
                     ? null
                     : () async {
                         await controller.verifyOtp();
                       },
-                child: Text(l10n.t('verify')),
+                child: isBusy
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l10n.t('verify')),
               ),
             ),
           ],
