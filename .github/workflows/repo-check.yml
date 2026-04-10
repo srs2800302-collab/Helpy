@@ -4,15 +4,16 @@ on:
   push:
     branches:
       - main
-      - stage-0-foundation
+      - stage-s1-ci-stabilization-from-m8
+      - stage-s2-ci-fixes
+      - stage-s3-ci-finalize
   pull_request:
 
 jobs:
   repo-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Validate repository structure
         run: |

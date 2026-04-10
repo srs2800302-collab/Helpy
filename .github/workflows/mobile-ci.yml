@@ -15,6 +15,8 @@ on:
       - stage-m7-reviews-polish
       - stage-m8-mobile-cleanup
       - stage-s1-ci-stabilization-from-m8
+      - stage-s2-ci-fixes
+      - stage-s3-ci-finalize
   pull_request:
 
 jobs:

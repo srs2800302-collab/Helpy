@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../client_offers/presentation/screens/job_offers_screen.dart';
 import '../../../jobs/presentation/screens/client_jobs_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
 
@@ -36,9 +38,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
         title: Text(l10n.t('client_home_title')),
         actions: [
           IconButton(
-            onPressed: categoriesState.isLoading
-                ? null
-                : () => categoriesController.load(),
+            onPressed: categoriesState.isLoading ? null : () => categoriesController.load(),
             icon: const Icon(Icons.refresh),
             tooltip: l10n.t('refresh'),
           ),
