@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/providers.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import 'categories_state.dart';
 
 class CategoriesController extends StateNotifier<CategoriesState> {
@@ -18,10 +20,11 @@ class CategoriesController extends StateNotifier<CategoriesState> {
         items: items,
       );
     } catch (e) {
+      final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
         initialized: true,
-        errorMessage: e.toString(),
+        errorMessage: appError.message,
       );
     }
   }
