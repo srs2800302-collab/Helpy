@@ -5,6 +5,7 @@ class OfferItem {
   final String? message;
   final String? priceComment;
   final String status;
+  final String jobStatus;
   final String jobTitle;
   final String categorySlug;
   final DateTime createdAt;
@@ -16,6 +17,7 @@ class OfferItem {
     required this.message,
     required this.priceComment,
     required this.status,
+    required this.jobStatus,
     required this.jobTitle,
     required this.categorySlug,
     required this.createdAt,

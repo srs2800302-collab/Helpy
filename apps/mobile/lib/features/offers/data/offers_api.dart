@@ -78,6 +78,7 @@ class OffersApi {
       message: json['message'] as String?,
       priceComment: json['priceComment'] as String?,
       status: json['status'] as String? ?? '',
+      jobStatus: job['status'] as String? ?? '',
       jobTitle: job['title'] as String? ?? '',
       categorySlug: category['slug'] as String? ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),

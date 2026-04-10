@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../chat/presentation/screens/chat_screen.dart';
 
 class MasterOffersScreen extends ConsumerStatefulWidget {
   const MasterOffersScreen({super.key});
@@ -87,13 +88,46 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
+
+                            final canOpenChat = item.status == 'accepted' &&
+                                (item.jobStatus == 'master_selected' ||
+                                    item.jobStatus == 'in_progress' ||
+                                    item.jobStatus == 'completed');
+                            final canStartWork =
+                                item.status == 'accepted' && item.jobStatus == 'master_selected';
+                            final canCompleteJob =
+                                item.status == 'accepted' && item.jobStatus == 'in_progress';
+
+                            Widget? trailing;
+                            if (canOpenChat) {
+                              trailing = ElevatedButton(
+                                onPressed: () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatScreen(
+                                        jobId: item.jobId,
+                                        canStartWork: canStartWork,
+                                        canCompleteJob: canCompleteJob,
+                                      ),
+                                    ),
+                                  );
+
+                                  if (mounted) {
+                                    await _refresh();
+                                  }
+                                },
+                                child: Text(l10n.t('chat')),
+                              );
+                            }
+
                             return Card(
                               child: ListTile(
                                 title: Text(item.jobTitle),
                                 subtitle: Text(
-                                  '${item.categorySlug} • ${item.status}\n${item.message ?? ''}',
+                                  '${item.categorySlug} • ${item.status} • ${item.jobStatus}\n${item.message ?? ''}',
                                 ),
                                 isThreeLine: true,
+                                trailing: trailing,
                               ),
                             );
                           },
