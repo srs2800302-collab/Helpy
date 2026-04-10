@@ -23,6 +23,7 @@ class CreateReviewScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // ignore: deprecated_member_use
             DropdownButtonFormField<int>(
               value: state.rating,
               items: const [1, 2, 3, 4, 5]
