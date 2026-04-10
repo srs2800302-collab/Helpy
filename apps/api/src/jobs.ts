@@ -4,6 +4,12 @@ type CreateJobBody = {
   category?: string;
 };
 
+type UpdateJobStatusBody = {
+  status?: string;
+};
+
+const allowedStatuses = ['open', 'in_progress', 'completed'] as const;
+
 const mockJobs = [
   {
     id: '1',
@@ -82,4 +88,49 @@ export async function createJob(request: Request) {
     },
     { status: 201 },
   );
+}
+
+export async function updateJobStatus(jobId: string, request: Request) {
+  const job = mockJobs.find((item) => item.id === jobId);
+
+  if (!job) {
+    return Response.json(
+      {
+        success: false,
+        error: 'Job not found',
+      },
+      { status: 404 },
+    );
+  }
+
+  let body: UpdateJobStatusBody;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      {
+        success: false,
+        error: 'Invalid JSON body',
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!body.status || !allowedStatuses.includes(body.status as (typeof allowedStatuses)[number])) {
+    return Response.json(
+      {
+        success: false,
+        error: 'status must be one of: open, in_progress, completed',
+      },
+      { status: 400 },
+    );
+  }
+
+  job.status = body.status;
+
+  return Response.json({
+    success: true,
+    data: job,
+  });
 }

@@ -1,4 +1,4 @@
-import { createJob, getJobById, getJobs } from './jobs';
+import { createJob, getJobById, getJobs, updateJobStatus } from './jobs';
 
 export async function handleRequest(request: Request) {
   const url = new URL(request.url);
@@ -33,6 +33,18 @@ export async function handleRequest(request: Request) {
     }
 
     return getJobById(jobId);
+  }
+
+  if (url.pathname.startsWith('/api/v1/jobs/') && request.method === 'PATCH') {
+    const segments = url.pathname.split('/');
+    const jobId = segments[segments.length - 2];
+    const action = segments[segments.length - 1];
+
+    if (!jobId || action !== 'status') {
+      return new Response('Not Found', { status: 404 });
+    }
+
+    return updateJobStatus(jobId, request);
   }
 
   return new Response('Not Found', { status: 404 });
