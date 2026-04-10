@@ -24,11 +24,11 @@ class CreateReviewScreen extends ConsumerWidget {
         child: Column(
           children: [
             DropdownButtonFormField<int>(
-              initialValue: state.rating,
+              value: state.rating,
               items: const [1, 2, 3, 4, 5]
                   .map(
                     (value) => DropdownMenuItem<int>(
-                      initialValue: value,
+                      value: value,
                       child: Text('$value'),
                     ),
                   )
