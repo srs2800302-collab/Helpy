@@ -1,8 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
-import '../../../../core/localization/app_localizations.dart';
 import '../../domain/auth_session.dart';
 import 'auth_state.dart';
 
@@ -194,6 +195,29 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   String _t(String key) {
-    return AppLocalizations.instance.t(key);
+    final lang = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
+
+    switch (key) {
+      case 'validation_phone_invalid':
+        switch (lang) {
+          case 'ru':
+            return 'Введите корректный номер телефона';
+          case 'th':
+            return 'กรอกหมายเลขโทรศัพท์ให้ถูกต้อง';
+          default:
+            return 'Enter a valid phone number';
+        }
+      case 'validation_otp_invalid':
+        switch (lang) {
+          case 'ru':
+            return 'Введите 6-значный код';
+          case 'th':
+            return 'กรอกรหัส 6 หลัก';
+          default:
+            return 'Enter the 6-digit code';
+        }
+      default:
+        return key;
+    }
   }
 }
