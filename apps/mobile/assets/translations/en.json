@@ -30,5 +30,13 @@
   "save_draft": "Save draft",
   "select_category": "Select category",
   "job_created": "Job created",
-  "empty_jobs": "No jobs yet"
+  "empty_jobs": "No jobs yet",
+  "marketplace": "Marketplace",
+  "open_jobs": "Open jobs",
+  "my_offers": "My offers",
+  "offer_message": "Message",
+  "offer_price_comment": "Price comment",
+  "send_offer": "Send offer",
+  "offer_created": "Offer created",
+  "empty_offers": "No offers yet"
 }

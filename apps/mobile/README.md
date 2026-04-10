@@ -15,6 +15,9 @@ Current mobile foundation:
 - categories loading
 - client create job flow
 - client jobs list
+- master marketplace feed
+- master create offer flow
+- master offers list
 
 Current flow:
 - splash
@@ -24,9 +27,12 @@ Current flow:
 - client/master home
 - client create job draft
 - client view own jobs
+- master browse open jobs
+- master create offer
+- master view own offers
 
 Next:
-- job details
-- submit for payment
-- master marketplace feed
+- client view offers on job
+- client select master
+- chat screens
 - profile setup screens

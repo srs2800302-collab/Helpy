@@ -11,6 +11,12 @@ import '../features/categories/presentation/providers/categories_state.dart';
 import '../features/jobs/data/jobs_api.dart';
 import '../features/jobs/presentation/providers/jobs_controller.dart';
 import '../features/jobs/presentation/providers/jobs_state.dart';
+import '../features/marketplace/data/marketplace_api.dart';
+import '../features/marketplace/presentation/providers/marketplace_controller.dart';
+import '../features/marketplace/presentation/providers/marketplace_state.dart';
+import '../features/offers/data/offers_api.dart';
+import '../features/offers/presentation/providers/offers_controller.dart';
+import '../features/offers/presentation/providers/offers_state.dart';
 
 final appConfigProvider = Provider<AppConfig>((ref) {
   return AppConfig.dev();
@@ -39,6 +45,14 @@ final jobsApiProvider = Provider<JobsApi>((ref) {
   return JobsApi(ref.read(apiClientProvider));
 });
 
+final marketplaceApiProvider = Provider<MarketplaceApi>((ref) {
+  return MarketplaceApi(ref.read(apiClientProvider));
+});
+
+final offersApiProvider = Provider<OffersApi>((ref) {
+  return OffersApi(ref.read(apiClientProvider));
+});
+
 final authControllerProvider =
     StateNotifierProvider<AuthController, AuthState>((ref) {
   return AuthController(ref);
@@ -52,4 +66,14 @@ final categoriesControllerProvider =
 final jobsControllerProvider =
     StateNotifierProvider<JobsController, JobsState>((ref) {
   return JobsController(ref);
+});
+
+final marketplaceControllerProvider =
+    StateNotifierProvider<MarketplaceController, MarketplaceState>((ref) {
+  return MarketplaceController(ref);
+});
+
+final offersControllerProvider =
+    StateNotifierProvider<OffersController, OffersState>((ref) {
+  return OffersController(ref);
 });

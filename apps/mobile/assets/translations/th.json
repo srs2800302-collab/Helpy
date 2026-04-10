@@ -30,5 +30,13 @@
   "save_draft": "บันทึกฉบับร่าง",
   "select_category": "เลือกหมวดหมู่",
   "job_created": "สร้างงานแล้ว",
-  "empty_jobs": "ยังไม่มีงาน"
+  "empty_jobs": "ยังไม่มีงาน",
+  "marketplace": "มาร์เก็ตเพลส",
+  "open_jobs": "งานที่เปิดอยู่",
+  "my_offers": "ข้อเสนอของฉัน",
+  "offer_message": "ข้อความ",
+  "offer_price_comment": "หมายเหตุราคา",
+  "send_offer": "ส่งข้อเสนอ",
+  "offer_created": "สร้างข้อเสนอแล้ว",
+  "empty_offers": "ยังไม่มีข้อเสนอ"
 }
