@@ -1,6 +1,6 @@
 # Fixi Mobile
 
-Current mobile foundation:
+Current mobile MVP foundation:
 - Flutter app structure
 - Riverpod state management
 - go_router routing
@@ -20,6 +20,8 @@ Current mobile foundation:
 - master offers list
 - client offers list by job
 - client select master flow
+- chat UI foundation
+- review creation UI
 
 Current flow:
 - splash
@@ -33,9 +35,11 @@ Current flow:
 - master create offer
 - master view own offers
 - client view offers and select master
+- chat
+- review
 
-Next:
-- chat UI
-- job execution flow
-- reviews UI
-- profile setup screens
+Known limitations:
+- file token storage should later be replaced with secure storage
+- no production JWT yet
+- no real multipart upload flow yet
+- no polished UI system yet
