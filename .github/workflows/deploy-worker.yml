@@ -3,28 +3,24 @@ name: Deploy Cloudflare Worker
 on:
   push:
     paths:
-      - 'apps/api/**'
+      - 'apps/edge-api/**'
       - '.github/workflows/deploy-worker.yml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    defaults:
+      run:
+        working-directory: apps/edge-api
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Install Wrangler
         run: npm install -g wrangler
 
-      - name: Deploy Worker
-        working-directory: apps/api
+      - name: Deploy
         run: wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
