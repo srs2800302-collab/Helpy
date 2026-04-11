@@ -22,11 +22,12 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
   }
 
   await env.DB.prepare(
-    'UPDATE jobs SET selected_offer_id = ?1, selected_master_name = ?2, status = ?3 WHERE id = ?4'
+    'UPDATE jobs SET selected_offer_id = ?1, selected_master_name = ?2, selected_master_user_id = ?3, status = ?4 WHERE id = ?5'
   )
     .bind(
       offer.id,
       offer.master_name,
+      offer.master_user_id,
       'master_selected',
       jobId
     )
@@ -38,6 +39,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       job_id: jobId,
       selected_offer_id: offer.id,
       selected_master_name: offer.master_name,
+      selected_master_user_id: offer.master_user_id,
       status: 'master_selected',
     },
   });

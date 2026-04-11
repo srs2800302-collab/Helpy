@@ -1,4 +1,5 @@
 type CreateOfferBody = {
+  master_user_id?: string;
   master_name?: string;
   price?: number;
   comment?: string;
@@ -16,9 +17,16 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (!body.master_name || typeof body.price !== 'number') {
+  if (
+    !body.master_user_id ||
+    !body.master_name ||
+    typeof body.price !== 'number'
+  ) {
     return Response.json(
-      { success: false, error: 'master_name and price are required' },
+      {
+        success: false,
+        error: 'master_user_id, master_name and price are required',
+      },
       { status: 400 }
     );
   }
@@ -27,11 +35,12 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     const id = crypto.randomUUID();
 
     await env.DB.prepare(
-      'INSERT INTO offers (id, job_id, master_name, price, comment, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)'
+      'INSERT INTO offers (id, job_id, master_user_id, master_name, price, comment, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
     )
       .bind(
         id,
         jobId,
+        body.master_user_id,
         body.master_name,
         body.price,
         body.comment ?? null,
@@ -45,6 +54,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
         data: {
           id,
           job_id: jobId,
+          master_user_id: body.master_user_id,
           master_name: body.master_name,
           price: body.price,
           comment: body.comment ?? null,

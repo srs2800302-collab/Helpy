@@ -1,4 +1,4 @@
-import { createJob, getJobById, getJobs, updateJobStatus } from './jobs';
+import { createJob, getJobById, getJobs, getJobsByUser, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
 import { createReview, getReviews } from './reviews';
@@ -23,6 +23,14 @@ export async function handleRequest(request: Request, env: any) {
   ) {
     const id = url.pathname.split('/')[4];
     return getUserFull(id, env);
+  }
+
+  if (
+    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/jobs$/) &&
+    request.method === 'GET'
+  ) {
+    const userId = url.pathname.split('/')[4];
+    return getJobsByUser(userId, env);
   }
 
   if (
