@@ -18,170 +18,67 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(chatControllerProvider.notifier).load(widget.jobId);
+      ref.read(chatControllerProvider.notifier).init(widget.jobId);
     });
   }
 
-  Future<void> _startWork() async {
-    final session = ref.read(authControllerProvider).session;
-    if (session == null) return;
-
-    try {
-      await ref.read(chatApiProvider).startWork(
-            jobId: widget.jobId,
-            actorUserId: session.userId,
-          );
-
-      await ref.read(chatControllerProvider.notifier).load(widget.jobId);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).t('job_started')),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    }
-  }
-
-  Future<void> _completeJob() async {
-    final session = ref.read(authControllerProvider).session;
-    if (session == null) return;
-
-    try {
-      await ref.read(chatApiProvider).completeJob(
-            jobId: widget.jobId,
-            actorUserId: session.userId,
-          );
-
-      await ref.read(chatControllerProvider.notifier).load(widget.jobId);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).t('job_completed')),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    }
+  @override
+  void dispose() {
+    ref.read(chatControllerProvider.notifier).disposePolling();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(chatControllerProvider);
     final controller = ref.read(chatControllerProvider.notifier);
-    final authState = ref.watch(authControllerProvider);
-    final session = authState.session;
     final l10n = AppLocalizations.of(context);
 
-    final isBusy = state.isLoading;
-    final hasMessages = state.messages.isNotEmpty;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.t('chat')),
-      ),
+      appBar: AppBar(title: Text(l10n.t('chat'))),
       body: Column(
         children: [
-          if (session != null) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: isBusy ? null : _startWork,
-                      child: Text(l10n.t('start_work')),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: isBusy ? null : _completeJob,
-                      child: Text(l10n.t('complete_job')),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
           if (state.errorMessage != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.red),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  state.errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                state.errorMessage!,
+                style: const TextStyle(color: Colors.red),
               ),
             ),
           Expanded(
-            child: isBusy && !hasMessages
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : hasMessages
-                    ? ListView(
-                        padding: const EdgeInsets.all(12),
-                        children: state.messages
-                            .map(
-                              (m) => Card(
-                                child: ListTile(
-                                  title: Text(m.text),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      )
-                    : Center(
-                        child: Text(l10n.t('not_implemented')),
-                      ),
+            child: state.isLoading && state.messages.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: state.messages.length,
+                    itemBuilder: (context, index) {
+                      final m = state.messages[index];
+                      return Card(
+                        child: ListTile(
+                          title: Text(m.text),
+                          subtitle: Text(m.senderUserId),
+                        ),
+                      );
+                    },
+                  ),
           ),
           SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      onChanged: controller.setInput,
-                      enabled: !isBusy,
-                      decoration: InputDecoration(
-                        hintText: l10n.t('message_hint'),
-                        border: const OutlineInputBorder(),
-                      ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: controller.setInput,
+                    decoration: InputDecoration(
+                      hintText: l10n.t('message_hint'),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: isBusy || state.input.trim().isEmpty
-                        ? null
-                        : () => controller.send(widget.jobId),
-                    icon: isBusy
-                        ? const SizedBox(
-                            height: 18,
-                            width: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.send),
-                  ),
-                ],
-              ),
+                ),
+                IconButton(
+                  onPressed: () => controller.send(widget.jobId),
+                  icon: const Icon(Icons.send),
+                ),
+              ],
             ),
           ),
         ],

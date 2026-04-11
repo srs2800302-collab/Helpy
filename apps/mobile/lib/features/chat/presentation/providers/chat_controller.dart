@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
@@ -35,14 +36,30 @@ class ChatState {
 
 class ChatController extends StateNotifier<ChatState> {
   final Ref ref;
+  Timer? _polling;
 
   ChatController(this.ref) : super(const ChatState());
 
-  Future<void> load(String jobId) async {
-    state = state.copyWith(
-      isLoading: true,
-      clearError: true,
-    );
+  Future<void> init(String jobId) async {
+    await load(jobId);
+
+    _polling?.cancel();
+    _polling = Timer.periodic(const Duration(seconds: 3), (_) {
+      load(jobId, silent: true);
+    });
+  }
+
+  void disposePolling() {
+    _polling?.cancel();
+  }
+
+  Future<void> load(String jobId, {bool silent = false}) async {
+    if (!silent) {
+      state = state.copyWith(
+        isLoading: true,
+        clearError: true,
+      );
+    }
 
     try {
       final messages = await ref.read(chatApiProvider).getMessages(jobId);
@@ -70,11 +87,6 @@ class ChatController extends StateNotifier<ChatState> {
     final session = ref.read(authControllerProvider).session;
     if (session == null || state.input.trim().isEmpty) return;
 
-    state = state.copyWith(
-      isLoading: true,
-      clearError: true,
-    );
-
     try {
       await ref.read(chatApiProvider).sendMessage(
             jobId: jobId,
@@ -82,17 +94,11 @@ class ChatController extends StateNotifier<ChatState> {
             text: state.input.trim(),
           );
 
-      await load(jobId);
-      state = state.copyWith(
-        isLoading: false,
-        input: '',
-      );
+      state = state.copyWith(input: '');
+      await load(jobId, silent: true);
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: appError.message,
-      );
+      state = state.copyWith(errorMessage: appError.message);
     }
   }
 }
