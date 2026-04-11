@@ -1,4 +1,4 @@
-import { JOB_STATUS } from './job-status';
+import { JOB_STATUS, assertTransition } from './job-status';
 
 export async function completeJob(jobId: string, request: Request, env: any) {
   let body: any = {};
@@ -48,6 +48,15 @@ export async function completeJob(jobId: string, request: Request, env: any) {
         success: false,
         error: 'Job can be completed only from master_selected or in_progress status',
       },
+      { status: 400 }
+    );
+  }
+
+  try {
+    assertTransition(job.status, JOB_STATUS.completed);
+  } catch (error: any) {
+    return Response.json(
+      { success: false, error: error?.message ?? 'Invalid status transition' },
       { status: 400 }
     );
   }

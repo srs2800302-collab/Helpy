@@ -1,4 +1,4 @@
-import { JOB_STATUS } from './job-status';
+import { JOB_STATUS, assertTransition } from './job-status';
 
 async function ensureChatSchema(env: any) {
   await env.DB.prepare(
@@ -82,7 +82,6 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
   await ensureChatSchema(env);
 
   let body: any;
-
   try {
     body = await request.json();
   } catch {
@@ -212,6 +211,15 @@ export async function startWork(jobId: string, request: Request, env: any) {
   if (job.status !== JOB_STATUS.master_selected) {
     return Response.json(
       { success: false, error: 'Only master_selected job can be started' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    assertTransition(job.status, JOB_STATUS.in_progress);
+  } catch (error: any) {
+    return Response.json(
+      { success: false, error: error?.message ?? 'Invalid status transition' },
       { status: 400 }
     );
   }

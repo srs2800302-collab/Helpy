@@ -1,11 +1,10 @@
-import { JOB_STATUS } from './job-status';
+import { JOB_STATUS, assertTransition } from './job-status';
 import { ensureJobsSchema } from './jobs';
 
 export async function createDeposit(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
 
   let body: any;
-
   try {
     body = await request.json();
   } catch {
@@ -83,6 +82,15 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
         success: false,
         error: 'Deposit can be paid only for draft or awaiting_payment job',
       },
+      { status: 400 }
+    );
+  }
+
+  try {
+    assertTransition(job.status, JOB_STATUS.open);
+  } catch (error: any) {
+    return Response.json(
+      { success: false, error: error?.message ?? 'Invalid status transition' },
       { status: 400 }
     );
   }
