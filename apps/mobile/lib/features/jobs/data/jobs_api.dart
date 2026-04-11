@@ -36,7 +36,12 @@ class JobsApi {
   Future<List<JobItem>> listClientJobs({
     required String clientUserId,
   }) async {
-    final response = await apiClient.dio.get('/users/$clientUserId/jobs');
+    final response = await apiClient.dio.get(
+      '/jobs',
+      queryParameters: {
+        'client_user_id': clientUserId,
+      },
+    );
 
     final data = response.data['data'] as List<dynamic>;
     return data
