@@ -1,9 +1,14 @@
-function buildJobActions(status: string, hasSelectedMaster: boolean, hasReview: boolean) {
+function buildJobActions(
+  status: string,
+  hasSelectedMaster: boolean,
+  hasReview: boolean,
+  depositPaid: boolean
+) {
   switch (status) {
     case 'open':
       return {
-        stage: 'waiting_offers',
-        actions: ['view_offers'],
+        stage: depositPaid ? 'waiting_offers' : 'awaiting_deposit',
+        actions: depositPaid ? ['view_offers'] : ['pay_deposit'],
       };
 
     case 'master_selected':
@@ -56,10 +61,26 @@ export async function getUserJobActions(userId: string, jobId: string, env: any)
     .bind(jobId)
     .first();
 
+  const deposit = await env.DB.prepare(
+    `SELECT id FROM payments
+     WHERE job_id = ?1
+       AND type = 'deposit'
+       AND status = 'paid'
+     LIMIT 1`
+  )
+    .bind(jobId)
+    .first();
+
   const hasReview = !!review;
   const hasSelectedMaster = !!job.selected_master_user_id;
+  const depositPaid = !!deposit;
 
-  const computed = buildJobActions(job.status, hasSelectedMaster, hasReview);
+  const computed = buildJobActions(
+    job.status,
+    hasSelectedMaster,
+    hasReview,
+    depositPaid
+  );
 
   return Response.json({
     success: true,
@@ -68,6 +89,7 @@ export async function getUserJobActions(userId: string, jobId: string, env: any)
       status: job.status,
       stage: computed.stage,
       actions: computed.actions,
+      deposit_paid: depositPaid,
     },
   });
 }

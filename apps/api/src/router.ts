@@ -12,6 +12,7 @@ import { getClientDashboard } from './dashboard';
 import { getClientHome } from './home';
 import { getJobsByStatus } from './jobs-by-status';
 import { createDeposit, getPayments } from './payments';
+import { getJobPaymentStatus } from './payment-status';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -130,6 +131,10 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'payments' && method === 'GET') {
       return getPayments(jobId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'payment-status' && method === 'GET') {
+      return getJobPaymentStatus(jobId, env);
     }
   }
 

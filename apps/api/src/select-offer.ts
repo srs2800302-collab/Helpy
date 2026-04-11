@@ -8,6 +8,27 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     );
   }
 
+  const deposit = await env.DB.prepare(
+    `SELECT * FROM payments
+     WHERE job_id = ?1
+       AND type = 'deposit'
+       AND status = 'paid'
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId)
+    .first();
+
+  if (!deposit) {
+    return Response.json(
+      {
+        success: false,
+        error: 'Deposit payment required before selecting master',
+      },
+      { status: 400 }
+    );
+  }
+
   const offer = await env.DB.prepare(
     'SELECT * FROM offers WHERE id = ?1 AND job_id = ?2'
   )
