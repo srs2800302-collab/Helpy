@@ -1,5 +1,6 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { ensureJobsSchema } from './jobs';
+import { requireRequestUserId } from './auth-context';
 
 export async function createDeposit(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
@@ -14,12 +15,16 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (!body.client_user_id) {
-    return Response.json(
-      { success: false, error: 'client_user_id is required' },
-      { status: 400 }
-    );
+  const auth = requireRequestUserId(request, {
+    body,
+    bodyFields: ['client_user_id'],
+  });
+
+  if (!auth.ok) {
+    return auth.response;
   }
+
+  const clientUserId = auth.userId;
 
   if (typeof body.amount !== 'number' || body.amount <= 0) {
     return Response.json(
@@ -41,7 +46,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.client_user_id !== body.client_user_id) {
+  if (job.client_user_id !== clientUserId) {
     return Response.json(
       { success: false, error: 'Only job client can pay deposit' },
       { status: 403 }
@@ -113,7 +118,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     .bind(
       id,
       jobId,
-      body.client_user_id,
+      clientUserId,
       body.amount,
       body.currency || 'THB',
       'deposit',

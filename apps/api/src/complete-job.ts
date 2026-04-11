@@ -1,4 +1,5 @@
 import { JOB_STATUS, assertTransition } from './job-status';
+import { requireRequestUserId } from './auth-context';
 
 export async function completeJob(jobId: string, request: Request, env: any) {
   let body: any = {};
@@ -9,12 +10,16 @@ export async function completeJob(jobId: string, request: Request, env: any) {
     body = {};
   }
 
-  if (!body.actor_user_id) {
-    return Response.json(
-      { success: false, error: 'actor_user_id is required' },
-      { status: 400 }
-    );
+  const auth = requireRequestUserId(request, {
+    body,
+    bodyFields: ['actor_user_id'],
+  });
+
+  if (!auth.ok) {
+    return auth.response;
   }
+
+  const actorUserId = auth.userId;
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -29,8 +34,8 @@ export async function completeJob(jobId: string, request: Request, env: any) {
     );
   }
 
-  const isClient = body.actor_user_id === job.client_user_id;
-  const isSelectedMaster = body.actor_user_id === job.selected_master_user_id;
+  const isClient = actorUserId === job.client_user_id;
+  const isSelectedMaster = actorUserId === job.selected_master_user_id;
 
   if (!isClient && !isSelectedMaster) {
     return Response.json(

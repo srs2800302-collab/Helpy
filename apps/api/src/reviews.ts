@@ -1,3 +1,5 @@
+import { requireRequestUserId } from './auth-context';
+
 type CreateReviewBody = {
   client_user_id?: string;
   master_user_id?: string;
@@ -65,15 +67,25 @@ export async function createReview(jobId: string, request: Request, env: any) {
     );
   }
 
+  const auth = requireRequestUserId(request, {
+    body,
+    bodyFields: ['client_user_id'],
+  });
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const clientUserId = auth.userId;
+
   if (
-    !body.client_user_id ||
     !body.master_user_id ||
     typeof body.rating !== 'number'
   ) {
     return Response.json(
       {
         success: false,
-        error: 'client_user_id, master_user_id and rating are required',
+        error: 'master_user_id and rating are required',
       },
       { status: 400 }
     );
@@ -106,7 +118,7 @@ export async function createReview(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.client_user_id !== body.client_user_id) {
+  if (job.client_user_id !== clientUserId) {
     return Response.json(
       { success: false, error: 'Only job client can create review' },
       { status: 403 }
@@ -151,7 +163,7 @@ export async function createReview(jobId: string, request: Request, env: any) {
       .bind(
         id,
         jobId,
-        body.client_user_id,
+        clientUserId,
         body.master_user_id,
         body.rating,
         body.comment ?? null,
@@ -173,7 +185,7 @@ export async function createReview(jobId: string, request: Request, env: any) {
     data: {
       id,
       job_id: jobId,
-      client_user_id: body.client_user_id,
+      client_user_id: clientUserId,
       master_user_id: body.master_user_id,
       rating: body.rating,
       comment: body.comment ?? null,
