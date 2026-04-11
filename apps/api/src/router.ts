@@ -1,6 +1,7 @@
 import { createJob, getJobById, getJobs, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
+import { createReview, getReviews } from './reviews';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -43,6 +44,22 @@ export async function handleRequest(request: Request, env: any) {
   ) {
     const jobId = url.pathname.split('/')[4];
     return selectOffer(jobId, request, env);
+  }
+
+  if (
+    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/reviews$/) &&
+    request.method === 'GET'
+  ) {
+    const jobId = url.pathname.split('/')[4];
+    return getReviews(jobId, env);
+  }
+
+  if (
+    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/reviews$/) &&
+    request.method === 'POST'
+  ) {
+    const jobId = url.pathname.split('/')[4];
+    return createReview(jobId, request, env);
   }
 
   if (
