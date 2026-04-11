@@ -1,4 +1,5 @@
 import { JOB_STATUS } from './job-status';
+import { requireRequestUserId } from './auth-context';
 
 type CreateJobBody = {
   title?: string;
@@ -74,7 +75,6 @@ export async function createJob(request: Request, env: any) {
   await ensureJobsSchema(env);
 
   let body: CreateJobBody;
-
   try {
     body = await request.json();
   } catch {
@@ -84,12 +84,16 @@ export async function createJob(request: Request, env: any) {
     );
   }
 
-  if (!body.client_user_id) {
-    return Response.json(
-      { success: false, error: 'client_user_id is required' },
-      { status: 400 }
-    );
+  const auth = requireRequestUserId(request, {
+    body,
+    bodyFields: ['client_user_id'],
+  });
+
+  if (!auth.ok) {
+    return auth.response;
   }
+
+  const clientUserId = auth.userId;
 
   if (!body.category) {
     return Response.json(
@@ -121,7 +125,6 @@ export async function createJob(request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-
   const budgetFrom = normalizeNumber(body.budget_from);
   const budgetTo = normalizeNumber(body.budget_to);
   const fallbackPrice =
@@ -156,7 +159,7 @@ export async function createJob(request: Request, env: any) {
       JOB_STATUS.draft,
       now,
       now,
-      body.client_user_id,
+      clientUserId,
       body.description.trim(),
       body.address_text.trim(),
       body.budget_type || 'fixed',
@@ -183,7 +186,6 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
   await ensureJobsSchema(env);
 
   let body: any;
-
   try {
     body = await request.json();
   } catch {
