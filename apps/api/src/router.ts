@@ -14,6 +14,7 @@ import { getJobsByStatus } from './jobs-by-status';
 import { createDeposit, getPayments } from './payments';
 import { getJobPaymentStatus } from './payment-status';
 import { getCategories } from './categories';
+import { getMessages, sendMessage, startWork } from './chat';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -116,6 +117,18 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'select-offer' && method === 'POST') {
       return selectOffer(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'messages' && method === 'GET') {
+      return getMessages(jobId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'messages' && method === 'POST') {
+      return sendMessage(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'start-work' && method === 'POST') {
+      return startWork(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'complete' && method === 'POST') {
