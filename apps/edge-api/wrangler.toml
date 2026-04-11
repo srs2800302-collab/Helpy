@@ -1,3 +1,4 @@
 name = "fixi-edge-api"
 main = "worker.js"
 compatibility_date = "2025-01-01"
+account_id = "75efb287b6406029c5d1485cfa6d7bcc"
