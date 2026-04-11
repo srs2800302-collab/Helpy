@@ -6,6 +6,7 @@ import { completeJob } from './complete-job';
 import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
+import { getUserJobActions } from './job-actions';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -24,6 +25,15 @@ export async function handleRequest(request: Request, env: any) {
   ) {
     const id = url.pathname.split('/')[4];
     return getUserFull(id, env);
+  }
+
+  if (
+    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/jobs\/[^/]+\/actions$/) &&
+    request.method === 'GET'
+  ) {
+    const userId = url.pathname.split('/')[4];
+    const jobId = url.pathname.split('/')[6];
+    return getUserJobActions(userId, jobId, env);
   }
 
   if (
