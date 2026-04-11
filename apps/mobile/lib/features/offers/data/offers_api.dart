@@ -21,6 +21,7 @@ class OffersApi {
         'master_name': masterName,
         'price': price,
         'comment': priceComment,
+        'message': message,
       },
     );
 
