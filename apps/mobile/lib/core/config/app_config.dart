@@ -7,7 +7,7 @@ class AppConfig {
 
   factory AppConfig.dev() {
     return const AppConfig(
-      apiBaseUrl: 'http://localhost:3000/api/v1',
+      apiBaseUrl: 'https://fixi-edge-api.srs2800302.workers.dev/api/v1',
     );
   }
 }

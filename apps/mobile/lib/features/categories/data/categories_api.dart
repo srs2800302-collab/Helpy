@@ -16,8 +16,8 @@ class CategoriesApi {
           (item) => ServiceCategory(
             id: item['id'] as String,
             slug: item['slug'] as String,
-            isActive: item['isActive'] as bool? ?? true,
-            sortOrder: item['sortOrder'] as int? ?? 0,
+            isActive: item['is_active'] as bool? ?? true,
+            sortOrder: item['sort_order'] as int? ?? 0,
           ),
         )
         .toList();

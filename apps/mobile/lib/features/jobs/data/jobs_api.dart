@@ -16,33 +16,27 @@ class JobsApi {
     final response = await apiClient.dio.post(
       '/jobs',
       data: {
-        'clientUserId': clientUserId,
-        'categoryId': categoryId,
+        'client_user_id': clientUserId,
+        'category': categoryId,
         'title': title,
-        'description': description,
-        'addressText': addressText,
+        'description': (description == null || description.trim().isEmpty)
+            ? title
+            : description.trim(),
+        'address_text': (addressText == null || addressText.trim().isEmpty)
+            ? 'Pattaya'
+            : addressText.trim(),
+        'budget_type': 'fixed',
+        'currency': 'THB',
       },
     );
 
-    return _mapJob(response.data['data'] as Map<String, dynamic>);
-  }
-
-  Future<JobItem> submitForPayment({
-    required String jobId,
-  }) async {
-    final response = await apiClient.dio.post('/jobs/$jobId/submit');
     return _mapJob(response.data['data'] as Map<String, dynamic>);
   }
 
   Future<List<JobItem>> listClientJobs({
     required String clientUserId,
   }) async {
-    final response = await apiClient.dio.get(
-      '/jobs',
-      queryParameters: {
-        'clientUserId': clientUserId,
-      },
-    );
+    final response = await apiClient.dio.get('/users/$clientUserId/jobs');
 
     final data = response.data['data'] as List<dynamic>;
     return data
@@ -51,18 +45,17 @@ class JobsApi {
   }
 
   JobItem _mapJob(Map<String, dynamic> json) {
-    final category = (json['category'] as Map<String, dynamic>? ?? {});
-
     return JobItem(
       id: json['id'] as String,
-      clientUserId: json['clientUserId'] as String,
-      categoryId: json['categoryId'] as String,
-      categorySlug: category['slug'] as String? ?? '',
+      clientUserId: (json['client_user_id'] ?? '') as String,
+      categoryId: (json['category'] ?? '') as String,
+      categorySlug: (json['category'] ?? '') as String,
       title: json['title'] as String? ?? '',
       description: json['description'] as String?,
-      addressText: json['addressText'] as String?,
+      addressText: json['address_text'] as String?,
       status: json['status'] as String? ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 }
