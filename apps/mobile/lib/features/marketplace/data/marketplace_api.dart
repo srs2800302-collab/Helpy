@@ -10,10 +10,7 @@ class MarketplaceApi {
     required String masterUserId,
   }) async {
     final response = await apiClient.dio.get(
-      '/jobs/marketplace/open',
-      queryParameters: {
-        'masterUserId': masterUserId,
-      },
+      '/users/$masterUserId/available-jobs',
     );
 
     final data = response.data['data'] as List<dynamic>;
@@ -23,17 +20,16 @@ class MarketplaceApi {
   }
 
   MarketplaceJobItem _mapJob(Map<String, dynamic> json) {
-    final category = json['category'] as Map<String, dynamic>? ?? {};
-
     return MarketplaceJobItem(
       id: json['id'] as String,
       title: json['title'] as String? ?? '',
       description: json['description'] as String?,
-      addressText: json['addressText'] as String?,
+      addressText: json['address_text'] as String?,
       status: json['status'] as String? ?? '',
-      categoryId: json['categoryId'] as String? ?? '',
-      categorySlug: category['slug'] as String? ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      categoryId: json['category'] as String? ?? '',
+      categorySlug: json['category'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 }

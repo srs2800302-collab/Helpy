@@ -13,12 +13,13 @@ class OffersApi {
     String? priceComment,
   }) async {
     final response = await apiClient.dio.post(
-      '/offers',
+      '/jobs/$jobId/offers',
       data: {
-        'jobId': jobId,
-        'masterUserId': masterUserId,
+        'master_user_id': masterUserId,
+        'master_name': 'Master',
+        'price': 0,
         'message': message,
-        'priceComment': priceComment,
+        'comment': priceComment,
       },
     );
 
@@ -28,7 +29,7 @@ class OffersApi {
   Future<List<OfferItem>> listMasterOffers({
     required String masterUserId,
   }) async {
-    final response = await apiClient.dio.get('/offers/master/$masterUserId');
+    final response = await apiClient.dio.get('/users/$masterUserId/offers');
     final data = response.data['data'] as List<dynamic>;
 
     return data
@@ -40,12 +41,7 @@ class OffersApi {
     required String jobId,
     required String clientUserId,
   }) async {
-    final response = await apiClient.dio.get(
-      '/offers/job/$jobId',
-      queryParameters: {
-        'clientUserId': clientUserId,
-      },
-    );
+    final response = await apiClient.dio.get('/jobs/$jobId/offers');
     final data = response.data['data'] as List<dynamic>;
 
     return data
@@ -57,30 +53,22 @@ class OffersApi {
     required String offerId,
     required String clientUserId,
   }) async {
-    final response = await apiClient.dio.patch(
-      '/offers/$offerId/select',
-      data: {
-        'clientUserId': clientUserId,
-      },
-    );
-
-    return _mapOffer(response.data['data'] as Map<String, dynamic>);
+    throw UnimplementedError('selectOffer mobile mapping not aligned yet');
   }
 
   OfferItem _mapOffer(Map<String, dynamic> json) {
-    final job = json['job'] as Map<String, dynamic>? ?? {};
-    final category = job['category'] as Map<String, dynamic>? ?? {};
-
     return OfferItem(
       id: json['id'] as String,
-      jobId: json['jobId'] as String? ?? '',
-      masterUserId: json['masterUserId'] as String? ?? '',
+      jobId: json['job_id'] as String? ?? '',
+      masterUserId: json['master_user_id'] as String? ?? '',
       message: json['message'] as String?,
-      priceComment: json['priceComment'] as String?,
-      status: json['status'] as String? ?? '',
-      jobTitle: job['title'] as String? ?? '',
-      categorySlug: category['slug'] as String? ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      priceComment:
+          (json['comment'] ?? json['price_comment']) as String?,
+      status: json['status'] as String? ?? 'active',
+      jobTitle: json['job_title'] as String? ?? '',
+      categorySlug: json['category'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 }
