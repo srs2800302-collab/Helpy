@@ -116,10 +116,8 @@ async function ensureSchema(DB) {
       id TEXT PRIMARY KEY,
       category TEXT NOT NULL,
       title TEXT NOT NULL,
-      description TEXT NOT NULL,
       status TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
+      created_at TEXT NOT NULL
     )
   `).run();
 
@@ -128,11 +126,13 @@ async function ensureSchema(DB) {
 
   const missingColumns = [
     ["client_id", "ALTER TABLE jobs ADD COLUMN client_id TEXT"],
+    ["description", "ALTER TABLE jobs ADD COLUMN description TEXT"],
     ["address_text", "ALTER TABLE jobs ADD COLUMN address_text TEXT"],
     ["budget_type", "ALTER TABLE jobs ADD COLUMN budget_type TEXT"],
     ["budget_from", "ALTER TABLE jobs ADD COLUMN budget_from REAL"],
     ["budget_to", "ALTER TABLE jobs ADD COLUMN budget_to REAL"],
     ["currency", "ALTER TABLE jobs ADD COLUMN currency TEXT"],
+    ["updated_at", "ALTER TABLE jobs ADD COLUMN updated_at TEXT"],
   ];
 
   for (const [columnName, sql] of missingColumns) {
@@ -144,9 +144,11 @@ async function ensureSchema(DB) {
   await DB.prepare(`
     UPDATE jobs
     SET client_id = COALESCE(client_id, 'mock-client-id'),
+        description = COALESCE(description, title),
         address_text = COALESCE(address_text, 'Pattaya'),
         budget_type = COALESCE(budget_type, 'fixed'),
-        currency = COALESCE(currency, 'THB')
+        currency = COALESCE(currency, 'THB'),
+        updated_at = COALESCE(updated_at, created_at)
   `).run();
 }
 
