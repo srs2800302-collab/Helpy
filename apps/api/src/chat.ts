@@ -1,4 +1,5 @@
 import { JOB_STATUS, assertTransition } from './job-status';
+import { requireRequestUserId } from './auth-context';
 
 async function ensureChatSchema(env: any) {
   await env.DB.prepare(
@@ -22,15 +23,15 @@ function canAccessJobChat(job: any, userId: string) {
 export async function getMessages(jobId: string, request: Request, env: any) {
   await ensureChatSchema(env);
 
-  const url = new URL(request.url);
-  const userId = url.searchParams.get('user_id') ?? '';
+  const auth = requireRequestUserId(request, {
+    queryFields: ['user_id'],
+  });
 
-  if (!userId) {
-    return Response.json(
-      { success: false, error: 'user_id is required' },
-      { status: 400 }
-    );
+  if (!auth.ok) {
+    return auth.response;
   }
+
+  const userId = auth.userId;
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -91,12 +92,16 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (!body.sender_user_id) {
-    return Response.json(
-      { success: false, error: 'sender_user_id is required' },
-      { status: 400 }
-    );
+  const auth = requireRequestUserId(request, {
+    body,
+    bodyFields: ['sender_user_id'],
+  });
+
+  if (!auth.ok) {
+    return auth.response;
   }
+
+  const senderUserId = auth.userId;
 
   if (!body.text || !body.text.toString().trim()) {
     return Response.json(
@@ -118,7 +123,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (!canAccessJobChat(job, body.sender_user_id)) {
+  if (!canAccessJobChat(job, senderUserId)) {
     return Response.json(
       { success: false, error: 'User has no access to this job chat' },
       { status: 403 }
@@ -151,7 +156,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     .bind(
       id,
       jobId,
-      body.sender_user_id,
+      senderUserId,
       body.text.toString().trim(),
       now
     )
@@ -171,7 +176,6 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
 
 export async function startWork(jobId: string, request: Request, env: any) {
   let body: any;
-
   try {
     body = await request.json();
   } catch {
@@ -181,12 +185,16 @@ export async function startWork(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (!body.actor_user_id) {
-    return Response.json(
-      { success: false, error: 'actor_user_id is required' },
-      { status: 400 }
-    );
+  const auth = requireRequestUserId(request, {
+    body,
+    bodyFields: ['actor_user_id'],
+  });
+
+  if (!auth.ok) {
+    return auth.response;
   }
+
+  const actorUserId = auth.userId;
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -201,7 +209,7 @@ export async function startWork(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.selected_master_user_id !== body.actor_user_id) {
+  if (job.selected_master_user_id !== actorUserId) {
     return Response.json(
       { success: false, error: 'Only selected master can start work' },
       { status: 403 }

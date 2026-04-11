@@ -6,7 +6,7 @@ type ResolveUserOptions = {
 
 function firstNonEmptyString(values: Array<unknown>): string | null {
   for (const value of values) {
-    if (typeof value === 'string' && value.trim().isNotEmpty) {
+    if (typeof value === 'string' && value.trim().length > 0) {
       return value.trim();
     }
   }
