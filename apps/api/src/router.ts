@@ -10,6 +10,7 @@ import { getUserJobActions } from './job-actions';
 import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
 import { getClientDashboard } from './dashboard';
 import { getClientHome } from './home';
+import { getJobsByStatus } from './jobs-by-status';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -34,6 +35,10 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'dashboard' && method === 'GET') {
       return getClientDashboard(userId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'jobs-by-status' && method === 'GET') {
+      return getJobsByStatus(userId, env);
     }
 
     if (parts.length === 5 && parts[4] === 'full' && method === 'GET') {
