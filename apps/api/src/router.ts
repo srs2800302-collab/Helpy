@@ -3,7 +3,7 @@ import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
 import { createReview, getReviews } from './reviews';
 import { completeJob } from './complete-job';
-import { createUser, getUser } from './users';
+import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
 
 export async function handleRequest(request: Request, env: any) {
@@ -15,6 +15,14 @@ export async function handleRequest(request: Request, env: any) {
 
   if (url.pathname === '/api/v1/users' && request.method === 'POST') {
     return createUser(request, env);
+  }
+
+  if (
+    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/full$/) &&
+    request.method === 'GET'
+  ) {
+    const id = url.pathname.split('/')[4];
+    return getUserFull(id, env);
   }
 
   if (

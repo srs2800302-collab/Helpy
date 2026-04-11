@@ -49,3 +49,39 @@ export async function getUser(id: string, env: any) {
     data: user || null,
   });
 }
+
+export async function getUserFull(id: string, env: any) {
+  const user = await env.DB.prepare(
+    'SELECT * FROM users WHERE id = ?1'
+  )
+    .bind(id)
+    .first();
+
+  if (!user) {
+    return Response.json(
+      { success: false, error: 'User not found' },
+      { status: 404 }
+    );
+  }
+
+  const clientProfile = await env.DB.prepare(
+    'SELECT * FROM client_profiles WHERE user_id = ?1 LIMIT 1'
+  )
+    .bind(id)
+    .first();
+
+  const masterProfile = await env.DB.prepare(
+    'SELECT * FROM master_profiles WHERE user_id = ?1 LIMIT 1'
+  )
+    .bind(id)
+    .first();
+
+  return Response.json({
+    success: true,
+    data: {
+      user,
+      client_profile: clientProfile || null,
+      master_profile: masterProfile || null,
+    },
+  });
+}
