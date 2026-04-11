@@ -95,25 +95,30 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
-                            final canSelect = item.status == 'active' && !state.isSubmitting;
+                            final canSelect =
+                                item.status == 'active' && !state.isSubmitting;
 
                             return Card(
                               child: ListTile(
-                                title: Text(item.jobTitle),
+                                title: Text(item.message ?? 'Offer'),
                                 subtitle: Text(
-                                  '${item.categorySlug} • ${item.status}\n${item.message ?? ''}\n${item.priceComment ?? ''}',
+                                  '${item.status}\n${item.priceComment ?? ''}',
                                 ),
                                 isThreeLine: true,
                                 trailing: ElevatedButton(
                                   onPressed: canSelect
                                       ? () async {
-                                          final ok = await controller.selectOffer(item.id);
+                                          final ok = await controller.selectOffer(
+                                            jobId: widget.jobId,
+                                            offerId: item.id,
+                                          );
                                           if (ok && context.mounted) {
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
                                                 content: Text(l10n.t('master_selected')),
                                               ),
                                             );
+                                            Navigator.of(context).pop(true);
                                           }
                                         }
                                       : null,
@@ -121,7 +126,9 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                       ? const SizedBox(
                                           height: 18,
                                           width: 18,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
                                         )
                                       : Text(l10n.t('select_master')),
                                 ),

@@ -52,10 +52,28 @@ class OffersApi {
   }
 
   Future<OfferItem> selectOffer({
+    required String jobId,
     required String offerId,
     required String clientUserId,
   }) async {
-    throw UnimplementedError('selectOffer mobile mapping not aligned yet');
+    await apiClient.dio.post(
+      '/jobs/$jobId/select-offer',
+      data: {
+        'offer_id': offerId,
+      },
+    );
+
+    return OfferItem(
+      id: offerId,
+      jobId: jobId,
+      masterUserId: '',
+      message: null,
+      priceComment: null,
+      status: 'accepted',
+      jobTitle: '',
+      categorySlug: '',
+      createdAt: DateTime.now(),
+    );
   }
 
   OfferItem _mapOffer(Map<String, dynamic> json) {

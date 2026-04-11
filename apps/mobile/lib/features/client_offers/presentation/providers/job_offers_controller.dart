@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
-import '../../../offers/domain/offer_item.dart';
 import 'job_offers_state.dart';
 
 class JobOffersController extends StateNotifier<JobOffersState> {
@@ -44,7 +43,10 @@ class JobOffersController extends StateNotifier<JobOffersState> {
     }
   }
 
-  Future<bool> selectOffer(String offerId) async {
+  Future<bool> selectOffer({
+    required String jobId,
+    required String offerId,
+  }) async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
       state = state.copyWith(errorMessage: 'No active session');
@@ -58,34 +60,14 @@ class JobOffersController extends StateNotifier<JobOffersState> {
     );
 
     try {
-      final selected = await ref.read(offersApiProvider).selectOffer(
+      await ref.read(offersApiProvider).selectOffer(
+            jobId: jobId,
             offerId: offerId,
             clientUserId: session.userId,
           );
 
-      final updated = state.items.map((item) {
-        if (item.id == selected.id) {
-          return selected;
-        }
-        if (item.jobId == selected.jobId && item.status == 'active') {
-          return OfferItem(
-            id: item.id,
-            jobId: item.jobId,
-            masterUserId: item.masterUserId,
-            message: item.message,
-            priceComment: item.priceComment,
-            status: 'rejected',
-            jobTitle: item.jobTitle,
-            categorySlug: item.categorySlug,
-            createdAt: item.createdAt,
-          );
-        }
-        return item;
-      }).toList();
-
       state = state.copyWith(
         isSubmitting: false,
-        items: updated,
         successMessage: 'Master selected',
       );
 
