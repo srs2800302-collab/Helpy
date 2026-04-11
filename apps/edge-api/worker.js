@@ -8,6 +8,85 @@ function json(data, init = {}) {
   });
 }
 
+function errorResponse(status, code, message) {
+  return json(
+    {
+      success: false,
+      error: {
+        code,
+        message,
+      },
+    },
+    { status }
+  );
+}
+
+function generateId() {
+  return crypto.randomUUID();
+}
+
+const jobsStore = new Map();
+
+function serializeJob(job) {
+  return {
+    id: job.id,
+    client_id: job.client_id,
+    category: job.category,
+    title: job.title,
+    description: job.description,
+    address_text: job.address_text,
+    budget_type: job.budget_type,
+    budget_from: job.budget_from,
+    budget_to: job.budget_to,
+    currency: job.currency,
+    status: job.status,
+    created_at: job.created_at,
+    updated_at: job.updated_at,
+  };
+}
+
+async function readJsonBody(request) {
+  try {
+    return await request.json();
+  } catch {
+    return null;
+  }
+}
+
+function validateCreateJob(body) {
+  if (!body || typeof body !== "object") {
+    return "Body must be a valid JSON object";
+  }
+
+  if (!body.category || typeof body.category !== "string") {
+    return "category is required";
+  }
+
+  if (!body.title || typeof body.title !== "string") {
+    return "title is required";
+  }
+
+  if (!body.description || typeof body.description !== "string") {
+    return "description is required";
+  }
+
+  const allowedCategories = [
+    "cleaning",
+    "handyman",
+    "plumbing",
+    "electrical",
+    "locks",
+    "aircon",
+    "furniture_assembly",
+  ];
+
+  if (!allowedCategories.includes(body.category)) {
+    return "category is invalid";
+  }
+
+  return null;
+}
+
 export default {
   async fetch(request) {
     const url = new URL(request.url);
@@ -52,15 +131,67 @@ export default {
       });
     }
 
-    return json(
-      {
-        success: false,
-        error: {
-          code: "NOT_FOUND",
-          message: "Route not found",
+    if (request.method === "POST" && pathname === "/api/v1/jobs") {
+      const body = await readJsonBody(request);
+      const validationError = validateCreateJob(body);
+
+      if (validationError) {
+        return errorResponse(400, "VALIDATION_ERROR", validationError);
+      }
+
+      const now = new Date().toISOString();
+      const job = {
+        id: generateId(),
+        client_id: body.client_id || "mock-client-id",
+        category: body.category,
+        title: body.title.trim(),
+        description: body.description.trim(),
+        address_text: body.address_text || "Pattaya",
+        budget_type: body.budget_type || "fixed",
+        budget_from: body.budget_from ?? null,
+        budget_to: body.budget_to ?? null,
+        currency: body.currency || "THB",
+        status: "draft",
+        created_at: now,
+        updated_at: now,
+      };
+
+      jobsStore.set(job.id, job);
+
+      return json(
+        {
+          success: true,
+          data: serializeJob(job),
         },
-      },
-      { status: 404 }
-    );
+        { status: 201 }
+      );
+    }
+
+    if (request.method === "GET" && pathname === "/api/v1/jobs") {
+      const jobs = Array.from(jobsStore.values()).map(serializeJob);
+
+      return json({
+        success: true,
+        data: jobs,
+      });
+    }
+
+    const getJobMatch = pathname.match(/^\/api\/v1\/jobs\/([^/]+)$/);
+
+    if (request.method === "GET" && getJobMatch) {
+      const jobId = getJobMatch[1];
+      const job = jobsStore.get(jobId);
+
+      if (!job) {
+        return errorResponse(404, "JOB_NOT_FOUND", "Job not found");
+      }
+
+      return json({
+        success: true,
+        data: serializeJob(job),
+      });
+    }
+
+    return errorResponse(404, "NOT_FOUND", "Route not found");
   },
 };
