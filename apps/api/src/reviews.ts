@@ -5,7 +5,40 @@ type CreateReviewBody = {
   comment?: string;
 };
 
+async function ensureReviewsSchema(env: any) {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS reviews (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      client_user_id TEXT NOT NULL,
+      master_user_id TEXT NOT NULL,
+      rating INTEGER NOT NULL,
+      comment TEXT,
+      created_at TEXT NOT NULL
+    )`
+  ).run();
+
+  const columns = await env.DB.prepare('PRAGMA table_info(reviews)').all();
+  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
+
+  const patches: Array<[string, string]> = [
+    ['client_user_id', 'ALTER TABLE reviews ADD COLUMN client_user_id TEXT'],
+    ['master_user_id', 'ALTER TABLE reviews ADD COLUMN master_user_id TEXT'],
+    ['rating', 'ALTER TABLE reviews ADD COLUMN rating INTEGER'],
+    ['comment', 'ALTER TABLE reviews ADD COLUMN comment TEXT'],
+    ['created_at', 'ALTER TABLE reviews ADD COLUMN created_at TEXT'],
+  ];
+
+  for (const [name, sql] of patches) {
+    if (!existing.has(name)) {
+      await env.DB.prepare(sql).run();
+    }
+  }
+}
+
 export async function getReviews(jobId: string, env: any) {
+  await ensureReviewsSchema(env);
+
   const result = await env.DB.prepare(
     'SELECT * FROM reviews WHERE job_id = ?1 ORDER BY created_at DESC'
   )
@@ -19,6 +52,8 @@ export async function getReviews(jobId: string, env: any) {
 }
 
 export async function createReview(jobId: string, request: Request, env: any) {
+  await ensureReviewsSchema(env);
+
   let body: CreateReviewBody;
 
   try {
@@ -101,33 +136,45 @@ export async function createReview(jobId: string, request: Request, env: any) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  await env.DB.prepare(
-    `INSERT INTO reviews (
-      id,
-      job_id,
-      client_user_id,
-      master_user_id,
-      rating,
-      comment,
-      created_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
-  )
-    .bind(
-      id,
-      jobId,
-      body.client_user_id,
-      body.master_user_id,
-      body.rating,
-      body.comment ?? null,
-      now
+  try {
+    await env.DB.prepare(
+      `INSERT INTO reviews (
+        id,
+        job_id,
+        client_user_id,
+        master_user_id,
+        rating,
+        comment,
+        created_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
     )
-    .run();
+      .bind(
+        id,
+        jobId,
+        body.client_user_id,
+        body.master_user_id,
+        body.rating,
+        body.comment ?? null,
+        now
+      )
+      .run();
+  } catch (error: any) {
+    return Response.json(
+      {
+        success: false,
+        error: error?.message ?? 'Failed to create review',
+      },
+      { status: 500 }
+    );
+  }
 
   return Response.json({
     success: true,
     data: {
       id,
       job_id: jobId,
+      client_user_id: body.client_user_id,
+      master_user_id: body.master_user_id,
       rating: body.rating,
       comment: body.comment ?? null,
       created_at: now,
