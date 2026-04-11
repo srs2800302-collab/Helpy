@@ -33,10 +33,20 @@ class CreateOfferScreen extends ConsumerWidget {
             TextField(
               onChanged: controller.setMessage,
               enabled: !isBusy,
-              maxLines: 4,
+              maxLines: 3,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('offer_message'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              keyboardType: TextInputType.number,
+              onChanged: controller.setPrice,
+              enabled: !isBusy,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Price (THB)',
               ),
             ),
             const SizedBox(height: 16),
@@ -49,36 +59,12 @@ class CreateOfferScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            if (state.errorMessage != null) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.red),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  state.errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+            if (state.errorMessage != null)
+              Text(
+                state.errorMessage!,
+                style: const TextStyle(color: Colors.red),
               ),
-              const SizedBox(height: 12),
-            ],
-            if (state.successMessage != null) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.green),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  state.successMessage!,
-                  style: const TextStyle(color: Colors.green),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

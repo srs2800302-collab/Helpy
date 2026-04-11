@@ -9,6 +9,8 @@ class OffersApi {
   Future<OfferItem> createOffer({
     required String jobId,
     required String masterUserId,
+    required String masterName,
+    required double price,
     String? message,
     String? priceComment,
   }) async {
@@ -16,8 +18,8 @@ class OffersApi {
       '/jobs/$jobId/offers',
       data: {
         'master_user_id': masterUserId,
-        'master_name': 'Master',
-        'price': 0,
+        'master_name': masterName,
+        'price': price,
         'message': message,
         'comment': priceComment,
       },
@@ -62,8 +64,7 @@ class OffersApi {
       jobId: json['job_id'] as String? ?? '',
       masterUserId: json['master_user_id'] as String? ?? '',
       message: json['message'] as String?,
-      priceComment:
-          (json['comment'] ?? json['price_comment']) as String?,
+      priceComment: (json['comment'] ?? json['price_comment']) as String?,
       status: json['status'] as String? ?? 'active',
       jobTitle: json['job_title'] as String? ?? '',
       categorySlug: json['category'] as String? ?? '',

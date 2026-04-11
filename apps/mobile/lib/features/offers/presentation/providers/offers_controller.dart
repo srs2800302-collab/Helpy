@@ -17,6 +17,14 @@ class OffersController extends StateNotifier<OffersState> {
     );
   }
 
+  void setPrice(String value) {
+    state = state.copyWith(
+      price: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
   void setPriceComment(String value) {
     state = state.copyWith(
       priceComment: value,
@@ -67,6 +75,12 @@ class OffersController extends StateNotifier<OffersState> {
       return false;
     }
 
+    final parsedPrice = double.tryParse(state.price.trim());
+    if (parsedPrice == null || parsedPrice <= 0) {
+      state = state.copyWith(errorMessage: 'Price must be greater than 0');
+      return false;
+    }
+
     state = state.copyWith(
       isSubmitting: true,
       clearError: true,
@@ -77,19 +91,25 @@ class OffersController extends StateNotifier<OffersState> {
       final created = await ref.read(offersApiProvider).createOffer(
             jobId: jobId,
             masterUserId: session.userId,
+            masterName: session.phone,
+            price: parsedPrice,
             message: state.message.trim().isEmpty ? null : state.message.trim(),
             priceComment: state.priceComment.trim().isEmpty
                 ? null
                 : state.priceComment.trim(),
           );
 
+      await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
+
       state = state.copyWith(
         isSubmitting: false,
         items: [created, ...state.items],
         message: '',
+        price: '',
         priceComment: '',
         successMessage: 'Offer created',
       );
+
       return true;
     } catch (e) {
       final appError = ApiErrorMapper.map(e);

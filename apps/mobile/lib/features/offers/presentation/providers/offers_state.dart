@@ -6,6 +6,7 @@ class OffersState {
   final bool initialized;
   final List<OfferItem> items;
   final String message;
+  final String price;
   final String priceComment;
   final String? errorMessage;
   final String? successMessage;
@@ -16,6 +17,7 @@ class OffersState {
     this.initialized = false,
     this.items = const [],
     this.message = '',
+    this.price = '',
     this.priceComment = '',
     this.errorMessage,
     this.successMessage,
@@ -27,6 +29,7 @@ class OffersState {
     bool? initialized,
     List<OfferItem>? items,
     String? message,
+    String? price,
     String? priceComment,
     String? errorMessage,
     String? successMessage,
@@ -39,6 +42,7 @@ class OffersState {
       initialized: initialized ?? this.initialized,
       items: items ?? this.items,
       message: message ?? this.message,
+      price: price ?? this.price,
       priceComment: priceComment ?? this.priceComment,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
