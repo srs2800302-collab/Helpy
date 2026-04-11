@@ -7,6 +7,7 @@ import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
 import { getUserJobActions } from './job-actions';
+import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -25,6 +26,22 @@ export async function handleRequest(request: Request, env: any) {
   ) {
     const id = url.pathname.split('/')[4];
     return getUserFull(id, env);
+  }
+
+  if (
+    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/offers$/) &&
+    request.method === 'GET'
+  ) {
+    const userId = url.pathname.split('/')[4];
+    return getOffersByMaster(userId, env);
+  }
+
+  if (
+    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/available-jobs$/) &&
+    request.method === 'GET'
+  ) {
+    const userId = url.pathname.split('/')[4];
+    return getAvailableJobsForMaster(userId, env);
   }
 
   if (
