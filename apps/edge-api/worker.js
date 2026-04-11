@@ -27,6 +27,38 @@ function generateId() {
 
 const jobsStore = new Map();
 
+const allowedCategories = [
+  "cleaning",
+  "handyman",
+  "plumbing",
+  "electrical",
+  "locks",
+  "aircon",
+  "furniture_assembly",
+];
+
+const allowedStatuses = [
+  "draft",
+  "awaiting_payment",
+  "open",
+  "master_selected",
+  "in_progress",
+  "completed",
+  "cancelled",
+  "disputed",
+];
+
+const allowedTransitions = {
+  draft: ["awaiting_payment", "cancelled"],
+  awaiting_payment: ["open", "cancelled"],
+  open: ["master_selected", "cancelled"],
+  master_selected: ["in_progress", "cancelled"],
+  in_progress: ["completed", "cancelled", "disputed"],
+  completed: [],
+  cancelled: [],
+  disputed: [],
+};
+
 function serializeJob(job) {
   return {
     id: job.id,
@@ -70,18 +102,25 @@ function validateCreateJob(body) {
     return "description is required";
   }
 
-  const allowedCategories = [
-    "cleaning",
-    "handyman",
-    "plumbing",
-    "electrical",
-    "locks",
-    "aircon",
-    "furniture_assembly",
-  ];
-
   if (!allowedCategories.includes(body.category)) {
     return "category is invalid";
+  }
+
+  return null;
+}
+
+function validateStatusUpdate(currentStatus, nextStatus) {
+  if (!nextStatus || typeof nextStatus !== "string") {
+    return "status is required";
+  }
+
+  if (!allowedStatuses.includes(nextStatus)) {
+    return "status is invalid";
+  }
+
+  const allowedNext = allowedTransitions[currentStatus] || [];
+  if (!allowedNext.includes(nextStatus)) {
+    return `cannot change status from ${currentStatus} to ${nextStatus}`;
   }
 
   return null;
@@ -173,6 +212,33 @@ export default {
       return json({
         success: true,
         data: jobs,
+      });
+    }
+
+    const patchStatusMatch = pathname.match(/^\/api\/v1\/jobs\/([^/]+)\/status$/);
+
+    if (request.method === "PATCH" && patchStatusMatch) {
+      const jobId = patchStatusMatch[1];
+      const job = jobsStore.get(jobId);
+
+      if (!job) {
+        return errorResponse(404, "JOB_NOT_FOUND", "Job not found");
+      }
+
+      const body = await readJsonBody(request);
+      const validationError = validateStatusUpdate(job.status, body?.status);
+
+      if (validationError) {
+        return errorResponse(400, "VALIDATION_ERROR", validationError);
+      }
+
+      job.status = body.status;
+      job.updated_at = new Date().toISOString();
+      jobsStore.set(job.id, job);
+
+      return json({
+        success: true,
+        data: serializeJob(job),
       });
     }
 
