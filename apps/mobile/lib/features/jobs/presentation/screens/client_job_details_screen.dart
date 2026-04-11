@@ -20,6 +20,7 @@ class ClientJobDetailsScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
 
     Widget? primaryAction;
+
     if (job.status == 'draft') {
       primaryAction = ElevatedButton(
         onPressed: () async {
@@ -40,8 +41,8 @@ class ClientJobDetailsScreen extends StatelessWidget {
       );
     } else if (job.status == 'open' || job.status == 'master_selected') {
       primaryAction = OutlinedButton(
-        onPressed: () {
-          Navigator.of(context).push(
+        onPressed: () async {
+          final changed = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
               builder: (_) => JobOffersScreen(
                 jobId: job.id,
@@ -49,6 +50,10 @@ class ClientJobDetailsScreen extends StatelessWidget {
               ),
             ),
           );
+
+          if (changed == true && context.mounted) {
+            Navigator.of(context).pop(true);
+          }
         },
         child: Text(l10n.t('job_offers')),
       );
@@ -57,7 +62,10 @@ class ClientJobDetailsScreen extends StatelessWidget {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => ChatScreen(jobId: job.id),
+              builder: (_) => ChatScreen(
+                jobId: job.id,
+                jobStatus: job.status,
+              ),
             ),
           );
         },
@@ -79,6 +87,23 @@ class ClientJobDetailsScreen extends StatelessWidget {
         child: Text(l10n.t('review')),
       );
     }
+
+    final Widget? secondaryAction =
+        job.status == 'master_selected' || job.status == 'in_progress'
+            ? ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ChatScreen(
+                        jobId: job.id,
+                        jobStatus: job.status,
+                      ),
+                    ),
+                  );
+                },
+                child: Text(l10n.t('chat')),
+              )
+            : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -133,6 +158,13 @@ class ClientJobDetailsScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: primaryAction,
+            ),
+          ],
+          if (secondaryAction != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: secondaryAction,
             ),
           ],
         ],
