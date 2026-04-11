@@ -114,19 +114,39 @@ async function ensureSchema(DB) {
   await DB.prepare(`
     CREATE TABLE IF NOT EXISTS jobs (
       id TEXT PRIMARY KEY,
-      client_id TEXT NOT NULL,
       category TEXT NOT NULL,
       title TEXT NOT NULL,
       description TEXT NOT NULL,
-      address_text TEXT,
-      budget_type TEXT,
-      budget_from REAL,
-      budget_to REAL,
-      currency TEXT NOT NULL,
       status TEXT NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )
+  `).run();
+
+  const pragma = await DB.prepare(`PRAGMA table_info(jobs)`).all();
+  const existingColumns = new Set((pragma.results || []).map((row) => row.name));
+
+  const missingColumns = [
+    ["client_id", "ALTER TABLE jobs ADD COLUMN client_id TEXT"],
+    ["address_text", "ALTER TABLE jobs ADD COLUMN address_text TEXT"],
+    ["budget_type", "ALTER TABLE jobs ADD COLUMN budget_type TEXT"],
+    ["budget_from", "ALTER TABLE jobs ADD COLUMN budget_from REAL"],
+    ["budget_to", "ALTER TABLE jobs ADD COLUMN budget_to REAL"],
+    ["currency", "ALTER TABLE jobs ADD COLUMN currency TEXT"],
+  ];
+
+  for (const [columnName, sql] of missingColumns) {
+    if (!existingColumns.has(columnName)) {
+      await DB.prepare(sql).run();
+    }
+  }
+
+  await DB.prepare(`
+    UPDATE jobs
+    SET client_id = COALESCE(client_id, 'mock-client-id'),
+        address_text = COALESCE(address_text, 'Pattaya'),
+        budget_type = COALESCE(budget_type, 'fixed'),
+        currency = COALESCE(currency, 'THB')
   `).run();
 }
 
