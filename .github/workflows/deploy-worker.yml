@@ -3,7 +3,7 @@ name: Deploy Cloudflare Worker
 on:
   push:
     paths:
-      - 'apps/edge-api/**'
+      - 'apps/api/**'
       - '.github/workflows/deploy-worker.yml'
 
 jobs:
@@ -12,10 +12,18 @@ jobs:
 
     defaults:
       run:
-        working-directory: apps/edge-api
+        working-directory: apps/api
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Install Wrangler
         run: npm install -g wrangler
