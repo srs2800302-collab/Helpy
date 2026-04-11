@@ -1,11 +1,10 @@
-import { IsString, Length, MinLength } from 'class-validator';
+import { IsPhoneNumber, IsString, Length } from 'class-validator';
 
 export class VerifyOtpDto {
-  @IsString()
-  @MinLength(8)
-  phone!: string;
+  @IsPhoneNumber()
+  phone: string;
 
   @IsString()
   @Length(4, 6)
-  code!: string;
+  code: string;
 }

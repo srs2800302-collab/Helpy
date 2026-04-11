@@ -1,42 +1,19 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { BearerAuthGuard } from '../../common/guards/bearer-auth.guard';
-import type { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
-import { RequestOtpDto } from './dto/request-otp.dto';
-import { SelectMyRoleDto } from './dto/select-my-role.dto';
-import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { RequestOtpDto } from './dto/request-otp.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
-@ApiTags('auth')
-@Controller('auth')
+@Controller('/api/v1/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('request-otp')
   requestOtp(@Body() dto: RequestOtpDto) {
-    return this.authService.requestOtp(dto);
+    return this.authService.requestOtp(dto.phone);
   }
 
   @Post('verify-otp')
   verifyOtp(@Body() dto: VerifyOtpDto) {
-    return this.authService.verifyOtp(dto);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(BearerAuthGuard)
-  @Get('me')
-  getCurrentUser(@CurrentUser() user: AuthenticatedUser | null) {
-    return this.authService.getCurrentUser(user!.id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(BearerAuthGuard)
-  @Post('select-role')
-  selectMyRole(
-    @CurrentUser() user: AuthenticatedUser | null,
-    @Body() dto: SelectMyRoleDto,
-  ) {
-    return this.authService.selectMyRole(user!.id, dto);
+    return this.authService.verifyOtp(dto.phone, dto.code);
   }
 }
