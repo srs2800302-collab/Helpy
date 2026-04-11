@@ -11,159 +11,106 @@ import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
+  const path = url.pathname;
+  const method = request.method;
+  const parts = path.split('/').filter(Boolean);
 
-  if (url.pathname === '/health') {
+  if (path === '/health') {
     return Response.json({ success: true, status: 'ok' });
   }
 
-  if (url.pathname === '/api/v1/users' && request.method === 'POST') {
+  // /api/v1/users
+  if (path === '/api/v1/users' && method === 'POST') {
     return createUser(request, env);
   }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/full$/) &&
-    request.method === 'GET'
-  ) {
-    const id = url.pathname.split('/')[4];
-    return getUserFull(id, env);
+  // /api/v1/users/:id/...
+  if (parts[0] === 'api' && parts[1] === 'v1' && parts[2] === 'users' && parts[3]) {
+    const userId = parts[3];
+
+    if (parts.length === 5 && parts[4] === 'full' && method === 'GET') {
+      return getUserFull(userId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'offers' && method === 'GET') {
+      return getOffersByMaster(userId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'available-jobs' && method === 'GET') {
+      return getAvailableJobsForMaster(userId, env);
+    }
+
+    if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
+      const jobId = parts[5];
+      return getUserJobDetails(userId, jobId, env);
+    }
+
+    if (parts.length === 7 && parts[4] === 'jobs' && parts[6] === 'actions' && method === 'GET') {
+      const jobId = parts[5];
+      return getUserJobActions(userId, jobId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'jobs' && method === 'GET') {
+      return getJobsByUser(userId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'client-profile' && method === 'POST') {
+      return createClientProfile(userId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'master-profile' && method === 'POST') {
+      return createMasterProfile(userId, request, env);
+    }
+
+    if (parts.length === 4 && method === 'GET') {
+      return getUser(userId, env);
+    }
   }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/offers$/) &&
-    request.method === 'GET'
-  ) {
-    const userId = url.pathname.split('/')[4];
-    return getOffersByMaster(userId, env);
-  }
-
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/available-jobs$/) &&
-    request.method === 'GET'
-  ) {
-    const userId = url.pathname.split('/')[4];
-    return getAvailableJobsForMaster(userId, env);
-  }
-
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/jobs\/[^/]+\/actions$/) &&
-    request.method === 'GET'
-  ) {
-    const userId = url.pathname.split('/')[4];
-    const jobId = url.pathname.split('/')[6];
-    return getUserJobActions(userId, jobId, env);
-  }
-
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/jobs\/[^/]+$/) &&
-    request.method === 'GET'
-  ) {
-    const userId = url.pathname.split('/')[4];
-    const jobId = url.pathname.split('/')[6];
-    return getUserJobDetails(userId, jobId, env);
-  }
-
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/jobs$/) &&
-    request.method === 'GET'
-  ) {
-    const userId = url.pathname.split('/')[4];
-    return getJobsByUser(userId, env);
-  }
-
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+$/) &&
-    request.method === 'GET'
-  ) {
-    const id = url.pathname.split('/')[4];
-    return getUser(id, env);
-  }
-
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/client-profile$/) &&
-    request.method === 'POST'
-  ) {
-    const userId = url.pathname.split('/')[4];
-    return createClientProfile(userId, request, env);
-  }
-
-  if (
-    url.pathname.match(/^\/api\/v1\/users\/[^/]+\/master-profile$/) &&
-    request.method === 'POST'
-  ) {
-    const userId = url.pathname.split('/')[4];
-    return createMasterProfile(userId, request, env);
-  }
-
-  if (url.pathname === '/api/v1/jobs' && request.method === 'GET') {
+  // /api/v1/jobs
+  if (path === '/api/v1/jobs' && method === 'GET') {
     return getJobs(env);
   }
 
-  if (url.pathname === '/api/v1/jobs' && request.method === 'POST') {
+  if (path === '/api/v1/jobs' && method === 'POST') {
     return createJob(request, env);
   }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+$/) &&
-    request.method === 'GET'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return getJobById(jobId, env);
-  }
+  // /api/v1/jobs/:id/...
+  if (parts[0] === 'api' && parts[1] === 'v1' && parts[2] === 'jobs' && parts[3]) {
+    const jobId = parts[3];
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/status$/) &&
-    request.method === 'PATCH'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return updateJobStatus(jobId, request, env);
-  }
+    if (parts.length === 4 && method === 'GET') {
+      return getJobById(jobId, env);
+    }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) &&
-    request.method === 'GET'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return getOffers(jobId, env);
-  }
+    if (parts.length === 5 && parts[4] === 'status' && method === 'PATCH') {
+      return updateJobStatus(jobId, request, env);
+    }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/offers$/) &&
-    request.method === 'POST'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return createOffer(jobId, request, env);
-  }
+    if (parts.length === 5 && parts[4] === 'offers' && method === 'GET') {
+      return getOffers(jobId, env);
+    }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/select-offer$/) &&
-    request.method === 'POST'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return selectOffer(jobId, request, env);
-  }
+    if (parts.length === 5 && parts[4] === 'offers' && method === 'POST') {
+      return createOffer(jobId, request, env);
+    }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/complete$/) &&
-    request.method === 'POST'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return completeJob(jobId, env);
-  }
+    if (parts.length === 5 && parts[4] === 'select-offer' && method === 'POST') {
+      return selectOffer(jobId, request, env);
+    }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/reviews$/) &&
-    request.method === 'GET'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return getReviews(jobId, env);
-  }
+    if (parts.length === 5 && parts[4] === 'complete' && method === 'POST') {
+      return completeJob(jobId, env);
+    }
 
-  if (
-    url.pathname.match(/^\/api\/v1\/jobs\/[^/]+\/reviews$/) &&
-    request.method === 'POST'
-  ) {
-    const jobId = url.pathname.split('/')[4];
-    return createReview(jobId, request, env);
+    if (parts.length === 5 && parts[4] === 'reviews' && method === 'GET') {
+      return getReviews(jobId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'reviews' && method === 'POST') {
+      return createReview(jobId, request, env);
+    }
   }
 
   return new Response('Not Found', { status: 404 });
