@@ -12,13 +12,14 @@ class ChatApi {
   }) async {
     final res = await apiClient.dio.get(
       '/jobs/$jobId/messages',
-      queryParameters: {
-        'user_id': userId,
-      },
+      options: Options(
+        headers: {
+          'x-user-id': userId,
+        },
+      ),
     );
 
     final data = res.data['data'] as List<dynamic>;
-
     return data.map((e) {
       final m = e as Map<String, dynamic>;
       return ChatMessage(
@@ -33,13 +34,17 @@ class ChatApi {
 
   Future<void> sendMessage({
     required String jobId,
-    required String senderUserId,
+    required String userId,
     required String text,
   }) async {
     await apiClient.dio.post(
       '/jobs/$jobId/messages',
+      options: Options(
+        headers: {
+          'x-user-id': userId,
+        },
+      ),
       data: {
-        'sender_user_id': senderUserId,
         'text': text,
       },
     );
@@ -47,25 +52,31 @@ class ChatApi {
 
   Future<void> startWork({
     required String jobId,
-    required String actorUserId,
+    required String userId,
   }) async {
     await apiClient.dio.post(
       '/jobs/$jobId/start-work',
-      data: {
-        'actor_user_id': actorUserId,
-      },
+      options: Options(
+        headers: {
+          'x-user-id': userId,
+        },
+      ),
+      data: const {},
     );
   }
 
   Future<void> completeJob({
     required String jobId,
-    required String actorUserId,
+    required String userId,
   }) async {
     await apiClient.dio.post(
       '/jobs/$jobId/complete',
-      data: {
-        'actor_user_id': actorUserId,
-      },
+      options: Options(
+        headers: {
+          'x-user-id': userId,
+        },
+      ),
+      data: const {},
     );
   }
 }

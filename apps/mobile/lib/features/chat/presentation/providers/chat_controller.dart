@@ -109,7 +109,7 @@ class ChatController extends StateNotifier<ChatState> {
     try {
       await ref.read(chatApiProvider).sendMessage(
             jobId: jobId,
-            senderUserId: session.userId,
+            userId: session.userId,
             text: text,
           );
 

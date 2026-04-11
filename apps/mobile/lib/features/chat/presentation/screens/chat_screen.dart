@@ -44,10 +44,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     try {
       await ref.read(chatApiProvider).startWork(
             jobId: widget.jobId,
-            actorUserId: session.userId,
+            userId: session.userId,
           );
 
       if (!mounted) return;
+
       setState(() {
         _currentStatus = 'in_progress';
       });
@@ -72,10 +73,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     try {
       await ref.read(chatApiProvider).completeJob(
             jobId: widget.jobId,
-            actorUserId: session.userId,
+            userId: session.userId,
           );
 
       if (!mounted) return;
+
       setState(() {
         _currentStatus = 'completed';
       });
