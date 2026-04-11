@@ -63,6 +63,7 @@ function serializeJob(row) {
     budget_from: row.budget_from,
     budget_to: row.budget_to,
     currency: row.currency,
+    price: row.price,
     status: row.status,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -222,13 +223,18 @@ export default {
         const budget_from = body.budget_from ?? null;
         const budget_to = body.budget_to ?? null;
         const currency = body.currency || "THB";
+        const price =
+          body.price ??
+          body.budget_to ??
+          body.budget_from ??
+          0;
         const status = "draft";
 
         await DB.prepare(`
           INSERT INTO jobs (
             id, client_id, category, title, description, address_text,
-            budget_type, budget_from, budget_to, currency, status, created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            budget_type, budget_from, budget_to, currency, price, status, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
           id,
           client_id,
@@ -240,6 +246,7 @@ export default {
           budget_from,
           budget_to,
           currency,
+          price,
           status,
           now,
           now
