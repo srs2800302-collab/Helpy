@@ -1,3 +1,5 @@
+import { JOB_STATUS } from './job-status';
+
 type CreateJobBody = {
   title?: string;
   category?: string;
@@ -17,7 +19,7 @@ function normalizeNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-async function ensureJobsSchema(env: any) {
+export async function ensureJobsSchema(env: any) {
   const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
   const existing = new Set((columns.results ?? []).map((row: any) => row.name));
 
@@ -151,7 +153,7 @@ export async function createJob(request: Request, env: any) {
       body.title.trim(),
       fallbackPrice,
       body.category,
-      'draft',
+      JOB_STATUS.draft,
       now,
       now,
       body.client_user_id,
@@ -198,20 +200,13 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
     );
   }
 
-  await env.DB.prepare(
-    'UPDATE jobs SET status = ?1, updated_at = ?2 WHERE id = ?3'
-  )
-    .bind(body.status, new Date().toISOString(), id)
-    .run();
-
-  const updated = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  ).bind(id).first();
-
-  return Response.json({
-    success: true,
-    data: updated ?? { id, status: body.status },
-  });
+  return Response.json(
+    {
+      success: false,
+      error: 'Direct status update is disabled. Use business action endpoints.',
+    },
+    { status: 400 }
+  );
 }
 
 export async function getJobsByUser(userId: string, env: any) {

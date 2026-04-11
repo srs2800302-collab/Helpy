@@ -1,4 +1,9 @@
+import { JOB_STATUS } from './job-status';
+import { ensureJobsSchema } from './jobs';
+
 export async function createDeposit(jobId: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
+
   let body: any;
 
   try {
@@ -37,6 +42,51 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (job.client_user_id !== body.client_user_id) {
+    return Response.json(
+      { success: false, error: 'Only job client can pay deposit' },
+      { status: 403 }
+    );
+  }
+
+  const existingPaidDeposit = await env.DB.prepare(
+    `SELECT * FROM payments
+     WHERE job_id = ?1
+       AND type = 'deposit'
+       AND status = 'paid'
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId)
+    .first();
+
+  if (existingPaidDeposit) {
+    return Response.json({
+      success: true,
+      data: {
+        id: existingPaidDeposit.id,
+        job_id: jobId,
+        amount: existingPaidDeposit.amount,
+        currency: existingPaidDeposit.currency,
+        status: 'paid',
+        job_status: job.status,
+      },
+    });
+  }
+
+  if (
+    job.status !== JOB_STATUS.draft &&
+    job.status !== JOB_STATUS.awaiting_payment
+  ) {
+    return Response.json(
+      {
+        success: false,
+        error: 'Deposit can be paid only for draft or awaiting_payment job',
+      },
+      { status: 400 }
+    );
+  }
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
@@ -70,7 +120,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
          updated_at = ?2
      WHERE id = ?3`
   )
-    .bind('open', now, jobId)
+    .bind(JOB_STATUS.open, now, jobId)
     .run();
 
   return Response.json({
@@ -81,7 +131,8 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
       amount: body.amount,
       currency: body.currency || 'THB',
       status: 'paid',
-      job_status: 'open',
+      job_status: JOB_STATUS.open,
+      created_at: now,
     },
   });
 }

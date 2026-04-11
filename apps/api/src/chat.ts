@@ -1,3 +1,5 @@
+import { JOB_STATUS } from './job-status';
+
 async function ensureChatSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS chat_messages (
@@ -10,8 +12,56 @@ async function ensureChatSchema(env: any) {
   ).run();
 }
 
-export async function getMessages(jobId: string, env: any) {
+function canAccessJobChat(job: any, userId: string) {
+  return (
+    userId === job.client_user_id ||
+    userId === job.selected_master_user_id
+  );
+}
+
+export async function getMessages(jobId: string, request: Request, env: any) {
   await ensureChatSchema(env);
+
+  const url = new URL(request.url);
+  const userId = url.searchParams.get('user_id') ?? '';
+
+  if (!userId) {
+    return Response.json(
+      { success: false, error: 'user_id is required' },
+      { status: 400 }
+    );
+  }
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
+  }
+
+  if (!canAccessJobChat(job, userId)) {
+    return Response.json(
+      { success: false, error: 'User has no access to this job chat' },
+      { status: 403 }
+    );
+  }
+
+  if (
+    job.status !== JOB_STATUS.master_selected &&
+    job.status !== JOB_STATUS.in_progress &&
+    job.status !== JOB_STATUS.completed
+  ) {
+    return Response.json(
+      { success: false, error: 'Chat is available only after master selection' },
+      { status: 400 }
+    );
+  }
 
   const result = await env.DB.prepare(
     `SELECT *
@@ -66,6 +116,24 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     return Response.json(
       { success: false, error: 'Job not found' },
       { status: 404 }
+    );
+  }
+
+  if (!canAccessJobChat(job, body.sender_user_id)) {
+    return Response.json(
+      { success: false, error: 'User has no access to this job chat' },
+      { status: 403 }
+    );
+  }
+
+  if (
+    job.status !== JOB_STATUS.master_selected &&
+    job.status !== JOB_STATUS.in_progress &&
+    job.status !== JOB_STATUS.completed
+  ) {
+    return Response.json(
+      { success: false, error: 'Chat is available only after master selection' },
+      { status: 400 }
     );
   }
 
@@ -134,24 +202,37 @@ export async function startWork(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.status !== 'master_selected') {
+  if (job.selected_master_user_id !== body.actor_user_id) {
+    return Response.json(
+      { success: false, error: 'Only selected master can start work' },
+      { status: 403 }
+    );
+  }
+
+  if (job.status !== JOB_STATUS.master_selected) {
     return Response.json(
       { success: false, error: 'Only master_selected job can be started' },
       { status: 400 }
     );
   }
 
+  const now = new Date().toISOString();
+
   await env.DB.prepare(
-    'UPDATE jobs SET status = ?1, updated_at = ?2 WHERE id = ?3'
+    `UPDATE jobs
+     SET status = ?1,
+         updated_at = ?2
+     WHERE id = ?3`
   )
-    .bind('in_progress', new Date().toISOString(), jobId)
+    .bind(JOB_STATUS.in_progress, now, jobId)
     .run();
 
   return Response.json({
     success: true,
     data: {
       job_id: jobId,
-      status: 'in_progress',
+      status: JOB_STATUS.in_progress,
+      updated_at: now,
     },
   });
 }

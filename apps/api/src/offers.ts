@@ -2,6 +2,7 @@ type CreateOfferBody = {
   master_user_id?: string;
   master_name?: string;
   price?: number;
+  message?: string;
   comment?: string;
 };
 
@@ -20,22 +21,69 @@ export async function createOffer(jobId: string, request: Request, env: any) {
   if (
     !body.master_user_id ||
     !body.master_name ||
-    typeof body.price !== 'number'
+    typeof body.price !== 'number' ||
+    body.price <= 0
   ) {
     return Response.json(
       {
         success: false,
-        error: 'master_user_id, master_name and price are required',
+        error: 'master_user_id, master_name and positive price are required',
       },
       { status: 400 }
     );
   }
 
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
+  }
+
+  if (job.status !== 'open') {
+    return Response.json(
+      { success: false, error: 'Offers can be created only for open jobs' },
+      { status: 400 }
+    );
+  }
+
+  const existing = await env.DB.prepare(
+    `SELECT * FROM offers
+     WHERE job_id = ?1 AND master_user_id = ?2
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId, body.master_user_id)
+    .first();
+
+  if (existing) {
+    return Response.json(
+      { success: false, error: 'Master already has an offer for this job' },
+      { status: 409 }
+    );
+  }
+
   try {
     const id = crypto.randomUUID();
+    const now = new Date().toISOString();
 
     await env.DB.prepare(
-      'INSERT INTO offers (id, job_id, master_user_id, master_name, price, comment, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
+      `INSERT INTO offers (
+        id,
+        job_id,
+        master_user_id,
+        master_name,
+        price,
+        message,
+        comment,
+        created_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
     )
       .bind(
         id,
@@ -43,8 +91,9 @@ export async function createOffer(jobId: string, request: Request, env: any) {
         body.master_user_id,
         body.master_name,
         body.price,
+        body.message ?? null,
         body.comment ?? null,
-        new Date().toISOString()
+        now
       )
       .run();
 
@@ -57,7 +106,10 @@ export async function createOffer(jobId: string, request: Request, env: any) {
           master_user_id: body.master_user_id,
           master_name: body.master_name,
           price: body.price,
+          message: body.message ?? null,
           comment: body.comment ?? null,
+          status: 'active',
+          created_at: now,
         },
       },
       { status: 201 }
@@ -83,7 +135,10 @@ export async function getOffers(jobId: string, env: any) {
 
     return Response.json({
       success: true,
-      data: result.results ?? [],
+      data: (result.results ?? []).map((item: any) => ({
+        ...item,
+        status: item.status ?? 'active',
+      })),
     });
   } catch (error: any) {
     return Response.json(

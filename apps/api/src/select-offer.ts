@@ -1,5 +1,16 @@
+import { JOB_STATUS } from './job-status';
+
 export async function selectOffer(jobId: string, request: Request, env: any) {
-  const body = await request.json();
+  let body: any;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { success: false, error: 'Invalid JSON body' },
+      { status: 400 }
+    );
+  }
 
   if (!body.offer_id) {
     return Response.json(
@@ -29,6 +40,26 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     );
   }
 
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
+  }
+
+  if (job.status !== JOB_STATUS.open) {
+    return Response.json(
+      { success: false, error: 'Master can be selected only for open job' },
+      { status: 400 }
+    );
+  }
+
   const offer = await env.DB.prepare(
     'SELECT * FROM offers WHERE id = ?1 AND job_id = ?2'
   )
@@ -41,6 +72,8 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       { status: 404 }
     );
   }
+
+  const now = new Date().toISOString();
 
   await env.DB.prepare(
     `UPDATE jobs
@@ -57,8 +90,8 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       offer.master_name,
       offer.master_user_id,
       offer.price,
-      'master_selected',
-      new Date().toISOString(),
+      JOB_STATUS.master_selected,
+      now,
       jobId
     )
     .run();
@@ -71,7 +104,8 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       selected_master_name: offer.master_name,
       selected_master_user_id: offer.master_user_id,
       selected_offer_price: offer.price,
-      status: 'master_selected',
+      status: JOB_STATUS.master_selected,
+      updated_at: now,
     },
   });
 }

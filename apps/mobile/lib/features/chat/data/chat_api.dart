@@ -6,8 +6,17 @@ class ChatApi {
 
   ChatApi(this.apiClient);
 
-  Future<List<ChatMessage>> getMessages(String jobId) async {
-    final res = await apiClient.dio.get('/jobs/$jobId/messages');
+  Future<List<ChatMessage>> getMessages({
+    required String jobId,
+    required String userId,
+  }) async {
+    final res = await apiClient.dio.get(
+      '/jobs/$jobId/messages',
+      queryParameters: {
+        'user_id': userId,
+      },
+    );
+
     final data = res.data['data'] as List<dynamic>;
 
     return data.map((e) {
@@ -52,6 +61,11 @@ class ChatApi {
     required String jobId,
     required String actorUserId,
   }) async {
-    await apiClient.dio.post('/jobs/$jobId/complete');
+    await apiClient.dio.post(
+      '/jobs/$jobId/complete',
+      data: {
+        'actor_user_id': actorUserId,
+      },
+    );
   }
 }

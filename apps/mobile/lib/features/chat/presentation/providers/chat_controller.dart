@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
@@ -42,7 +43,6 @@ class ChatController extends StateNotifier<ChatState> {
 
   Future<void> init(String jobId) async {
     await load(jobId);
-
     _polling?.cancel();
     _polling = Timer.periodic(const Duration(seconds: 3), (_) {
       load(jobId, silent: true);
@@ -51,9 +51,20 @@ class ChatController extends StateNotifier<ChatState> {
 
   void disposePolling() {
     _polling?.cancel();
+    _polling = null;
   }
 
   Future<void> load(String jobId, {bool silent = false}) async {
+    final session = ref.read(authControllerProvider).session;
+
+    if (session == null) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'No active session',
+      );
+      return;
+    }
+
     if (!silent) {
       state = state.copyWith(
         isLoading: true,
@@ -62,7 +73,11 @@ class ChatController extends StateNotifier<ChatState> {
     }
 
     try {
-      final messages = await ref.read(chatApiProvider).getMessages(jobId);
+      final messages = await ref.read(chatApiProvider).getMessages(
+            jobId: jobId,
+            userId: session.userId,
+          );
+
       state = state.copyWith(
         isLoading: false,
         messages: messages,
@@ -85,20 +100,32 @@ class ChatController extends StateNotifier<ChatState> {
 
   Future<void> send(String jobId) async {
     final session = ref.read(authControllerProvider).session;
-    if (session == null || state.input.trim().isEmpty) return;
+    final text = state.input.trim();
+
+    if (session == null || text.isEmpty) {
+      return;
+    }
 
     try {
       await ref.read(chatApiProvider).sendMessage(
             jobId: jobId,
             senderUserId: session.userId,
-            text: state.input.trim(),
+            text: text,
           );
 
       state = state.copyWith(input: '');
       await load(jobId, silent: true);
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
-      state = state.copyWith(errorMessage: appError.message);
+      state = state.copyWith(
+        errorMessage: appError.message,
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    _polling?.cancel();
+    super.dispose();
   }
 }

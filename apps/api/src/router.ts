@@ -120,7 +120,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'messages' && method === 'GET') {
-      return getMessages(jobId, env);
+      return getMessages(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'messages' && method === 'POST') {
@@ -132,7 +132,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'complete' && method === 'POST') {
-      return completeJob(jobId, env);
+      return completeJob(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'reviews' && method === 'GET') {
