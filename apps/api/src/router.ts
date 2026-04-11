@@ -8,6 +8,7 @@ import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
 import { getUserJobActions } from './job-actions';
 import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
+import { getClientDashboard } from './dashboard';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -19,14 +20,16 @@ export async function handleRequest(request: Request, env: any) {
     return Response.json({ success: true, status: 'ok' });
   }
 
-  // /api/v1/users
   if (path === '/api/v1/users' && method === 'POST') {
     return createUser(request, env);
   }
 
-  // /api/v1/users/:id/...
   if (parts[0] === 'api' && parts[1] === 'v1' && parts[2] === 'users' && parts[3]) {
     const userId = parts[3];
+
+    if (parts.length === 5 && parts[4] === 'dashboard' && method === 'GET') {
+      return getClientDashboard(userId, env);
+    }
 
     if (parts.length === 5 && parts[4] === 'full' && method === 'GET') {
       return getUserFull(userId, env);
@@ -40,14 +43,14 @@ export async function handleRequest(request: Request, env: any) {
       return getAvailableJobsForMaster(userId, env);
     }
 
-    if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
-      const jobId = parts[5];
-      return getUserJobDetails(userId, jobId, env);
-    }
-
     if (parts.length === 7 && parts[4] === 'jobs' && parts[6] === 'actions' && method === 'GET') {
       const jobId = parts[5];
       return getUserJobActions(userId, jobId, env);
+    }
+
+    if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
+      const jobId = parts[5];
+      return getUserJobDetails(userId, jobId, env);
     }
 
     if (parts.length === 5 && parts[4] === 'jobs' && method === 'GET') {
@@ -67,7 +70,6 @@ export async function handleRequest(request: Request, env: any) {
     }
   }
 
-  // /api/v1/jobs
   if (path === '/api/v1/jobs' && method === 'GET') {
     return getJobs(env);
   }
@@ -76,7 +78,6 @@ export async function handleRequest(request: Request, env: any) {
     return createJob(request, env);
   }
 
-  // /api/v1/jobs/:id/...
   if (parts[0] === 'api' && parts[1] === 'v1' && parts[2] === 'jobs' && parts[3]) {
     const jobId = parts[3];
 
