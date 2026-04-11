@@ -20,7 +20,7 @@ class ClientJobDetailsScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
 
     Widget? primaryAction;
-    if (job.status == 'awaiting_payment') {
+    if (job.status == 'draft') {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final paid = await Navigator.of(context).push<bool>(

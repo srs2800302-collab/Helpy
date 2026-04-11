@@ -33,7 +33,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     final jobsController = ref.read(jobsControllerProvider.notifier);
 
     final isBusy = jobsState.isSubmitting;
-    final isCategoriesLoading = categoriesState.isLoading && categoriesState.items.isEmpty;
+    final isCategoriesLoading =
+        categoriesState.isLoading && categoriesState.items.isEmpty;
     final canSubmit = !isBusy &&
         !isCategoriesLoading &&
         (jobsState.selectedCategoryId ?? '').isNotEmpty &&
@@ -61,7 +62,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                     ),
                   )
                   .toList(),
-              onChanged: canSubmit || !isBusy ? jobsController.setSelectedCategoryId : null,
+              onChanged:
+                  isBusy ? null : jobsController.setSelectedCategoryId,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('select_category'),
@@ -131,7 +133,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               child: ElevatedButton(
                 onPressed: canSubmit
                     ? () async {
-                        final job = await jobsController.createDraftAndSubmitForPayment();
+                        final job = await jobsController.createDraft();
                         if (job != null && context.mounted) {
                           final paid = await Navigator.of(context).push<bool>(
                             MaterialPageRoute(

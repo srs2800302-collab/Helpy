@@ -75,7 +75,7 @@ class JobsController extends StateNotifier<JobsState> {
     }
   }
 
-  Future<JobItem?> createDraftAndSubmitForPayment() async {
+  Future<JobItem?> createDraft() async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
       state = state.copyWith(errorMessage: 'No active session');
@@ -103,17 +103,13 @@ class JobsController extends StateNotifier<JobsState> {
             clientUserId: session.userId,
             categoryId: state.selectedCategoryId!,
             title: state.title.trim(),
-            description: state.description.trim().isEmpty ? null : state.description.trim(),
-            addressText: state.addressText.trim().isEmpty ? null : state.addressText.trim(),
-          );
-
-      final submitted = await ref.read(jobsApiProvider).submitForPayment(
-            jobId: created.id,
+            description: state.description.trim(),
+            addressText: state.addressText.trim(),
           );
 
       final nextItems = [
-        submitted,
-        ...state.items.where((item) => item.id != submitted.id),
+        created,
+        ...state.items.where((item) => item.id != created.id),
       ];
 
       state = state.copyWith(
@@ -126,7 +122,7 @@ class JobsController extends StateNotifier<JobsState> {
         successMessage: 'Job created',
       );
 
-      return submitted;
+      return created;
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
