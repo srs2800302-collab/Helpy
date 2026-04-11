@@ -8,11 +8,11 @@ function json(data, init = {}) {
   });
 }
 
-function errorResponse(status, code, message) {
+function errorResponse(status, code, message, details = null) {
   return json(
     {
       success: false,
-      error: { code, message },
+      error: { code, message, details },
     },
     { status }
   );
@@ -132,177 +132,189 @@ async function ensureSchema(DB) {
 
 export default {
   async fetch(request, env) {
-    const url = new URL(request.url);
-    const { pathname } = url;
-    const DB = env.DB;
+    try {
+      const url = new URL(request.url);
+      const { pathname } = url;
+      const DB = env.DB;
 
-    if (!DB) {
-      return errorResponse(500, "DB_NOT_CONFIGURED", "D1 binding DB is missing");
-    }
-
-    await ensureSchema(DB);
-
-    if (pathname === "/") {
-      return json({
-        success: true,
-        service: "fixi-edge-api",
-        message: "worker is running",
-      });
-    }
-
-    if (pathname === "/health") {
-      return json({
-        success: true,
-        service: "fixi-edge-api",
-        status: "ok",
-      });
-    }
-
-    const paymentStatusMatch = pathname.match(
-      /^\/api\/v1\/jobs\/([^/]+)\/payment-status$/
-    );
-
-    if (request.method === "GET" && paymentStatusMatch) {
-      const jobId = paymentStatusMatch[1];
-      return json({
-        success: true,
-        data: {
-          job_id: jobId,
-          deposit_paid: true,
-          payment: {
-            id: "mock-payment-id",
-            job_id: jobId,
-            status: "paid",
-            amount: 1000,
-            currency: "THB",
-          },
-        },
-      });
-    }
-
-    if (request.method === "POST" && pathname === "/api/v1/jobs") {
-      const body = await readJsonBody(request);
-      const validationError = validateCreateJob(body);
-
-      if (validationError) {
-        return errorResponse(400, "VALIDATION_ERROR", validationError);
+      if (!DB) {
+        return errorResponse(500, "DB_NOT_CONFIGURED", "D1 binding DB is missing");
       }
 
-      const now = new Date().toISOString();
-      const id = crypto.randomUUID();
-      const client_id = body.client_id || "mock-client-id";
-      const category = body.category;
-      const title = body.title.trim();
-      const description = body.description.trim();
-      const address_text = body.address_text || "Pattaya";
-      const budget_type = body.budget_type || "fixed";
-      const budget_from = body.budget_from ?? null;
-      const budget_to = body.budget_to ?? null;
-      const currency = body.currency || "THB";
-      const status = "draft";
+      await ensureSchema(DB);
 
-      await DB.prepare(`
-        INSERT INTO jobs (
-          id, client_id, category, title, description, address_text,
-          budget_type, budget_from, budget_to, currency, status, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(
-        id,
-        client_id,
-        category,
-        title,
-        description,
-        address_text,
-        budget_type,
-        budget_from,
-        budget_to,
-        currency,
-        status,
-        now,
-        now
-      ).run();
+      if (pathname === "/") {
+        return json({
+          success: true,
+          service: "fixi-edge-api",
+          message: "worker is running",
+        });
+      }
 
-      const row = await DB.prepare(
-        `SELECT * FROM jobs WHERE id = ?`
-      ).bind(id).first();
+      if (pathname === "/health") {
+        return json({
+          success: true,
+          service: "fixi-edge-api",
+          status: "ok",
+        });
+      }
 
-      return json(
-        {
+      const paymentStatusMatch = pathname.match(
+        /^\/api\/v1\/jobs\/([^/]+)\/payment-status$/
+      );
+
+      if (request.method === "GET" && paymentStatusMatch) {
+        const jobId = paymentStatusMatch[1];
+        return json({
+          success: true,
+          data: {
+            job_id: jobId,
+            deposit_paid: true,
+            payment: {
+              id: "mock-payment-id",
+              job_id: jobId,
+              status: "paid",
+              amount: 1000,
+              currency: "THB",
+            },
+          },
+        });
+      }
+
+      if (request.method === "POST" && pathname === "/api/v1/jobs") {
+        const body = await readJsonBody(request);
+        const validationError = validateCreateJob(body);
+
+        if (validationError) {
+          return errorResponse(400, "VALIDATION_ERROR", validationError);
+        }
+
+        const now = new Date().toISOString();
+        const id = crypto.randomUUID();
+        const client_id = body.client_id || "mock-client-id";
+        const category = body.category;
+        const title = body.title.trim();
+        const description = body.description.trim();
+        const address_text = body.address_text || "Pattaya";
+        const budget_type = body.budget_type || "fixed";
+        const budget_from = body.budget_from ?? null;
+        const budget_to = body.budget_to ?? null;
+        const currency = body.currency || "THB";
+        const status = "draft";
+
+        await DB.prepare(`
+          INSERT INTO jobs (
+            id, client_id, category, title, description, address_text,
+            budget_type, budget_from, budget_to, currency, status, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          id,
+          client_id,
+          category,
+          title,
+          description,
+          address_text,
+          budget_type,
+          budget_from,
+          budget_to,
+          currency,
+          status,
+          now,
+          now
+        ).run();
+
+        const row = await DB.prepare(
+          `SELECT * FROM jobs WHERE id = ?`
+        ).bind(id).first();
+
+        return json(
+          {
+            success: true,
+            data: serializeJob(row),
+          },
+          { status: 201 }
+        );
+      }
+
+      if (request.method === "GET" && pathname === "/api/v1/jobs") {
+        const result = await DB.prepare(
+          `SELECT * FROM jobs ORDER BY created_at DESC`
+        ).all();
+
+        return json({
+          success: true,
+          data: (result.results || []).map(serializeJob),
+        });
+      }
+
+      const patchStatusMatch = pathname.match(/^\/api\/v1\/jobs\/([^/]+)\/status$/);
+
+      if (request.method === "PATCH" && patchStatusMatch) {
+        const jobId = patchStatusMatch[1];
+
+        const existing = await DB.prepare(
+          `SELECT * FROM jobs WHERE id = ?`
+        ).bind(jobId).first();
+
+        if (!existing) {
+          return errorResponse(404, "JOB_NOT_FOUND", "Job not found");
+        }
+
+        const body = await readJsonBody(request);
+        const validationError = validateStatusUpdate(existing.status, body?.status);
+
+        if (validationError) {
+          return errorResponse(400, "VALIDATION_ERROR", validationError);
+        }
+
+        const updated_at = new Date().toISOString();
+
+        await DB.prepare(`
+          UPDATE jobs
+          SET status = ?, updated_at = ?
+          WHERE id = ?
+        `).bind(body.status, updated_at, jobId).run();
+
+        const updated = await DB.prepare(
+          `SELECT * FROM jobs WHERE id = ?`
+        ).bind(jobId).first();
+
+        return json({
+          success: true,
+          data: serializeJob(updated),
+        });
+      }
+
+      const getJobMatch = pathname.match(/^\/api\/v1\/jobs\/([^/]+)$/);
+
+      if (request.method === "GET" && getJobMatch) {
+        const jobId = getJobMatch[1];
+
+        const row = await DB.prepare(
+          `SELECT * FROM jobs WHERE id = ?`
+        ).bind(jobId).first();
+
+        if (!row) {
+          return errorResponse(404, "JOB_NOT_FOUND", "Job not found");
+        }
+
+        return json({
           success: true,
           data: serializeJob(row),
-        },
-        { status: 201 }
+        });
+      }
+
+      return errorResponse(404, "NOT_FOUND", "Route not found");
+    } catch (err) {
+      return errorResponse(
+        500,
+        "UNHANDLED_EXCEPTION",
+        err?.message || "Unknown error",
+        {
+          name: err?.name || null,
+          stack: err?.stack || null,
+        }
       );
     }
-
-    if (request.method === "GET" && pathname === "/api/v1/jobs") {
-      const result = await DB.prepare(
-        `SELECT * FROM jobs ORDER BY created_at DESC`
-      ).all();
-
-      return json({
-        success: true,
-        data: (result.results || []).map(serializeJob),
-      });
-    }
-
-    const patchStatusMatch = pathname.match(/^\/api\/v1\/jobs\/([^/]+)\/status$/);
-
-    if (request.method === "PATCH" && patchStatusMatch) {
-      const jobId = patchStatusMatch[1];
-
-      const existing = await DB.prepare(
-        `SELECT * FROM jobs WHERE id = ?`
-      ).bind(jobId).first();
-
-      if (!existing) {
-        return errorResponse(404, "JOB_NOT_FOUND", "Job not found");
-      }
-
-      const body = await readJsonBody(request);
-      const validationError = validateStatusUpdate(existing.status, body?.status);
-
-      if (validationError) {
-        return errorResponse(400, "VALIDATION_ERROR", validationError);
-      }
-
-      const updated_at = new Date().toISOString();
-
-      await DB.prepare(`
-        UPDATE jobs
-        SET status = ?, updated_at = ?
-        WHERE id = ?
-      `).bind(body.status, updated_at, jobId).run();
-
-      const updated = await DB.prepare(
-        `SELECT * FROM jobs WHERE id = ?`
-      ).bind(jobId).first();
-
-      return json({
-        success: true,
-        data: serializeJob(updated),
-      });
-    }
-
-    const getJobMatch = pathname.match(/^\/api\/v1\/jobs\/([^/]+)$/);
-
-    if (request.method === "GET" && getJobMatch) {
-      const jobId = getJobMatch[1];
-
-      const row = await DB.prepare(
-        `SELECT * FROM jobs WHERE id = ?`
-      ).bind(jobId).first();
-
-      if (!row) {
-        return errorResponse(404, "JOB_NOT_FOUND", "Job not found");
-      }
-
-      return json({
-        success: true,
-        data: serializeJob(row),
-      });
-    }
-
-    return errorResponse(404, "NOT_FOUND", "Route not found");
   },
 };
