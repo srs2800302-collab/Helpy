@@ -17,7 +17,27 @@ function normalizeNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+async function ensureJobsSchema(env: any) {
+  const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
+  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
+
+  const patches: Array<[string, string]> = [
+    ['selected_master_user_id', 'ALTER TABLE jobs ADD COLUMN selected_master_user_id TEXT'],
+    ['selected_master_name', 'ALTER TABLE jobs ADD COLUMN selected_master_name TEXT'],
+    ['selected_offer_id', 'ALTER TABLE jobs ADD COLUMN selected_offer_id TEXT'],
+    ['selected_offer_price', 'ALTER TABLE jobs ADD COLUMN selected_offer_price REAL'],
+  ];
+
+  for (const [name, sql] of patches) {
+    if (!existing.has(name)) {
+      await env.DB.prepare(sql).run();
+    }
+  }
+}
+
 export async function getJobs(env: any) {
+  await ensureJobsSchema(env);
+
   const result = await env.DB.prepare(
     'SELECT * FROM jobs ORDER BY created_at DESC'
   ).all();
@@ -29,6 +49,8 @@ export async function getJobs(env: any) {
 }
 
 export async function getJobById(id: string, env: any) {
+  await ensureJobsSchema(env);
+
   const result = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
   ).bind(id).first();
@@ -47,6 +69,8 @@ export async function getJobById(id: string, env: any) {
 }
 
 export async function createJob(request: Request, env: any) {
+  await ensureJobsSchema(env);
+
   let body: CreateJobBody;
 
   try {
@@ -154,6 +178,8 @@ export async function createJob(request: Request, env: any) {
 }
 
 export async function updateJobStatus(id: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
+
   let body: any;
 
   try {
@@ -189,6 +215,8 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
 }
 
 export async function getJobsByUser(userId: string, env: any) {
+  await ensureJobsSchema(env);
+
   const result = await env.DB.prepare(
     'SELECT * FROM jobs WHERE client_user_id = ?1 ORDER BY created_at DESC'
   )

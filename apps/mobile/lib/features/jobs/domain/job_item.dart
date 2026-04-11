@@ -8,6 +8,10 @@ class JobItem {
   final String? addressText;
   final String status;
   final DateTime createdAt;
+  final String? selectedMasterName;
+  final String? selectedMasterUserId;
+  final String? selectedOfferId;
+  final double? selectedOfferPrice;
 
   const JobItem({
     required this.id,
@@ -19,5 +23,9 @@ class JobItem {
     required this.addressText,
     required this.status,
     required this.createdAt,
+    required this.selectedMasterName,
+    required this.selectedMasterUserId,
+    required this.selectedOfferId,
+    required this.selectedOfferPrice,
   });
 }

@@ -131,6 +131,14 @@ class ClientJobDetailsScreen extends StatelessWidget {
                   Text('Status: ${job.status}'),
                   const SizedBox(height: 8),
                   Text('Created: ${job.createdAt.toLocal()}'),
+                  if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text('Master: ${job.selectedMasterName}'),
+                  ],
+                  if (job.selectedOfferPrice != null) ...[
+                    const SizedBox(height: 8),
+                    Text('Selected price: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
+                  ],
                 ],
               ),
             ),

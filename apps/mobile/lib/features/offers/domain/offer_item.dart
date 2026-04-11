@@ -2,6 +2,8 @@ class OfferItem {
   final String id;
   final String jobId;
   final String masterUserId;
+  final String masterName;
+  final double price;
   final String? message;
   final String? priceComment;
   final String status;
@@ -13,6 +15,8 @@ class OfferItem {
     required this.id,
     required this.jobId,
     required this.masterUserId,
+    required this.masterName,
+    required this.price,
     required this.message,
     required this.priceComment,
     required this.status,

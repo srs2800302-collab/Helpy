@@ -20,12 +20,14 @@ class OffersApi {
         'master_user_id': masterUserId,
         'master_name': masterName,
         'price': price,
-        'message': message,
         'comment': priceComment,
       },
     );
 
-    return _mapOffer(response.data['data'] as Map<String, dynamic>);
+    return _mapOffer(
+      response.data['data'] as Map<String, dynamic>,
+      fallbackJobId: jobId,
+    );
   }
 
   Future<List<OfferItem>> listMasterOffers({
@@ -47,7 +49,7 @@ class OffersApi {
     final data = response.data['data'] as List<dynamic>;
 
     return data
-        .map((item) => _mapOffer(item as Map<String, dynamic>))
+        .map((item) => _mapOffer(item as Map<String, dynamic>, fallbackJobId: jobId))
         .toList();
   }
 
@@ -56,17 +58,21 @@ class OffersApi {
     required String offerId,
     required String clientUserId,
   }) async {
-    await apiClient.dio.post(
+    final response = await apiClient.dio.post(
       '/jobs/$jobId/select-offer',
       data: {
         'offer_id': offerId,
       },
     );
 
+    final data = response.data['data'] as Map<String, dynamic>;
+
     return OfferItem(
-      id: offerId,
-      jobId: jobId,
-      masterUserId: '',
+      id: data['selected_offer_id'] as String? ?? offerId,
+      jobId: data['job_id'] as String? ?? jobId,
+      masterUserId: data['selected_master_user_id'] as String? ?? '',
+      masterName: data['selected_master_name'] as String? ?? '',
+      price: double.tryParse(data['selected_offer_price']?.toString() ?? '') ?? 0,
       message: null,
       priceComment: null,
       status: 'accepted',
@@ -76,11 +82,16 @@ class OffersApi {
     );
   }
 
-  OfferItem _mapOffer(Map<String, dynamic> json) {
+  OfferItem _mapOffer(
+    Map<String, dynamic> json, {
+    String fallbackJobId = '',
+  }) {
     return OfferItem(
       id: json['id'] as String,
-      jobId: json['job_id'] as String? ?? '',
+      jobId: json['job_id'] as String? ?? fallbackJobId,
       masterUserId: json['master_user_id'] as String? ?? '',
+      masterName: json['master_name'] as String? ?? '',
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0,
       message: json['message'] as String?,
       priceComment: (json['comment'] ?? json['price_comment']) as String?,
       status: json['status'] as String? ?? 'active',

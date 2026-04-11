@@ -56,6 +56,12 @@ class JobsApi {
       status: json['status'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
+      selectedMasterName: json['selected_master_name'] as String?,
+      selectedMasterUserId: json['selected_master_user_id'] as String?,
+      selectedOfferId: json['selected_offer_id'] as String?,
+      selectedOfferPrice: double.tryParse(
+        json['selected_offer_price']?.toString() ?? '',
+      ),
     );
   }
 }

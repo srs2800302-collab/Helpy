@@ -36,7 +36,6 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
     final state = ref.watch(jobOffersControllerProvider);
     final controller = ref.read(jobOffersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
-
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
     return Scaffold(
@@ -55,9 +54,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: isInitialLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? const Center(child: CircularProgressIndicator())
               : state.errorMessage != null && state.items.isEmpty
                   ? ListView(
                       children: [
@@ -95,12 +92,11 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
-                            final canSelect =
-                                item.status == 'active' && !state.isSubmitting;
+                            final canSelect = item.status == 'active' && !state.isSubmitting;
 
                             return Card(
                               child: ListTile(
-                                title: Text(item.message ?? 'Offer'),
+                                title: Text('${item.masterName} — ${item.price.toStringAsFixed(0)} THB'),
                                 subtitle: Text(
                                   '${item.status}\n${item.priceComment ?? ''}',
                                 ),
@@ -126,9 +122,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                       ? const SizedBox(
                                           height: 18,
                                           width: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
+                                          child: CircularProgressIndicator(strokeWidth: 2),
                                         )
                                       : Text(l10n.t('select_master')),
                                 ),

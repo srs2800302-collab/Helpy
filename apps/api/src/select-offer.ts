@@ -43,13 +43,22 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
   }
 
   await env.DB.prepare(
-    'UPDATE jobs SET selected_offer_id = ?1, selected_master_name = ?2, selected_master_user_id = ?3, status = ?4 WHERE id = ?5'
+    `UPDATE jobs
+     SET selected_offer_id = ?1,
+         selected_master_name = ?2,
+         selected_master_user_id = ?3,
+         selected_offer_price = ?4,
+         status = ?5,
+         updated_at = ?6
+     WHERE id = ?7`
   )
     .bind(
       offer.id,
       offer.master_name,
       offer.master_user_id,
+      offer.price,
       'master_selected',
+      new Date().toISOString(),
       jobId
     )
     .run();
@@ -61,6 +70,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       selected_offer_id: offer.id,
       selected_master_name: offer.master_name,
       selected_master_user_id: offer.master_user_id,
+      selected_offer_price: offer.price,
       status: 'master_selected',
     },
   });
