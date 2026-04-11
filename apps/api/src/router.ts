@@ -13,6 +13,7 @@ import { getClientHome } from './home';
 import { getJobsByStatus } from './jobs-by-status';
 import { createDeposit, getPayments } from './payments';
 import { getJobPaymentStatus } from './payment-status';
+import { getCategories } from './categories';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -22,6 +23,10 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/health') {
     return Response.json({ success: true, status: 'ok' });
+  }
+
+  if (path === '/api/v1/categories' && method === 'GET') {
+    return getCategories(env);
   }
 
   if (path === '/api/v1/users' && method === 'POST') {
