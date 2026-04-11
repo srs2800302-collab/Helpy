@@ -1,8 +1,30 @@
+type CreateClientProfileBody = {
+  name?: string;
+};
+
+type CreateMasterProfileBody = {
+  name?: string;
+  category?: string;
+  bio?: string;
+};
+
 export async function createClientProfile(userId: string, request: Request, env: any) {
-  const body = await request.json();
+  let body: CreateClientProfileBody;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { success: false, error: 'Invalid JSON' },
+      { status: 400 }
+    );
+  }
 
   if (!body.name) {
-    return Response.json({ success: false, error: 'name required' }, { status: 400 });
+    return Response.json(
+      { success: false, error: 'name required' },
+      { status: 400 }
+    );
   }
 
   const id = crypto.randomUUID();
@@ -13,11 +35,27 @@ export async function createClientProfile(userId: string, request: Request, env:
     .bind(id, userId, body.name, new Date().toISOString())
     .run();
 
-  return Response.json({ success: true, data: { id, user_id: userId, name: body.name } });
+  return Response.json({
+    success: true,
+    data: {
+      id,
+      user_id: userId,
+      name: body.name,
+    },
+  });
 }
 
 export async function createMasterProfile(userId: string, request: Request, env: any) {
-  const body = await request.json();
+  let body: CreateMasterProfileBody;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { success: false, error: 'Invalid JSON' },
+      { status: 400 }
+    );
+  }
 
   if (!body.name || !body.category) {
     return Response.json(
@@ -44,6 +82,13 @@ export async function createMasterProfile(userId: string, request: Request, env:
 
   return Response.json({
     success: true,
-    data: { id, user_id: userId, ...body, is_verified: 0 },
+    data: {
+      id,
+      user_id: userId,
+      name: body.name,
+      category: body.category,
+      bio: body.bio ?? null,
+      is_verified: 0,
+    },
   });
 }

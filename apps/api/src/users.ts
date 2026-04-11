@@ -10,7 +10,10 @@ export async function createUser(request: Request, env: any) {
   try {
     body = await request.json();
   } catch {
-    return Response.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+    return Response.json(
+      { success: false, error: 'Invalid JSON' },
+      { status: 400 }
+    );
   }
 
   if (!body.role || !body.phone || !body.language) {
