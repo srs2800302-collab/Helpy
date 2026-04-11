@@ -11,6 +11,7 @@ import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
 import { getClientDashboard } from './dashboard';
 import { getClientHome } from './home';
 import { getJobsByStatus } from './jobs-by-status';
+import { createDeposit, getPayments } from './payments';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -121,6 +122,14 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'reviews' && method === 'POST') {
       return createReview(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'deposit' && method === 'POST') {
+      return createDeposit(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'payments' && method === 'GET') {
+      return getPayments(jobId, env);
     }
   }
 
