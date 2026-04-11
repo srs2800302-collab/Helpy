@@ -1,9 +1,21 @@
 type CreateJobBody = {
   title?: string;
-  price?: number;
   category?: string;
   client_user_id?: string;
+  description?: string;
+  address_text?: string;
+  budget_type?: string;
+  budget_from?: number | null;
+  budget_to?: number | null;
+  currency?: string;
+  price?: number | null;
 };
+
+function normalizeNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
 
 export async function getJobs(env: any) {
   const result = await env.DB.prepare(
@@ -46,55 +58,112 @@ export async function createJob(request: Request, env: any) {
     );
   }
 
-  if (
-    !body.title ||
-    !body.category ||
-    typeof body.price !== 'number' ||
-    !body.client_user_id
-  ) {
+  if (!body.client_user_id) {
     return Response.json(
-      {
-        success: false,
-        error: 'title, category, price, client_user_id are required',
-      },
+      { success: false, error: 'client_user_id is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!body.category) {
+    return Response.json(
+      { success: false, error: 'category is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!body.title) {
+    return Response.json(
+      { success: false, error: 'title is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!body.description) {
+    return Response.json(
+      { success: false, error: 'description is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!body.address_text) {
+    return Response.json(
+      { success: false, error: 'address_text is required' },
       { status: 400 }
     );
   }
 
   const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  const budgetFrom = normalizeNumber(body.budget_from);
+  const budgetTo = normalizeNumber(body.budget_to);
+  const fallbackPrice =
+    normalizeNumber(body.price) ??
+    budgetTo ??
+    budgetFrom ??
+    0;
 
   await env.DB.prepare(
-    'INSERT INTO jobs (id, title, price, category, status, created_at, client_user_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
+    `INSERT INTO jobs (
+      id,
+      title,
+      price,
+      category,
+      status,
+      created_at,
+      updated_at,
+      client_user_id,
+      description,
+      address_text,
+      budget_type,
+      budget_from,
+      budget_to,
+      currency
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`
   )
     .bind(
       id,
-      body.title,
-      body.price,
+      body.title.trim(),
+      fallbackPrice,
       body.category,
-      'open',
-      new Date().toISOString(),
-      body.client_user_id
+      'draft',
+      now,
+      now,
+      body.client_user_id,
+      body.description.trim(),
+      body.address_text.trim(),
+      body.budget_type || 'fixed',
+      budgetFrom,
+      budgetTo,
+      body.currency || 'THB'
     )
     .run();
+
+  const created = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  ).bind(id).first();
 
   return Response.json(
     {
       success: true,
-      data: {
-        id,
-        title: body.title,
-        price: body.price,
-        category: body.category,
-        client_user_id: body.client_user_id,
-        status: 'open',
-      },
+      data: created,
     },
     { status: 201 }
   );
 }
 
 export async function updateJobStatus(id: string, request: Request, env: any) {
-  const body = await request.json();
+  let body: any;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { success: false, error: 'Invalid JSON body' },
+      { status: 400 }
+    );
+  }
 
   if (!body.status) {
     return Response.json(
@@ -104,14 +173,18 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
   }
 
   await env.DB.prepare(
-    'UPDATE jobs SET status = ?1 WHERE id = ?2'
+    'UPDATE jobs SET status = ?1, updated_at = ?2 WHERE id = ?3'
   )
-    .bind(body.status, id)
+    .bind(body.status, new Date().toISOString(), id)
     .run();
+
+  const updated = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  ).bind(id).first();
 
   return Response.json({
     success: true,
-    data: { id, status: body.status },
+    data: updated ?? { id, status: body.status },
   });
 }
 
