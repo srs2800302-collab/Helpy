@@ -35,6 +35,11 @@ async function ensureReviewsSchema(env: any) {
       await env.DB.prepare(sql).run();
     }
   }
+
+  await env.DB.prepare(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
+     ON reviews(job_id)`
+  ).run();
 }
 
 export async function getReviews(jobId: string, env: any) {
@@ -127,19 +132,6 @@ export async function createReview(jobId: string, request: Request, env: any) {
     );
   }
 
-  const existing = await env.DB.prepare(
-    'SELECT * FROM reviews WHERE job_id = ?1 LIMIT 1'
-  )
-    .bind(jobId)
-    .first();
-
-  if (existing) {
-    return Response.json(
-      { success: false, error: 'Review already exists for this job' },
-      { status: 409 }
-    );
-  }
-
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
@@ -166,10 +158,19 @@ export async function createReview(jobId: string, request: Request, env: any) {
       )
       .run();
   } catch (error: any) {
+    const message = error?.message ?? 'Failed to create review';
+
+    if (message.toLowerCase().includes('unique')) {
+      return Response.json(
+        { success: false, error: 'Review already exists for this job' },
+        { status: 409 }
+      );
+    }
+
     return Response.json(
       {
         success: false,
-        error: error?.message ?? 'Failed to create review',
+        error: message,
       },
       { status: 500 }
     );

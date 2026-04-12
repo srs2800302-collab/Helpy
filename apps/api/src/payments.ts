@@ -34,6 +34,11 @@ async function ensurePaymentsSchema(env: any) {
       await env.DB.prepare(sql).run();
     }
   }
+
+  await env.DB.prepare(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_job_type_unique
+     ON payments(job_id, type)`
+  ).run();
 }
 
 export async function createDeposit(jobId: string, request: Request, env: any) {
@@ -135,29 +140,60 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  await env.DB.prepare(
-    `INSERT INTO payments (
-      id,
-      job_id,
-      client_user_id,
-      amount,
-      currency,
-      type,
-      status,
-      created_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
-  )
-    .bind(
-      id,
-      jobId,
-      clientUserId,
-      body.amount,
-      body.currency || 'THB',
-      'deposit',
-      'paid',
-      now
+  try {
+    await env.DB.prepare(
+      `INSERT INTO payments (
+        id,
+        job_id,
+        client_user_id,
+        amount,
+        currency,
+        type,
+        status,
+        created_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
     )
-    .run();
+      .bind(
+        id,
+        jobId,
+        clientUserId,
+        body.amount,
+        body.currency || 'THB',
+        'deposit',
+        'paid',
+        now
+      )
+      .run();
+  } catch (error: any) {
+    const message = error?.message ?? 'Failed to create deposit';
+
+    if (message.toLowerCase().includes('unique')) {
+      const existing = await env.DB.prepare(
+        `SELECT * FROM payments
+         WHERE job_id = ?1 AND type = 'deposit'
+         LIMIT 1`
+      )
+        .bind(jobId)
+        .first();
+
+      return Response.json({
+        success: true,
+        data: {
+          id: existing?.id ?? null,
+          job_id: jobId,
+          amount: existing?.amount ?? body.amount,
+          currency: existing?.currency ?? (body.currency || 'THB'),
+          status: 'paid',
+          job_status: job.status === JOB_STATUS.open ? JOB_STATUS.open : JOB_STATUS.open,
+        },
+      });
+    }
+
+    return Response.json(
+      { success: false, error: message },
+      { status: 500 }
+    );
+  }
 
   await env.DB.prepare(
     `UPDATE jobs
