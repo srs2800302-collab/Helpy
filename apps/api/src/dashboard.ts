@@ -1,4 +1,22 @@
-export async function getClientDashboard(userId: string, env: any) {
+import { requireRequestUserId } from './auth-context';
+
+function forbiddenResponse() {
+  return Response.json(
+    { success: false, error: 'User has no access to this dashboard' },
+    { status: 403 }
+  );
+}
+
+export async function getClientDashboard(userId: string, request: Request, env: any) {
+  const auth = requireRequestUserId(request);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.userId !== userId) {
+    return forbiddenResponse();
+  }
+
   const totalJobsRow = await env.DB.prepare(
     'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1'
   )
@@ -6,21 +24,39 @@ export async function getClientDashboard(userId: string, env: any) {
     .first();
 
   const openJobsRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = ?2'
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'open'"
   )
-    .bind(userId, 'open')
+    .bind(userId)
     .first();
 
   const masterSelectedJobsRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = ?2'
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'master_selected'"
   )
-    .bind(userId, 'master_selected')
+    .bind(userId)
+    .first();
+
+  const inProgressJobsRow = await env.DB.prepare(
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'in_progress'"
+  )
+    .bind(userId)
     .first();
 
   const completedJobsRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = ?2'
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'completed'"
   )
-    .bind(userId, 'completed')
+    .bind(userId)
+    .first();
+
+  const cancelledJobsRow = await env.DB.prepare(
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'cancelled'"
+  )
+    .bind(userId)
+    .first();
+
+  const disputedJobsRow = await env.DB.prepare(
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'disputed'"
+  )
+    .bind(userId)
     .first();
 
   const pendingReviewJobsRow = await env.DB.prepare(
@@ -43,7 +79,10 @@ export async function getClientDashboard(userId: string, env: any) {
       total_jobs: Number(totalJobsRow?.count ?? 0),
       open_jobs: Number(openJobsRow?.count ?? 0),
       master_selected_jobs: Number(masterSelectedJobsRow?.count ?? 0),
+      in_progress_jobs: Number(inProgressJobsRow?.count ?? 0),
       completed_jobs: Number(completedJobsRow?.count ?? 0),
+      cancelled_jobs: Number(cancelledJobsRow?.count ?? 0),
+      disputed_jobs: Number(disputedJobsRow?.count ?? 0),
       pending_review_jobs: Number(pendingReviewJobsRow?.count ?? 0),
     },
   });

@@ -1,23 +1,45 @@
+import { requireRequestUserId } from './auth-context';
+
+function forbiddenResponse() {
+  return Response.json(
+    { success: false, error: 'User has no access to this home data' },
+    { status: 403 }
+  );
+}
+
 function buildJobActions(status: string, hasSelectedMaster: boolean, hasReview: boolean) {
   switch (status) {
     case 'open':
-      return ['view_offers'];
+      return ['view_offers', 'cancel_job'];
     case 'master_selected':
       return hasSelectedMaster
-        ? ['view_selected_master', 'complete_job']
-        : ['complete_job'];
+        ? ['view_selected_master', 'open_chat', 'cancel_job', 'complete_job']
+        : ['cancel_job', 'complete_job'];
     case 'in_progress':
       return hasSelectedMaster
-        ? ['view_selected_master', 'complete_job']
-        : ['complete_job'];
+        ? ['view_selected_master', 'open_chat', 'create_dispute', 'cancel_job', 'complete_job']
+        : ['create_dispute', 'cancel_job', 'complete_job'];
     case 'completed':
       return hasReview ? ['view_review'] : ['leave_review'];
+    case 'disputed':
+      return ['view_dispute'];
+    case 'cancelled':
+      return [];
     default:
       return [];
   }
 }
 
-export async function getClientHome(userId: string, env: any) {
+export async function getClientHome(userId: string, request: Request, env: any) {
+  const auth = requireRequestUserId(request);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.userId !== userId) {
+    return forbiddenResponse();
+  }
+
   const totalJobsRow = await env.DB.prepare(
     'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1'
   )
@@ -25,21 +47,39 @@ export async function getClientHome(userId: string, env: any) {
     .first();
 
   const openJobsRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = ?2'
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'open'"
   )
-    .bind(userId, 'open')
+    .bind(userId)
     .first();
 
   const masterSelectedJobsRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = ?2'
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'master_selected'"
   )
-    .bind(userId, 'master_selected')
+    .bind(userId)
+    .first();
+
+  const inProgressJobsRow = await env.DB.prepare(
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'in_progress'"
+  )
+    .bind(userId)
     .first();
 
   const completedJobsRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = ?2'
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'completed'"
   )
-    .bind(userId, 'completed')
+    .bind(userId)
+    .first();
+
+  const cancelledJobsRow = await env.DB.prepare(
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'cancelled'"
+  )
+    .bind(userId)
+    .first();
+
+  const disputedJobsRow = await env.DB.prepare(
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'disputed'"
+  )
+    .bind(userId)
     .first();
 
   const pendingReviewJobsRow = await env.DB.prepare(
@@ -57,41 +97,49 @@ export async function getClientHome(userId: string, env: any) {
     .first();
 
   const recentJobsResult = await env.DB.prepare(
-    `SELECT *
-     FROM jobs
-     WHERE client_user_id = ?1
-     ORDER BY created_at DESC
+    `SELECT
+       j.*,
+       EXISTS (
+         SELECT 1
+         FROM reviews r
+         WHERE r.job_id = j.id
+       ) as has_review
+     FROM jobs j
+     WHERE j.client_user_id = ?1
+     ORDER BY j.created_at DESC
      LIMIT 5`
   )
     .bind(userId)
     .all();
 
-  const recentJobs = recentJobsResult.results ?? [];
+  const recentJobs = (recentJobsResult.results ?? []).map((job: any) => ({
+    id: job.id,
+    title: job.title,
+    category: job.category,
+    status: job.status,
+    price: job.price ?? null,
+    currency: job.currency ?? null,
+    address_text: job.address_text ?? null,
+    created_at: job.created_at,
+    updated_at: job.updated_at ?? null,
+    selected_master_name: job.selected_master_name ?? null,
+    selected_master_user_id: job.selected_master_user_id ?? null,
+    selected_offer_price: job.selected_offer_price ?? null,
+    has_review: !!job.has_review,
+  }));
 
-  const actionRequiredJobs = [];
-
-  for (const job of recentJobs) {
-    const review = await env.DB.prepare(
-      'SELECT id FROM reviews WHERE job_id = ?1 LIMIT 1'
-    )
-      .bind(job.id)
-      .first();
-
-    const actions = buildJobActions(
-      job.status,
-      !!job.selected_master_user_id,
-      !!review
-    );
-
-    if (actions.length > 0) {
-      actionRequiredJobs.push({
-        id: job.id,
-        title: job.title,
-        status: job.status,
-        actions,
-      });
-    }
-  }
+  const actionRequiredJobs = recentJobs
+    .map((job: any) => ({
+      id: job.id,
+      title: job.title,
+      status: job.status,
+      actions: buildJobActions(
+        job.status,
+        !!job.selected_master_user_id,
+        !!job.has_review
+      ),
+    }))
+    .filter((job: any) => job.actions.length > 0);
 
   return Response.json({
     success: true,
@@ -100,7 +148,10 @@ export async function getClientHome(userId: string, env: any) {
         total_jobs: Number(totalJobsRow?.count ?? 0),
         open_jobs: Number(openJobsRow?.count ?? 0),
         master_selected_jobs: Number(masterSelectedJobsRow?.count ?? 0),
+        in_progress_jobs: Number(inProgressJobsRow?.count ?? 0),
         completed_jobs: Number(completedJobsRow?.count ?? 0),
+        cancelled_jobs: Number(cancelledJobsRow?.count ?? 0),
+        disputed_jobs: Number(disputedJobsRow?.count ?? 0),
         pending_review_jobs: Number(pendingReviewJobsRow?.count ?? 0),
       },
       recent_jobs: recentJobs,

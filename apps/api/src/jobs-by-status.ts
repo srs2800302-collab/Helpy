@@ -1,37 +1,44 @@
-export async function getJobsByStatus(userId: string, env: any) {
-  const openResult = await env.DB.prepare(
+import { requireRequestUserId } from './auth-context';
+
+function forbiddenResponse() {
+  return Response.json(
+    { success: false, error: 'User has no access to these jobs' },
+    { status: 403 }
+  );
+}
+
+export async function getJobsByStatus(userId: string, request: Request, env: any) {
+  const auth = requireRequestUserId(request);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.userId !== userId) {
+    return forbiddenResponse();
+  }
+
+  const result = await env.DB.prepare(
     `SELECT *
      FROM jobs
-     WHERE client_user_id = ?1 AND status = 'open'
+     WHERE client_user_id = ?1
      ORDER BY created_at DESC`
   )
     .bind(userId)
     .all();
 
-  const masterSelectedResult = await env.DB.prepare(
-    `SELECT *
-     FROM jobs
-     WHERE client_user_id = ?1 AND status = 'master_selected'
-     ORDER BY created_at DESC`
-  )
-    .bind(userId)
-    .all();
-
-  const completedResult = await env.DB.prepare(
-    `SELECT *
-     FROM jobs
-     WHERE client_user_id = ?1 AND status = 'completed'
-     ORDER BY created_at DESC`
-  )
-    .bind(userId)
-    .all();
+  const jobs = result.results ?? [];
 
   return Response.json({
     success: true,
     data: {
-      open: openResult.results ?? [],
-      master_selected: masterSelectedResult.results ?? [],
-      completed: completedResult.results ?? [],
+      draft: jobs.filter((job: any) => job.status === 'draft'),
+      awaiting_payment: jobs.filter((job: any) => job.status === 'awaiting_payment'),
+      open: jobs.filter((job: any) => job.status === 'open'),
+      master_selected: jobs.filter((job: any) => job.status === 'master_selected'),
+      in_progress: jobs.filter((job: any) => job.status === 'in_progress'),
+      completed: jobs.filter((job: any) => job.status === 'completed'),
+      cancelled: jobs.filter((job: any) => job.status === 'cancelled'),
+      disputed: jobs.filter((job: any) => job.status === 'disputed'),
     },
   });
 }
