@@ -64,6 +64,7 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
     JOB_STATUS.open,
     JOB_STATUS.master_selected,
     JOB_STATUS.in_progress,
+    JOB_STATUS.disputed,
   ]);
 
   if (!allowedStatuses.has(job.status)) {
