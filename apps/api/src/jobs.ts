@@ -19,6 +19,12 @@ function normalizeNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+function sanitizeJob(row: any) {
+  if (!row) return row;
+  const { client_id, ...safe } = row;
+  return safe;
+}
+
 export async function ensureJobsSchema(env: any) {
   const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
   const existing = new Set((columns.results ?? []).map((row: any) => row.name));
@@ -46,7 +52,7 @@ export async function getJobs(env: any) {
 
   return Response.json({
     success: true,
-    data: result.results ?? [],
+    data: (result.results ?? []).map(sanitizeJob),
   });
 }
 
@@ -66,7 +72,7 @@ export async function getJobById(id: string, env: any) {
 
   return Response.json({
     success: true,
-    data: result,
+    data: sanitizeJob(result),
   });
 }
 
@@ -172,7 +178,7 @@ export async function createJob(request: Request, env: any) {
   return Response.json(
     {
       success: true,
-      data: created,
+      data: sanitizeJob(created),
     },
     { status: 201 }
   );
@@ -218,6 +224,6 @@ export async function getJobsByUser(userId: string, env: any) {
 
   return Response.json({
     success: true,
-    data: result.results ?? [],
+    data: (result.results ?? []).map(sanitizeJob),
   });
 }
