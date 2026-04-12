@@ -44,6 +44,13 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (job.client_user_id === body.master_user_id) {
+    return Response.json(
+      { success: false, error: 'Master cannot create offer for own job' },
+      { status: 400 }
+    );
+  }
+
   if (job.status !== 'open') {
     return Response.json(
       { success: false, error: 'Offers can be created only for open jobs' },
