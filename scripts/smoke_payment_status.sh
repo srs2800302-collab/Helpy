@@ -138,7 +138,7 @@ assert_contains "draft payment status owner" '"job_status":"draft"'
 request "draft payment status other" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
   "x-user-id: $OTHER_ID"
 assert_status "draft payment status other" "403"
-assert_contains "draft payment status other" 'User has no access to this payment status'
+assert_contains "draft payment status other" 'Only job participants can view payment status'
 
 request "pay deposit" "POST" "$BASE/jobs/$JOB_ID/deposit" '{"amount":300}' \
   "x-user-id: $CLIENT_ID"
@@ -156,7 +156,7 @@ assert_contains "paid payment status owner" '"payment_status":"paid"'
 request "paid payment status other" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
   "x-user-id: $OTHER_ID"
 assert_status "paid payment status other" "403"
-assert_contains "paid payment status other" 'User has no access to this payment status'
+assert_contains "paid payment status other" 'Only job participants can view payment status'
 
 request "missing payment status" "GET" "$BASE/jobs/00000000-0000-0000-0000-000000000000/payment-status" "" \
   "x-user-id: $CLIENT_ID"
