@@ -41,6 +41,87 @@ export async function ensurePaymentsSchema(env: any) {
   ).run();
 }
 
+export async function createRefundPayment(jobId: string, env: any) {
+  await ensureJobsSchema(env);
+  await ensurePaymentsSchema(env);
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    throw new Error('Job not found');
+  }
+
+  const deposit = await env.DB.prepare(
+    `SELECT * FROM payments
+     WHERE job_id = ?1
+       AND type = 'deposit'
+       AND status = 'paid'
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId)
+    .first();
+
+  if (!deposit) {
+    throw new Error('Paid deposit not found');
+  }
+
+  const existingRefund = await env.DB.prepare(
+    `SELECT * FROM payments
+     WHERE job_id = ?1
+       AND type = 'refund'
+     LIMIT 1`
+  )
+    .bind(jobId)
+    .first();
+
+  if (existingRefund) {
+    return existingRefund;
+  }
+
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  await env.DB.prepare(
+    `INSERT INTO payments (
+      id,
+      job_id,
+      client_user_id,
+      amount,
+      currency,
+      type,
+      status,
+      created_at
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
+  )
+    .bind(
+      id,
+      jobId,
+      job.client_user_id,
+      deposit.amount,
+      deposit.currency,
+      'refund',
+      'paid',
+      now
+    )
+    .run();
+
+  return {
+    id,
+    job_id: jobId,
+    client_user_id: job.client_user_id,
+    amount: deposit.amount,
+    currency: deposit.currency,
+    type: 'refund',
+    status: 'paid',
+    created_at: now,
+  };
+}
+
 export async function createDeposit(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensurePaymentsSchema(env);

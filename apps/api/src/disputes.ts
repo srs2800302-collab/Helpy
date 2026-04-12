@@ -1,6 +1,6 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireRequestUserId } from './auth-context';
-import { ensureJobsSchema } from './jobs';
+import { ensureJobsSchema } from './jobs';import { createRefundPayment } from './payments';
 
 type CreateDisputeBody = {
   reason?: string;
@@ -137,6 +137,17 @@ export async function createDispute(jobId: string, request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+
+  if (body.resolution === 'refund') {
+    try {
+      await createRefundPayment(jobId, env);
+    } catch (error: any) {
+      return Response.json(
+        { success: false, error: error?.message ?? 'Failed to create refund payment' },
+        { status: 500 }
+      );
+    }
+  }
   const reason = body.reason.toString().trim();
 
   await env.DB.prepare(
@@ -330,6 +341,17 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
   }
 
   const now = new Date().toISOString();
+
+  if (body.resolution === 'refund') {
+    try {
+      await createRefundPayment(jobId, env);
+    } catch (error: any) {
+      return Response.json(
+        { success: false, error: error?.message ?? 'Failed to create refund payment' },
+        { status: 500 }
+      );
+    }
+  }
 
   await env.DB.prepare(
     `UPDATE disputes
