@@ -110,7 +110,7 @@ extract_json_field() {
 
 echo '=== smoke_job_actions ==='
 
-request "create draft job" "POST" "$BASE/jobs" '{
+request "create awaiting payment job" "POST" "$BASE/jobs" '{
   "title":"Actions lifecycle smoke",
   "category":"plumbing",
   "description":"Full actions lifecycle smoke",
@@ -119,24 +119,25 @@ request "create draft job" "POST" "$BASE/jobs" '{
   "price":1000,
   "currency":"THB"
 }' "x-user-id: $CLIENT_ID"
-assert_status_in "create draft job" "200" "201"
-assert_contains "create draft job" '"success":true'
+assert_status_in "create awaiting payment job" "200" "201"
+assert_contains "create awaiting payment job" '"success":true'
+assert_contains "create awaiting payment job" '"status":"awaiting_payment"'
 
 JOB_ID="$(extract_json_field id)"
 if [ -z "${JOB_ID:-}" ]; then
-  echo '[FAIL] create draft job -> could not parse JOB_ID'
+  echo '[FAIL] create awaiting payment job -> could not parse JOB_ID'
   cat "$LAST_BODY"
   exit 1
 fi
 echo "[OK] parsed JOB_ID=$JOB_ID"
 
-request "draft actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+request "awaiting payment actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
   "x-user-id: $CLIENT_ID"
-assert_status "draft actions" "200"
-assert_contains "draft actions" '"status":"draft"'
-assert_contains "draft actions" '"actions":[]'
+assert_status "awaiting payment actions" "200"
+assert_contains "awaiting payment actions" '"status":"awaiting_payment"'
+assert_contains "awaiting payment actions" '"actions":[]'
 
-request "pay deposit" "POST" "$BASE/jobs/$JOB_ID/deposit" '{"amount":300}' \
+request "pay deposit" "POST" "$BASE/jobs/$JOB_ID/deposit" '{}' \
   "x-user-id: $CLIENT_ID"
 assert_status "pay deposit" "200"
 assert_contains "pay deposit" '"job_status":"open"'
@@ -148,7 +149,7 @@ assert_contains "open actions" '"status":"open"'
 assert_contains "open actions" '"view_offers"'
 assert_contains "open actions" '"cancel_job"'
 
-request "create offer" "POST" "$BASE/jobs/$JOB_ID/offers" '{"master_name":"Alex","price":1000}' \
+request "create offer" "POST" "$BASE/jobs/$JOB_ID/offers" "{\"master_user_id\":\"$MASTER_ID\",\"master_name\":\"Alex\",\"price\":1000}" \
   "x-user-id: $MASTER_ID"
 assert_status_in "create offer" "200" "201"
 assert_contains "create offer" '"success":true'

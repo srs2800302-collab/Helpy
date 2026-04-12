@@ -109,7 +109,7 @@ extract_json_field() {
 
 echo '=== smoke_payment_status ==='
 
-request "create draft job" "POST" "$BASE/jobs" '{
+request "create awaiting payment job" "POST" "$BASE/jobs" '{
   "title":"Payment status smoke",
   "category":"plumbing",
   "description":"Check payment status lifecycle",
@@ -118,33 +118,39 @@ request "create draft job" "POST" "$BASE/jobs" '{
   "price":1000,
   "currency":"THB"
 }' "x-user-id: $CLIENT_ID"
-assert_status_in "create draft job" "200" "201"
-assert_contains "create draft job" '"success":true'
+assert_status_in "create awaiting payment job" "200" "201"
+assert_contains "create awaiting payment job" '"success":true'
+assert_contains "create awaiting payment job" '"status":"awaiting_payment"'
+assert_contains "create awaiting payment job" '"deposit_amount":350'
 
 JOB_ID="$(extract_json_field id)"
 if [ -z "${JOB_ID:-}" ]; then
-  echo '[FAIL] create draft job -> could not parse JOB_ID'
+  echo '[FAIL] create awaiting payment job -> could not parse JOB_ID'
   cat "$LAST_BODY"
   exit 1
 fi
 echo "[OK] parsed JOB_ID=$JOB_ID"
 
-request "draft payment status owner" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
+request "awaiting payment status owner" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
   "x-user-id: $CLIENT_ID"
-assert_status "draft payment status owner" "200"
-assert_contains "draft payment status owner" '"success":true'
-assert_contains "draft payment status owner" '"job_status":"draft"'
+assert_status "awaiting payment status owner" "200"
+assert_contains "awaiting payment status owner" '"success":true'
+assert_contains "awaiting payment status owner" '"job_status":"awaiting_payment"'
+assert_contains "awaiting payment status owner" '"payment_status":"awaiting_payment"'
+assert_contains "awaiting payment status owner" '"expected_deposit_amount":350'
+assert_contains "awaiting payment status owner" '"expected_deposit_currency":"THB"'
 
-request "draft payment status other" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
+request "awaiting payment status other" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
   "x-user-id: $OTHER_ID"
-assert_status "draft payment status other" "403"
-assert_contains "draft payment status other" 'Only job participants can view payment status'
+assert_status "awaiting payment status other" "403"
+assert_contains "awaiting payment status other" 'Only job participants can view payment status'
 
-request "pay deposit" "POST" "$BASE/jobs/$JOB_ID/deposit" '{"amount":300}' \
+request "pay deposit" "POST" "$BASE/jobs/$JOB_ID/deposit" '{}' \
   "x-user-id: $CLIENT_ID"
 assert_status "pay deposit" "200"
 assert_contains "pay deposit" '"status":"paid"'
 assert_contains "pay deposit" '"job_status":"open"'
+assert_contains "pay deposit" '"amount":350'
 
 request "paid payment status owner" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
   "x-user-id: $CLIENT_ID"
@@ -152,6 +158,8 @@ assert_status "paid payment status owner" "200"
 assert_contains "paid payment status owner" '"success":true'
 assert_contains "paid payment status owner" '"job_status":"open"'
 assert_contains "paid payment status owner" '"payment_status":"paid"'
+assert_contains "paid payment status owner" '"deposit_amount":350'
+assert_contains "paid payment status owner" '"deposit_currency":"THB"'
 
 request "paid payment status other" "GET" "$BASE/jobs/$JOB_ID/payment-status" "" \
   "x-user-id: $OTHER_ID"
