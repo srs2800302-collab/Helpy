@@ -6,131 +6,206 @@ CLIENT_ID="${CLIENT_ID:-b1eef160-749d-4482-942b-92636cbd6a2f}"
 MASTER_ID="${MASTER_ID:-2cb75bef-d020-4b33-ad76-8573346f6f82}"
 OTHER_ID="${OTHER_ID:-11111111-1111-1111-1111-111111111111}"
 
-echo '=== 1) CREATE DRAFT JOB ==='
-JOB=$(curl -s -X POST "$BASE/jobs" \
-  -H "Content-Type: application/json" \
-  -H "x-user-id: $CLIENT_ID" \
-  -d '{
-    "title":"Actions lifecycle smoke",
-    "category":"plumbing",
-    "description":"Full actions lifecycle smoke",
-    "address_text":"Pattaya",
-    "budget_type":"fixed",
-    "price":1000,
-    "currency":"THB"
-  }')
-echo "$JOB"
-echo
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
-JOB_ID=$(echo "$JOB" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+LAST_STATUS=""
+LAST_HEADERS=""
+LAST_BODY=""
 
+request() {
+  local name="$1"
+  local method="$2"
+  local url="$3"
+  local body="${4:-}"
+  shift 4 || true
+
+  local slug
+  slug=$(echo "$name" | tr ' /()>' '______')
+
+  local headers_file="$TMP_DIR/${slug}.headers"
+  local body_file="$TMP_DIR/${slug}.body"
+
+  local -a curl_args
+  curl_args=(-sS -D "$headers_file" -o "$body_file" -X "$method" "$url")
+
+  if [ -n "$body" ]; then
+    curl_args+=(-H "Content-Type: application/json" --data "$body")
+  fi
+
+  while [ "$#" -gt 0 ]; do
+    curl_args+=(-H "$1")
+    shift
+  done
+
+  curl "${curl_args[@]}" >/dev/null
+
+  LAST_HEADERS="$headers_file"
+  LAST_BODY="$body_file"
+  LAST_STATUS="$(awk 'toupper($1) ~ /^HTTP\// {code=$2} END {print code}' "$headers_file")"
+}
+
+fail_step() {
+  local name="$1"
+  local expected="$2"
+
+  echo "[FAIL] $name -> expected $expected, got ${LAST_STATUS:-unknown}"
+  echo '--- headers ---'
+  cat "$LAST_HEADERS"
+  echo
+  echo '--- body ---'
+  cat "$LAST_BODY"
+  echo
+  exit 1
+}
+
+assert_status() {
+  local name="$1"
+  local expected="$2"
+
+  if [ "${LAST_STATUS:-}" != "$expected" ]; then
+    fail_step "$name" "$expected"
+  fi
+
+  echo "[OK] $name -> $expected"
+}
+
+assert_contains() {
+  local name="$1"
+  local needle="$2"
+
+  if ! grep -Fq "$needle" "$LAST_BODY"; then
+    echo "[FAIL] $name -> response missing: $needle"
+    echo '--- headers ---'
+    cat "$LAST_HEADERS"
+    echo
+    echo '--- body ---'
+    cat "$LAST_BODY"
+    echo
+    exit 1
+  fi
+
+  echo "[OK] $name contains $needle"
+}
+
+extract_json_field() {
+  local field="$1"
+  sed -n "s/.*\"$field\":\"\([^\"]*\)\".*/\1/p" "$LAST_BODY" | head -n 1
+}
+
+echo '=== smoke_job_actions ==='
+
+request "create draft job" "POST" "$BASE/jobs" '{
+  "title":"Actions lifecycle smoke",
+  "category":"plumbing",
+  "description":"Full actions lifecycle smoke",
+  "address_text":"Pattaya",
+  "budget_type":"fixed",
+  "price":1000,
+  "currency":"THB"
+}' "x-user-id: $CLIENT_ID"
+assert_status "create draft job" "200"
+assert_contains "create draft job" '"success":true'
+
+JOB_ID="$(extract_json_field id)"
 if [ -z "${JOB_ID:-}" ]; then
-  echo 'FAILED: could not parse JOB_ID'
+  echo '[FAIL] create draft job -> could not parse JOB_ID'
+  cat "$LAST_BODY"
   exit 1
 fi
+echo "[OK] parsed JOB_ID=$JOB_ID"
 
-echo "JOB_ID=$JOB_ID"
-echo
+request "draft actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+  "x-user-id: $CLIENT_ID"
+assert_status "draft actions" "200"
+assert_contains "draft actions" '"status":"draft"'
+assert_contains "draft actions" '"actions":[]'
 
-echo '=== 2) DRAFT ACTIONS ==='
-curl -i -s "$BASE/jobs/$JOB_ID/actions" \
-  -H "x-user-id: $CLIENT_ID"
-echo
-echo
+request "pay deposit" "POST" "$BASE/jobs/$JOB_ID/deposit" '{"amount":300}' \
+  "x-user-id: $CLIENT_ID"
+assert_status "pay deposit" "200"
+assert_contains "pay deposit" '"job_status":"open"'
 
-echo '=== 3) PAY DEPOSIT -> OPEN ==='
-curl -s -X POST "$BASE/jobs/$JOB_ID/deposit" \
-  -H "Content-Type: application/json" \
-  -H "x-user-id: $CLIENT_ID" \
-  -d '{"amount":300}'
-echo
-echo
+request "open actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+  "x-user-id: $CLIENT_ID"
+assert_status "open actions" "200"
+assert_contains "open actions" '"status":"open"'
+assert_contains "open actions" '"view_offers"'
+assert_contains "open actions" '"cancel_job"'
 
-echo '=== 4) OPEN ACTIONS ==='
-curl -i -s "$BASE/jobs/$JOB_ID/actions" \
-  -H "x-user-id: $CLIENT_ID"
-echo
-echo
+request "create offer" "POST" "$BASE/jobs/$JOB_ID/offers" '{"master_name":"Alex","price":1000}' \
+  "x-user-id: $MASTER_ID"
+assert_status "create offer" "200"
+assert_contains "create offer" '"success":true'
 
-echo '=== 5) MASTER SENDS OFFER ==='
-OFFER=$(curl -s -X POST "$BASE/jobs/$JOB_ID/offers" \
-  -H "Content-Type: application/json" \
-  -H "x-user-id: $MASTER_ID" \
-  -d '{"master_name":"Alex","price":1000}')
-echo "$OFFER"
-echo
-
-OFFER_ID=$(echo "$OFFER" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
-
+OFFER_ID="$(extract_json_field id)"
 if [ -z "${OFFER_ID:-}" ]; then
-  echo 'FAILED: could not parse OFFER_ID'
+  echo '[FAIL] create offer -> could not parse OFFER_ID'
+  cat "$LAST_BODY"
   exit 1
 fi
+echo "[OK] parsed OFFER_ID=$OFFER_ID"
 
-echo "OFFER_ID=$OFFER_ID"
-echo
+request "select offer" "POST" "$BASE/jobs/$JOB_ID/select-offer" "{\"offer_id\":\"$OFFER_ID\"}" \
+  "x-user-id: $CLIENT_ID"
+assert_status "select offer" "200"
+assert_contains "select offer" '"status":"master_selected"'
 
-echo '=== 6) SELECT OFFER -> MASTER_SELECTED ==='
-curl -s -X POST "$BASE/jobs/$JOB_ID/select-offer" \
-  -H "Content-Type: application/json" \
-  -H "x-user-id: $CLIENT_ID" \
-  -d "{\"offer_id\":\"$OFFER_ID\"}"
-echo
-echo
+request "master selected actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+  "x-user-id: $CLIENT_ID"
+assert_status "master selected actions" "200"
+assert_contains "master selected actions" '"status":"master_selected"'
+assert_contains "master selected actions" '"view_selected_master"'
+assert_contains "master selected actions" '"open_chat"'
+assert_contains "master selected actions" '"cancel_job"'
+assert_contains "master selected actions" '"complete_job"'
 
-echo '=== 7) MASTER_SELECTED ACTIONS ==='
-curl -i -s "$BASE/jobs/$JOB_ID/actions" \
-  -H "x-user-id: $CLIENT_ID"
-echo
-echo
+request "start work" "POST" "$BASE/jobs/$JOB_ID/start-work" "" \
+  "x-user-id: $MASTER_ID"
+assert_status "start work" "200"
+assert_contains "start work" '"status":"in_progress"'
 
-echo '=== 8) START WORK -> IN_PROGRESS ==='
-curl -s -X POST "$BASE/jobs/$JOB_ID/start-work" \
-  -H "x-user-id: $MASTER_ID"
-echo
-echo
+request "in progress actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+  "x-user-id: $CLIENT_ID"
+assert_status "in progress actions" "200"
+assert_contains "in progress actions" '"status":"in_progress"'
+assert_contains "in progress actions" '"view_selected_master"'
+assert_contains "in progress actions" '"open_chat"'
+assert_contains "in progress actions" '"create_dispute"'
+assert_contains "in progress actions" '"cancel_job"'
+assert_contains "in progress actions" '"complete_job"'
 
-echo '=== 9) IN_PROGRESS ACTIONS ==='
-curl -i -s "$BASE/jobs/$JOB_ID/actions" \
-  -H "x-user-id: $CLIENT_ID"
-echo
-echo
+request "complete job" "POST" "$BASE/jobs/$JOB_ID/complete" '{}' \
+  "x-user-id: $CLIENT_ID"
+assert_status "complete job" "200"
+assert_contains "complete job" '"status":"completed"'
 
-echo '=== 10) COMPLETE JOB ==='
-curl -s -X POST "$BASE/jobs/$JOB_ID/complete" \
-  -H "Content-Type: application/json" \
-  -H "x-user-id: $CLIENT_ID" \
-  -d '{}'
-echo
-echo
+request "completed actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+  "x-user-id: $CLIENT_ID"
+assert_status "completed actions" "200"
+assert_contains "completed actions" '"status":"completed"'
+assert_contains "completed actions" '"leave_review"'
 
-echo '=== 11) COMPLETED ACTIONS ==='
-curl -i -s "$BASE/jobs/$JOB_ID/actions" \
-  -H "x-user-id: $CLIENT_ID"
-echo
-echo
+request "create review" "POST" "$BASE/jobs/$JOB_ID/reviews" "{\"master_user_id\":\"$MASTER_ID\",\"rating\":5,\"comment\":\"good\"}" \
+  "x-user-id: $CLIENT_ID"
+assert_status "create review" "200"
+assert_contains "create review" '"success":true'
 
-echo '=== 12) CREATE REVIEW ==='
-curl -s -X POST "$BASE/jobs/$JOB_ID/reviews" \
-  -H "Content-Type: application/json" \
-  -H "x-user-id: $CLIENT_ID" \
-  -d "{\"master_user_id\":\"$MASTER_ID\",\"rating\":5,\"comment\":\"good\"}"
-echo
-echo
+request "reviewed actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+  "x-user-id: $CLIENT_ID"
+assert_status "reviewed actions" "200"
+assert_contains "reviewed actions" '"status":"completed"'
+assert_contains "reviewed actions" '"view_review"'
 
-echo '=== 13) REVIEWED ACTIONS ==='
-curl -i -s "$BASE/jobs/$JOB_ID/actions" \
-  -H "x-user-id: $CLIENT_ID"
-echo
-echo
+request "other user actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
+  "x-user-id: $OTHER_ID"
+assert_status "other user actions" "403"
+assert_contains "other user actions" 'User has no access to this job actions'
 
-echo '=== 14) OTHER USER MUST FAIL ==='
-curl -i -s "$BASE/jobs/$JOB_ID/actions" \
-  -H "x-user-id: $OTHER_ID"
-echo
-echo
+request "missing job actions" "GET" "$BASE/jobs/00000000-0000-0000-0000-000000000000/actions" "" \
+  "x-user-id: $CLIENT_ID"
+assert_status "missing job actions" "404"
+assert_contains "missing job actions" 'Job not found'
 
-echo '=== 15) MISSING JOB MUST FAIL ==='
-curl -i -s "$BASE/jobs/00000000-0000-0000-0000-000000000000/actions" \
-  -H "x-user-id: $CLIENT_ID"
 echo
+echo '[DONE] smoke_job_actions passed'
