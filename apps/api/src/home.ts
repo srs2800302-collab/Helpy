@@ -1,6 +1,5 @@
 import { requireRequestUserId } from './auth-context';
 import { buildJobActions } from './job-actions-logic';
-import { buildJobActions } from './job-actions-logic';
 
 function forbiddenResponse() {
   return Response.json(
@@ -107,46 +106,46 @@ export async function getClientHome(userId: string, requestOrEnv: any, maybeEnv?
 
   const pendingReviewJobsRow = await env.DB.prepare(
     `SELECT COUNT(*) as count
-     FROM jobs j
-     WHERE j.client_user_id = ?1
-       AND j.status = 'completed'
-       AND NOT EXISTS (
-         SELECT 1
-         FROM reviews r
-         WHERE r.job_id = j.id
-       )`
+    FROM jobs j
+    WHERE j.client_user_id = ?1
+      AND j.status = 'completed'
+      AND NOT EXISTS (
+        SELECT 1
+        FROM reviews r
+        WHERE r.job_id = j.id
+      )`
   )
     .bind(userId)
     .first();
 
   const recentJobsResult = await env.DB.prepare(
     `SELECT
-       j.id,
-       j.title,
-       j.category,
-       j.status,
-       j.price,
-       j.currency,
-       j.address_text,
-       j.budget_type,
-       j.budget_from,
-       j.budget_to,
-       j.description,
-       j.created_at,
-       j.updated_at,
-       j.selected_offer_id,
-       j.selected_master_name,
-       j.selected_master_user_id,
-       j.selected_offer_price,
-       EXISTS (
-         SELECT 1
-         FROM reviews r
-         WHERE r.job_id = j.id
-       ) as has_review
-     FROM jobs j
-     WHERE j.client_user_id = ?1
-     ORDER BY j.created_at DESC
-     LIMIT 5`
+      j.id,
+      j.title,
+      j.category,
+      j.status,
+      j.price,
+      j.currency,
+      j.address_text,
+      j.budget_type,
+      j.budget_from,
+      j.budget_to,
+      j.description,
+      j.created_at,
+      j.updated_at,
+      j.selected_offer_id,
+      j.selected_master_name,
+      j.selected_master_user_id,
+      j.selected_offer_price,
+      EXISTS (
+        SELECT 1
+        FROM reviews r
+        WHERE r.job_id = j.id
+      ) as has_review
+    FROM jobs j
+    WHERE j.client_user_id = ?1
+    ORDER BY j.created_at DESC
+    LIMIT 5`
   )
     .bind(userId)
     .all();
