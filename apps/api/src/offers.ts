@@ -1,5 +1,6 @@
+import { requireRequestUserId } from './auth-context';
+
 type CreateOfferBody = {
-  master_user_id?: string;
   master_name?: string;
   price?: number;
 };
@@ -16,8 +17,15 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     );
   }
 
+  const auth = requireRequestUserId(request);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const masterUserId = auth.userId;
+
   if (
-    !body.master_user_id ||
     !body.master_name ||
     typeof body.price !== 'number' ||
     body.price <= 0
@@ -25,7 +33,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     return Response.json(
       {
         success: false,
-        error: 'master_user_id, master_name and positive price are required',
+        error: 'master_name and positive price are required',
       },
       { status: 400 }
     );
@@ -44,7 +52,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.client_user_id === body.master_user_id) {
+  if (job.client_user_id === masterUserId) {
     return Response.json(
       { success: false, error: 'Master cannot create offer for own job' },
       { status: 400 }
@@ -63,7 +71,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
      WHERE job_id = ?1 AND master_user_id = ?2
      LIMIT 1`
   )
-    .bind(jobId, body.master_user_id)
+    .bind(jobId, masterUserId)
     .first();
 
   if (existing) {
@@ -90,8 +98,8 @@ export async function createOffer(jobId: string, request: Request, env: any) {
       .bind(
         id,
         jobId,
-        body.master_user_id,
-        body.master_name,
+        masterUserId,
+        body.master_name.trim(),
         body.price,
         now
       )
@@ -103,8 +111,8 @@ export async function createOffer(jobId: string, request: Request, env: any) {
         data: {
           id,
           job_id: jobId,
-          master_user_id: body.master_user_id,
-          master_name: body.master_name,
+          master_user_id: masterUserId,
+          master_name: body.master_name.trim(),
           price: body.price,
           created_at: now,
         },
