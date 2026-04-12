@@ -4,6 +4,8 @@ import { requireRequestUserId } from './auth-context';
 const MAX_MESSAGE_LENGTH = 2000;
 const DEFAULT_MESSAGES_LIMIT = 50;
 const MAX_MESSAGES_LIMIT = 100;
+const DEFAULT_MESSAGES_OFFSET = 0;
+const MIN_MESSAGE_INTERVAL_MS = 1000;
 
 async function ensureChatSchema(env: any) {
   await env.DB.prepare(
@@ -57,6 +59,17 @@ function getMessagesLimit(request: Request) {
   return Math.min(Math.trunc(raw), MAX_MESSAGES_LIMIT);
 }
 
+function getMessagesOffset(request: Request) {
+  const url = new URL(request.url);
+  const raw = Number(url.searchParams.get('offset') ?? DEFAULT_MESSAGES_OFFSET);
+
+  if (!Number.isFinite(raw) || raw < 0) {
+    return DEFAULT_MESSAGES_OFFSET;
+  }
+
+  return Math.trunc(raw);
+}
+
 export async function getMessages(jobId: string, request: Request, env: any) {
   await ensureChatSchema(env);
 
@@ -67,6 +80,7 @@ export async function getMessages(jobId: string, request: Request, env: any) {
 
   const userId = auth.userId;
   const limit = getMessagesLimit(request);
+  const offset = getMessagesOffset(request);
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -99,9 +113,9 @@ export async function getMessages(jobId: string, request: Request, env: any) {
     `SELECT * FROM chat_messages
      WHERE job_id = ?1
      ORDER BY created_at DESC
-     LIMIT ?2`
+     LIMIT ?2 OFFSET ?3`
   )
-    .bind(jobId, limit)
+    .bind(jobId, limit, offset)
     .all();
 
   const messages = (result.results ?? []).slice().reverse();
@@ -109,6 +123,11 @@ export async function getMessages(jobId: string, request: Request, env: any) {
   return Response.json({
     success: true,
     data: messages,
+    meta: {
+      limit,
+      offset,
+      count: messages.length,
+    },
   });
 }
 
@@ -172,6 +191,34 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
       { success: false, error: 'Messages can be sent only in active job chat' },
       { status: 400 }
     );
+  }
+
+  const lastMessage = await env.DB.prepare(
+    `SELECT * FROM chat_messages
+     WHERE job_id = ?1 AND sender_user_id = ?2
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId, senderUserId)
+    .first();
+
+  if (lastMessage) {
+    const lastCreatedAt = Date.parse(lastMessage.created_at);
+    const nowMs = Date.now();
+
+    if (Number.isFinite(lastCreatedAt) && nowMs - lastCreatedAt < MIN_MESSAGE_INTERVAL_MS) {
+      return Response.json(
+        { success: false, error: 'Messages are sent too quickly' },
+        { status: 429 }
+      );
+    }
+
+    if (lastMessage.text === text) {
+      return Response.json(
+        { success: false, error: 'Duplicate consecutive message is not allowed' },
+        { status: 409 }
+      );
+    }
   }
 
   const id = crypto.randomUUID();
