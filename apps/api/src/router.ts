@@ -5,6 +5,7 @@ import { createReview, getReviews } from './reviews';
 import { completeJob } from './complete-job';
 import { cancelJob } from './cancel-job';
 import { createDispute, getDispute } from './disputes';
+import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
@@ -137,6 +138,14 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'dispute' && method === 'GET') {
+
+    if (parts.length === 5 && parts[4] === 'photos' && method === 'POST') {
+      return addJobPhoto(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'photos' && method === 'GET') {
+      return getJobPhotos(jobId, request, env);
+    }
       return getDispute(jobId, request, env);
     }
 
