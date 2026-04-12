@@ -4,7 +4,7 @@ import { selectOffer } from './select-offer';
 import { createReview, getReviews } from './reviews';
 import { completeJob } from './complete-job';
 import { cancelJob } from './cancel-job';
-import { createDispute, getDispute } from './disputes';
+import { createDispute, getDispute, resolveDispute } from './disputes';
 import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
@@ -132,7 +132,12 @@ export async function handleRequest(request: Request, env: any) {
       return createDispute(jobId, request, env);
     }
 
+    if (parts.length === 6 && parts[4] === 'dispute' && parts[5] === 'resolve' && method === 'POST') {
+      return resolveDispute(jobId, request, env);
+    }
+
     if (parts.length === 5 && parts[4] === 'dispute' && method === 'GET') {
+
       return getDispute(jobId, request, env);
     }
 

@@ -205,3 +205,118 @@ export async function getDispute(jobId: string, request: Request, env: any) {
     data: dispute,
   });
 }
+
+export async function resolveDispute(jobId: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
+  await ensureDisputesSchema(env);
+
+  let body: ResolveDisputeBody;
+  try {
+    body = await request.json() as ResolveDisputeBody;
+  } catch {
+    return Response.json(
+      { success: false, error: 'Invalid JSON body' },
+      { status: 400 }
+    );
+  }
+
+  const auth = requireRequestUserId(request);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const resolverUserId = auth.userId;
+
+  if (body.resolution !== 'refund' && body.resolution !== 'no_refund') {
+    return Response.json(
+      { success: false, error: 'resolution must be refund or no_refund' },
+      { status: 400 }
+    );
+  }
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
+  }
+
+  if (job.status !== JOB_STATUS.disputed) {
+    return Response.json(
+      { success: false, error: 'Only disputed job can be resolved' },
+      { status: 400 }
+    );
+  }
+
+  const dispute = await env.DB.prepare(
+    'SELECT * FROM disputes WHERE job_id = ?1 LIMIT 1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!dispute) {
+    return Response.json(
+      { success: false, error: 'Dispute not found for this job' },
+      { status: 404 }
+    );
+  }
+
+  if (dispute.status === 'resolved') {
+    return Response.json(
+      { success: false, error: 'Dispute is already resolved' },
+      { status: 409 }
+    );
+  }
+
+  const targetJobStatus =
+    body.resolution === 'refund' ? JOB_STATUS.cancelled : JOB_STATUS.completed;
+
+  try {
+    assertTransition(job.status, targetJobStatus);
+  } catch (error: any) {
+    return Response.json(
+      { success: false, error: error?.message ?? 'Invalid status transition' },
+      { status: 400 }
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  await env.DB.prepare(
+    `UPDATE disputes
+     SET status = ?1,
+         resolution = ?2,
+         resolved_by_user_id = ?3,
+         resolved_at = ?4
+     WHERE job_id = ?5`
+  )
+    .bind('resolved', body.resolution, resolverUserId, now, jobId)
+    .run();
+
+  await env.DB.prepare(
+    `UPDATE jobs
+     SET status = ?1,
+         updated_at = ?2
+     WHERE id = ?3`
+  )
+    .bind(targetJobStatus, now, jobId)
+    .run();
+
+  return Response.json({
+    success: true,
+    data: {
+      job_id: jobId,
+      dispute_status: 'resolved',
+      resolution: body.resolution,
+      resolved_by_user_id: resolverUserId,
+      resolved_at: now,
+      job_status: targetJobStatus,
+    },
+  });
+}
