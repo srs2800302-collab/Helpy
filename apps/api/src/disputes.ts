@@ -78,6 +78,19 @@ export async function createDispute(jobId: string, request: Request, env: any) {
     );
   }
 
+  const existingDispute = await env.DB.prepare(
+    'SELECT * FROM disputes WHERE job_id = ?1 LIMIT 1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (existingDispute) {
+    return Response.json(
+      { success: false, error: 'Dispute already exists for this job' },
+      { status: 409 }
+    );
+  }
+
   if (job.status !== JOB_STATUS.in_progress) {
     return Response.json(
       { success: false, error: 'Dispute can be created only for in_progress job' },
@@ -158,6 +171,7 @@ export async function createDispute(jobId: string, request: Request, env: any) {
 }
 
 export async function getDispute(jobId: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
   await ensureDisputesSchema(env);
 
   const auth = requireRequestUserId(request);
