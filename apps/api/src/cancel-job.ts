@@ -3,7 +3,7 @@ import { requireRequestUserId } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 
 function getRefundPolicy(status: string) {
-  if (status === JOB_STATUS.draft || status === JOB_STATUS.awaiting_payment) {
+  if (status === JOB_STATUS.awaiting_payment) {
     return 'no_payment';
   }
 
@@ -80,7 +80,6 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
   }
 
   const allowedStatuses = new Set([
-    JOB_STATUS.draft,
     JOB_STATUS.awaiting_payment,
     JOB_STATUS.open,
   ]);

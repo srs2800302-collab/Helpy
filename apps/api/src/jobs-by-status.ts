@@ -52,6 +52,7 @@ export async function getJobsByStatus(userId: string, requestOrEnv: any, maybeEn
   }
 
   const auth = requireRequestUserId(request);
+
   if (!auth.ok) {
     return auth.response;
   }
@@ -91,7 +92,6 @@ export async function getJobsByStatus(userId: string, requestOrEnv: any, maybeEn
   return Response.json({
     success: true,
     data: {
-      draft: jobs.filter((job: any) => job.status === 'draft'),
       awaiting_payment: jobs.filter((job: any) => job.status === 'awaiting_payment'),
       open: jobs.filter((job: any) => job.status === 'open'),
       master_selected: jobs.filter((job: any) => job.status === 'master_selected'),
