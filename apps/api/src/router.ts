@@ -123,8 +123,12 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'complete' && method === 'POST') {
+      return completeJob(jobId, request, env);
+    }
+
     if (parts.length === 5 && parts[4] === 'cancel' && method === 'POST') {
       return cancelJob(jobId, request, env);
+    }
     }
 
       return completeJob(jobId, request, env);
