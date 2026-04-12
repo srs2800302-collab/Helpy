@@ -2,6 +2,18 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireRequestUserId } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 
+function getRefundPolicy(status: string) {
+  if (status === JOB_STATUS.draft || status === JOB_STATUS.awaiting_payment) {
+    return 'no_payment';
+  }
+
+  if (status === JOB_STATUS.open) {
+    return 'no_refund';
+  }
+
+  return null;
+}
+
 export async function cancelJob(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
 
@@ -32,22 +44,10 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
     );
   }
 
-  const isClient = actorUserId === job.client_user_id;
-  const isSelectedMaster =
-    !!job.selected_master_user_id &&
-    actorUserId === job.selected_master_user_id;
-
-  if (!isClient && !isSelectedMaster) {
+  if (actorUserId !== job.client_user_id) {
     return Response.json(
-      { success: false, error: 'Only job participants can cancel job' },
+      { success: false, error: 'Only job client can cancel job' },
       { status: 403 }
-    );
-  }
-
-  if (job.status === JOB_STATUS.completed) {
-    return Response.json(
-      { success: false, error: 'Completed job cannot be cancelled' },
-      { status: 400 }
     );
   }
 
@@ -58,13 +58,31 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (job.status === JOB_STATUS.completed) {
+    return Response.json(
+      { success: false, error: 'Completed job cannot be cancelled' },
+      { status: 400 }
+    );
+  }
+
+  if (
+    job.status === JOB_STATUS.master_selected ||
+    job.status === JOB_STATUS.in_progress ||
+    job.status === JOB_STATUS.disputed
+  ) {
+    return Response.json(
+      {
+        success: false,
+        error: 'Job cannot be cancelled after master selection. Use dispute flow.',
+      },
+      { status: 400 }
+    );
+  }
+
   const allowedStatuses = new Set([
     JOB_STATUS.draft,
     JOB_STATUS.awaiting_payment,
     JOB_STATUS.open,
-    JOB_STATUS.master_selected,
-    JOB_STATUS.in_progress,
-    JOB_STATUS.disputed,
   ]);
 
   if (!allowedStatuses.has(job.status)) {
@@ -84,6 +102,7 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
   }
 
   const now = new Date().toISOString();
+  const refundPolicy = getRefundPolicy(job.status);
 
   await env.DB.prepare(
     `UPDATE jobs
@@ -100,6 +119,7 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
       job_id: jobId,
       status: JOB_STATUS.cancelled,
       cancelled_by_user_id: actorUserId,
+      refund_policy: refundPolicy,
       updated_at: now,
     },
   });
