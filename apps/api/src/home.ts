@@ -1,4 +1,5 @@
 import { requireRequestUserId } from './auth-context';
+import { buildJobActions } from './job-actions-logic';
 
 function forbiddenResponse() {
   return Response.json(
@@ -20,29 +21,6 @@ function resolveRequestEnv(requestOrEnv: any, maybeEnv: any) {
   }
 
   return { request: null, env: requestOrEnv };
-}
-
-function buildJobActions(status: string, hasSelectedMaster: boolean, hasReview: boolean) {
-  switch (status) {
-    case 'open':
-      return ['view_offers', 'cancel_job'];
-    case 'master_selected':
-      return hasSelectedMaster
-        ? ['view_selected_master', 'open_chat', 'cancel_job', 'complete_job']
-        : ['cancel_job', 'complete_job'];
-    case 'in_progress':
-      return hasSelectedMaster
-        ? ['view_selected_master', 'open_chat', 'create_dispute', 'cancel_job', 'complete_job']
-        : ['create_dispute', 'cancel_job', 'complete_job'];
-    case 'completed':
-      return hasReview ? ['view_review'] : ['leave_review'];
-    case 'disputed':
-      return ['view_dispute'];
-    case 'cancelled':
-      return [];
-    default:
-      return [];
-  }
 }
 
 function mapJob(job: any) {
@@ -142,32 +120,32 @@ export async function getClientHome(userId: string, requestOrEnv: any, maybeEnv?
 
   const recentJobsResult = await env.DB.prepare(
     `SELECT
-      j.id,
-      j.title,
-      j.category,
-      j.status,
-      j.price,
-      j.currency,
-      j.address_text,
-      j.budget_type,
-      j.budget_from,
-      j.budget_to,
-      j.description,
-      j.created_at,
-      j.updated_at,
-      j.selected_offer_id,
-      j.selected_master_name,
-      j.selected_master_user_id,
-      j.selected_offer_price,
-      EXISTS (
-        SELECT 1
-        FROM reviews r
-        WHERE r.job_id = j.id
-      ) as has_review
-    FROM jobs j
-    WHERE j.client_user_id = ?1
-    ORDER BY j.created_at DESC
-    LIMIT 5`
+       j.id,
+       j.title,
+       j.category,
+       j.status,
+       j.price,
+       j.currency,
+       j.address_text,
+       j.budget_type,
+       j.budget_from,
+       j.budget_to,
+       j.description,
+       j.created_at,
+       j.updated_at,
+       j.selected_offer_id,
+       j.selected_master_name,
+       j.selected_master_user_id,
+       j.selected_offer_price,
+       EXISTS (
+         SELECT 1
+         FROM reviews r
+         WHERE r.job_id = j.id
+       ) as has_review
+     FROM jobs j
+     WHERE j.client_user_id = ?1
+     ORDER BY j.created_at DESC
+     LIMIT 5`
   )
     .bind(userId)
     .all();

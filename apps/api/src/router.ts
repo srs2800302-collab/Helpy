@@ -10,6 +10,7 @@ import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
 import { getUserJobActions } from './job-actions';
+import { getJobActions } from './job-actions';
 import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
 import { getClientDashboard } from './dashboard';
 import { getClientHome } from './home';
@@ -175,6 +176,10 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'messages' && method === 'POST') {
       return sendMessage(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'actions' && method === 'GET') {
+      return getJobActions(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'start-work' && method === 'POST') {
