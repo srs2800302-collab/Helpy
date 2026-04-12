@@ -1,9 +1,0 @@
-name = "fixi-edge-api"
-main = "worker.js"
-compatibility_date = "2025-01-01"
-account_id = "75efb287b6406029c5d1485cfa6d7bcc"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "fixi-db"
-database_id = "d5e761bf-0072-4833-be57-7c9b1f6bfddb"
