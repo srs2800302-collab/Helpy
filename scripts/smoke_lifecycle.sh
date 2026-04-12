@@ -38,6 +38,7 @@ echo
 echo "== create offer =="
 OFFER_JSON=$(curl -s -X POST "$BASE_URL/jobs/$JOB_ID/offers" \
   -H "Content-Type: application/json" \
+  -H "x-user-id: $MASTER_ID" \
   -d "{
     \"master_user_id\": \"$MASTER_ID\",
     \"master_name\": \"$MASTER_NAME\",
