@@ -44,15 +44,15 @@ export async function handleRequest(request: Request, env: any) {
     const userId = parts[3];
 
     if (parts.length === 5 && parts[4] === 'home' && method === 'GET') {
-      return getClientHome(userId, env);
+      return getClientHome(userId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'dashboard' && method === 'GET') {
-      return getClientDashboard(userId, env);
+      return getClientDashboard(userId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'jobs-by-status' && method === 'GET') {
-      return getJobsByStatus(userId, env);
+      return getJobsByStatus(userId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'full' && method === 'GET') {
