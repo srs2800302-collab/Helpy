@@ -1,4 +1,5 @@
 import { requireRequestUserId } from './auth-context';
+import { fail } from './response';
 
 type CreateOfferBody = {
   master_name?: string;
@@ -27,64 +28,40 @@ async function ensureOffersSchema(env: any) {
 export async function createOffer(jobId: string, request: Request, env: any) {
   await ensureOffersSchema(env);
 
-  let body: CreateOfferBody;
-
-  try {
-    body = await request.json() as CreateOfferBody;
-  } catch {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body' },
-      { status: 400 }
-    );
-  }
-
   const auth = requireRequestUserId(request);
-
-  if (!auth.ok) {
-    return auth.response;
-  }
+  if (!auth.ok) return auth.response;
 
   const masterUserId = auth.userId;
 
-  if (
-    !body.master_name ||
-    typeof body.price !== 'number' ||
-    body.price <= 0
-  ) {
-    return Response.json(
-      {
-        success: false,
-        error: 'master_name and positive price are required',
-      },
-      { status: 400 }
-    );
+  const profile = await env.DB.prepare(
+    'SELECT * FROM master_profiles WHERE user_id = ?1'
+  ).bind(masterUserId).first();
+
+  if (!profile) return fail('Only masters can create offers', 403);
+
+  let body: CreateOfferBody;
+  try {
+    body = await request.json();
+  } catch {
+    return fail('Invalid JSON body', 400);
+  }
+
+  if (!body.master_name || typeof body.price !== 'number' || body.price <= 0) {
+    return fail('master_name and positive price are required', 400);
   }
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  ).bind(jobId).first();
 
-  if (!job) {
-    return Response.json(
-      { success: false, error: 'Job not found' },
-      { status: 404 }
-    );
-  }
+  if (!job) return fail('Job not found', 404);
 
   if (job.client_user_id === masterUserId) {
-    return Response.json(
-      { success: false, error: 'Master cannot create offer for own job' },
-      { status: 400 }
-    );
+    return fail('Master cannot create offer for own job', 400);
   }
 
   if (job.status !== 'open') {
-    return Response.json(
-      { success: false, error: 'Offers can be created only for open jobs' },
-      { status: 400 }
-    );
+    return fail('Offers can be created only for open jobs', 400);
   }
 
   try {
@@ -111,40 +88,28 @@ export async function createOffer(jobId: string, request: Request, env: any) {
       )
       .run();
 
-    return Response.json(
-      {
-        success: true,
-        data: {
-          id,
-          job_id: jobId,
-          master_user_id: masterUserId,
-          master_name: body.master_name.trim(),
-          price: body.price,
-          created_at: now,
-        },
+    return Response.json({
+      success: true,
+      data: {
+        id,
+        job_id: jobId,
+        master_user_id: masterUserId,
+        master_name: body.master_name.trim(),
+        price: body.price,
+        created_at: now,
       },
-      { status: 201 }
-    );
+    }, { status: 201 });
+
   } catch (error: any) {
     const message = error?.message ?? 'Failed to create offer';
 
     if (message.toLowerCase().includes('unique')) {
-      return Response.json(
-        { success: false, error: 'Master already has an offer for this job' },
-        { status: 409 }
-      );
+      return fail('Master already has an offer for this job', 409);
     }
 
-    return Response.json(
-      {
-        success: false,
-        error: message,
-      },
-      { status: 500 }
-    );
+    return fail(message, 500);
   }
 }
-
 export async function getOffers(jobId: string, env: any) {
   await ensureOffersSchema(env);
 
