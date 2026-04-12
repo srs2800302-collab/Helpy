@@ -9,7 +9,6 @@ import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
-import { getUserJobActions } from './job-actions';
 import { getJobActions } from './job-actions';
 import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
 import { getClientDashboard } from './dashboard';
@@ -66,11 +65,6 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'available-jobs' && method === 'GET') {
       return getAvailableJobsForMaster(userId, env);
-    }
-
-    if (parts.length === 7 && parts[4] === 'jobs' && parts[6] === 'actions' && method === 'GET') {
-      const jobId = parts[5];
-      return getUserJobActions(userId, jobId, env);
     }
 
     if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
