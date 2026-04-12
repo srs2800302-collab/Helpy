@@ -15,10 +15,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request, {
-    body,
-    bodyFields: ['client_user_id'],
-  });
+  const auth = requireRequestUserId(request);
 
   if (!auth.ok) {
     return auth.response;

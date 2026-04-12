@@ -10,10 +10,7 @@ export async function completeJob(jobId: string, request: Request, env: any) {
     body = {};
   }
 
-  const auth = requireRequestUserId(request, {
-    body,
-    bodyFields: ['actor_user_id'],
-  });
+  const auth = requireRequestUserId(request);
 
   if (!auth.ok) {
     return auth.response;

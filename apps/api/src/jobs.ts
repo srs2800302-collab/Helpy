@@ -4,7 +4,6 @@ import { requireRequestUserId } from './auth-context';
 type CreateJobBody = {
   title?: string;
   category?: string;
-  client_user_id?: string;
   description?: string;
   address_text?: string;
   budget_type?: string;
@@ -84,10 +83,7 @@ export async function createJob(request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request, {
-    body,
-    bodyFields: ['client_user_id'],
-  });
+  const auth = requireRequestUserId(request);
 
   if (!auth.ok) {
     return auth.response;

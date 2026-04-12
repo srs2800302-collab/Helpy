@@ -23,9 +23,7 @@ function canAccessJobChat(job: any, userId: string) {
 export async function getMessages(jobId: string, request: Request, env: any) {
   await ensureChatSchema(env);
 
-  const auth = requireRequestUserId(request, {
-    queryFields: ['user_id'],
-  });
+  const auth = requireRequestUserId(request);
 
   if (!auth.ok) {
     return auth.response;
@@ -92,10 +90,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request, {
-    body,
-    bodyFields: ['sender_user_id'],
-  });
+  const auth = requireRequestUserId(request);
 
   if (!auth.ok) {
     return auth.response;
@@ -185,10 +180,7 @@ export async function startWork(jobId: string, request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request, {
-    body,
-    bodyFields: ['actor_user_id'],
-  });
+  const auth = requireRequestUserId(request);
 
   if (!auth.ok) {
     return auth.response;
