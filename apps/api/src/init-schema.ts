@@ -1,0 +1,48 @@
+export async function ensureBaseSchema(env: any) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS jobs (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      price REAL NOT NULL DEFAULT 0,
+      category TEXT NOT NULL,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT,
+      client_user_id TEXT NOT NULL,
+      description TEXT,
+      address_text TEXT,
+      budget_type TEXT,
+      budget_from REAL,
+      budget_to REAL,
+      currency TEXT DEFAULT 'THB',
+      selected_master_user_id TEXT,
+      selected_master_name TEXT,
+      selected_offer_id TEXT,
+      selected_offer_price REAL
+    )
+  `).run();
+
+  const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
+  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
+
+  const patches: Array<[string, string]> = [
+    ['updated_at', 'ALTER TABLE jobs ADD COLUMN updated_at TEXT'],
+    ['client_user_id', 'ALTER TABLE jobs ADD COLUMN client_user_id TEXT'],
+    ['description', 'ALTER TABLE jobs ADD COLUMN description TEXT'],
+    ['address_text', 'ALTER TABLE jobs ADD COLUMN address_text TEXT'],
+    ['budget_type', 'ALTER TABLE jobs ADD COLUMN budget_type TEXT'],
+    ['budget_from', 'ALTER TABLE jobs ADD COLUMN budget_from REAL'],
+    ['budget_to', 'ALTER TABLE jobs ADD COLUMN budget_to REAL'],
+    ['currency', "ALTER TABLE jobs ADD COLUMN currency TEXT DEFAULT 'THB'"],
+    ['selected_master_user_id', 'ALTER TABLE jobs ADD COLUMN selected_master_user_id TEXT'],
+    ['selected_master_name', 'ALTER TABLE jobs ADD COLUMN selected_master_name TEXT'],
+    ['selected_offer_id', 'ALTER TABLE jobs ADD COLUMN selected_offer_id TEXT'],
+    ['selected_offer_price', 'ALTER TABLE jobs ADD COLUMN selected_offer_price REAL'],
+  ];
+
+  for (const [name, sql] of patches) {
+    if (!existing.has(name)) {
+      await env.DB.prepare(sql).run();
+    }
+  }
+}

@@ -15,8 +15,10 @@ import { createDeposit, getPayments } from './payments';
 import { getJobPaymentStatus } from './payment-status';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
+import { ensureBaseSchema } from './init-schema';
 
 export async function handleRequest(request: Request, env: any) {
+  await ensureBaseSchema(env);
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method;
