@@ -40,7 +40,6 @@ function canViewJobPhotos(job: any, actorUserId: string) {
 
 function canAddPhotosInStatus(status: string) {
   return new Set([
-    JOB_STATUS.draft,
     JOB_STATUS.awaiting_payment,
     JOB_STATUS.open,
     JOB_STATUS.master_selected,

@@ -120,7 +120,7 @@ assert_contains "home other" 'User has no access to this home data'
 request "jobs-by-status owner" "GET" "$BASE/users/$CLIENT_ID/jobs-by-status" "" \
   "x-user-id: $CLIENT_ID"
 assert_status "jobs-by-status owner" "200"
-assert_contains "jobs-by-status owner" '"draft":'
+assert_contains "jobs-by-status owner" '"awaiting_payment":'
 assert_contains "jobs-by-status owner" '"open":'
 assert_contains "jobs-by-status owner" '"completed":'
 
