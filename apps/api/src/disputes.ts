@@ -6,6 +6,10 @@ type CreateDisputeBody = {
   reason?: string;
 };
 
+type ResolveDisputeBody = {
+  resolution?: 'refund' | 'no_refund';
+};
+
 async function ensureDisputesSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS disputes (
@@ -14,9 +18,27 @@ async function ensureDisputesSchema(env: any) {
       created_by_user_id TEXT NOT NULL,
       reason TEXT NOT NULL,
       status TEXT NOT NULL,
+      resolution TEXT,
+      resolved_by_user_id TEXT,
+      resolved_at TEXT,
       created_at TEXT NOT NULL
     )`
   ).run();
+
+  const columns = await env.DB.prepare('PRAGMA table_info(disputes)').all();
+  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
+
+  const patches: Array<[string, string]> = [
+    ['resolution', 'ALTER TABLE disputes ADD COLUMN resolution TEXT'],
+    ['resolved_by_user_id', 'ALTER TABLE disputes ADD COLUMN resolved_by_user_id TEXT'],
+    ['resolved_at', 'ALTER TABLE disputes ADD COLUMN resolved_at TEXT'],
+  ];
+
+  for (const [name, sql] of patches) {
+    if (!existing.has(name)) {
+      await env.DB.prepare(sql).run();
+    }
+  }
 
   await env.DB.prepare(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_disputes_job_unique
@@ -36,38 +58,24 @@ export async function createDispute(jobId: string, request: Request, env: any) {
   try {
     body = await request.json() as CreateDisputeBody;
   } catch {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body' },
-      { status: 400 }
-    );
+    return Response.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
   }
 
   const auth = requireRequestUserId(request);
-
-  if (!auth.ok) {
-    return auth.response;
-  }
+  if (!auth.ok) return auth.response;
 
   const actorUserId = auth.userId;
 
   if (!body.reason || !body.reason.toString().trim()) {
-    return Response.json(
-      { success: false, error: 'reason is required' },
-      { status: 400 }
-    );
+    return Response.json({ success: false, error: 'reason is required' }, { status: 400 });
   }
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
+  const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
     .bind(jobId)
     .first();
 
   if (!job) {
-    return Response.json(
-      { success: false, error: 'Job not found' },
-      { status: 404 }
-    );
+    return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
   }
 
   const isClient = actorUserId === job.client_user_id;
@@ -118,47 +126,17 @@ export async function createDispute(jobId: string, request: Request, env: any) {
   const now = new Date().toISOString();
   const reason = body.reason.toString().trim();
 
-  try {
-    await env.DB.prepare(
-      `INSERT INTO disputes (
-        id,
-        job_id,
-        created_by_user_id,
-        reason,
-        status,
-        created_at
-      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
-    )
-      .bind(
-        id,
-        jobId,
-        actorUserId,
-        reason,
-        'open',
-        now
-      )
-      .run();
-  } catch (error: any) {
-    const message = error?.message ?? 'Failed to create dispute';
-
-    if (message.toLowerCase().includes('unique')) {
-      return Response.json(
-        { success: false, error: 'Dispute already exists for this job' },
-        { status: 409 }
-      );
-    }
-
-    return Response.json(
-      { success: false, error: message },
-      { status: 500 }
-    );
-  }
+  await env.DB.prepare(
+    `INSERT INTO disputes (
+      id, job_id, created_by_user_id, reason, status,
+      resolution, resolved_by_user_id, resolved_at, created_at
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`
+  )
+    .bind(id, jobId, actorUserId, reason, 'open', null, null, null, now)
+    .run();
 
   await env.DB.prepare(
-    `UPDATE jobs
-     SET status = ?1,
-         updated_at = ?2
-     WHERE id = ?3`
+    `UPDATE jobs SET status = ?1, updated_at = ?2 WHERE id = ?3`
   )
     .bind(JOB_STATUS.disputed, now, jobId)
     .run();
@@ -171,6 +149,9 @@ export async function createDispute(jobId: string, request: Request, env: any) {
       created_by_user_id: actorUserId,
       reason,
       status: 'open',
+      resolution: null,
+      resolved_by_user_id: null,
+      resolved_at: null,
       job_status: JOB_STATUS.disputed,
       created_at: now,
     },
@@ -182,24 +163,16 @@ export async function getDispute(jobId: string, request: Request, env: any) {
   await ensureDisputesSchema(env);
 
   const auth = requireRequestUserId(request);
-
-  if (!auth.ok) {
-    return auth.response;
-  }
+  if (!auth.ok) return auth.response;
 
   const actorUserId = auth.userId;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
+  const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
     .bind(jobId)
     .first();
 
   if (!job) {
-    return Response.json(
-      { success: false, error: 'Job not found' },
-      { status: 404 }
-    );
+    return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
   }
 
   const isClient = actorUserId === job.client_user_id;
