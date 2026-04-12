@@ -15,6 +15,7 @@ import { createDeposit, getPayments } from './payments';
 import { getJobPaymentStatus } from './payment-status';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
+import { cleanupTestData } from './cleanup';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -26,8 +27,12 @@ export async function handleRequest(request: Request, env: any) {
     return Response.json({ success: true, status: 'ok' });
   }
 
+  if (path === '/cleanup' && method === 'POST') {
+    return cleanupTestData(env);
+  }
+
   if (path === '/api/v1/categories' && method === 'GET') {
-    return getCategories(env);
+    return getCategories();
   }
 
   if (path === '/api/v1/users' && method === 'POST') {
@@ -119,18 +124,6 @@ export async function handleRequest(request: Request, env: any) {
       return selectOffer(jobId, request, env);
     }
 
-    if (parts.length === 5 && parts[4] === 'messages' && method === 'GET') {
-      return getMessages(jobId, request, env);
-    }
-
-    if (parts.length === 5 && parts[4] === 'messages' && method === 'POST') {
-      return sendMessage(jobId, request, env);
-    }
-
-    if (parts.length === 5 && parts[4] === 'start-work' && method === 'POST') {
-      return startWork(jobId, request, env);
-    }
-
     if (parts.length === 5 && parts[4] === 'complete' && method === 'POST') {
       return completeJob(jobId, request, env);
     }
@@ -153,6 +146,18 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'payment-status' && method === 'GET') {
       return getJobPaymentStatus(jobId, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'messages' && method === 'GET') {
+      return getMessages(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'messages' && method === 'POST') {
+      return sendMessage(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'start-work' && method === 'POST') {
+      return startWork(jobId, request, env);
     }
   }
 
