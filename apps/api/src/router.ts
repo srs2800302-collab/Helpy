@@ -15,7 +15,6 @@ import { createDeposit, getPayments } from './payments';
 import { getJobPaymentStatus } from './payment-status';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
-import { cleanupTestData } from './cleanup';
 
 export async function handleRequest(request: Request, env: any) {
   const url = new URL(request.url);
@@ -25,10 +24,6 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/health') {
     return Response.json({ success: true, status: 'ok' });
-  }
-
-  if (path === '/cleanup' && method === 'POST') {
-    return cleanupTestData(env);
   }
 
   if (path === '/api/v1/categories' && method === 'GET') {
