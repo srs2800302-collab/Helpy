@@ -138,6 +138,8 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'dispute' && method === 'GET') {
+      return getDispute(jobId, request, env);
+    }
 
     if (parts.length === 5 && parts[4] === 'photos' && method === 'POST') {
       return addJobPhoto(jobId, request, env);
@@ -145,8 +147,6 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'photos' && method === 'GET') {
       return getJobPhotos(jobId, request, env);
-    }
-      return getDispute(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'reviews' && method === 'GET') {
