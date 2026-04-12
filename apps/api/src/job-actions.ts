@@ -1,6 +1,5 @@
 import { requireRequestUserId } from './auth-context';
 import { buildJobActions } from './job-actions-logic';
-import { buildJobActions } from './job-actions-logic';
 
 function forbiddenResponse() {
   return Response.json(
@@ -19,18 +18,18 @@ export async function getJobActions(jobId: string, request: Request, env: any) {
 
   const job = await env.DB.prepare(
     `SELECT
-      j.id,
-      j.status,
-      j.client_user_id,
-      j.selected_master_user_id,
-      EXISTS (
-        SELECT 1
-        FROM reviews r
-        WHERE r.job_id = j.id
-      ) as has_review
-    FROM jobs j
-    WHERE j.id = ?1
-    LIMIT 1`
+       j.id,
+       j.status,
+       j.client_user_id,
+       j.selected_master_user_id,
+       EXISTS (
+         SELECT 1
+         FROM reviews r
+         WHERE r.job_id = j.id
+       ) as has_review
+     FROM jobs j
+     WHERE j.id = ?1
+     LIMIT 1`
   )
     .bind(jobId)
     .first();
