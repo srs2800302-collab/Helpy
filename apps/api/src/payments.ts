@@ -45,16 +45,6 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensurePaymentsSchema(env);
 
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body' },
-      { status: 400 }
-    );
-  }
-
   const auth = requireRequestUserId(request);
 
   if (!auth.ok) {
@@ -62,13 +52,6 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   }
 
   const clientUserId = auth.userId;
-
-  if (typeof body.amount !== 'number' || body.amount <= 0) {
-    return Response.json(
-      { success: false, error: 'amount must be a positive number' },
-      { status: 400 }
-    );
-  }
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -89,6 +72,18 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
       { status: 403 }
     );
   }
+
+  if (typeof job.price !== 'number' || job.price <= 0) {
+    return Response.json(
+      { success: false, error: 'Job price must be set before payment' },
+      { status: 400 }
+    );
+  }
+
+  const depositAmount =
+    typeof job.deposit_amount === 'number' && job.deposit_amount > 0
+      ? job.deposit_amount
+      : Math.round(job.price * 0.35);
 
   const existingPaidDeposit = await env.DB.prepare(
     `SELECT * FROM payments
@@ -115,14 +110,11 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     });
   }
 
-  if (
-    job.status !== JOB_STATUS.draft &&
-    job.status !== JOB_STATUS.awaiting_payment
-  ) {
+  if (job.status !== JOB_STATUS.awaiting_payment) {
     return Response.json(
       {
         success: false,
-        error: 'Deposit can be paid only for draft or awaiting_payment job',
+        error: 'Deposit can be paid only for awaiting_payment job',
       },
       { status: 400 }
     );
@@ -139,6 +131,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const currency = job.currency || 'THB';
 
   try {
     await env.DB.prepare(
@@ -157,8 +150,8 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
         id,
         jobId,
         clientUserId,
-        body.amount,
-        body.currency || 'THB',
+        depositAmount,
+        currency,
         'deposit',
         'paid',
         now
@@ -181,10 +174,10 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
         data: {
           id: existing?.id ?? null,
           job_id: jobId,
-          amount: existing?.amount ?? body.amount,
-          currency: existing?.currency ?? (body.currency || 'THB'),
+          amount: existing?.amount ?? depositAmount,
+          currency: existing?.currency ?? currency,
           status: 'paid',
-          job_status: job.status === JOB_STATUS.open ? JOB_STATUS.open : JOB_STATUS.open,
+          job_status: JOB_STATUS.open,
         },
       });
     }
@@ -198,10 +191,11 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   await env.DB.prepare(
     `UPDATE jobs
      SET status = ?1,
-         updated_at = ?2
-     WHERE id = ?3`
+         updated_at = ?2,
+         deposit_amount = ?3
+     WHERE id = ?4`
   )
-    .bind(JOB_STATUS.open, now, jobId)
+    .bind(JOB_STATUS.open, now, depositAmount, jobId)
     .run();
 
   return Response.json({
@@ -209,8 +203,8 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     data: {
       id,
       job_id: jobId,
-      amount: body.amount,
-      currency: body.currency || 'THB',
+      amount: depositAmount,
+      currency,
       status: 'paid',
       job_status: JOB_STATUS.open,
       created_at: now,

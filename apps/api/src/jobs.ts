@@ -1,6 +1,8 @@
 import { JOB_STATUS } from './job-status';
 import { requireRequestUserId } from './auth-context';
 
+const PLATFORM_FEE_PERCENT = 0.35;
+
 type CreateJobBody = {
   title?: string;
   category?: string;
@@ -25,6 +27,10 @@ function sanitizeJob(row: any) {
   return safe;
 }
 
+function calculateDeposit(price: number) {
+  return Math.round(price * PLATFORM_FEE_PERCENT);
+}
+
 export async function ensureJobsSchema(env: any) {
   const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
   const existing = new Set((columns.results ?? []).map((row: any) => row.name));
@@ -34,6 +40,7 @@ export async function ensureJobsSchema(env: any) {
     ['selected_master_name', 'ALTER TABLE jobs ADD COLUMN selected_master_name TEXT'],
     ['selected_offer_id', 'ALTER TABLE jobs ADD COLUMN selected_offer_id TEXT'],
     ['selected_offer_price', 'ALTER TABLE jobs ADD COLUMN selected_offer_price REAL'],
+    ['deposit_amount', 'ALTER TABLE jobs ADD COLUMN deposit_amount REAL'],
   ];
 
   for (const [name, sql] of patches) {
@@ -125,15 +132,23 @@ export async function createJob(request: Request, env: any) {
     );
   }
 
-  const id = crypto.randomUUID();
-  const now = new Date().toISOString();
   const budgetFrom = normalizeNumber(body.budget_from);
   const budgetTo = normalizeNumber(body.budget_to);
-  const fallbackPrice =
+  const price =
     normalizeNumber(body.price) ??
     budgetTo ??
-    budgetFrom ??
-    0;
+    budgetFrom;
+
+  if (price === null || price <= 0) {
+    return Response.json(
+      { success: false, error: 'price must be a positive number' },
+      { status: 400 }
+    );
+  }
+
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const depositAmount = calculateDeposit(price);
 
   await env.DB.prepare(
     `INSERT INTO jobs (
@@ -150,15 +165,16 @@ export async function createJob(request: Request, env: any) {
       budget_type,
       budget_from,
       budget_to,
-      currency
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`
+      currency,
+      deposit_amount
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)`
   )
     .bind(
       id,
       body.title.trim(),
-      fallbackPrice,
+      price,
       body.category,
-      JOB_STATUS.draft,
+      JOB_STATUS.awaiting_payment,
       now,
       now,
       clientUserId,
@@ -167,7 +183,8 @@ export async function createJob(request: Request, env: any) {
       body.budget_type || 'fixed',
       budgetFrom,
       budgetTo,
-      body.currency || 'THB'
+      body.currency || 'THB',
+      depositAmount
     )
     .run();
 

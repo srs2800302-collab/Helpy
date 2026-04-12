@@ -14,7 +14,9 @@ JOB_JSON=$(curl -s -X POST "$BASE_URL/jobs" \
     \"title\": \"Smoke lifecycle job\",
     \"category\": \"plumbing\",
     \"description\": \"Smoke test from Termux\",
-    \"address_text\": \"Pattaya\"
+    \"address_text\": \"Pattaya\",
+    \"price\": 1200,
+    \"currency\": \"THB\"
   }")
 echo "$JOB_JSON"
 JOB_ID=$(echo "$JOB_JSON" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
@@ -29,10 +31,7 @@ echo "== pay deposit =="
 DEPOSIT_JSON=$(curl -s -X POST "$BASE_URL/jobs/$JOB_ID/deposit" \
   -H "Content-Type: application/json" \
   -H "x-user-id: $CLIENT_ID" \
-  -d "{
-    \"amount\": 500,
-    \"currency\": \"THB\"
-  }")
+  -d '{}')
 echo "$DEPOSIT_JSON"
 
 echo
@@ -56,6 +55,7 @@ echo
 echo "== select offer =="
 curl -s -X POST "$BASE_URL/jobs/$JOB_ID/select-offer" \
   -H "Content-Type: application/json" \
+  -H "x-user-id: $CLIENT_ID" \
   -d "{
     \"offer_id\": \"$OFFER_ID\"
   }"
