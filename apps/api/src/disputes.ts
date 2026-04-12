@@ -24,6 +24,10 @@ async function ensureDisputesSchema(env: any) {
   ).run();
 }
 
+function canCreateDisputeInStatus(status: string) {
+  return status === JOB_STATUS.master_selected || status === JOB_STATUS.in_progress;
+}
+
 export async function createDispute(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensureDisputesSchema(env);
@@ -91,9 +95,12 @@ export async function createDispute(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.status !== JOB_STATUS.in_progress) {
+  if (!canCreateDisputeInStatus(job.status)) {
     return Response.json(
-      { success: false, error: 'Dispute can be created only for in_progress job' },
+      {
+        success: false,
+        error: 'Dispute can be created only for master_selected or in_progress job',
+      },
       { status: 400 }
     );
   }
