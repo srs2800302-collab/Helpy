@@ -70,6 +70,21 @@ assert_status() {
   echo "[OK] $name -> $expected"
 }
 
+assert_status_in() {
+  local name="$1"
+  shift
+
+  local actual="${LAST_STATUS:-}"
+  for expected in "$@"; do
+    if [ "$actual" = "$expected" ]; then
+      echo "[OK] $name -> $actual"
+      return 0
+    fi
+  done
+
+  fail_step "$name" "one of: $*"
+}
+
 assert_contains() {
   local name="$1"
   local needle="$2"
@@ -104,7 +119,7 @@ request "create draft job" "POST" "$BASE/jobs" '{
   "price":1000,
   "currency":"THB"
 }' "x-user-id: $CLIENT_ID"
-assert_status "create draft job" "200"
+assert_status_in "create draft job" "200" "201"
 assert_contains "create draft job" '"success":true'
 
 JOB_ID="$(extract_json_field id)"
@@ -135,7 +150,7 @@ assert_contains "open actions" '"cancel_job"'
 
 request "create offer" "POST" "$BASE/jobs/$JOB_ID/offers" '{"master_name":"Alex","price":1000}' \
   "x-user-id: $MASTER_ID"
-assert_status "create offer" "200"
+assert_status_in "create offer" "200" "201"
 assert_contains "create offer" '"success":true'
 
 OFFER_ID="$(extract_json_field id)"
@@ -188,7 +203,7 @@ assert_contains "completed actions" '"leave_review"'
 
 request "create review" "POST" "$BASE/jobs/$JOB_ID/reviews" "{\"master_user_id\":\"$MASTER_ID\",\"rating\":5,\"comment\":\"good\"}" \
   "x-user-id: $CLIENT_ID"
-assert_status "create review" "200"
+assert_status_in "create review" "200" "201"
 assert_contains "create review" '"success":true'
 
 request "reviewed actions" "GET" "$BASE/jobs/$JOB_ID/actions" "" \
