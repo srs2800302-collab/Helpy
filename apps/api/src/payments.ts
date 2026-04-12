@@ -1,6 +1,49 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { ensureJobsSchema } from './jobs';
 import { requireRequestUserId } from './auth-context';
+import { ok, fail } from './response';
+
+
+function paymentData(payment: any, jobId: string, jobStatus: string) {
+  return {
+    id: payment.id,
+    job_id: jobId,
+    amount: payment.amount,
+    currency: payment.currency,
+    status: 'paid',
+    job_status: jobStatus,
+    ...(payment.created_at ? { created_at: payment.created_at } : {}),
+  };
+}
+
+async function getJob(jobId: string, env: any) {
+  return env.DB.prepare('SELECT * FROM jobs WHERE id = ?1').bind(jobId).first();
+}
+
+async function getPaymentByType(jobId: string, type: string, env: any) {
+  return env.DB.prepare(
+    `SELECT * FROM payments
+     WHERE job_id = ?1
+       AND type = ?2
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId, type)
+    .first();
+}
+
+async function getPaidDeposit(jobId: string, env: any) {
+  return env.DB.prepare(
+    `SELECT * FROM payments
+     WHERE job_id = ?1
+       AND type = 'deposit'
+       AND status = 'paid'
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId)
+    .first();
+}
 
 export async function ensurePaymentsSchema(env: any) {
   await env.DB.prepare(
@@ -45,43 +88,14 @@ export async function createRefundPayment(jobId: string, env: any) {
   await ensureJobsSchema(env);
   await ensurePaymentsSchema(env);
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await getJob(jobId, env);
+  if (!job) throw new Error('Job not found');
 
-  if (!job) {
-    throw new Error('Job not found');
-  }
+  const deposit = await getPaidDeposit(jobId, env);
+  if (!deposit) throw new Error('Paid deposit not found');
 
-  const deposit = await env.DB.prepare(
-    `SELECT * FROM payments
-     WHERE job_id = ?1
-       AND type = 'deposit'
-       AND status = 'paid'
-     ORDER BY created_at DESC
-     LIMIT 1`
-  )
-    .bind(jobId)
-    .first();
-
-  if (!deposit) {
-    throw new Error('Paid deposit not found');
-  }
-
-  const existingRefund = await env.DB.prepare(
-    `SELECT * FROM payments
-     WHERE job_id = ?1
-       AND type = 'refund'
-     LIMIT 1`
-  )
-    .bind(jobId)
-    .first();
-
-  if (existingRefund) {
-    return existingRefund;
-  }
+  const existingRefund = await getPaymentByType(jobId, 'refund', env);
+  if (existingRefund) return existingRefund;
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -127,38 +141,17 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   await ensurePaymentsSchema(env);
 
   const auth = requireRequestUserId(request);
-
-  if (!auth.ok) {
-    return auth.response;
-  }
+  if (!auth.ok) return auth.response;
 
   const clientUserId = auth.userId;
+  const job = await getJob(jobId, env);
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
-
-  if (!job) {
-    return Response.json(
-      { success: false, error: 'Job not found' },
-      { status: 404 }
-    );
-  }
-
+  if (!job) return fail('Job not found', 404);
   if (job.client_user_id !== clientUserId) {
-    return Response.json(
-      { success: false, error: 'Only job client can pay deposit' },
-      { status: 403 }
-    );
+    return fail('Only job client can pay deposit', 403);
   }
-
   if (typeof job.price !== 'number' || job.price <= 0) {
-    return Response.json(
-      { success: false, error: 'Job price must be set before payment' },
-      { status: 400 }
-    );
+    return fail('Job price must be set before payment', 400);
   }
 
   const depositAmount =
@@ -166,48 +159,22 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
       ? job.deposit_amount
       : Math.round(job.price * 0.35);
 
-  const existingPaidDeposit = await env.DB.prepare(
-    `SELECT * FROM payments
-     WHERE job_id = ?1
-       AND type = 'deposit'
-       AND status = 'paid'
-     ORDER BY created_at DESC
-     LIMIT 1`
-  )
-    .bind(jobId)
-    .first();
-
+  const existingPaidDeposit = await getPaidDeposit(jobId, env);
   if (existingPaidDeposit) {
     return Response.json({
       success: true,
-      data: {
-        id: existingPaidDeposit.id,
-        job_id: jobId,
-        amount: existingPaidDeposit.amount,
-        currency: existingPaidDeposit.currency,
-        status: 'paid',
-        job_status: job.status,
-      },
+      data: paymentData(existingPaidDeposit, jobId, job.status),
     });
   }
 
   if (job.status !== JOB_STATUS.awaiting_payment) {
-    return Response.json(
-      {
-        success: false,
-        error: 'Deposit can be paid only for awaiting_payment job',
-      },
-      { status: 400 }
-    );
+    return fail('Deposit can be paid only for awaiting_payment job', 400);
   }
 
   try {
     assertTransition(job.status, JOB_STATUS.open);
   } catch (error: any) {
-    return Response.json(
-      { success: false, error: error?.message ?? 'Invalid status transition' },
-      { status: 400 }
-    );
+    return fail(error?.message ?? 'Invalid status transition', 400);
   }
 
   const id = crypto.randomUUID();
@@ -242,31 +209,23 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     const message = error?.message ?? 'Failed to create deposit';
 
     if (message.toLowerCase().includes('unique')) {
-      const existing = await env.DB.prepare(
-        `SELECT * FROM payments
-         WHERE job_id = ?1 AND type = 'deposit'
-         LIMIT 1`
-      )
-        .bind(jobId)
-        .first();
+      const existing = await getPaymentByType(jobId, 'deposit', env);
 
       return Response.json({
         success: true,
-        data: {
-          id: existing?.id ?? null,
-          job_id: jobId,
-          amount: existing?.amount ?? depositAmount,
-          currency: existing?.currency ?? currency,
-          status: 'paid',
-          job_status: JOB_STATUS.open,
-        },
+        data: paymentData(
+          {
+            id: existing?.id ?? null,
+            amount: existing?.amount ?? depositAmount,
+            currency: existing?.currency ?? currency,
+          },
+          jobId,
+          JOB_STATUS.open
+        ),
       });
     }
 
-    return Response.json(
-      { success: false, error: message },
-      { status: 500 }
-    );
+    return fail(message, 500);
   }
 
   await env.DB.prepare(
@@ -281,15 +240,16 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
 
   return Response.json({
     success: true,
-    data: {
-      id,
-      job_id: jobId,
-      amount: depositAmount,
-      currency,
-      status: 'paid',
-      job_status: JOB_STATUS.open,
-      created_at: now,
-    },
+    data: paymentData(
+      {
+        id,
+        amount: depositAmount,
+        currency,
+        created_at: now,
+      },
+      jobId,
+      JOB_STATUS.open
+    ),
   });
 }
 
@@ -298,35 +258,19 @@ export async function getPayments(jobId: string, request: Request, env: any) {
   await ensurePaymentsSchema(env);
 
   const auth = requireRequestUserId(request);
-
-  if (!auth.ok) {
-    return auth.response;
-  }
+  if (!auth.ok) return auth.response;
 
   const actorUserId = auth.userId;
+  const job = await getJob(jobId, env);
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
-
-  if (!job) {
-    return Response.json(
-      { success: false, error: 'Job not found' },
-      { status: 404 }
-    );
-  }
+  if (!job) return fail('Job not found', 404);
 
   const isParticipant =
     actorUserId === job.client_user_id ||
     actorUserId === job.selected_master_user_id;
 
   if (!isParticipant) {
-    return Response.json(
-      { success: false, error: 'Only job participants can view payments' },
-      { status: 403 }
-    );
+    return fail('Only job participants can view payments', 403);
   }
 
   const result = await env.DB.prepare(
@@ -335,8 +279,5 @@ export async function getPayments(jobId: string, request: Request, env: any) {
     .bind(jobId)
     .all();
 
-  return Response.json({
-    success: true,
-    data: result.results ?? [],
-  });
+  return ok(result.results ?? []);
 }
