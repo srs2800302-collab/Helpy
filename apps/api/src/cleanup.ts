@@ -1,5 +1,14 @@
 export async function cleanupTestData(env: any) {
-  // delete known test data in safe order
+  const extraJobIds = [
+    '5d0396cf-f9af-46f7-9155-a71c4936d664',
+    '6c946a19-2064-420d-8366-b81eb707df8a',
+    '3997d5e4-a748-484b-b529-e31825230c06',
+    '0696c13d-9989-4449-91e0-ac24e483121c',
+    '7085c5fe-993f-4cf4-8725-88f5bf583bec',
+  ];
+
+  const quotedIds = extraJobIds.map((id) => `'${id}'`).join(', ');
+
   await env.DB.prepare(`
     DELETE FROM reviews
     WHERE job_id IN (
@@ -8,6 +17,7 @@ export async function cleanupTestData(env: any) {
          OR title LIKE '%Header auth lifecycle job%'
          OR title LIKE '%Strict auth negative test%'
     )
+    OR job_id IN (${quotedIds})
   `).run();
 
   await env.DB.prepare(`
@@ -18,6 +28,7 @@ export async function cleanupTestData(env: any) {
          OR title LIKE '%Header auth lifecycle job%'
          OR title LIKE '%Strict auth negative test%'
     )
+    OR job_id IN (${quotedIds})
   `).run();
 
   await env.DB.prepare(`
@@ -29,6 +40,7 @@ export async function cleanupTestData(env: any) {
             OR title LIKE '%Header auth lifecycle job%'
             OR title LIKE '%Strict auth negative test%'
        )
+       OR job_id IN (${quotedIds})
   `).run();
 
   await env.DB.prepare(`
@@ -39,6 +51,7 @@ export async function cleanupTestData(env: any) {
          OR title LIKE '%Header auth lifecycle job%'
          OR title LIKE '%Strict auth negative test%'
     )
+    OR job_id IN (${quotedIds})
   `).run();
 
   await env.DB.prepare(`
@@ -46,6 +59,7 @@ export async function cleanupTestData(env: any) {
     WHERE title LIKE '%Smoke lifecycle job%'
        OR title LIKE '%Header auth lifecycle job%'
        OR title LIKE '%Strict auth negative test%'
+       OR id IN (${quotedIds})
   `).run();
 
   await env.DB.prepare(`
