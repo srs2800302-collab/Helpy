@@ -2,7 +2,7 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { ensureJobsSchema } from './jobs';
 import { requireRequestUserId } from './auth-context';
 
-async function ensurePaymentsSchema(env: any) {
+export async function ensurePaymentsSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS payments (
       id TEXT PRIMARY KEY,

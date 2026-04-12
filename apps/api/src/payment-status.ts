@@ -1,27 +1,14 @@
 import { requireRequestUserId } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { JOB_STATUS } from './job-status';
-
-async function ensurePaymentsSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS payments (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      client_user_id TEXT NOT NULL,
-      amount REAL NOT NULL,
-      currency TEXT NOT NULL,
-      type TEXT NOT NULL,
-      status TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    )`
-  ).run();
-}
+import { ensurePaymentsSchema } from './payments';
 
 export async function getJobPaymentStatus(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensurePaymentsSchema(env);
 
   const auth = requireRequestUserId(request);
+
   if (!auth.ok) {
     return auth.response;
   }
@@ -67,8 +54,11 @@ export async function getJobPaymentStatus(jobId: string, request: Request, env: 
   const depositPaid = deposit?.status === 'paid';
 
   let paymentStatus = 'unpaid';
-  if (deposit) {
-    paymentStatus = deposit.status ?? 'unknown';
+
+  if (depositPaid) {
+    paymentStatus = 'paid';
+  } else if (job.status === JOB_STATUS.awaiting_payment) {
+    paymentStatus = 'awaiting_payment';
   } else if (
     job.status === JOB_STATUS.open ||
     job.status === JOB_STATUS.master_selected ||
@@ -87,6 +77,8 @@ export async function getJobPaymentStatus(jobId: string, request: Request, env: 
       job_status: job.status,
       has_deposit: hasDeposit,
       deposit_paid: depositPaid,
+      expected_deposit_amount: job.deposit_amount ?? null,
+      expected_deposit_currency: job.currency ?? 'THB',
       deposit_amount: deposit?.amount ?? null,
       deposit_currency: deposit?.currency ?? null,
       payment_status: paymentStatus,
