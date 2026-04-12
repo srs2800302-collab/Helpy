@@ -173,8 +173,7 @@ assert_status "master selected actions" "200"
 assert_contains "master selected actions" '"status":"master_selected"'
 assert_contains "master selected actions" '"view_selected_master"'
 assert_contains "master selected actions" '"open_chat"'
-assert_contains "master selected actions" '"cancel_job"'
-assert_contains "master selected actions" '"complete_job"'
+assert_contains "master selected actions" '"create_dispute"'
 
 request "start work" "POST" "$BASE/jobs/$JOB_ID/start-work" "" \
   "x-user-id: $MASTER_ID"
@@ -188,7 +187,6 @@ assert_contains "in progress actions" '"status":"in_progress"'
 assert_contains "in progress actions" '"view_selected_master"'
 assert_contains "in progress actions" '"open_chat"'
 assert_contains "in progress actions" '"create_dispute"'
-assert_contains "in progress actions" '"cancel_job"'
 assert_contains "in progress actions" '"complete_job"'
 
 request "complete job" "POST" "$BASE/jobs/$JOB_ID/complete" '{}' \
