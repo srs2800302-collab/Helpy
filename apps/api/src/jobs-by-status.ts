@@ -22,6 +22,28 @@ function resolveRequestEnv(requestOrEnv: any, maybeEnv: any) {
   return { request: null, env: requestOrEnv };
 }
 
+function mapJob(job: any) {
+  return {
+    id: job.id,
+    title: job.title,
+    category: job.category,
+    status: job.status,
+    price: job.price ?? null,
+    currency: job.currency ?? null,
+    address_text: job.address_text ?? null,
+    budget_type: job.budget_type ?? null,
+    budget_from: job.budget_from ?? null,
+    budget_to: job.budget_to ?? null,
+    description: job.description ?? null,
+    created_at: job.created_at,
+    updated_at: job.updated_at ?? null,
+    selected_offer_id: job.selected_offer_id ?? null,
+    selected_master_name: job.selected_master_name ?? null,
+    selected_master_user_id: job.selected_master_user_id ?? null,
+    selected_offer_price: job.selected_offer_price ?? null,
+  };
+}
+
 export async function getJobsByStatus(userId: string, requestOrEnv: any, maybeEnv?: any) {
   const { request, env } = resolveRequestEnv(requestOrEnv, maybeEnv);
 
@@ -39,15 +61,32 @@ export async function getJobsByStatus(userId: string, requestOrEnv: any, maybeEn
   }
 
   const result = await env.DB.prepare(
-    `SELECT *
-     FROM jobs
-     WHERE client_user_id = ?1
-     ORDER BY created_at DESC`
+    `SELECT
+      id,
+      title,
+      category,
+      status,
+      price,
+      currency,
+      address_text,
+      budget_type,
+      budget_from,
+      budget_to,
+      description,
+      created_at,
+      updated_at,
+      selected_offer_id,
+      selected_master_name,
+      selected_master_user_id,
+      selected_offer_price
+    FROM jobs
+    WHERE client_user_id = ?1
+    ORDER BY created_at DESC`
   )
     .bind(userId)
     .all();
 
-  const jobs = result.results ?? [];
+  const jobs = (result.results ?? []).map(mapJob);
 
   return Response.json({
     success: true,
