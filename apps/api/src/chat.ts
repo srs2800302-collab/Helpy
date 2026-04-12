@@ -32,20 +32,22 @@ function canAccessJobChat(job: any, userId: string) {
 }
 
 function canReadChatInStatus(status: string) {
-  return new Set([
+  const readableStatuses: Set<string> = new Set([
     JOB_STATUS.master_selected,
     JOB_STATUS.in_progress,
     JOB_STATUS.completed,
     JOB_STATUS.disputed,
     JOB_STATUS.cancelled,
-  ]).has(status);
+  ]);
+  return readableStatuses.has(status);
 }
 
 function canSendChatInStatus(status: string) {
-  return new Set([
+  const writableStatuses: Set<string> = new Set([
     JOB_STATUS.master_selected,
     JOB_STATUS.in_progress,
-  ]).has(status);
+  ]);
+  return writableStatuses.has(status);
 }
 
 function getMessagesLimit(request: Request) {

@@ -88,7 +88,7 @@ export async function createJob(request: Request, env: any) {
 
   let body: CreateJobBody;
   try {
-    body = await request.json();
+    body = await request.json() as CreateJobBody;
   } catch {
     return Response.json(
       { success: false, error: 'Invalid JSON body' },
@@ -206,7 +206,7 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
 
   let body: any;
   try {
-    body = await request.json();
+    body = await request.json() as CreateJobBody;
   } catch {
     return Response.json(
       { success: false, error: 'Invalid JSON body' },

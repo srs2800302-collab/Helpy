@@ -12,7 +12,7 @@ export async function createClientProfile(userId: string, request: Request, env:
   let body: CreateClientProfileBody;
 
   try {
-    body = await request.json();
+    body = await request.json() as CreateClientProfileBody;
   } catch {
     return Response.json(
       { success: false, error: 'Invalid JSON' },
@@ -49,7 +49,7 @@ export async function createMasterProfile(userId: string, request: Request, env:
   let body: CreateMasterProfileBody;
 
   try {
-    body = await request.json();
+    body = await request.json() as CreateMasterProfileBody;
   } catch {
     return Response.json(
       { success: false, error: 'Invalid JSON' },

@@ -72,7 +72,7 @@ export async function createReview(jobId: string, request: Request, env: any) {
 
   let body: CreateReviewBody;
   try {
-    body = await request.json();
+    body = await request.json() as CreateReviewBody;
   } catch {
     return Response.json(
       { success: false, error: 'Invalid JSON body' },

@@ -30,7 +30,7 @@ export async function createDispute(jobId: string, request: Request, env: any) {
 
   let body: CreateDisputeBody;
   try {
-    body = await request.json();
+    body = await request.json() as CreateDisputeBody;
   } catch {
     return Response.json(
       { success: false, error: 'Invalid JSON body' },

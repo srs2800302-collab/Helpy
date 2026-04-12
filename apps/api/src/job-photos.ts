@@ -39,12 +39,13 @@ function canViewJobPhotos(job: any, actorUserId: string) {
 }
 
 function canAddPhotosInStatus(status: string) {
-  return new Set([
+  const photoStatuses: Set<string> = new Set([
     JOB_STATUS.awaiting_payment,
     JOB_STATUS.open,
     JOB_STATUS.master_selected,
     JOB_STATUS.in_progress,
-  ]).has(status);
+  ]);
+  return photoStatuses.has(status);
 }
 
 export async function addJobPhoto(jobId: string, request: Request, env: any) {
@@ -53,7 +54,7 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
 
   let body: CreateJobPhotoBody;
   try {
-    body = await request.json();
+    body = await request.json() as CreateJobPhotoBody;
   } catch {
     return Response.json(
       { success: false, error: 'Invalid JSON body' },
