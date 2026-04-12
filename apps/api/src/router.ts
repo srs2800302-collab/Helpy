@@ -20,6 +20,7 @@ import { ensureBaseSchema } from './init-schema';
 
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
+
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method;
@@ -128,10 +129,6 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'cancel' && method === 'POST') {
       return cancelJob(jobId, request, env);
-    }
-    }
-
-      return completeJob(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'reviews' && method === 'GET') {
