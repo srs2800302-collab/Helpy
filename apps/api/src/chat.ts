@@ -170,14 +170,10 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
 }
 
 export async function startWork(jobId: string, request: Request, env: any) {
-  let body: any;
   try {
-    body = await request.json();
+    await request.json();
   } catch {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body' },
-      { status: 400 }
-    );
+    // empty body is allowed
   }
 
   const auth = requireRequestUserId(request);
