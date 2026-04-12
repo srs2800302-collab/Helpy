@@ -3,6 +3,7 @@ import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
 import { createReview, getReviews } from './reviews';
 import { completeJob } from './complete-job';
+import { cancelJob } from './cancel-job';
 import { createUser, getUser, getUserFull } from './users';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
@@ -122,6 +123,10 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'complete' && method === 'POST') {
+    if (parts.length === 5 && parts[4] === 'cancel' && method === 'POST') {
+      return cancelJob(jobId, request, env);
+    }
+
       return completeJob(jobId, request, env);
     }
 
