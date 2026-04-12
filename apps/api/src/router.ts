@@ -166,7 +166,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'payment-status' && method === 'GET') {
-      return getJobPaymentStatus(jobId, env);
+      return getJobPaymentStatus(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'messages' && method === 'GET') {
