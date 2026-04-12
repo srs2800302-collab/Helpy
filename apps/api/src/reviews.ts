@@ -36,30 +36,20 @@ async function ensureReviewsSchema(env: any) {
     }
   }
 
-  // cleanup historical duplicate reviews before creating unique index
+  // keep exactly one historical review per job before creating unique index
   await env.DB.prepare(
     `DELETE FROM reviews
      WHERE id NOT IN (
-       SELECT id FROM (
-         SELECT id
-         FROM reviews
-         ORDER BY created_at ASC, id ASC
-       )
+       SELECT MIN(id)
+       FROM reviews
        GROUP BY job_id
      )`
   ).run();
 
-  try {
-    await env.DB.prepare(
-      `CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
-       ON reviews(job_id)`
-    ).run();
-  } catch (error: any) {
-    const message = error?.message ?? '';
-    if (!message.toLowerCase().includes('unique')) {
-      throw error;
-    }
-  }
+  await env.DB.prepare(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
+     ON reviews(job_id)`
+  ).run();
 }
 
 export async function getReviews(jobId: string, env: any) {
@@ -98,10 +88,7 @@ export async function createReview(jobId: string, request: Request, env: any) {
 
   const clientUserId = auth.userId;
 
-  if (
-    !body.master_user_id ||
-    typeof body.rating !== 'number'
-  ) {
+  if (!body.master_user_id || typeof body.rating !== 'number') {
     return Response.json(
       {
         success: false,
