@@ -1,6 +1,10 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireRequestUserId } from './auth-context';
 
+const MAX_MESSAGE_LENGTH = 2000;
+const DEFAULT_MESSAGES_LIMIT = 50;
+const MAX_MESSAGES_LIMIT = 100;
+
 async function ensureChatSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS chat_messages (
@@ -11,6 +15,11 @@ async function ensureChatSchema(env: any) {
       created_at TEXT NOT NULL
     )`
   ).run();
+
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created
+     ON chat_messages(job_id, created_at)`
+  ).run();
 }
 
 function canAccessJobChat(job: any, userId: string) {
@@ -20,16 +29,44 @@ function canAccessJobChat(job: any, userId: string) {
   );
 }
 
+function canReadChatInStatus(status: string) {
+  return new Set([
+    JOB_STATUS.master_selected,
+    JOB_STATUS.in_progress,
+    JOB_STATUS.completed,
+    JOB_STATUS.disputed,
+    JOB_STATUS.cancelled,
+  ]).has(status);
+}
+
+function canSendChatInStatus(status: string) {
+  return new Set([
+    JOB_STATUS.master_selected,
+    JOB_STATUS.in_progress,
+  ]).has(status);
+}
+
+function getMessagesLimit(request: Request) {
+  const url = new URL(request.url);
+  const raw = Number(url.searchParams.get('limit') ?? DEFAULT_MESSAGES_LIMIT);
+
+  if (!Number.isFinite(raw) || raw <= 0) {
+    return DEFAULT_MESSAGES_LIMIT;
+  }
+
+  return Math.min(Math.trunc(raw), MAX_MESSAGES_LIMIT);
+}
+
 export async function getMessages(jobId: string, request: Request, env: any) {
   await ensureChatSchema(env);
 
   const auth = requireRequestUserId(request);
-
   if (!auth.ok) {
     return auth.response;
   }
 
   const userId = auth.userId;
+  const limit = getMessagesLimit(request);
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -51,11 +88,7 @@ export async function getMessages(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (
-    job.status !== JOB_STATUS.master_selected &&
-    job.status !== JOB_STATUS.in_progress &&
-    job.status !== JOB_STATUS.completed
-  ) {
+  if (!canReadChatInStatus(job.status)) {
     return Response.json(
       { success: false, error: 'Chat is available only after master selection' },
       { status: 400 }
@@ -63,17 +96,19 @@ export async function getMessages(jobId: string, request: Request, env: any) {
   }
 
   const result = await env.DB.prepare(
-    `SELECT *
-     FROM chat_messages
+    `SELECT * FROM chat_messages
      WHERE job_id = ?1
-     ORDER BY created_at ASC`
+     ORDER BY created_at DESC
+     LIMIT ?2`
   )
-    .bind(jobId)
+    .bind(jobId, limit)
     .all();
+
+  const messages = (result.results ?? []).slice().reverse();
 
   return Response.json({
     success: true,
-    data: result.results ?? [],
+    data: messages,
   });
 }
 
@@ -91,16 +126,23 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
   }
 
   const auth = requireRequestUserId(request);
-
   if (!auth.ok) {
     return auth.response;
   }
 
   const senderUserId = auth.userId;
+  const text = body?.text?.toString().trim();
 
-  if (!body.text || !body.text.toString().trim()) {
+  if (!text) {
     return Response.json(
       { success: false, error: 'text is required' },
+      { status: 400 }
+    );
+  }
+
+  if (text.length > MAX_MESSAGE_LENGTH) {
+    return Response.json(
+      { success: false, error: `text must be at most ${MAX_MESSAGE_LENGTH} characters` },
       { status: 400 }
     );
   }
@@ -125,13 +167,9 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (
-    job.status !== JOB_STATUS.master_selected &&
-    job.status !== JOB_STATUS.in_progress &&
-    job.status !== JOB_STATUS.completed
-  ) {
+  if (!canSendChatInStatus(job.status)) {
     return Response.json(
-      { success: false, error: 'Chat is available only after master selection' },
+      { success: false, error: 'Messages can be sent only in active job chat' },
       { status: 400 }
     );
   }
@@ -148,13 +186,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
       created_at
     ) VALUES (?1, ?2, ?3, ?4, ?5)`
   )
-    .bind(
-      id,
-      jobId,
-      senderUserId,
-      body.text.toString().trim(),
-      now
-    )
+    .bind(id, jobId, senderUserId, text, now)
     .run();
 
   const created = await env.DB.prepare(
@@ -177,7 +209,6 @@ export async function startWork(jobId: string, request: Request, env: any) {
   }
 
   const auth = requireRequestUserId(request);
-
   if (!auth.ok) {
     return auth.response;
   }
