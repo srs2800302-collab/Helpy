@@ -1,6 +1,10 @@
 import { JOB_STATUS, assertTransition } from './job-status';
+import { requireRequestUserId } from './auth-context';
+import { ensureJobsSchema } from './jobs';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
+
   let body: any;
   try {
     body = await request.json();
@@ -9,6 +13,12 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       { success: false, error: 'Invalid JSON body' },
       { status: 400 }
     );
+  }
+
+  const auth = requireRequestUserId(request);
+
+  if (!auth.ok) {
+    return auth.response;
   }
 
   if (!body.offer_id) {
@@ -49,6 +59,13 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     return Response.json(
       { success: false, error: 'Job not found' },
       { status: 404 }
+    );
+  }
+
+  if (job.client_user_id !== auth.userId) {
+    return Response.json(
+      { success: false, error: 'Only job client can select master' },
+      { status: 403 }
     );
   }
 

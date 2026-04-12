@@ -2,8 +2,43 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { ensureJobsSchema } from './jobs';
 import { requireRequestUserId } from './auth-context';
 
+async function ensurePaymentsSchema(env: any) {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS payments (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      client_user_id TEXT NOT NULL,
+      amount REAL NOT NULL,
+      currency TEXT NOT NULL,
+      type TEXT NOT NULL,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )`
+  ).run();
+
+  const columns = await env.DB.prepare('PRAGMA table_info(payments)').all();
+  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
+
+  const patches: Array<[string, string]> = [
+    ['job_id', 'ALTER TABLE payments ADD COLUMN job_id TEXT'],
+    ['client_user_id', 'ALTER TABLE payments ADD COLUMN client_user_id TEXT'],
+    ['amount', 'ALTER TABLE payments ADD COLUMN amount REAL'],
+    ['currency', "ALTER TABLE payments ADD COLUMN currency TEXT NOT NULL DEFAULT 'THB'"],
+    ['type', "ALTER TABLE payments ADD COLUMN type TEXT NOT NULL DEFAULT 'deposit'"],
+    ['status', "ALTER TABLE payments ADD COLUMN status TEXT NOT NULL DEFAULT 'paid'"],
+    ['created_at', 'ALTER TABLE payments ADD COLUMN created_at TEXT'],
+  ];
+
+  for (const [name, sql] of patches) {
+    if (!existing.has(name)) {
+      await env.DB.prepare(sql).run();
+    }
+  }
+}
+
 export async function createDeposit(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
+  await ensurePaymentsSchema(env);
 
   let body: any;
   try {
@@ -147,7 +182,42 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   });
 }
 
-export async function getPayments(jobId: string, env: any) {
+export async function getPayments(jobId: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
+  await ensurePaymentsSchema(env);
+
+  const auth = requireRequestUserId(request);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const actorUserId = auth.userId;
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
+  }
+
+  const isParticipant =
+    actorUserId === job.client_user_id ||
+    actorUserId === job.selected_master_user_id;
+
+  if (!isParticipant) {
+    return Response.json(
+      { success: false, error: 'Only job participants can view payments' },
+      { status: 403 }
+    );
+  }
+
   const result = await env.DB.prepare(
     'SELECT * FROM payments WHERE job_id = ?1 ORDER BY created_at DESC'
   )

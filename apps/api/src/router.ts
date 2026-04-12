@@ -138,7 +138,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'payments' && method === 'GET') {
-      return getPayments(jobId, env);
+      return getPayments(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'payment-status' && method === 'GET') {
