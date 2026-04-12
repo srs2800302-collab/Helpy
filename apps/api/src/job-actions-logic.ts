@@ -9,13 +9,13 @@ export function buildJobActions(
 
     case 'master_selected':
       return hasSelectedMaster
-        ? ['view_selected_master', 'open_chat', 'cancel_job', 'complete_job']
-        : ['cancel_job', 'complete_job'];
+        ? ['view_selected_master', 'open_chat', 'create_dispute']
+        : [];
 
     case 'in_progress':
       return hasSelectedMaster
-        ? ['view_selected_master', 'open_chat', 'create_dispute', 'cancel_job', 'complete_job']
-        : ['create_dispute', 'cancel_job', 'complete_job'];
+        ? ['view_selected_master', 'open_chat', 'create_dispute', 'complete_job']
+        : ['create_dispute'];
 
     case 'completed':
       return hasReview ? ['view_review'] : ['leave_review'];
