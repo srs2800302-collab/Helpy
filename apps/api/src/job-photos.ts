@@ -119,6 +119,19 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
+  const existingPhoto = await env.DB.prepare(
+    'SELECT id FROM job_photos WHERE job_id = ?1 AND url = ?2 LIMIT 1'
+  )
+    .bind(jobId, url)
+    .first();
+
+  if (existingPhoto) {
+    return Response.json(
+      { success: false, error: 'Photo with this URL already exists for this job' },
+      { status: 409 }
+    );
+  }
+
   const countRow = await env.DB.prepare(
     'SELECT COUNT(*) as count FROM job_photos WHERE job_id = ?1'
   )
