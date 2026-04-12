@@ -129,15 +129,15 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'cancel' && method === 'POST') {
+      return cancelJob(jobId, request, env);
+    }
+
     if (parts.length === 5 && parts[4] === 'dispute' && method === 'POST') {
       return createDispute(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'dispute' && method === 'GET') {
       return getDispute(jobId, request, env);
-    }
-
-      return cancelJob(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'reviews' && method === 'GET') {
