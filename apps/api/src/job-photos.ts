@@ -1,9 +1,13 @@
 import { requireRequestUserId } from './auth-context';
 import { ensureJobsSchema } from './jobs';
+import { JOB_STATUS } from './job-status';
 
 type CreateJobPhotoBody = {
   url?: string;
 };
+
+const MAX_JOB_PHOTOS = 10;
+const MAX_URL_LENGTH = 1000;
 
 async function ensureJobPhotosSchema(env: any) {
   await env.DB.prepare(
@@ -20,6 +24,11 @@ async function ensureJobPhotosSchema(env: any) {
     `CREATE INDEX IF NOT EXISTS idx_job_photos_job_created
      ON job_photos(job_id, created_at)`
   ).run();
+
+  await env.DB.prepare(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_job_photos_job_url_unique
+     ON job_photos(job_id, url)`
+  ).run();
 }
 
 function canViewJobPhotos(job: any, actorUserId: string) {
@@ -27,6 +36,16 @@ function canViewJobPhotos(job: any, actorUserId: string) {
     actorUserId === job.client_user_id ||
     actorUserId === job.selected_master_user_id
   );
+}
+
+function canAddPhotosInStatus(status: string) {
+  return new Set([
+    JOB_STATUS.draft,
+    JOB_STATUS.awaiting_payment,
+    JOB_STATUS.open,
+    JOB_STATUS.master_selected,
+    JOB_STATUS.in_progress,
+  ]).has(status);
 }
 
 export async function addJobPhoto(jobId: string, request: Request, env: any) {
@@ -59,6 +78,13 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
 
   const url = body.url.toString().trim();
 
+  if (url.length > MAX_URL_LENGTH) {
+    return Response.json(
+      { success: false, error: `url must be at most ${MAX_URL_LENGTH} characters` },
+      { status: 400 }
+    );
+  }
+
   if (!/^https?:\/\//i.test(url)) {
     return Response.json(
       { success: false, error: 'url must start with http:// or https://' },
@@ -86,20 +112,58 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (!canAddPhotosInStatus(job.status)) {
+    return Response.json(
+      { success: false, error: 'Photos cannot be added in current job status' },
+      { status: 400 }
+    );
+  }
+
+  const countRow = await env.DB.prepare(
+    'SELECT COUNT(*) as count FROM job_photos WHERE job_id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  const currentCount = Number(countRow?.count ?? 0);
+
+  if (currentCount >= MAX_JOB_PHOTOS) {
+    return Response.json(
+      { success: false, error: `Job can have at most ${MAX_JOB_PHOTOS} photos` },
+      { status: 400 }
+    );
+  }
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  await env.DB.prepare(
-    `INSERT INTO job_photos (
-      id,
-      job_id,
-      client_user_id,
-      url,
-      created_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5)`
-  )
-    .bind(id, jobId, actorUserId, url, now)
-    .run();
+  try {
+    await env.DB.prepare(
+      `INSERT INTO job_photos (
+        id,
+        job_id,
+        client_user_id,
+        url,
+        created_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5)`
+    )
+      .bind(id, jobId, actorUserId, url, now)
+      .run();
+  } catch (error: any) {
+    const message = error?.message ?? 'Failed to add photo';
+
+    if (message.toLowerCase().includes('unique')) {
+      return Response.json(
+        { success: false, error: 'Photo with this URL already exists for this job' },
+        { status: 409 }
+      );
+    }
+
+    return Response.json(
+      { success: false, error: message },
+      { status: 500 }
+    );
+  }
 
   return Response.json(
     {
