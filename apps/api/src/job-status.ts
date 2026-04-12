@@ -15,7 +15,7 @@ const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   draft: ['awaiting_payment', 'cancelled'],
   awaiting_payment: ['open', 'cancelled'],
   open: ['master_selected', 'cancelled'],
-  master_selected: ['in_progress', 'completed', 'cancelled'],
+  master_selected: ['in_progress', 'completed', 'cancelled', 'disputed'],
   in_progress: ['completed', 'disputed', 'cancelled'],
   completed: [],
   cancelled: [],
