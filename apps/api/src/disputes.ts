@@ -58,24 +58,37 @@ export async function createDispute(jobId: string, request: Request, env: any) {
   try {
     body = await request.json() as CreateDisputeBody;
   } catch {
-    return Response.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+    return Response.json(
+      { success: false, error: 'Invalid JSON body' },
+      { status: 400 }
+    );
   }
 
   const auth = requireRequestUserId(request);
-  if (!auth.ok) return auth.response;
+  if (!auth.ok) {
+    return auth.response;
+  }
 
   const actorUserId = auth.userId;
 
   if (!body.reason || !body.reason.toString().trim()) {
-    return Response.json({ success: false, error: 'reason is required' }, { status: 400 });
+    return Response.json(
+      { success: false, error: 'reason is required' },
+      { status: 400 }
+    );
   }
 
-  const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
     .bind(jobId)
     .first();
 
   if (!job) {
-    return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
   }
 
   const isClient = actorUserId === job.client_user_id;
@@ -136,7 +149,10 @@ export async function createDispute(jobId: string, request: Request, env: any) {
     .run();
 
   await env.DB.prepare(
-    `UPDATE jobs SET status = ?1, updated_at = ?2 WHERE id = ?3`
+    `UPDATE jobs
+     SET status = ?1,
+         updated_at = ?2
+     WHERE id = ?3`
   )
     .bind(JOB_STATUS.disputed, now, jobId)
     .run();
@@ -163,16 +179,23 @@ export async function getDispute(jobId: string, request: Request, env: any) {
   await ensureDisputesSchema(env);
 
   const auth = requireRequestUserId(request);
-  if (!auth.ok) return auth.response;
+  if (!auth.ok) {
+    return auth.response;
+  }
 
   const actorUserId = auth.userId;
 
-  const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
     .bind(jobId)
     .first();
 
   if (!job) {
-    return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
   }
 
   const isClient = actorUserId === job.client_user_id;
@@ -226,6 +249,26 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
   }
 
   const resolverUserId = auth.userId;
+
+  const resolver = await env.DB.prepare(
+    'SELECT * FROM users WHERE id = ?1 LIMIT 1'
+  )
+    .bind(resolverUserId)
+    .first();
+
+  if (!resolver) {
+    return Response.json(
+      { success: false, error: 'Resolver user not found' },
+      { status: 404 }
+    );
+  }
+
+  if (resolver.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Only admin can resolve dispute' },
+      { status: 403 }
+    );
+  }
 
   if (body.resolution !== 'refund' && body.resolution !== 'no_refund') {
     return Response.json(
