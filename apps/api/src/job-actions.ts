@@ -1,85 +1,54 @@
-function buildJobActions(
-  status: string,
-  hasSelectedMaster: boolean,
-  hasReview: boolean,
-  depositPaid: boolean
-) {
-  switch (status) {
-    case 'open':
-      return {
-        stage: depositPaid ? 'waiting_offers' : 'awaiting_deposit',
-        actions: depositPaid ? ['view_offers'] : ['pay_deposit'],
-      };
+import { requireRequestUserId } from './auth-context';
+import { buildJobActions } from './job-actions-logic';
 
-    case 'master_selected':
-      return {
-        stage: 'master_chosen',
-        actions: hasSelectedMaster
-          ? ['view_selected_master', 'complete_job']
-          : ['complete_job'],
-      };
-
-    case 'in_progress':
-      return {
-        stage: 'work_in_progress',
-        actions: hasSelectedMaster
-          ? ['view_selected_master', 'complete_job']
-          : ['complete_job'],
-      };
-
-    case 'completed':
-      return {
-        stage: 'job_completed',
-        actions: hasReview ? ['view_review'] : ['leave_review'],
-      };
-
-    default:
-      return {
-        stage: 'unknown',
-        actions: [],
-      };
-  }
+function forbiddenResponse() {
+  return Response.json(
+    { success: false, error: 'User has no access to this job actions' },
+    { status: 403 }
+  );
 }
 
-export async function getUserJobActions(userId: string, jobId: string, env: any) {
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1 AND client_user_id = ?2'
-  )
-    .bind(jobId, userId)
-    .first();
-
-  if (!job) {
-    return Response.json(
-      { success: false, error: 'Job not found for this user' },
-      { status: 404 }
-    );
+export async function getJobActions(jobId: string, request: Request, env: any) {
+  const auth = requireRequestUserId(request);
+  if (!auth.ok) {
+    return auth.response;
   }
 
-  const review = await env.DB.prepare(
-    'SELECT id FROM reviews WHERE job_id = ?1 LIMIT 1'
-  )
-    .bind(jobId)
-    .first();
+  const actorUserId = auth.userId;
 
-  const deposit = await env.DB.prepare(
-    `SELECT id FROM payments
-     WHERE job_id = ?1
-       AND type = 'deposit'
-       AND status = 'paid'
+  const job = await env.DB.prepare(
+    `SELECT
+       j.id,
+       j.status,
+       j.client_user_id,
+       j.selected_master_user_id,
+       EXISTS (
+         SELECT 1
+         FROM reviews r
+         WHERE r.job_id = j.id
+       ) as has_review
+     FROM jobs j
+     WHERE j.id = ?1
      LIMIT 1`
   )
     .bind(jobId)
     .first();
 
-  const hasReview = !!review;
-  const hasSelectedMaster = !!job.selected_master_user_id;
-  const depositPaid = !!deposit;
+  if (!job) {
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
+  }
 
-  const computed = buildJobActions(
+  if (job.client_user_id !== actorUserId) {
+    return forbiddenResponse();
+  }
+
+  const actions = buildJobActions(
     job.status,
-    hasSelectedMaster,
-    hasReview,
-    depositPaid
+    !!job.selected_master_user_id,
+    !!job.has_review
   );
 
   return Response.json({
@@ -87,9 +56,7 @@ export async function getUserJobActions(userId: string, jobId: string, env: any)
     data: {
       job_id: job.id,
       status: job.status,
-      stage: computed.stage,
-      actions: computed.actions,
-      deposit_paid: depositPaid,
+      actions,
     },
   });
 }
