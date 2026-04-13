@@ -1,25 +1,10 @@
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 
 function forbiddenResponse() {
   return Response.json(
     { success: false, error: 'User has no access to these jobs' },
     { status: 403 }
   );
-}
-
-function invalidRequestResponse() {
-  return Response.json(
-    { success: false, error: 'Request object is required' },
-    { status: 500 }
-  );
-}
-
-function resolveRequestEnv(requestOrEnv: any, maybeEnv: any) {
-  if (maybeEnv !== undefined) {
-    return { request: requestOrEnv, env: maybeEnv };
-  }
-
-  return { request: null, env: requestOrEnv };
 }
 
 function mapJob(job: any) {
@@ -44,15 +29,8 @@ function mapJob(job: any) {
   };
 }
 
-export async function getJobsByStatus(userId: string, requestOrEnv: any, maybeEnv?: any) {
-  const { request, env } = resolveRequestEnv(requestOrEnv, maybeEnv);
-
-  if (!request || typeof request.headers?.get !== 'function') {
-    return invalidRequestResponse();
-  }
-
-  const auth = requireRequestUserId(request);
-
+export async function getJobsByStatus(userId: string, request: Request, env: any) {
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
@@ -63,26 +41,26 @@ export async function getJobsByStatus(userId: string, requestOrEnv: any, maybeEn
 
   const result = await env.DB.prepare(
     `SELECT
-      id,
-      title,
-      category,
-      status,
-      price,
-      currency,
-      address_text,
-      budget_type,
-      budget_from,
-      budget_to,
-      description,
-      created_at,
-      updated_at,
-      selected_offer_id,
-      selected_master_name,
-      selected_master_user_id,
-      selected_offer_price
-    FROM jobs
-    WHERE client_user_id = ?1
-    ORDER BY created_at DESC`
+       id,
+       title,
+       category,
+       status,
+       price,
+       currency,
+       address_text,
+       budget_type,
+       budget_from,
+       budget_to,
+       description,
+       created_at,
+       updated_at,
+       selected_offer_id,
+       selected_master_name,
+       selected_master_user_id,
+       selected_offer_price
+     FROM jobs
+     WHERE client_user_id = ?1
+     ORDER BY created_at DESC`
   )
     .bind(userId)
     .all();

@@ -1,4 +1,4 @@
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 import { buildJobActions } from './job-actions-logic';
 
 function forbiddenResponse() {
@@ -6,21 +6,6 @@ function forbiddenResponse() {
     { success: false, error: 'User has no access to this home data' },
     { status: 403 }
   );
-}
-
-function invalidRequestResponse() {
-  return Response.json(
-    { success: false, error: 'Request object is required' },
-    { status: 500 }
-  );
-}
-
-function resolveRequestEnv(requestOrEnv: any, maybeEnv: any) {
-  if (maybeEnv !== undefined) {
-    return { request: requestOrEnv, env: maybeEnv };
-  }
-
-  return { request: null, env: requestOrEnv };
 }
 
 function mapJob(job: any) {
@@ -46,14 +31,8 @@ function mapJob(job: any) {
   };
 }
 
-export async function getClientHome(userId: string, requestOrEnv: any, maybeEnv?: any) {
-  const { request, env } = resolveRequestEnv(requestOrEnv, maybeEnv);
-
-  if (!request || typeof request.headers?.get !== 'function') {
-    return invalidRequestResponse();
-  }
-
-  const auth = requireRequestUserId(request);
+export async function getClientHome(userId: string, request: Request, env: any) {
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
