@@ -1,8 +1,82 @@
 import { requireAuth } from './auth-context';
 
-export async function getUserJobDetails(_userIdFromUrl: string, jobId: string, request: Request, env: any) {
-  const auth = await requireAuth(request, env);
+function sanitizeJob(row: any) {
+  if (!row) return null;
 
+  return {
+    id: row.id,
+    title: row.title,
+    price: row.price,
+    category: row.category,
+    status: row.status,
+    created_at: row.created_at,
+    selected_offer_id: row.selected_offer_id,
+    selected_master_name: row.selected_master_name,
+    client_user_id: row.client_user_id,
+    selected_master_user_id: row.selected_master_user_id,
+    address_text: row.address_text,
+    budget_type: row.budget_type,
+    budget_from: row.budget_from,
+    budget_to: row.budget_to,
+    currency: row.currency,
+    description: row.description,
+    updated_at: row.updated_at,
+    selected_offer_price: row.selected_offer_price,
+    deposit_amount: row.deposit_amount,
+  };
+}
+
+function sanitizeOffer(row: any) {
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    job_id: row.job_id,
+    master_user_id: row.master_user_id,
+    master_name: row.master_name,
+    price: row.price,
+    comment: row.comment,
+    created_at: row.created_at,
+  };
+}
+
+function sanitizeSelectedMaster(row: any) {
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    role: row.role,
+    phone: row.phone,
+    language: row.language,
+    name: row.name,
+    category: row.category,
+    bio: row.bio,
+    is_verified: row.is_verified,
+  };
+}
+
+function sanitizeReview(row: any) {
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    job_id: row.job_id,
+    client_user_id: row.client_user_id,
+    master_user_id: row.master_user_id,
+    rating: row.rating,
+    comment: row.comment,
+    created_at: row.created_at,
+  };
+}
+
+// URL userId is ignored intentionally; access is based on authenticated user.
+export async function getUserJobDetails(
+  _userIdFromUrl: string,
+  jobId: string,
+  request: Request,
+  env: any,
+) {
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
@@ -10,7 +84,28 @@ export async function getUserJobDetails(_userIdFromUrl: string, jobId: string, r
   const realUserId = auth.userId;
 
   const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1 AND client_user_id = ?2'
+    `SELECT
+       id,
+       title,
+       price,
+       category,
+       status,
+       created_at,
+       selected_offer_id,
+       selected_master_name,
+       client_user_id,
+       selected_master_user_id,
+       address_text,
+       budget_type,
+       budget_from,
+       budget_to,
+       currency,
+       description,
+       updated_at,
+       selected_offer_price,
+       deposit_amount
+     FROM jobs
+     WHERE id = ?1 AND client_user_id = ?2`
   )
     .bind(jobId, realUserId)
     .first();
@@ -23,17 +118,35 @@ export async function getUserJobDetails(_userIdFromUrl: string, jobId: string, r
   }
 
   const offersResult = await env.DB.prepare(
-    'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
+    `SELECT
+       id,
+       job_id,
+       master_user_id,
+       master_name,
+       price,
+       comment,
+       created_at
+     FROM offers
+     WHERE job_id = ?1
+     ORDER BY created_at DESC`
   )
     .bind(jobId)
     .all();
 
-  const offers = offersResult.results ?? [];
-
   let selectedOffer = null;
   if (job.selected_offer_id) {
     selectedOffer = await env.DB.prepare(
-      'SELECT * FROM offers WHERE id = ?1 LIMIT 1'
+      `SELECT
+         id,
+         job_id,
+         master_user_id,
+         master_name,
+         price,
+         comment,
+         created_at
+       FROM offers
+       WHERE id = ?1
+       LIMIT 1`
     )
       .bind(job.selected_offer_id)
       .first();
@@ -61,7 +174,17 @@ export async function getUserJobDetails(_userIdFromUrl: string, jobId: string, r
   }
 
   const reviewsResult = await env.DB.prepare(
-    'SELECT * FROM reviews WHERE job_id = ?1 ORDER BY created_at DESC'
+    `SELECT
+       id,
+       job_id,
+       client_user_id,
+       master_user_id,
+       rating,
+       comment,
+       created_at
+     FROM reviews
+     WHERE job_id = ?1
+     ORDER BY created_at DESC`
   )
     .bind(jobId)
     .all();
@@ -69,11 +192,11 @@ export async function getUserJobDetails(_userIdFromUrl: string, jobId: string, r
   return Response.json({
     success: true,
     data: {
-      job,
-      offers,
-      selected_offer: selectedOffer,
-      selected_master: selectedMaster,
-      reviews: reviewsResult.results ?? [],
+      job: sanitizeJob(job),
+      offers: (offersResult.results ?? []).map(sanitizeOffer),
+      selected_offer: sanitizeOffer(selectedOffer),
+      selected_master: sanitizeSelectedMaster(selectedMaster),
+      reviews: (reviewsResult.results ?? []).map(sanitizeReview),
     },
   });
 }
