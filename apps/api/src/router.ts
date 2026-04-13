@@ -111,7 +111,7 @@ export async function handleRequest(request: Request, env: any) {
     const jobId = parts[3];
 
     if (parts.length === 4 && method === 'GET') {
-      return getJobById(jobId, env);
+      return getJobById(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'status' && method === 'PATCH') {
