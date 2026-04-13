@@ -47,10 +47,17 @@ export async function getOffersByMaster(
   pathUserId: string,
   env: any,
 ) {
-  requireAuth(request);
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return auth.response;
+  }
 
-  const requestUserId = requireRequestUserId(request);
-  if (requestUserId !== pathUserId) {
+  const requestAuth = requireRequestUserId(request);
+  if (!requestAuth.ok) {
+    return requestAuth.response;
+  }
+
+  if (requestAuth.userId !== pathUserId) {
     return forbidden();
   }
 
@@ -60,7 +67,7 @@ export async function getOffersByMaster(
      WHERE master_user_id = ?1
      ORDER BY created_at DESC`
   )
-    .bind(requestUserId)
+    .bind(requestAuth.userId)
     .all();
 
   return Response.json({
@@ -74,10 +81,17 @@ export async function getAvailableJobsForMaster(
   pathUserId: string,
   env: any,
 ) {
-  requireAuth(request);
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return auth.response;
+  }
 
-  const requestUserId = requireRequestUserId(request);
-  if (requestUserId !== pathUserId) {
+  const requestAuth = requireRequestUserId(request);
+  if (!requestAuth.ok) {
+    return requestAuth.response;
+  }
+
+  if (requestAuth.userId !== pathUserId) {
     return forbidden();
   }
 
@@ -106,7 +120,7 @@ export async function getAvailableJobsForMaster(
        )
      ORDER BY created_at DESC`
   )
-    .bind('open', requestUserId)
+    .bind('open', requestAuth.userId)
     .all();
 
   return Response.json({
