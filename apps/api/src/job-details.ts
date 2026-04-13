@@ -1,4 +1,19 @@
-export async function getUserJobDetails(userId: string, jobId: string, env: any) {
+import { requireAuth } from './auth-context';
+
+export async function getUserJobDetails(userId: string, jobId: string, request: Request, env: any) {
+  const auth = await requireAuth(request, env);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.userId !== userId && auth.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Forbidden' },
+      { status: 403 }
+    );
+  }
+
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1 AND client_user_id = ?2'
   )

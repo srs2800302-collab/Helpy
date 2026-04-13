@@ -79,7 +79,7 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
       const jobId = parts[5];
-      return getUserJobDetails(userId, jobId, env);
+      return getUserJobDetails(userId, jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'jobs' && method === 'GET') {
