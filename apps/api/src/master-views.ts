@@ -11,6 +11,13 @@ function forbidden() {
   );
 }
 
+function unauthorized() {
+  return Response.json(
+    { success: false, error: 'Unauthorized' },
+    { status: 401 },
+  );
+}
+
 function sanitizeOffer(row: any) {
   if (!row) return row;
 
@@ -53,7 +60,7 @@ async function ensureMasterAccess(
 ): Promise<MasterAccessResult> {
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
-    return { ok: false, response: auth.response };
+    return { ok: false, response: auth.response ?? unauthorized() };
   }
 
   if (auth.userId !== pathUserId) {
