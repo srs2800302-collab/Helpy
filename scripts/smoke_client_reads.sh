@@ -4,7 +4,7 @@ set -euo pipefail
 BASE="${BASE:-https://fixi-edge-api.srs2800302.workers.dev/api/v1}"
 ROOT="${ROOT:-https://fixi-edge-api.srs2800302.workers.dev}"
 CLIENT_ID="${CLIENT_ID:-b1eef160-749d-4482-942b-92636cbd6a2f}"
-OTHER_ID="${OTHER_ID:-11111111-1111-1111-1111-111111111111}"
+OTHER_ID="${OTHER_ID:-2cb75bef-d020-4b33-ad76-8573346f6f82}"
 
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT

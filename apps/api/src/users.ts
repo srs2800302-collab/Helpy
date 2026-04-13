@@ -29,11 +29,10 @@ function sanitizeClientProfile(row: any) {
   if (!row) return null;
 
   return {
+    id: row.id,
     user_id: row.user_id,
     name: row.name ?? null,
-    address_text: row.address_text ?? null,
     created_at: row.created_at ?? null,
-    updated_at: row.updated_at ?? null,
   };
 }
 
@@ -41,13 +40,13 @@ function sanitizeMasterProfile(row: any) {
   if (!row) return null;
 
   return {
+    id: row.id,
     user_id: row.user_id,
     name: row.name ?? null,
     category: row.category ?? null,
     bio: row.bio ?? null,
     is_verified: row.is_verified ?? 0,
     created_at: row.created_at ?? null,
-    updated_at: row.updated_at ?? null,
   };
 }
 
@@ -143,7 +142,11 @@ export async function getUserFull(id: string, request: Request, env: any) {
   }
 
   const clientProfile = await env.DB.prepare(
-    `SELECT user_id, name, address_text, created_at, updated_at
+    `SELECT
+       id,
+       user_id,
+       name,
+       created_at
      FROM client_profiles
      WHERE user_id = ?1
      LIMIT 1`
@@ -152,7 +155,14 @@ export async function getUserFull(id: string, request: Request, env: any) {
     .first();
 
   const masterProfile = await env.DB.prepare(
-    `SELECT user_id, name, category, bio, is_verified, created_at, updated_at
+    `SELECT
+       id,
+       user_id,
+       name,
+       category,
+       bio,
+       is_verified,
+       created_at
      FROM master_profiles
      WHERE user_id = ?1
      LIMIT 1`
