@@ -1,4 +1,4 @@
-import { requireRequestUserId } from './auth-context';
+import { requireAuth, requireRequestUserId } from './auth-context';
 
 type CreateReviewBody = {
   master_user_id?: string;
@@ -36,7 +36,6 @@ async function ensureReviewsSchema(env: any) {
     }
   }
 
-  // keep exactly one historical review per job before creating unique index
   await env.DB.prepare(
     `DELETE FROM reviews
      WHERE id NOT IN (
@@ -52,8 +51,39 @@ async function ensureReviewsSchema(env: any) {
   ).run();
 }
 
-export async function getReviews(jobId: string, env: any) {
+export async function getReviews(jobId: string, request: Request, env: any) {
   await ensureReviewsSchema(env);
+
+  const auth = await requireAuth(request, env);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return Response.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
+  }
+
+  const isAdmin = auth.role === 'admin';
+  const isClientOwner = job.client_user_id === auth.userId;
+  const isSelectedMaster =
+    !!job.selected_master_user_id && job.selected_master_user_id === auth.userId;
+
+  if (!isAdmin && !isClientOwner && !isSelectedMaster) {
+    return Response.json(
+      { success: false, error: 'Forbidden' },
+      { status: 403 }
+    );
+  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM reviews WHERE job_id = ?1 ORDER BY created_at DESC'
