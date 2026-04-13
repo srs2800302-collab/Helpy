@@ -63,8 +63,14 @@ export async function getJobs(env: any) {
   });
 }
 
-export async function getJobById(id: string, env: any) {
+export async function getJobById(id: string, request: Request, env: any) {
   await ensureJobsSchema(env);
+
+  const auth = await requireAuth(request, env);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -74,6 +80,18 @@ export async function getJobById(id: string, env: any) {
     return Response.json(
       { success: false, error: 'Job not found' },
       { status: 404 }
+    );
+  }
+
+  const isAdmin = auth.role === 'admin';
+  const isClientOwner = result.client_user_id === auth.userId;
+  const isSelectedMaster =
+    !!result.selected_master_user_id && result.selected_master_user_id === auth.userId;
+
+  if (!isAdmin && !isClientOwner && !isSelectedMaster) {
+    return Response.json(
+      { success: false, error: 'Forbidden' },
+      { status: 403 }
     );
   }
 
