@@ -1,4 +1,39 @@
+const FIXED_ADMIN_ID = '11111111-1111-1111-1111-111111111111';
+const FIXED_ADMIN_PHONE = '+70000000001';
+const FIXED_ADMIN_LANGUAGE = 'ru';
+
 export async function ensureBaseSchema(env: any) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      role TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      language TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS client_profiles (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS master_profiles (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      category TEXT,
+      bio TEXT,
+      is_verified INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL
+    )
+  `).run();
+
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS jobs (
       id TEXT PRIMARY KEY,
@@ -44,5 +79,25 @@ export async function ensureBaseSchema(env: any) {
     if (!existing.has(name)) {
       await env.DB.prepare(sql).run();
     }
+  }
+
+  const admin = await env.DB.prepare(
+    'SELECT id FROM users WHERE id = ?1 LIMIT 1'
+  )
+    .bind(FIXED_ADMIN_ID)
+    .first();
+
+  if (!admin) {
+    await env.DB.prepare(
+      'INSERT INTO users (id, role, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)'
+    )
+      .bind(
+        FIXED_ADMIN_ID,
+        'admin',
+        FIXED_ADMIN_PHONE,
+        FIXED_ADMIN_LANGUAGE,
+        new Date().toISOString(),
+      )
+      .run();
   }
 }

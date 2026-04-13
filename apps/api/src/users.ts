@@ -6,6 +6,9 @@ type CreateUserBody = {
   language?: string;
 };
 
+const ALLOWED_ROLES = new Set(['client', 'master', 'admin']);
+const ALLOWED_LANGUAGES = new Set(['ru', 'en', 'th']);
+
 function forbidden() {
   return Response.json(
     { success: false, error: 'Forbidden' },
@@ -65,6 +68,20 @@ export async function createUser(request: Request, env: any) {
   if (!body.role || !body.phone || !body.language) {
     return Response.json(
       { success: false, error: 'role, phone, language required' },
+      { status: 400 },
+    );
+  }
+
+  if (!ALLOWED_ROLES.has(body.role)) {
+    return Response.json(
+      { success: false, error: 'Invalid role' },
+      { status: 400 },
+    );
+  }
+
+  if (!ALLOWED_LANGUAGES.has(body.language)) {
+    return Response.json(
+      { success: false, error: 'Invalid language' },
       { status: 400 },
     );
   }
