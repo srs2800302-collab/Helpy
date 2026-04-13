@@ -1,5 +1,5 @@
 import { JOB_STATUS } from './job-status';
-import { requireRequestUserId } from './auth-context';
+import { requireAuth, requireRequestUserId } from './auth-context';
 
 const PLATFORM_FEE_PERCENT = 0.35;
 
@@ -96,7 +96,7 @@ export async function createJob(request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
 
   if (!auth.ok) {
     return auth.response;
@@ -230,8 +230,21 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
   );
 }
 
-export async function getJobsByUser(userId: string, env: any) {
+export async function getJobsByUser(userId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
+
+  const auth = await requireAuth(request, env);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.userId !== userId && auth.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Forbidden' },
+      { status: 403 }
+    );
+  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM jobs WHERE client_user_id = ?1 ORDER BY created_at DESC'
