@@ -12,6 +12,22 @@ type ResolveDisputeBody = {
   resolution?: 'refund' | 'no_refund';
 };
 
+function sanitizeDispute(row: any) {
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    job_id: row.job_id,
+    created_by_user_id: row.created_by_user_id,
+    reason: row.reason,
+    status: row.status,
+    resolution: row.resolution ?? null,
+    resolved_by_user_id: row.resolved_by_user_id ?? null,
+    resolved_at: row.resolved_at ?? null,
+    created_at: row.created_at ?? null,
+  };
+}
+
 async function ensureDisputesSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS disputes (
@@ -128,16 +144,18 @@ export async function createDispute(jobId: string, request: Request, env: any) {
     .run();
 
   return ok({
-    id,
-    job_id: jobId,
-    created_by_user_id: actorUserId,
-    reason,
-    status: 'open',
-    resolution: null,
-    resolved_by_user_id: null,
-    resolved_at: null,
+    dispute: sanitizeDispute({
+      id,
+      job_id: jobId,
+      created_by_user_id: actorUserId,
+      reason,
+      status: 'open',
+      resolution: null,
+      resolved_by_user_id: null,
+      resolved_at: null,
+      created_at: now,
+    }),
     job_status: JOB_STATUS.disputed,
-    created_at: now,
   });
 }
 
@@ -165,7 +183,10 @@ export async function getDispute(jobId: string, request: Request, env: any) {
   const dispute = await getDisputeRecord(jobId, env);
   if (!dispute) return fail('Dispute not found for this job', 404);
 
-  return ok(dispute);
+  return ok({
+    dispute: sanitizeDispute(dispute),
+    job_status: job.status,
+  });
 }
 
 export async function resolveDispute(jobId: string, request: Request, env: any) {
@@ -183,9 +204,8 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
   if (!auth.ok) return auth.response;
 
   const resolverUserId = auth.userId;
-  const resolver = auth.user;
 
-  if (resolver.role !== 'admin') {
+  if (auth.role !== 'admin') {
     return fail('Only admin can resolve dispute', 403);
   }
 
@@ -252,11 +272,13 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
     .run();
 
   return ok({
-    job_id: jobId,
-    dispute_status: 'resolved',
-    resolution: body.resolution,
-    resolved_by_user_id: resolverUserId,
-    resolved_at: now,
+    dispute: sanitizeDispute({
+      ...dispute,
+      status: 'resolved',
+      resolution: body.resolution,
+      resolved_by_user_id: resolverUserId,
+      resolved_at: now,
+    }),
     job_status: targetJobStatus,
   });
 }
