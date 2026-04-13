@@ -1,34 +1,43 @@
-function firstNonEmptyString(values: Array<unknown>): string | null {
-  for (const value of values) {
-    if (typeof value === 'string' && value.trim().length > 0) {
-      return value.trim();
-    }
-  }
-  return null;
-}
+import { fail } from './response';
 
-export function getRequestUserId(request: Request): string | null {
-  return firstNonEmptyString([
-    request.headers.get('x-user-id'),
-    request.headers.get('X-User-Id'),
-  ]);
-}
-
-export function requireRequestUserId(
-  request: Request,
-): { ok: true; userId: string } | { ok: false; response: Response } {
-  const userId = getRequestUserId(request);
+export async function requireAuth(request: Request, env: any) {
+  const userId = request.headers.get('x-user-id');
 
   if (!userId) {
     return {
       ok: false,
-      response: Response.json(
-        {
-          success: false,
-          error: 'x-user-id header is required',
-        },
-        { status: 400 },
-      ),
+      response: fail('Missing x-user-id header', 401),
+    };
+  }
+
+  const user = await env.DB.prepare(
+    'SELECT * FROM users WHERE id = ?1 LIMIT 1'
+  )
+    .bind(userId)
+    .first();
+
+  if (!user) {
+    return {
+      ok: false,
+      response: fail('User not found', 404),
+    };
+  }
+
+  return {
+    ok: true,
+    userId: user.id,
+    user,
+    role: user.role,
+  };
+}
+
+export function requireRequestUserId(request: Request) {
+  const userId = request.headers.get('x-user-id');
+
+  if (!userId) {
+    return {
+      ok: false,
+      response: fail('Missing x-user-id header', 401),
     };
   }
 

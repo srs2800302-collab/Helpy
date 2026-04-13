@@ -1,5 +1,5 @@
 import { JOB_STATUS, assertTransition } from './job-status';
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { createRefundPayment } from './payments';
 import { ok, fail } from './response';
@@ -11,6 +11,7 @@ type CreateDisputeBody = {
 type ResolveDisputeBody = {
   resolution?: 'refund' | 'no_refund';
 };
+
 async function ensureDisputesSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS disputes (
@@ -70,7 +71,7 @@ export async function createDispute(jobId: string, request: Request, env: any) {
     return fail('Invalid JSON body', 400);
   }
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
 
   const actorUserId = auth.userId;
@@ -144,7 +145,7 @@ export async function getDispute(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensureDisputesSchema(env);
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
 
   const actorUserId = auth.userId;
@@ -178,18 +179,15 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
     return fail('Invalid JSON body', 400);
   }
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
 
   const resolverUserId = auth.userId;
-  const resolver = await env.DB.prepare(
-    'SELECT * FROM users WHERE id = ?1 LIMIT 1'
-  )
-    .bind(resolverUserId)
-    .first();
+  const resolver = auth.user;
 
-  if (!resolver) return fail('Resolver user not found', 404);
-  if (resolver.role !== 'admin') return fail('Only admin can resolve dispute', 403);
+  if (resolver.role !== 'admin') {
+    return fail('Only admin can resolve dispute', 403);
+  }
 
   if (body.resolution !== 'refund' && body.resolution !== 'no_refund') {
     return fail('resolution must be refund or no_refund', 400);
@@ -197,6 +195,7 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
 
   const job = await getJob(jobId, env);
   if (!job) return fail('Job not found', 404);
+
   if (job.status !== JOB_STATUS.disputed) {
     return fail('Only disputed job can be resolved', 400);
   }
