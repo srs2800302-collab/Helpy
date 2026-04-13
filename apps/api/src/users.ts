@@ -1,3 +1,5 @@
+import { requireAuth } from './auth-context';
+
 type CreateUserBody = {
   role?: string;
   phone?: string;
@@ -50,7 +52,20 @@ export async function getUser(id: string, env: any) {
   });
 }
 
-export async function getUserFull(id: string, env: any) {
+export async function getUserFull(id: string, request: Request, env: any) {
+  const auth = await requireAuth(request, env);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.userId !== id && auth.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Forbidden' },
+      { status: 403 }
+    );
+  }
+
   const user = await env.DB.prepare(
     'SELECT * FROM users WHERE id = ?1'
   )

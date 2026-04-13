@@ -66,7 +66,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'full' && method === 'GET') {
-      return getUserFull(userId, env);
+      return getUserFull(userId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'GET') {
