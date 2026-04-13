@@ -52,6 +52,7 @@ function sanitizeMasterProfile(row: any) {
 
 export async function createUser(request: Request, env: any) {
   let body: CreateUserBody;
+
   try {
     body = await request.json() as CreateUserBody;
   } catch {
