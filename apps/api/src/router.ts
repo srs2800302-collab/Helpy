@@ -70,11 +70,11 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'GET') {
-      return getOffersByMaster(userId, env);
+      return getOffersByMaster(request, userId, env);
     }
 
     if (parts.length === 5 && parts[4] === 'available-jobs' && method === 'GET') {
-      return getAvailableJobsForMaster(userId, env);
+      return getAvailableJobsForMaster(request, userId, env);
     }
 
     if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
