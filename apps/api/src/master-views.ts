@@ -1,4 +1,4 @@
-import { requireAuth, requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 
 function forbidden() {
   return Response.json(
@@ -42,23 +42,40 @@ function sanitizeAvailableJob(row: any) {
   };
 }
 
+async function ensureMasterAccess(request: Request, pathUserId: string, env: any) {
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return auth;
+  }
+
+  if (auth.userId !== pathUserId) {
+    return { ok: false, response: forbidden() };
+  }
+
+  const masterProfile = await env.DB.prepare(
+    'SELECT user_id FROM master_profiles WHERE user_id = ?1 LIMIT 1'
+  )
+    .bind(auth.userId)
+    .first();
+
+  if (!masterProfile) {
+    return { ok: false, response: forbidden() };
+  }
+
+  return {
+    ok: true,
+    userId: auth.userId,
+  };
+}
+
 export async function getOffersByMaster(
   request: Request,
   pathUserId: string,
   env: any,
 ) {
-  const auth = await requireAuth(request, env);
-  if (!auth.ok) {
-    return auth.response;
-  }
-
-  const requestAuth = requireRequestUserId(request);
-  if (!requestAuth.ok) {
-    return requestAuth.response;
-  }
-
-  if (requestAuth.userId !== pathUserId) {
-    return forbidden();
+  const access = await ensureMasterAccess(request, pathUserId, env);
+  if (!access.ok) {
+    return access.response;
   }
 
   const result = await env.DB.prepare(
@@ -67,7 +84,7 @@ export async function getOffersByMaster(
      WHERE master_user_id = ?1
      ORDER BY created_at DESC`
   )
-    .bind(requestAuth.userId)
+    .bind(access.userId)
     .all();
 
   return Response.json({
@@ -81,18 +98,9 @@ export async function getAvailableJobsForMaster(
   pathUserId: string,
   env: any,
 ) {
-  const auth = await requireAuth(request, env);
-  if (!auth.ok) {
-    return auth.response;
-  }
-
-  const requestAuth = requireRequestUserId(request);
-  if (!requestAuth.ok) {
-    return requestAuth.response;
-  }
-
-  if (requestAuth.userId !== pathUserId) {
-    return forbidden();
+  const access = await ensureMasterAccess(request, pathUserId, env);
+  if (!access.ok) {
+    return access.response;
   }
 
   const result = await env.DB.prepare(
@@ -120,7 +128,7 @@ export async function getAvailableJobsForMaster(
        )
      ORDER BY created_at DESC`
   )
-    .bind('open', requestAuth.userId)
+    .bind('open', access.userId)
     .all();
 
   return Response.json({
