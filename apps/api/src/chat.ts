@@ -80,7 +80,7 @@ export async function getMessages(jobId: string, request: Request, env: any) {
     return auth.response;
   }
 
-  const userId = auth.userId;
+  const userId = auth.userId as string;
   const limit = getMessagesLimit(request);
   const offset = getMessagesOffset(request);
 
@@ -151,7 +151,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     return auth.response;
   }
 
-  const senderUserId = auth.userId;
+  const senderUserId = auth.userId as string;
   const text = body?.text?.toString().trim();
 
   if (!text) {

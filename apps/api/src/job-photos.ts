@@ -67,7 +67,7 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     return auth.response;
   }
 
-  const actorUserId = auth.userId;
+  const actorUserId = auth.userId as string;
 
   if (!body.url || !body.url.toString().trim()) {
     return Response.json(
@@ -202,7 +202,7 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
     return auth.response;
   }
 
-  const actorUserId = auth.userId;
+  const actorUserId = auth.userId as string;
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'

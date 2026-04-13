@@ -40,7 +40,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
 
   let body: CreateOfferBody;
   try {
-    body = await request.json();
+    body = await request.json() as CreateOfferBody;
   } catch {
     return fail('Invalid JSON body', 400);
   }
