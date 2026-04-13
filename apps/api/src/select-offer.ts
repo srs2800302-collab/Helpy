@@ -1,31 +1,54 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireRequestUserId } from './auth-context';
 import { ensureJobsSchema } from './jobs';
+import { fail } from './response';
+
+async function ensureOffersSchema(env: any) {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS offers (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      master_user_id TEXT NOT NULL,
+      master_name TEXT NOT NULL,
+      price REAL NOT NULL,
+      comment TEXT,
+      created_at TEXT NOT NULL
+    )`
+  ).run();
+}
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
+  await ensureOffersSchema(env);
+
+  const auth = requireRequestUserId(request);
+  if (!auth.ok) {
+    return auth.response;
+  }
 
   let body: any;
   try {
     body = await request.json();
   } catch {
-    return Response.json(
-      { success: false, error: 'Invalid JSON body' },
-      { status: 400 }
-    );
-  }
-
-  const auth = requireRequestUserId(request);
-
-  if (!auth.ok) {
-    return auth.response;
+    return fail('Invalid JSON body', 400);
   }
 
   if (!body.offer_id) {
-    return Response.json(
-      { success: false, error: 'offer_id is required' },
-      { status: 400 }
-    );
+    return fail('offer_id is required', 400);
+  }
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return fail('Job not found', 404);
+  }
+
+  if (job.client_user_id !== auth.userId) {
+    return fail('Only job client can select master', 403);
   }
 
   const deposit = await env.DB.prepare(
@@ -40,49 +63,17 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     .first();
 
   if (!deposit) {
-    return Response.json(
-      {
-        success: false,
-        error: 'Deposit payment required before selecting master',
-      },
-      { status: 400 }
-    );
-  }
-
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
-
-  if (!job) {
-    return Response.json(
-      { success: false, error: 'Job not found' },
-      { status: 404 }
-    );
-  }
-
-  if (job.client_user_id !== auth.userId) {
-    return Response.json(
-      { success: false, error: 'Only job client can select master' },
-      { status: 403 }
-    );
+    return fail('Deposit payment required before selecting master', 400);
   }
 
   if (job.status !== JOB_STATUS.open) {
-    return Response.json(
-      { success: false, error: 'Master can be selected only for open job' },
-      { status: 400 }
-    );
+    return fail('Master can be selected only for open job', 400);
   }
 
   try {
     assertTransition(job.status, JOB_STATUS.master_selected);
   } catch (error: any) {
-    return Response.json(
-      { success: false, error: error?.message ?? 'Invalid status transition' },
-      { status: 400 }
-    );
+    return fail(error?.message ?? 'Invalid status transition', 400);
   }
 
   const offer = await env.DB.prepare(
@@ -92,10 +83,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     .first();
 
   if (!offer) {
-    return Response.json(
-      { success: false, error: 'Offer not found for this job' },
-      { status: 404 }
-    );
+    return fail('Offer not found for this job', 404);
   }
 
   const now = new Date().toISOString();
@@ -117,7 +105,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       offer.price,
       JOB_STATUS.master_selected,
       now,
-      jobId
+      jobId,
     )
     .run();
 

@@ -1,4 +1,5 @@
 import { requireAuth } from './auth-context';
+import { ensureJobsSchema } from './jobs';
 
 type MasterAccessResult =
   | { ok: true; userId: string }
@@ -88,6 +89,8 @@ export async function getOffersByMaster(
   pathUserId: string,
   env: any,
 ) {
+  await ensureJobsSchema(env);
+
   const access = await ensureMasterAccess(request, pathUserId, env);
   if (!access.ok) {
     return access.response;
@@ -113,6 +116,8 @@ export async function getAvailableJobsForMaster(
   pathUserId: string,
   env: any,
 ) {
+  await ensureJobsSchema(env);
+
   const access = await ensureMasterAccess(request, pathUserId, env);
   if (!access.ok) {
     return access.response;

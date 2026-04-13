@@ -1,4 +1,5 @@
 import { requireAuth } from './auth-context';
+import { ensureJobsSchema } from './jobs';
 
 function sanitizeJob(row: any) {
   if (!row) return null;
@@ -76,6 +77,8 @@ export async function getUserJobDetails(
   request: Request,
   env: any,
 ) {
+  await ensureJobsSchema(env);
+
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
@@ -113,7 +116,7 @@ export async function getUserJobDetails(
   if (!job) {
     return Response.json(
       { success: false, error: 'Job not found or access denied' },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
