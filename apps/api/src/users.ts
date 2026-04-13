@@ -8,17 +8,19 @@ type CreateUserBody = {
 
 const PUBLIC_ROLES = new Set(['client', 'master']);
 const ALLOWED_LANGUAGES = new Set(['ru', 'en', 'th']);
+const USER_SELECT =
+  'SELECT id, role, phone, language, created_at FROM users WHERE id = ?1 LIMIT 1';
+
+function jsonError(error: string, status: number) {
+  return Response.json({ success: false, error }, { status });
+}
 
 function forbidden() {
-  return Response.json(
-    { success: false, error: 'Forbidden' },
-    { status: 403 },
-  );
+  return jsonError('Forbidden', 403);
 }
 
 function sanitizeUser(row: any) {
   if (!row) return null;
-
   return {
     id: row.id,
     role: row.role,
@@ -30,7 +32,6 @@ function sanitizeUser(row: any) {
 
 function sanitizeClientProfile(row: any) {
   if (!row) return null;
-
   return {
     id: row.id,
     user_id: row.user_id,
@@ -41,7 +42,6 @@ function sanitizeClientProfile(row: any) {
 
 function sanitizeMasterProfile(row: any) {
   if (!row) return null;
-
   return {
     id: row.id,
     user_id: row.user_id,
@@ -53,37 +53,29 @@ function sanitizeMasterProfile(row: any) {
   };
 }
 
+async function getUserRow(id: string, env: any) {
+  return env.DB.prepare(USER_SELECT).bind(id).first();
+}
+
 export async function createUser(request: Request, env: any) {
   let body: CreateUserBody;
 
   try {
     body = await request.json() as CreateUserBody;
   } catch {
-    return Response.json(
-      { success: false, error: 'Invalid JSON' },
-      { status: 400 },
-    );
+    return jsonError('Invalid JSON', 400);
   }
 
   if (!body.role || !body.phone || !body.language) {
-    return Response.json(
-      { success: false, error: 'role, phone, language required' },
-      { status: 400 },
-    );
+    return jsonError('role, phone, language required', 400);
   }
 
   if (!PUBLIC_ROLES.has(body.role)) {
-    return Response.json(
-      { success: false, error: 'Invalid role' },
-      { status: 400 },
-    );
+    return jsonError('Invalid role', 400);
   }
 
   if (!ALLOWED_LANGUAGES.has(body.language)) {
-    return Response.json(
-      { success: false, error: 'Invalid language' },
-      { status: 400 },
-    );
+    return jsonError('Invalid language', 400);
   }
 
   const id = crypto.randomUUID();
@@ -109,25 +101,15 @@ export async function createUser(request: Request, env: any) {
 
 export async function getUser(id: string, request: Request, env: any) {
   const auth = await requireAuth(request, env);
-  if (!auth.ok) {
-    return auth.response;
-  }
+  if (!auth.ok) return auth.response;
 
   if (auth.userId !== id && auth.role !== 'admin') {
     return forbidden();
   }
 
-  const user = await env.DB.prepare(
-    'SELECT id, role, phone, language, created_at FROM users WHERE id = ?1 LIMIT 1'
-  )
-    .bind(id)
-    .first();
-
+  const user = await getUserRow(id, env);
   if (!user) {
-    return Response.json(
-      { success: false, error: 'User not found' },
-      { status: 404 },
-    );
+    return jsonError('User not found', 404);
   }
 
   return Response.json({
@@ -138,33 +120,19 @@ export async function getUser(id: string, request: Request, env: any) {
 
 export async function getUserFull(id: string, request: Request, env: any) {
   const auth = await requireAuth(request, env);
-  if (!auth.ok) {
-    return auth.response;
-  }
+  if (!auth.ok) return auth.response;
 
   if (auth.userId !== id && auth.role !== 'admin') {
     return forbidden();
   }
 
-  const user = await env.DB.prepare(
-    'SELECT id, role, phone, language, created_at FROM users WHERE id = ?1 LIMIT 1'
-  )
-    .bind(id)
-    .first();
-
+  const user = await getUserRow(id, env);
   if (!user) {
-    return Response.json(
-      { success: false, error: 'User not found' },
-      { status: 404 },
-    );
+    return jsonError('User not found', 404);
   }
 
   const clientProfile = await env.DB.prepare(
-    `SELECT
-       id,
-       user_id,
-       name,
-       created_at
+    `SELECT id, user_id, name, created_at
      FROM client_profiles
      WHERE user_id = ?1
      LIMIT 1`
@@ -173,14 +141,7 @@ export async function getUserFull(id: string, request: Request, env: any) {
     .first();
 
   const masterProfile = await env.DB.prepare(
-    `SELECT
-       id,
-       user_id,
-       name,
-       category,
-       bio,
-       is_verified,
-       created_at
+    `SELECT id, user_id, name, category, bio, is_verified, created_at
      FROM master_profiles
      WHERE user_id = ?1
      LIMIT 1`
