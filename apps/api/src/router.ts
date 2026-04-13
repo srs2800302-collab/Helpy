@@ -19,6 +19,8 @@ import { getJobPaymentStatus } from './payment-status';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
 import { ensureBaseSchema } from './init-schema';
+import { getAdminDisputes } from './admin-disputes';
+import { getAdminDashboard } from './admin-dashboard';
 
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
@@ -30,6 +32,14 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/health') {
     return Response.json({ success: true, status: 'ok' });
+  }
+
+  if (path === '/api/v1/admin/disputes' && method === 'GET') {
+    return getAdminDisputes(request, env);
+  }
+
+  if (path === '/api/v1/admin/dashboard' && method === 'GET') {
+    return getAdminDashboard(request, env);
   }
 
   if (path === '/api/v1/categories' && method === 'GET') {
@@ -137,7 +147,6 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'dispute' && method === 'GET') {
-
       return getDispute(jobId, request, env);
     }
 
