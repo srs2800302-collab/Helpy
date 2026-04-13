@@ -150,16 +150,16 @@ export async function getDispute(jobId: string, request: Request, env: any) {
 
   const actorUserId = auth.userId;
   const job = await getJob(jobId, env);
-
   if (!job) return fail('Job not found', 404);
 
+  const isAdmin = auth.role === 'admin';
   const isClient = actorUserId === job.client_user_id;
   const isSelectedMaster =
     !!job.selected_master_user_id &&
     actorUserId === job.selected_master_user_id;
 
-  if (!isClient && !isSelectedMaster) {
-    return fail('Only job participants can view dispute', 403);
+  if (!isAdmin && !isClient && !isSelectedMaster) {
+    return fail('Only admin or job participants can view dispute', 403);
   }
 
   const dispute = await getDisputeRecord(jobId, env);
