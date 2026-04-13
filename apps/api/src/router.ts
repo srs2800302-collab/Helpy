@@ -95,7 +95,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 4 && method === 'GET') {
-      return getUser(userId, env);
+      return getUser(userId, request, env);
     }
   }
 
