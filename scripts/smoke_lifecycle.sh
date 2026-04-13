@@ -54,68 +54,79 @@ fi
 
 echo
 echo "== select offer =="
-curl -s -X POST "$BASE_URL/jobs/$JOB_ID/select-offer" \
+SELECT_JSON=$(curl -s -X POST "$BASE_URL/jobs/$JOB_ID/select-offer" \
   -H "Content-Type: application/json" \
   -H "x-user-id: $CLIENT_ID" \
   -d "{
     \"offer_id\": \"$OFFER_ID\"
-  }"
-echo
+  }")
+echo "$SELECT_JSON"
 
 echo
 echo "== read messages as client =="
-curl -s "$BASE_URL/jobs/$JOB_ID/messages" \
-  -H "x-user-id: $CLIENT_ID"
-echo
+MESSAGES_CLIENT_JSON=$(curl -s "$BASE_URL/jobs/$JOB_ID/messages" \
+  -H "x-user-id: $CLIENT_ID")
+echo "$MESSAGES_CLIENT_JSON"
 
 echo
 echo "== send message as client =="
-curl -s -X POST "$BASE_URL/jobs/$JOB_ID/messages" \
+SEND_MESSAGE_JSON=$(curl -s -X POST "$BASE_URL/jobs/$JOB_ID/messages" \
   -H "Content-Type: application/json" \
   -H "x-user-id: $CLIENT_ID" \
   -d "{
     \"text\": \"Smoke test message\"
-  }"
-echo
+  }")
+echo "$SEND_MESSAGE_JSON"
 
 echo
 echo "== read messages as master =="
-curl -s "$BASE_URL/jobs/$JOB_ID/messages" \
-  -H "x-user-id: $MASTER_ID"
-echo
+MESSAGES_MASTER_JSON=$(curl -s "$BASE_URL/jobs/$JOB_ID/messages" \
+  -H "x-user-id: $MASTER_ID")
+echo "$MESSAGES_MASTER_JSON"
 
 echo
 echo "== start work =="
-curl -s -X POST "$BASE_URL/jobs/$JOB_ID/start-work" \
+START_WORK_JSON=$(curl -s -X POST "$BASE_URL/jobs/$JOB_ID/start-work" \
   -H "Content-Type: application/json" \
   -H "x-user-id: $MASTER_ID" \
-  -d '{}'
-echo
+  -d '{}')
+echo "$START_WORK_JSON"
 
 echo
 echo "== complete job =="
-curl -s -X POST "$BASE_URL/jobs/$JOB_ID/complete" \
+COMPLETE_JSON=$(curl -s -X POST "$BASE_URL/jobs/$JOB_ID/complete" \
   -H "Content-Type: application/json" \
   -H "x-user-id: $CLIENT_ID" \
-  -d '{}'
-echo
+  -d '{}')
+echo "$COMPLETE_JSON"
 
 echo
 echo "== create review =="
-curl -s -X POST "$BASE_URL/jobs/$JOB_ID/reviews" \
+REVIEW_JSON=$(curl -s -X POST "$BASE_URL/jobs/$JOB_ID/reviews" \
   -H "Content-Type: application/json" \
   -H "x-user-id: $CLIENT_ID" \
   -d "{
     \"master_user_id\": \"$MASTER_ID\",
     \"rating\": 5,
     \"comment\": \"Smoke review\"
-  }"
-echo
+  }")
+echo "$REVIEW_JSON"
 
 echo
 echo "== final job state =="
-curl -s "$BASE_URL/jobs/$JOB_ID"
-echo
+FINAL_JOB_JSON=$(curl -s "$BASE_URL/jobs/$JOB_ID" \
+  -H "x-user-id: $CLIENT_ID")
+echo "$FINAL_JOB_JSON"
+
+if ! echo "$FINAL_JOB_JSON" | grep -q '"success":true'; then
+  echo "FAILED: final job read is not successful"
+  exit 1
+fi
+
+if ! echo "$FINAL_JOB_JSON" | grep -q '"status":"completed"'; then
+  echo "FAILED: final job status is not completed"
+  exit 1
+fi
 
 echo
 echo "SMOKE OK: $JOB_ID"
