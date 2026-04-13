@@ -1,4 +1,4 @@
-import { requireRequestUserId } from './auth-context';
+import { requireAuth, requireRequestUserId } from './auth-context';
 import { fail } from './response';
 
 type CreateOfferBody = {
@@ -32,7 +32,6 @@ export async function createOffer(jobId: string, request: Request, env: any) {
   if (!auth.ok) return auth.response;
 
   const masterUserId = auth.userId;
-
   const profile = await env.DB.prepare(
     'SELECT * FROM master_profiles WHERE user_id = ?1'
   ).bind(masterUserId).first();
@@ -99,7 +98,6 @@ export async function createOffer(jobId: string, request: Request, env: any) {
         created_at: now,
       },
     }, { status: 201 });
-
   } catch (error: any) {
     const message = error?.message ?? 'Failed to create offer';
 
@@ -110,8 +108,34 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     return fail(message, 500);
   }
 }
-export async function getOffers(jobId: string, env: any) {
+
+export async function getOffers(jobId: string, request: Request, env: any) {
   await ensureOffersSchema(env);
+
+  const auth = await requireAuth(request, env);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  )
+    .bind(jobId)
+    .first();
+
+  if (!job) {
+    return fail('Job not found', 404);
+  }
+
+  const isAdmin = auth.role === 'admin';
+  const isClientOwner = job.client_user_id === auth.userId;
+  const isSelectedMaster =
+    !!job.selected_master_user_id && job.selected_master_user_id === auth.userId;
+
+  if (!isAdmin && !isClientOwner && !isSelectedMaster) {
+    return fail('Forbidden', 403);
+  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'

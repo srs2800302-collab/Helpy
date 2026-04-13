@@ -119,7 +119,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'GET') {
-      return getOffers(jobId, env);
+      return getOffers(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'POST') {
