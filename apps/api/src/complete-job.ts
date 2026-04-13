@@ -2,12 +2,10 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireRequestUserId } from './auth-context';
 
 export async function completeJob(jobId: string, request: Request, env: any) {
-  let body: any = {};
-
   try {
-    body = await request.json();
+    await request.json();
   } catch {
-    body = {};
+    // empty body is allowed
   }
 
   const auth = requireRequestUserId(request);
@@ -41,14 +39,11 @@ export async function completeJob(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (
-    job.status !== JOB_STATUS.master_selected &&
-    job.status !== JOB_STATUS.in_progress
-  ) {
+  if (job.status !== JOB_STATUS.in_progress) {
     return Response.json(
       {
         success: false,
-        error: 'Job can be completed only from master_selected or in_progress status',
+        error: 'Job can be completed only from in_progress status',
       },
       { status: 400 }
     );
