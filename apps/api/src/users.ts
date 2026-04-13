@@ -6,7 +6,7 @@ type CreateUserBody = {
   language?: string;
 };
 
-const ALLOWED_ROLES = new Set(['client', 'master', 'admin']);
+const PUBLIC_ROLES = new Set(['client', 'master']);
 const ALLOWED_LANGUAGES = new Set(['ru', 'en', 'th']);
 
 function forbidden() {
@@ -72,7 +72,7 @@ export async function createUser(request: Request, env: any) {
     );
   }
 
-  if (!ALLOWED_ROLES.has(body.role)) {
+  if (!PUBLIC_ROLES.has(body.role)) {
     return Response.json(
       { success: false, error: 'Invalid role' },
       { status: 400 },
