@@ -83,7 +83,7 @@ export async function handleRequest(request: Request, env: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'jobs' && method === 'GET') {
-      return getJobsByUser(userId, env);
+      return getJobsByUser(userId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'client-profile' && method === 'POST') {
