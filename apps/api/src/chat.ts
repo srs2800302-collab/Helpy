@@ -1,5 +1,5 @@
 import { JOB_STATUS, assertTransition } from './job-status';
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 
 const MAX_MESSAGE_LENGTH = 2000;
 const DEFAULT_MESSAGES_LIMIT = 50;
@@ -75,7 +75,7 @@ function getMessagesOffset(request: Request) {
 export async function getMessages(jobId: string, request: Request, env: any) {
   await ensureChatSchema(env);
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
@@ -146,7 +146,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
@@ -257,7 +257,7 @@ export async function startWork(jobId: string, request: Request, env: any) {
     // empty body is allowed
   }
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }

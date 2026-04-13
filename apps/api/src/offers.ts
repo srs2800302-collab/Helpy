@@ -1,4 +1,4 @@
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 
 type CreateOfferBody = {
   master_name?: string;
@@ -23,19 +23,19 @@ async function ensureOffersSchema(env: any) {
 
   await env.DB.prepare(
     `CREATE INDEX IF NOT EXISTS idx_offers_job_created_at
-     ON offers(job_id, created_at DESC)`
+      ON offers(job_id, created_at DESC)`
   ).run();
 
   await env.DB.prepare(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_offers_job_master_unique
-     ON offers(job_id, master_user_id)`
+      ON offers(job_id, master_user_id)`
   ).run();
 }
 
 export async function createOffer(jobId: string, request: Request, env: any) {
   await ensureOffersSchema(env);
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
 
   const masterUserId = auth.userId;
@@ -122,8 +122,26 @@ export async function createOffer(jobId: string, request: Request, env: any) {
   }
 }
 
-export async function getOffers(jobId: string, env: any) {
+export async function getOffers(jobId: string, request: Request, env: any) {
   await ensureOffersSchema(env);
+
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) return auth.response;
+
+  const job = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE id = ?1'
+  ).bind(jobId).first();
+
+  if (!job) {
+    return fail('Job not found', 404);
+  }
+
+  const isAdmin = auth.role === 'admin';
+  const isClientOwner = job.client_user_id === auth.userId;
+
+  if (!isAdmin && !isClientOwner) {
+    return fail('Only job client or admin can view offers', 403);
+  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'

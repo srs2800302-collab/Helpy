@@ -1,4 +1,4 @@
-import { requireAuth, requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 
 type CreateReviewBody = {
   master_user_id?: string;
@@ -55,7 +55,6 @@ export async function getReviews(jobId: string, request: Request, env: any) {
   await ensureReviewsSchema(env);
 
   const auth = await requireAuth(request, env);
-
   if (!auth.ok) {
     return auth.response;
   }
@@ -110,8 +109,7 @@ export async function createReview(jobId: string, request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request);
-
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }

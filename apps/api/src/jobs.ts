@@ -50,8 +50,20 @@ export async function ensureJobsSchema(env: any) {
   }
 }
 
-export async function getJobs(env: any) {
+export async function getJobs(request: Request, env: any) {
   await ensureJobsSchema(env);
+
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Only admin can view all jobs' },
+      { status: 403 }
+    );
+  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM jobs ORDER BY created_at DESC'

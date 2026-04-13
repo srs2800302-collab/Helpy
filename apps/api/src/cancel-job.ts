@@ -1,5 +1,5 @@
 import { JOB_STATUS, assertTransition } from './job-status';
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 
 function getRefundPolicy(status: string) {
@@ -23,8 +23,7 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
     // empty body is allowed
   }
 
-  const auth = requireRequestUserId(request);
-
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }

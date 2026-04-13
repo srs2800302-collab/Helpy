@@ -1,8 +1,7 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { ensureJobsSchema } from './jobs';
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 import { ok, fail } from './response';
-
 
 function paymentData(payment: any, jobId: string, jobStatus: string) {
   return {
@@ -140,16 +139,18 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensurePaymentsSchema(env);
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
 
   const clientUserId = auth.userId;
   const job = await getJob(jobId, env);
 
   if (!job) return fail('Job not found', 404);
+
   if (job.client_user_id !== clientUserId) {
     return fail('Only job client can pay deposit', 403);
   }
+
   if (typeof job.price !== 'number' || job.price <= 0) {
     return fail('Job price must be set before payment', 400);
   }
@@ -257,7 +258,7 @@ export async function getPayments(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensurePaymentsSchema(env);
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
 
   const actorUserId = auth.userId;
@@ -265,12 +266,13 @@ export async function getPayments(jobId: string, request: Request, env: any) {
 
   if (!job) return fail('Job not found', 404);
 
+  const isAdmin = auth.role === 'admin';
   const isParticipant =
     actorUserId === job.client_user_id ||
     actorUserId === job.selected_master_user_id;
 
-  if (!isParticipant) {
-    return fail('Only job participants can view payments', 403);
+  if (!isAdmin && !isParticipant) {
+    return fail('Only job participants or admin can view payments', 403);
   }
 
   const result = await env.DB.prepare(

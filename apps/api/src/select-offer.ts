@@ -1,5 +1,5 @@
 import { JOB_STATUS, assertTransition } from './job-status';
-import { requireRequestUserId } from './auth-context';
+import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { fail } from './response';
 
@@ -21,7 +21,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensureOffersSchema(env);
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
@@ -105,7 +105,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       offer.price,
       JOB_STATUS.master_selected,
       now,
-      jobId,
+      jobId
     )
     .run();
 

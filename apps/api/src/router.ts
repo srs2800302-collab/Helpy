@@ -100,7 +100,7 @@ export async function handleRequest(request: Request, env: any) {
   }
 
   if (path === '/api/v1/jobs' && method === 'GET') {
-    return getJobs(env);
+    return getJobs(request, env);
   }
 
   if (path === '/api/v1/jobs' && method === 'POST') {
