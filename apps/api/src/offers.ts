@@ -1,10 +1,13 @@
-import { requireAuth, requireRequestUserId } from './auth-context';
-import { fail } from './response';
+import { requireRequestUserId } from './auth-context';
 
 type CreateOfferBody = {
   master_name?: string;
   price?: number;
 };
+
+function fail(error: string, status = 400) {
+  return Response.json({ success: false, error }, { status });
+}
 
 async function ensureOffersSchema(env: any) {
   await env.DB.prepare(
@@ -14,9 +17,13 @@ async function ensureOffersSchema(env: any) {
       master_user_id TEXT NOT NULL,
       master_name TEXT NOT NULL,
       price REAL NOT NULL,
-      comment TEXT,
       created_at TEXT NOT NULL
     )`
+  ).run();
+
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_offers_job_created_at
+     ON offers(job_id, created_at DESC)`
   ).run();
 
   await env.DB.prepare(
@@ -32,6 +39,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
   if (!auth.ok) return auth.response;
 
   const masterUserId = auth.userId;
+
   const profile = await env.DB.prepare(
     'SELECT * FROM master_profiles WHERE user_id = ?1'
   ).bind(masterUserId).first();
@@ -63,6 +71,17 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     return fail('Offers can be created only for open jobs', 400);
   }
 
+  const existing = await env.DB.prepare(
+    `SELECT id
+     FROM offers
+     WHERE job_id = ?1 AND master_user_id = ?2
+     LIMIT 1`
+  ).bind(jobId, masterUserId).first();
+
+  if (existing) {
+    return fail('Master already has an offer for this job', 409);
+  }
+
   try {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
@@ -77,71 +96,38 @@ export async function createOffer(jobId: string, request: Request, env: any) {
         created_at
       ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
     )
-      .bind(
-        id,
-        jobId,
-        masterUserId,
-        body.master_name.trim(),
-        body.price,
-        now
-      )
+      .bind(id, jobId, masterUserId, body.master_name, body.price, now)
       .run();
 
-    return Response.json({
-      success: true,
-      data: {
-        id,
-        job_id: jobId,
-        master_user_id: masterUserId,
-        master_name: body.master_name.trim(),
-        price: body.price,
-        created_at: now,
+    return Response.json(
+      {
+        success: true,
+        data: {
+          id,
+          job_id: jobId,
+          master_user_id: masterUserId,
+          master_name: body.master_name,
+          price: body.price,
+          created_at: now,
+        },
       },
-    }, { status: 201 });
+      { status: 201 }
+    );
   } catch (error: any) {
-    const message = error?.message ?? 'Failed to create offer';
-
-    if (message.toLowerCase().includes('unique')) {
+    if (String(error?.message || '').toLowerCase().includes('unique')) {
       return fail('Master already has an offer for this job', 409);
     }
 
-    return fail(message, 500);
+    return fail(error?.message ?? 'Failed to create offer', 500);
   }
 }
 
-export async function getOffers(jobId: string, request: Request, env: any) {
+export async function getOffers(jobId: string, env: any) {
   await ensureOffersSchema(env);
-
-  const auth = await requireAuth(request, env);
-
-  if (!auth.ok) {
-    return auth.response;
-  }
-
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
-
-  if (!job) {
-    return fail('Job not found', 404);
-  }
-
-  const isAdmin = auth.role === 'admin';
-  const isClientOwner = job.client_user_id === auth.userId;
-  const isSelectedMaster =
-    !!job.selected_master_user_id && job.selected_master_user_id === auth.userId;
-
-  if (!isAdmin && !isClientOwner && !isSelectedMaster) {
-    return fail('Forbidden', 403);
-  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
-  )
-    .bind(jobId)
-    .all();
+  ).bind(jobId).all();
 
   return Response.json({
     success: true,
