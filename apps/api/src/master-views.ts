@@ -1,5 +1,9 @@
 import { requireAuth } from './auth-context';
 
+type MasterAccessResult =
+  | { ok: true; userId: string }
+  | { ok: false; response: Response };
+
 function forbidden() {
   return Response.json(
     { success: false, error: 'Forbidden' },
@@ -42,10 +46,14 @@ function sanitizeAvailableJob(row: any) {
   };
 }
 
-async function ensureMasterAccess(request: Request, pathUserId: string, env: any) {
+async function ensureMasterAccess(
+  request: Request,
+  pathUserId: string,
+  env: any,
+): Promise<MasterAccessResult> {
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
-    return auth;
+    return { ok: false, response: auth.response };
   }
 
   if (auth.userId !== pathUserId) {
