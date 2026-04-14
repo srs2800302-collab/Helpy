@@ -10,10 +10,12 @@ class MasterMarketplaceScreen extends ConsumerStatefulWidget {
   const MasterMarketplaceScreen({super.key});
 
   @override
-  ConsumerState<MasterMarketplaceScreen> createState() => _MasterMarketplaceScreenState();
+  ConsumerState<MasterMarketplaceScreen> createState() =>
+      _MasterMarketplaceScreenState();
 }
 
-class _MasterMarketplaceScreenState extends ConsumerState<MasterMarketplaceScreen> {
+class _MasterMarketplaceScreenState
+    extends ConsumerState<MasterMarketplaceScreen> {
   @override
   void initState() {
     super.initState();
@@ -49,71 +51,47 @@ class _MasterMarketplaceScreenState extends ConsumerState<MasterMarketplaceScree
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: isInitialLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : state.errorMessage != null && state.items.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : state.items.isEmpty
                   ? ListView(
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.red),
-                            borderRadius: BorderRadius.circular(8),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(l10n.t('empty_jobs')),
                           ),
-                          child: Text(
-                            state.errorMessage!,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: _refresh,
-                          child: Text(l10n.t('retry')),
                         ),
                       ],
                     )
-                  : state.items.isEmpty
-                      ? ListView(
-                          children: [
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Text(l10n.t('empty_jobs')),
-                              ),
-                            ),
-                          ],
-                        )
-                      : ListView.builder(
-                          itemCount: state.items.length,
-                          itemBuilder: (context, index) {
-                            final item = state.items[index];
+                  : ListView.builder(
+                      itemCount: state.items.length,
+                      itemBuilder: (context, index) {
+                        final item = state.items[index];
 
-                            return Card(
-                              child: ListTile(
-                                title: Text(item.title),
-                                subtitle: Text(
-                                  '${mapCategory(item.categorySlug)} • ${item.status}\n${item.addressText ?? ''}',
-                                ),
-                                isThreeLine: true,
-                                trailing: ElevatedButton(
-                                  onPressed: () async {
-                                    await Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => CreateOfferScreen(
-                                          jobId: item.id,
-                                          jobTitle: item.title,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(l10n.t('send_offer')),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                        return Card(
+                          child: ListTile(
+                            title: Text(item.title),
+                            subtitle: Text(
+                              '${mapCategory(item.categorySlug)} • ${item.status}\n${item.addressText ?? ''}',
+                            ),
+                            isThreeLine: true,
+                            trailing: ElevatedButton(
+                              onPressed: () async {
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => CreateOfferScreen(
+                                      jobId: item.id,
+                                      jobTitle: item.title,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(l10n.t('send_offer')),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
         ),
       ),
     );

@@ -28,6 +28,8 @@ class JobOffersController extends StateNotifier<JobOffersState> {
             clientUserId: session.userId,
           );
 
+      items.sort((a, b) => a.price.compareTo(b.price));
+
       state = state.copyWith(
         isLoading: false,
         initialized: true,
