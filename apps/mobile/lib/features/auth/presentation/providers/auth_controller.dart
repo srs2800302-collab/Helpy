@@ -146,6 +146,10 @@ class AuthController extends StateNotifier<AuthState> {
           refreshToken: 'debug_refresh_token',
         );
 
+        final storage = ref.read(tokenStorageProvider);
+        await storage.saveAccessToken(session.accessToken);
+        await storage.saveRefreshToken(session.refreshToken);
+
         state = state.copyWith(
           isLoading: false,
           initialized: true,
