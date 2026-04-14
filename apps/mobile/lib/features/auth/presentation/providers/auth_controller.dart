@@ -1,11 +1,14 @@
-import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
 import '../../domain/auth_session.dart';
 import 'auth_state.dart';
+
+const _debugClientUserId = '6570ea80-6707-4c0d-87e8-6b5de0bac878';
+const _debugOtpCode = '123456';
 
 class AuthController extends StateNotifier<AuthState> {
   final Ref ref;
@@ -80,6 +83,11 @@ class AuthController extends StateNotifier<AuthState> {
     );
 
     try {
+      if (kDebugMode) {
+        state = state.copyWith(isLoading: false);
+        return true;
+      }
+
       await ref.read(authApiProvider).requestOtp(normalizedPhone);
       state = state.copyWith(isLoading: false);
       return true;
@@ -119,6 +127,33 @@ class AuthController extends StateNotifier<AuthState> {
     );
 
     try {
+      if (kDebugMode) {
+        if (normalizedOtp != _debugOtpCode) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Debug OTP: $_debugOtpCode',
+          );
+          return false;
+        }
+
+        final session = AuthSession(
+          userId: _debugClientUserId,
+          phone: normalizedPhone,
+          role: UserRole.client,
+          isNewUser: false,
+          needsRoleSelection: false,
+          accessToken: 'debug_access_token',
+          refreshToken: 'debug_refresh_token',
+        );
+
+        state = state.copyWith(
+          isLoading: false,
+          initialized: true,
+          session: session,
+        );
+        return true;
+      }
+
       final session = await ref.read(authApiProvider).verifyOtp(
             normalizedPhone,
             normalizedOtp,
