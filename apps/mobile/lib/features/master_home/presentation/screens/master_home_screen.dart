@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/category_mapper.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../offers/presentation/screens/master_offers_screen.dart';
 
@@ -205,7 +206,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     (item) => Card(
                       child: ListTile(
                         title: Text(item.title),
-                        subtitle: Text('${item.categorySlug} • ${item.status}'),
+                        subtitle: Text('${mapCategory(item.categorySlug)} • ${item.status}'),
                       ),
                     ),
                   ),
@@ -253,7 +254,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     (item) => Card(
                       child: ListTile(
                         title: Text(item.jobTitle),
-                        subtitle: Text('${item.categorySlug} • ${item.status}'),
+                        subtitle: Text('${mapCategory(item.categorySlug)} • ${item.status}'),
                       ),
                     ),
                   ),

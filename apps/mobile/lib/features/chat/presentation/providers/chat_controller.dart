@@ -10,12 +10,14 @@ class ChatState {
   final bool isLoading;
   final List<ChatMessage> messages;
   final String input;
+  final bool isSending;
   final String? errorMessage;
 
   const ChatState({
     this.isLoading = false,
     this.messages = const [],
     this.input = '',
+    this.isSending = false,
     this.errorMessage,
   });
 
@@ -23,6 +25,7 @@ class ChatState {
     bool? isLoading,
     List<ChatMessage>? messages,
     String? input,
+    bool? isSending,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -30,6 +33,7 @@ class ChatState {
       isLoading: isLoading ?? this.isLoading,
       messages: messages ?? this.messages,
       input: input ?? this.input,
+      isSending: isSending ?? this.isSending,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
@@ -106,18 +110,22 @@ class ChatController extends StateNotifier<ChatState> {
       return;
     }
 
+    state = state.copyWith(isSending: true);
+
     try {
       await ref.read(chatApiProvider).sendMessage(
+
             jobId: jobId,
             userId: session.userId,
             text: text,
           );
 
-      state = state.copyWith(input: '');
+      state = state.copyWith(input: '', isSending: false);
       await load(jobId, silent: true);
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
+        isSending: false,
         errorMessage: appError.message,
       );
     }

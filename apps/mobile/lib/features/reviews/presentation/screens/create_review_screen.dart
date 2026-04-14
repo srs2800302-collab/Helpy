@@ -94,7 +94,7 @@ class CreateReviewScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isBusy
+                onPressed: (isBusy || masterUserId.trim().isEmpty)
                     ? null
                     : () async {
                         final ok = await controller.createReview(

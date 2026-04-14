@@ -21,14 +21,33 @@ function normalizeNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function sanitizeJob(row: any) {
-  if (!row) return row;
-  const { client_id, ...safe } = row;
-  return safe;
-}
-
 function calculateDeposit(price: number) {
   return Math.round(price * PLATFORM_FEE_PERCENT);
+}
+
+async function withHasReview(row: any, env: any) {
+  if (!row) return row;
+
+  const review = await env.DB.prepare(
+    'SELECT id FROM reviews WHERE job_id = ?1 LIMIT 1'
+  )
+    .bind(row.id)
+    .first();
+
+  return {
+    ...row,
+    has_review: !!review,
+  };
+}
+
+async function sanitizeJob(row: any, env: any) {
+  if (!row) return row;
+  const { client_id, ...safe } = row;
+  return withHasReview(safe, env);
+}
+
+async function sanitizeJobs(rows: any[], env: any) {
+  return Promise.all((rows ?? []).map((row) => sanitizeJob(row, env)));
 }
 
 export async function ensureJobsSchema(env: any) {
@@ -71,7 +90,7 @@ export async function getJobs(request: Request, env: any) {
 
   return Response.json({
     success: true,
-    data: (result.results ?? []).map(sanitizeJob),
+    data: await sanitizeJobs(result.results ?? [], env),
   });
 }
 
@@ -109,7 +128,7 @@ export async function getJobById(id: string, request: Request, env: any) {
 
   return Response.json({
     success: true,
-    data: sanitizeJob(result),
+    data: await sanitizeJob(result, env),
   });
 }
 
@@ -225,7 +244,7 @@ export async function createJob(request: Request, env: any) {
   return Response.json(
     {
       success: true,
-      data: sanitizeJob(created),
+      data: await sanitizeJob(created, env),
     },
     { status: 201 }
   );
@@ -284,6 +303,6 @@ export async function getJobsByUser(userId: string, request: Request, env: any) 
 
   return Response.json({
     success: true,
-    data: (result.results ?? []).map(sanitizeJob),
+    data: await sanitizeJobs(result.results ?? [], env),
   });
 }

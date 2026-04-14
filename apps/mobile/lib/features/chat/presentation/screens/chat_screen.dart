@@ -126,7 +126,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final controller = ref.read(chatControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
 
-    final canSend = state.input.trim().isNotEmpty && !state.isLoading;
+    final canSend = state.input.trim().isNotEmpty && !state.isLoading && !state.isSending;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.t('chat'))),

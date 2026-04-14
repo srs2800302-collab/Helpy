@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/job_status_mapper.dart';
+import '../../../../core/utils/category_mapper.dart';
+
+
 import '../../domain/job_item.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../client_offers/presentation/screens/job_offers_screen.dart';
@@ -72,7 +76,11 @@ class ClientJobDetailsScreen extends StatelessWidget {
         },
         child: Text(l10n.t('chat')),
       );
-    } else if (job.status == 'completed' && (job.selectedMasterUserId ?? '').isNotEmpty) {
+    } else if (
+      job.status == 'completed' &&
+      (job.selectedMasterUserId ?? '').isNotEmpty &&
+      job.hasReview != true
+    ) {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final reviewed = await Navigator.of(context).push<bool>(
@@ -130,9 +138,9 @@ class ClientJobDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text('${l10n.t('categories')}: ${job.categorySlug}'),
+                  Text('${l10n.t('categories')}: ${mapCategory(job.categorySlug)}'),
                   const SizedBox(height: 8),
-                  Text('Status: ${job.status}'),
+                  Text('Status: ${mapJobStatus(job.status)}'),
                   const SizedBox(height: 8),
                   Text('Created: ${job.createdAt.toLocal()}'),
                   if (job.price != null) ...[
@@ -148,7 +156,7 @@ class ClientJobDetailsScreen extends StatelessWidget {
                     Text('Master: ${job.selectedMasterName}'),
                   ],
                   if (job.selectedOfferPrice != null) ...[
-                  if (job.status == 'completed') ...[
+                  if (job.hasReview == true) ...[
                     const SizedBox(height: 8),
                     const Text('Review: submitted'),
                   ],

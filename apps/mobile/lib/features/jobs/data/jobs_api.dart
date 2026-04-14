@@ -49,23 +49,24 @@ class JobsApi {
   JobItem _mapJob(Map<String, dynamic> json) {
     return JobItem(
       id: json['id'] as String,
-      clientUserId: (json['client_user_id'] ?? '') as String,
-      categoryId: (json['category'] ?? '') as String,
-      categorySlug: (json['category'] ?? '') as String,
       title: json['title'] as String? ?? '',
+      categorySlug: (json['category'] ?? '') as String,
       description: json['description'] as String?,
       addressText: json['address_text'] as String?,
       status: json['status'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       price: double.tryParse(json['price']?.toString() ?? ''),
-      depositAmount: double.tryParse(json['deposit_amount']?.toString() ?? ''),
+      depositAmount:
+          double.tryParse(json['deposit_amount']?.toString() ?? ''),
       selectedMasterName: json['selected_master_name'] as String?,
-      selectedMasterUserId: json['selected_master_user_id'] as String?,
+      selectedMasterUserId:
+          json['selected_master_user_id'] as String?,
       selectedOfferId: json['selected_offer_id'] as String?,
       selectedOfferPrice: double.tryParse(
         json['selected_offer_price']?.toString() ?? '',
       ),
+      hasReview: json['has_review'] as bool?,
     );
   }
 }

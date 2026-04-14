@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/category_mapper.dart';
 
 class MasterOffersScreen extends ConsumerStatefulWidget {
   const MasterOffersScreen({super.key});
@@ -91,7 +92,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                               child: ListTile(
                                 title: Text(item.jobTitle),
                                 subtitle: Text(
-                                  '${item.categorySlug} • ${item.status}\n${item.message ?? ''}',
+                                  '${mapCategory(item.categorySlug)} • ${item.status}\n${item.message ?? ''}',
                                 ),
                                 isThreeLine: true,
                               ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/category_mapper.dart';
 import 'client_job_details_screen.dart';
 
 class ClientJobsScreen extends ConsumerStatefulWidget {
@@ -93,7 +94,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                               child: ListTile(
                                 title: Text(item.title),
                                 subtitle: Text(
-                                  '${item.categorySlug} • ${item.status}\n${item.addressText ?? ''}',
+                                  '${mapCategory(item.categorySlug)} • ${item.status}\n${item.addressText ?? ''}',
                                 ),
                                 isThreeLine: true,
                                 trailing: const Icon(Icons.chevron_right),

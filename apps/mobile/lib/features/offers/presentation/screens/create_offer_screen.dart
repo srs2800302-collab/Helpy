@@ -68,12 +68,12 @@ class CreateOfferScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isBusy
+                onPressed: (isBusy || state.price.trim().isEmpty)
                     ? null
                     : () async {
                         final ok = await controller.createOffer(jobId: jobId);
                         if (ok && context.mounted) {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(true);
                         }
                       },
                 child: isBusy

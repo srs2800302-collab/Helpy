@@ -129,7 +129,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isPaying ? null : _payDeposit,
+                onPressed: (_isPaying || widget.depositAmount <= 0) ? null : _payDeposit,
                 child: _isPaying
                     ? const SizedBox(
                         height: 18,
