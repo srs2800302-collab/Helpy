@@ -1,7 +1,7 @@
 import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 
-const PLATFORM_FEE_PERCENT = 0.35;
+const PLATFORM_FEE_PERCENT = 0.40;
 
 type CreateJobBody = {
   title?: string;

@@ -115,7 +115,7 @@ export async function createRefundPayment(jobId: string, env: any) {
       id,
       jobId,
       job.client_user_id,
-      deposit.amount,
+      -Math.abs(deposit.amount),
       deposit.currency,
       'refund',
       'paid',
@@ -127,7 +127,7 @@ export async function createRefundPayment(jobId: string, env: any) {
     id,
     job_id: jobId,
     client_user_id: job.client_user_id,
-    amount: deposit.amount,
+    amount: -Math.abs(deposit.amount),
     currency: deposit.currency,
     type: 'refund',
     status: 'paid',
@@ -158,7 +158,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   const depositAmount =
     typeof job.deposit_amount === 'number' && job.deposit_amount > 0
       ? job.deposit_amount
-      : Math.round(job.price * 0.35);
+      : Math.round(job.price * 0.40);
 
   const existingPaidDeposit = await getPaidDeposit(jobId, env);
   if (existingPaidDeposit) {
