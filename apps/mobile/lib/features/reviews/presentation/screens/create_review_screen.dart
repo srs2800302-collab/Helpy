@@ -7,10 +7,12 @@ import '../../../../core/localization/app_localizations.dart';
 
 class CreateReviewScreen extends ConsumerWidget {
   final String jobId;
+  final String masterUserId;
 
   const CreateReviewScreen({
     super.key,
     required this.jobId,
+    required this.masterUserId,
   });
 
   @override
@@ -95,7 +97,10 @@ class CreateReviewScreen extends ConsumerWidget {
                 onPressed: isBusy
                     ? null
                     : () async {
-                        final ok = await controller.createReview(jobId: jobId);
+                        final ok = await controller.createReview(
+                          jobId: jobId,
+                          masterUserId: masterUserId,
+                        );
                         if (ok && context.mounted) {
                           Navigator.of(context).pop(true);
                         }

@@ -8,15 +8,14 @@ class ReviewsApi {
 
   Future<void> createReview({
     required String jobId,
-    required String clientUserId,
+    required String masterUserId,
     required int rating,
     String? comment,
   }) async {
     await apiClient.dio.post(
-      '/reviews',
+      '/jobs/$jobId/reviews',
       data: {
-        'jobId': jobId,
-        'clientUserId': clientUserId,
+        'master_user_id': masterUserId,
         'rating': rating,
         'comment': comment,
       },

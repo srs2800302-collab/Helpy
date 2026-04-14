@@ -72,12 +72,15 @@ class ClientJobDetailsScreen extends StatelessWidget {
         },
         child: Text(l10n.t('chat')),
       );
-    } else if (job.status == 'completed') {
+    } else if (job.status == 'completed' && (job.selectedMasterUserId ?? '').isNotEmpty) {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final reviewed = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
-              builder: (_) => CreateReviewScreen(jobId: job.id),
+              builder: (_) => CreateReviewScreen(
+                jobId: job.id,
+                masterUserId: job.selectedMasterUserId!,
+              ),
             ),
           );
 
@@ -145,6 +148,10 @@ class ClientJobDetailsScreen extends StatelessWidget {
                     Text('Master: ${job.selectedMasterName}'),
                   ],
                   if (job.selectedOfferPrice != null) ...[
+                  if (job.status == 'completed') ...[
+                    const SizedBox(height: 8),
+                    const Text('Review: submitted'),
+                  ],
                     const SizedBox(height: 8),
                     Text(
                       'Selected price: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB',

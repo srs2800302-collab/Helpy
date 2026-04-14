@@ -69,6 +69,7 @@ class ReviewsController extends StateNotifier<ReviewsState> {
 
   Future<bool> createReview({
     required String jobId,
+    required String masterUserId,
   }) async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
@@ -85,10 +86,12 @@ class ReviewsController extends StateNotifier<ReviewsState> {
     try {
       await ref.read(reviewsApiProvider).createReview(
             jobId: jobId,
-            clientUserId: session.userId,
+            masterUserId: masterUserId,
             rating: state.rating,
             comment: state.comment.trim().isEmpty ? null : state.comment.trim(),
           );
+
+      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
 
       state = state.copyWith(
         isSubmitting: false,
