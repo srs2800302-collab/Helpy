@@ -20,11 +20,13 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   late String _currentStatus;
+  late final TextEditingController _textController;
 
   @override
   void initState() {
     super.initState();
     _currentStatus = widget.jobStatus;
+    _textController = TextEditingController();
 
     Future.microtask(() {
       ref.read(chatControllerProvider.notifier).init(widget.jobId);
@@ -33,6 +35,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void dispose() {
+    _textController.dispose();
     ref.read(chatControllerProvider.notifier).disposePolling();
     super.dispose();
   }
@@ -52,6 +55,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       setState(() {
         _currentStatus = 'in_progress';
       });
+
+      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -82,6 +89,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _currentStatus = 'completed';
       });
 
+      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context).t('job_completed')),
@@ -95,11 +106,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
+  Future<void> _sendMessage() async {
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
+
+    await ref.read(chatControllerProvider.notifier).send(widget.jobId);
+
+    if (!mounted) return;
+
+    final error = ref.read(chatControllerProvider).errorMessage;
+    if (error == null) {
+      _textController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(chatControllerProvider);
     final controller = ref.read(chatControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+
+    final canSend = state.input.trim().isNotEmpty && !state.isLoading;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.t('chat'))),
@@ -159,6 +186,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: _textController,
                       onChanged: controller.setInput,
                       decoration: InputDecoration(
                         hintText: l10n.t('message_hint'),
@@ -168,7 +196,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    onPressed: () => controller.send(widget.jobId),
+                    onPressed: canSend ? _sendMessage : null,
                     icon: const Icon(Icons.send),
                   ),
                 ],
