@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../reviews/domain/review_summary.dart';
 
 class JobOffersScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -92,40 +93,63 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
-                            final canSelect = item.status == 'active' && !state.isSubmitting;
+                            final canSelect =
+                                item.status == 'active' && !state.isSubmitting;
 
                             return Card(
-                              child: ListTile(
-                                title: Text('${item.masterName} — ${item.price.toStringAsFixed(0)} THB'),
-                                subtitle: Text(
-                                  '${item.status}\n${item.priceComment ?? ''}',
-                                ),
-                                isThreeLine: true,
-                                trailing: ElevatedButton(
-                                  onPressed: canSelect
-                                      ? () async {
-                                          final ok = await controller.selectOffer(
-                                            jobId: widget.jobId,
-                                            offerId: item.id,
-                                          );
-                                          if (ok && context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text(l10n.t('master_selected')),
+                              child: FutureBuilder<ReviewSummary>(
+                                future: ref
+                                    .read(reviewsApiProvider)
+                                    .getMasterSummary(item.masterUserId),
+                                builder: (context, snapshot) {
+                                  String ratingLine = 'No reviews yet';
+
+                                  if (snapshot.hasData) {
+                                    final summary = snapshot.data!;
+                                    if (summary.reviewsCount > 0 &&
+                                        summary.avgRating != null) {
+                                      ratingLine =
+                                          '⭐ ${summary.avgRating!.toStringAsFixed(1)} · ${summary.reviewsCount} reviews';
+                                    }
+                                  }
+
+                                  return ListTile(
+                                    title: Text(
+                                      '${item.masterName} — ${item.price.toStringAsFixed(0)} THB',
+                                    ),
+                                    subtitle: Text(
+                                      '${item.status}\n$ratingLine\n${item.priceComment ?? ''}',
+                                    ),
+                                    isThreeLine: true,
+                                    trailing: ElevatedButton(
+                                      onPressed: canSelect
+                                          ? () async {
+                                              final ok = await controller.selectOffer(
+                                                jobId: widget.jobId,
+                                                offerId: item.id,
+                                              );
+                                              if (ok && context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(l10n.t('master_selected')),
+                                                  ),
+                                                );
+                                                Navigator.of(context).pop(true);
+                                              }
+                                            }
+                                          : null,
+                                      child: state.isSubmitting
+                                          ? const SizedBox(
+                                              height: 18,
+                                              width: 18,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
                                               ),
-                                            );
-                                            Navigator.of(context).pop(true);
-                                          }
-                                        }
-                                      : null,
-                                  child: state.isSubmitting
-                                      ? const SizedBox(
-                                          height: 18,
-                                          width: 18,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        )
-                                      : Text(l10n.t('select_master')),
-                                ),
+                                            )
+                                          : Text(l10n.t('select_master')),
+                                    ),
+                                  );
+                                },
                               ),
                             );
                           },
