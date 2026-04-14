@@ -224,3 +224,33 @@ export async function createReview(jobId: string, request: Request, env: any) {
     },
   });
 }
+
+export async function getMasterSummary(masterUserId: string, request: Request, env: any) {
+  await ensureReviewsSchema(env);
+
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const result = await env.DB.prepare(
+    `SELECT
+       COUNT(*) as reviewsCount,
+       AVG(rating) as avgRating
+     FROM reviews
+     WHERE master_user_id = ?1`
+  )
+    .bind(masterUserId)
+    .first();
+
+  return Response.json({
+    success: true,
+    data: {
+      masterUserId,
+      reviewsCount: Number(result?.reviewsCount ?? 0),
+      avgRating: result?.avgRating !== null && result?.avgRating !== undefined
+        ? Number(result.avgRating)
+        : null,
+    },
+  });
+}

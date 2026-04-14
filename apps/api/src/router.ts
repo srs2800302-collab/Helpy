@@ -1,7 +1,7 @@
 import { createJob, getJobById, getJobs, getJobsByUser, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
-import { createReview, getReviews } from './reviews';
+import { createReview, getMasterSummary, getReviews } from './reviews';
 import { completeJob } from './complete-job';
 import { cancelJob } from './cancel-job';
 import { createDispute, getDispute, resolveDispute } from './disputes';
@@ -48,6 +48,19 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/api/v1/users' && method === 'POST') {
     return createUser(request, env);
+  }
+
+  if (
+    parts.length === 6 &&
+    parts[0] === 'api' &&
+    parts[1] === 'v1' &&
+    parts[2] === 'reviews' &&
+    parts[3] === 'master' &&
+    parts[4] &&
+    parts[5] === 'summary' &&
+    method === 'GET'
+  ) {
+    return getMasterSummary(parts[4], request, env);
   }
 
   if (parts[0] === 'api' && parts[1] === 'v1' && parts[2] === 'users' && parts[3]) {
