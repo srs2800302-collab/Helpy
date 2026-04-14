@@ -31,11 +31,13 @@ jobs:
         with:
           channel: stable
 
-      - name: Flutter version
-        run: flutter --version
-
       - name: Flutter pub get
         run: flutter pub get
+
+      # 🔥 ВАЖНО: создаём .env
+      - name: Create .env
+        run: |
+          echo "API_BASE_URL=https://fixi-edge-api.srs2800302.workers.dev/api/v1" > .env
 
       - name: Build debug APK
         run: flutter build apk --debug
