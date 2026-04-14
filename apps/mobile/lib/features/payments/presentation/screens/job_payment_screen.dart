@@ -9,12 +9,14 @@ class JobPaymentScreen extends ConsumerStatefulWidget {
   final String jobId;
   final String jobTitle;
   final double depositAmount;
+  final double? price;
 
   const JobPaymentScreen({
     super.key,
     required this.jobId,
     required this.jobTitle,
     required this.depositAmount,
+    this.price,
   });
 
   @override
@@ -82,6 +84,9 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
+    final price = widget.price;
+    final depositPercent =
+        (price != null && price > 0) ? (widget.depositAmount / price * 100) : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -90,6 +95,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Card(
               child: Padding(
@@ -104,8 +110,21 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    if (price != null) ...[
+                      const SizedBox(height: 12),
+                      Text('Total price: ${price.toStringAsFixed(0)} THB'),
+                    ],
                     const SizedBox(height: 12),
-                    Text('THB $amountLabel'),
+                    Text('Deposit: THB $amountLabel'),
+                    if (depositPercent != null) ...[
+                      const SizedBox(height: 8),
+                      Text('Platform fee: ${depositPercent.toStringAsFixed(0)}%'),
+                    ],
+                    const SizedBox(height: 12),
+                    const Text(
+                      'This payment is the platform fee. The remaining amount is paid directly to the master.',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ],
                 ),
               ),
