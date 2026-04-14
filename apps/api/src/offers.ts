@@ -9,7 +9,7 @@ function fail(error: string, status = 400) {
   return Response.json({ success: false, error }, { status });
 }
 
-async function ensureOffersSchema(env: any) {
+export async function ensureOffersSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS offers (
       id TEXT PRIMARY KEY,

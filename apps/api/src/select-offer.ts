@@ -2,20 +2,7 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { fail } from './response';
-
-async function ensureOffersSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS offers (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      master_user_id TEXT NOT NULL,
-      master_name TEXT NOT NULL,
-      price REAL NOT NULL,
-      comment TEXT,
-      created_at TEXT NOT NULL
-    )`
-  ).run();
-}
+import { ensureOffersSchema } from './offers';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
