@@ -26,6 +26,8 @@ class JobsApi {
             ? 'Pattaya'
             : addressText.trim(),
         'budget_type': 'fixed',
+        'budget_from': 1000,
+        'price': 1000,
         'currency': 'THB',
       },
     );
@@ -56,6 +58,8 @@ class JobsApi {
       status: json['status'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
+      price: double.tryParse(json['price']?.toString() ?? ''),
+      depositAmount: double.tryParse(json['deposit_amount']?.toString() ?? ''),
       selectedMasterName: json['selected_master_name'] as String?,
       selectedMasterUserId: json['selected_master_user_id'] as String?,
       selectedOfferId: json['selected_offer_id'] as String?,

@@ -8,11 +8,13 @@ import '../../../../core/localization/app_localizations.dart';
 class JobPaymentScreen extends ConsumerStatefulWidget {
   final String jobId;
   final String jobTitle;
+  final double depositAmount;
 
   const JobPaymentScreen({
     super.key,
     required this.jobId,
     required this.jobTitle,
+    required this.depositAmount,
   });
 
   @override
@@ -22,8 +24,6 @@ class JobPaymentScreen extends ConsumerStatefulWidget {
 class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   bool _isPaying = false;
   String? _errorMessage;
-
-  static const double _stubDepositAmount = 100;
 
   Future<void> _payDeposit() async {
     final session = ref.read(authControllerProvider).session;
@@ -45,7 +45,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
       final payment = await paymentsApi.createDeposit(
         jobId: widget.jobId,
         userId: session.userId,
-        amount: _stubDepositAmount,
+        amount: widget.depositAmount,
         currency: 'THB',
         provider: 'stub_mobile',
       );
@@ -81,6 +81,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final amountLabel = widget.depositAmount.toStringAsFixed(0);
 
     return Scaffold(
       appBar: AppBar(
@@ -104,7 +105,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Text('THB 100'),
+                    Text('THB $amountLabel'),
                   ],
                 ),
               ),

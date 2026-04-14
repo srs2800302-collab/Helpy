@@ -8,6 +8,8 @@ class JobItem {
   final String? addressText;
   final String status;
   final DateTime createdAt;
+  final double? price;
+  final double? depositAmount;
   final String? selectedMasterName;
   final String? selectedMasterUserId;
   final String? selectedOfferId;
@@ -23,6 +25,8 @@ class JobItem {
     required this.addressText,
     required this.status,
     required this.createdAt,
+    required this.price,
+    required this.depositAmount,
     required this.selectedMasterName,
     required this.selectedMasterUserId,
     required this.selectedOfferId,

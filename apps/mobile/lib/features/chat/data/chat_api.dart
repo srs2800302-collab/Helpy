@@ -1,5 +1,6 @@
 import '../../../core/network/api_client.dart';
 import '../domain/chat_message.dart';
+import 'package:dio/dio.dart';
 
 class ChatApi {
   final ApiClient apiClient;

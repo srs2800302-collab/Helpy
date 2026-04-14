@@ -21,7 +21,7 @@ class ClientJobDetailsScreen extends StatelessWidget {
 
     Widget? primaryAction;
 
-    if (job.status == 'draft') {
+    if (job.status == 'draft' || job.status == 'awaiting_payment') {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final paid = await Navigator.of(context).push<bool>(
@@ -29,6 +29,7 @@ class ClientJobDetailsScreen extends StatelessWidget {
               builder: (_) => JobPaymentScreen(
                 jobId: job.id,
                 jobTitle: job.title,
+                depositAmount: job.depositAmount ?? 0,
               ),
             ),
           );
@@ -131,13 +132,23 @@ class ClientJobDetailsScreen extends StatelessWidget {
                   Text('Status: ${job.status}'),
                   const SizedBox(height: 8),
                   Text('Created: ${job.createdAt.toLocal()}'),
+                  if (job.price != null) ...[
+                    const SizedBox(height: 8),
+                    Text('Price: ${job.price!.toStringAsFixed(0)} THB'),
+                  ],
+                  if (job.depositAmount != null) ...[
+                    const SizedBox(height: 8),
+                    Text('Deposit: ${job.depositAmount!.toStringAsFixed(0)} THB'),
+                  ],
                   if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text('Master: ${job.selectedMasterName}'),
                   ],
                   if (job.selectedOfferPrice != null) ...[
                     const SizedBox(height: 8),
-                    Text('Selected price: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
+                    Text(
+                      'Selected price: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB',
+                    ),
                   ],
                 ],
               ),

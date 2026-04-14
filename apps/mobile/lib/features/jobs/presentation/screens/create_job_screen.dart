@@ -57,7 +57,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               items: categoriesState.items
                   .map(
                     (item) => DropdownMenuItem<String>(
-                      value: item.id,
+                      value: item.slug,
                       child: Text(item.slug),
                     ),
                   )
@@ -140,6 +140,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                               builder: (_) => JobPaymentScreen(
                                 jobId: job.id,
                                 jobTitle: job.title,
+                                depositAmount: job.depositAmount ?? 0,
                               ),
                             ),
                           );
