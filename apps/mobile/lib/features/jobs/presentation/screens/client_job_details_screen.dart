@@ -141,25 +141,25 @@ class ClientJobDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text('${l10n.t('categories')}: ${mapCategory(job.categorySlug)}'),
                   const SizedBox(height: 8),
-                  Text('Status: ${mapJobStatus(job.status)}'),
+                  Text('${l10n.t('status_label')}: ${mapJobStatus(job.status)}'),
                   const SizedBox(height: 8),
-                  Text('Created: ${job.createdAt.toLocal()}'),
+                  Text('${l10n.t('created_label')}: ${job.createdAt.toLocal()}'),
                   if (job.price != null) ...[
                     const SizedBox(height: 8),
-                    Text('Price: ${job.price!.toStringAsFixed(0)} THB'),
+                    Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
                   ],
                   if (job.depositAmount != null) ...[
                     const SizedBox(height: 8),
-                    Text('Deposit: ${job.depositAmount!.toStringAsFixed(0)} THB'),
+                    Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
                   ],
                   if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    Text('Master: ${job.selectedMasterName}'),
+                    Text('${l10n.t('master_label')}: ${job.selectedMasterName}'),
                   ],
                   if (job.selectedOfferPrice != null) ...[
                   if (job.hasReview == true) ...[
                     const SizedBox(height: 8),
-                    const Text('Review: submitted'),
+                    Text(l10n.t('review_submitted')),
                   ],
                     const SizedBox(height: 8),
                     Text(

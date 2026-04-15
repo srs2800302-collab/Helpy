@@ -112,13 +112,13 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                     ),
                     if (price != null) ...[
                       const SizedBox(height: 12),
-                      Text('Total price: ${price.toStringAsFixed(0)} THB'),
+                      Text('${l10n.t('total_price')}: ${price.toStringAsFixed(0)} THB'),
                     ],
                     const SizedBox(height: 12),
-                    Text('Deposit: THB $amountLabel'),
+                    Text('${l10n.t('deposit_label')}: THB $amountLabel'),
                     if (depositPercent != null) ...[
                       const SizedBox(height: 8),
-                      Text('Platform fee: ${depositPercent.toStringAsFixed(0)}%'),
+                      Text('${l10n.t('platform_fee')}: ${depositPercent.toStringAsFixed(0)}%'),
                     ],
                     const SizedBox(height: 12),
                     const Text(

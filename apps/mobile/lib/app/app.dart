@@ -47,9 +47,12 @@ class _FixiAppState extends ConsumerState<FixiApp> {
 
   @override
   Widget build(BuildContext context) {
+    final currentLocale = ref.watch(currentLocaleProvider);
+
     return MaterialApp.router(
       title: 'Fixi',
       theme: buildAppTheme(),
+      locale: currentLocale,
       routerConfig: router,
       supportedLocales: const [
         Locale('ru'),

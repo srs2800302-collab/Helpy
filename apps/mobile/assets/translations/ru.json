@@ -58,5 +58,20 @@
   "validation_otp_invalid": "Введите 6-значный код",
   "deposit_payment": "Оплата депозита",
   "pay_deposit": "Оплатить депозит",
-  "payment_successful": "Оплата прошла успешно"
+  "payment_successful": "Оплата прошла успешно",
+  "language": "Язык",
+  "russian": "Русский",
+  "english": "English",
+  "thai": "ไทย",
+  "user_id": "ID пользователя",
+  "phone_label": "Телефон",
+  "role_label": "Роль",
+  "status_label": "Статус",
+  "created_label": "Создан",
+  "price_label": "Цена",
+  "deposit_label": "Депозит",
+  "master_label": "Мастер",
+  "review_submitted": "Отзыв отправлен",
+  "total_price": "Полная цена",
+  "platform_fee": "Комиссия платформы"
 }

@@ -58,5 +58,20 @@
   "validation_otp_invalid": "กรอกรหัส 6 หลัก",
   "deposit_payment": "ชำระเงินมัดจำ",
   "pay_deposit": "ชำระเงินมัดจำ",
-  "payment_successful": "ชำระเงินสำเร็จ"
+  "payment_successful": "ชำระเงินสำเร็จ",
+  "language": "ภาษา",
+  "russian": "Русский",
+  "english": "English",
+  "thai": "ไทย",
+  "user_id": "รหัสผู้ใช้",
+  "phone_label": "โทรศัพท์",
+  "role_label": "บทบาท",
+  "status_label": "สถานะ",
+  "created_label": "สร้างเมื่อ",
+  "price_label": "ราคา",
+  "deposit_label": "มัดจำ",
+  "master_label": "ช่าง",
+  "review_submitted": "ส่งรีวิวแล้ว",
+  "total_price": "ราคารวม",
+  "platform_fee": "ค่าคอมมิชชันแพลตฟอร์ม"
 }

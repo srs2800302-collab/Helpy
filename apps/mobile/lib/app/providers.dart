@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/config/app_config.dart';
@@ -45,6 +46,10 @@ final tokenStorageProvider = Provider<TokenStorage>((ref) {
 
 final sessionExpiredTickProvider = StateProvider<int>((ref) {
   return 0;
+});
+
+final currentLocaleProvider = StateProvider<Locale>((ref) {
+  return const Locale('ru');
 });
 
 final apiClientProvider = Provider<ApiClient>((ref) {

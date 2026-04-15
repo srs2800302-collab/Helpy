@@ -47,6 +47,27 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
       appBar: AppBar(
         title: Text(l10n.t('master_home_title')),
         actions: [
+          PopupMenuButton<String>(
+            tooltip: l10n.t('language'),
+            onSelected: (value) {
+              final locale = switch (value) {
+                'ru' => const Locale('ru'),
+                'en' => const Locale('en'),
+                'th' => const Locale('th'),
+                _ => const Locale('ru'),
+              };
+              ref.read(currentLocaleProvider.notifier).state = locale;
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'ru', child: Text(l10n.t('russian'))),
+              PopupMenuItem(value: 'en', child: Text(l10n.t('english'))),
+              PopupMenuItem(value: 'th', child: Text(l10n.t('thai'))),
+            ],
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Icon(Icons.language),
+            ),
+          ),
           IconButton(
             onPressed: isRefreshing ? null : _refreshAll,
             icon: const Icon(Icons.refresh),
@@ -73,11 +94,11 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text('User ID: ${authState.session?.userId ?? '-'}'),
+                    Text('${l10n.t('user_id')}: ${authState.session?.userId ?? '-'}'),
                     const SizedBox(height: 6),
-                    Text('Phone: ${authState.session?.phone ?? '-'}'),
+                    Text('${l10n.t('phone_label')}: ${authState.session?.phone ?? '-'}'),
                     const SizedBox(height: 6),
-                    Text('Role: ${authState.session?.role?.name ?? 'null'}'),
+                    Text('${l10n.t('role_label')}: ${authState.session?.role?.name ?? 'null'}'),
                   ],
                 ),
               ),
