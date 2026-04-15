@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../config/app_config.dart';
 import '../storage/token_storage.dart';
@@ -54,7 +55,7 @@ class ApiClient {
               DioException(
                 requestOptions: response.requestOptions,
                 response: response,
-                message: data['error']?['message']?.toString() ?? 'Unknown error',
+                message: data['error']?.toString() ?? 'Unknown error',
                 type: DioExceptionType.badResponse,
               ),
             );
@@ -68,6 +69,14 @@ class ApiClient {
           final requestOptions = error.requestOptions;
           final alreadyRetried = requestOptions.extra['retried'] == true;
           final isRefreshCall = requestOptions.path.contains('/auth/refresh');
+          final currentToken = await _tokenStorage.getAccessToken();
+          final isDebugToken =
+              kDebugMode && (currentToken?.startsWith('debug_') ?? false);
+
+          if (isDebugToken && (statusCode == 401 || statusCode == 403)) {
+            handler.next(error);
+            return;
+          }
 
           if (statusCode == 401 && !alreadyRetried && !isRefreshCall) {
             final refreshed = await _tryRefreshTokens();
