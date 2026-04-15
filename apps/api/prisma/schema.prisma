@@ -7,299 +7,149 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
+enum JobPaymentMethod {
+  card
+  cash
+}
+
+enum CommissionPayerRole {
   client
   master
-  admin
 }
 
-enum OtpSessionStatus {
-  pending
-  verified
-  expired
-  cancelled
-}
-
-enum MasterVerificationStatus {
-  pending
-  approved
-  rejected
+enum SavedPaymentMethodStatus {
+  active
+  detached
+  failed
   blocked
 }
 
-enum JobStatus {
-  draft
-  awaiting_payment
-  open
-  master_selected
-  in_progress
-  completed
-  cancelled
-  disputed
-}
-
-enum JobOfferStatus {
-  active
-  withdrawn
-  accepted
-  rejected
-}
-
-enum PaymentStatus {
-  pending
-  paid
-  failed
-  refunded
-  cancelled
-}
-
-enum PaymentType {
+enum PaymentKind {
   deposit
   refund
 }
 
-enum DisputeStatus {
-  open
-  in_review
-  resolved
-  rejected
+enum PaymentSource {
+  client_card
+  master_card
+}
+
+enum PaymentStatus {
+  pending
+  requires_action
+  paid
+  failed
+  refunded
 }
 
 model User {
-  id                 String         @id @default(cuid())
-  phone              String         @unique
-  role               UserRole?
-  isActive           Boolean        @default(true)
-  isPhoneVerified    Boolean        @default(false)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  id        String   @id @default(cuid())
+  phone     String?  @unique
+  email     String?  @unique
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  clientProfile      ClientProfile?
-  masterProfile      MasterProfile?
-  otpSessions        OtpSession[]
-
-  clientJobs         Job[]          @relation("ClientJobs")
-  masterOffers       JobOffer[]     @relation("MasterOffers")
-  sentMessages       ChatMessage[]  @relation("SenderMessages")
-  clientReviews      Review[]       @relation("ClientReviews")
-  masterReviews      Review[]       @relation("MasterReviews")
-  openedDisputes     Dispute[]      @relation("OpenedDisputes")
-
-  @@map("users")
+  clientJobs      Job[]            @relation("ClientJobs")
+  paymentCustomer PaymentCustomer?
+  paymentMethods  PaymentMethod[]
+  payerPayments   Payment[]        @relation("PaymentPayerUser")
+  masterProfile   MasterProfile?
 }
 
-model ClientProfile {
-  id                 String    @id @default(cuid())
-  userId             String    @unique
-  firstName          String?
-  lastName           String?
-  displayName        String?
-  photoUrl           String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+model PaymentCustomer {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  provider           String
+  providerCustomerId String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  user               User      @relation(fields: [userId], references: [id])
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentMethods PaymentMethod[]
 
-  @@map("client_profiles")
+  @@index([provider, providerCustomerId])
 }
 
-model MasterProfile {
-  id                   String                     @id @default(cuid())
-  userId               String                     @unique
-  firstName            String?
-  lastName             String?
-  displayName          String?
-  photoUrl             String?
-  bio                  String?
-  verificationStatus   MasterVerificationStatus   @default(pending)
-  isAvailable          Boolean                    @default(true)
-  createdAt            DateTime                   @default(now())
-  updatedAt            DateTime                   @updatedAt
+model PaymentMethod {
+  id                      String                   @id @default(cuid())
+  userId                  String
+  paymentCustomerId       String?
+  provider                String
+  providerPaymentMethodId String
+  type                    String                   @default("card")
+  brand                   String?
+  last4                   String?
+  expMonth                Int?
+  expYear                 Int?
+  isDefault               Boolean                  @default(false)
+  status                  SavedPaymentMethodStatus @default(active)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
 
-  user                 User                       @relation(fields: [userId], references: [id])
-  categories           MasterCategory[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentCustomer PaymentCustomer? @relation(fields: [paymentCustomerId], references: [id], onDelete: SetNull)
+  payments        Payment[]
 
-  @@map("master_profiles")
-}
-
-model ServiceCategory {
-  id                 String           @id @default(cuid())
-  slug               String           @unique
-  isActive           Boolean          @default(true)
-  sortOrder          Int              @default(0)
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-
-  masterCategories   MasterCategory[]
-  jobs               Job[]
-
-  @@map("service_categories")
-}
-
-model MasterCategory {
-  id                 String           @id @default(cuid())
-  masterProfileId    String
-  categoryId         String
-  createdAt          DateTime         @default(now())
-
-  masterProfile      MasterProfile    @relation(fields: [masterProfileId], references: [id])
-  category           ServiceCategory  @relation(fields: [categoryId], references: [id])
-
-  @@unique([masterProfileId, categoryId])
-  @@map("master_categories")
+  @@index([userId, status])
+  @@index([provider, providerPaymentMethodId])
 }
 
 model Job {
-  id                    String           @id @default(cuid())
-  clientUserId          String
-  categoryId            String
-  title                 String
-  description           String?
-  addressText           String?
-  locationLat           Decimal?         @db.Decimal(10, 7)
-  locationLng           Decimal?         @db.Decimal(10, 7)
-  status                JobStatus        @default(draft)
-  selectedOfferId       String?          @unique
-  selectedMasterUserId  String?
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
-  completedAt           DateTime?
-  cancelledAt           DateTime?
+  id              String              @id @default(cuid())
+  clientId        String
+  title           String
+  description     String?
+  totalPrice      Decimal             @db.Decimal(12, 2)
+  currency        String              @default("THB")
+  status          String
+  paymentMethod   JobPaymentMethod    @default(card)
+  commissionPayer CommissionPayerRole
+  depositPercent  Int                 @default(40)
+  depositAmount   Decimal             @db.Decimal(12, 2)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
-  client                User             @relation("ClientJobs", fields: [clientUserId], references: [id])
-  category              ServiceCategory  @relation(fields: [categoryId], references: [id])
-  photos                JobPhoto[]
-  offers                JobOffer[]
-  messages              ChatMessage[]
-  payments              Payment[]
-  reviews               Review[]
-  disputes              Dispute[]
+  client   User      @relation("ClientJobs", fields: [clientId], references: [id], onDelete: Cascade)
+  payments Payment[]
 
-  @@index([clientUserId, status])
-  @@index([categoryId, status])
-  @@index([selectedMasterUserId])
-  @@map("jobs")
-}
-
-model JobPhoto {
-  id                 String     @id @default(cuid())
-  jobId              String
-  url                String
-  sortOrder          Int        @default(0)
-  createdAt          DateTime   @default(now())
-
-  job                Job        @relation(fields: [jobId], references: [id])
-
-  @@map("job_photos")
-}
-
-model JobOffer {
-  id                 String          @id @default(cuid())
-  jobId              String
-  masterUserId       String
-  message            String?
-  priceComment       String?
-  status             JobOfferStatus  @default(active)
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-
-  job                Job             @relation(fields: [jobId], references: [id])
-  master             User            @relation("MasterOffers", fields: [masterUserId], references: [id])
-
-  @@unique([jobId, masterUserId])
-  @@index([jobId, status])
-  @@index([masterUserId, status])
-  @@map("job_offers")
-}
-
-model ChatMessage {
-  id                 String     @id @default(cuid())
-  jobId              String
-  senderUserId       String
-  text               String
-  createdAt          DateTime   @default(now())
-
-  job                Job        @relation(fields: [jobId], references: [id])
-  sender             User       @relation("SenderMessages", fields: [senderUserId], references: [id])
-
-  @@index([jobId, createdAt])
-  @@map("chat_messages")
+  @@index([clientId, status])
+  @@index([paymentMethod, status])
 }
 
 model Payment {
-  id                 String         @id @default(cuid())
-  jobId              String
-  userId             String
-  type               PaymentType
-  status             PaymentStatus  @default(pending)
-  amount             Decimal        @db.Decimal(10, 2)
-  currency           String         @default("THB")
-  provider           String?
-  providerRef        String?
-  paidAt             DateTime?
-  refundedAt         DateTime?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  id              String              @id @default(cuid())
+  jobId           String
+  payerUserId     String
+  paymentMethodId String?
+  provider        String
+  providerRef     String?
+  payerRole       CommissionPayerRole
+  kind            PaymentKind
+  source          PaymentSource
+  status          PaymentStatus       @default(pending)
+  amount          Decimal             @db.Decimal(12, 2)
+  currency        String              @default("THB")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
-  job                Job            @relation(fields: [jobId], references: [id])
-
-  @@index([jobId, status])
-  @@index([userId, status])
-  @@map("payments")
-}
-
-model Review {
-  id                 String     @id @default(cuid())
-  jobId              String
-  clientUserId       String
-  masterUserId       String
-  rating             Int
-  comment            String?
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
-
-  job                Job        @relation(fields: [jobId], references: [id])
-  client             User       @relation("ClientReviews", fields: [clientUserId], references: [id])
-  master             User       @relation("MasterReviews", fields: [masterUserId], references: [id])
-
-  @@unique([jobId])
-  @@index([masterUserId, rating])
-  @@map("reviews")
-}
-
-model Dispute {
-  id                 String         @id @default(cuid())
-  jobId              String
-  openedByUserId     String
-  status             DisputeStatus  @default(open)
-  reason             String
-  resolutionNote     String?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  resolvedAt         DateTime?
-
-  job                Job            @relation(fields: [jobId], references: [id])
-  openedBy           User           @relation("OpenedDisputes", fields: [openedByUserId], references: [id])
+  job           Job            @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  payerUser     User           @relation("PaymentPayerUser", fields: [payerUserId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
 
   @@index([jobId, status])
-  @@map("disputes")
+  @@index([payerUserId, status])
+  @@index([paymentMethodId])
 }
 
-model OtpSession {
-  id                 String            @id @default(cuid())
-  phone              String
-  code               String
-  status             OtpSessionStatus  @default(pending)
-  expiresAt          DateTime
-  verifiedAt         DateTime?
-  attemptsCount      Int               @default(0)
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  userId             String?
+model MasterProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  hasBillingMethod Boolean  @default(false)
+  billingStatus    String   @default("missing")
+  cashJobsEnabled  Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  user               User?             @relation(fields: [userId], references: [id])
-
-  @@index([phone, status])
-  @@index([expiresAt])
-  @@map("otp_sessions")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -1,7 +1,6 @@
 import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
-
-const PLATFORM_FEE_PERCENT = 0.40;
+import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
 
 type CreateJobBody = {
   title?: string;
@@ -13,16 +12,13 @@ type CreateJobBody = {
   budget_to?: number | null;
   currency?: string;
   price?: number | null;
+  payment_method?: JobPaymentMethod;
 };
 
 function normalizeNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
-}
-
-function calculateDeposit(price: number) {
-  return Math.round(price * PLATFORM_FEE_PERCENT);
 }
 
 async function withHasReview(row: any, env: any) {
@@ -60,6 +56,9 @@ export async function ensureJobsSchema(env: any) {
     ['selected_offer_id', 'ALTER TABLE jobs ADD COLUMN selected_offer_id TEXT'],
     ['selected_offer_price', 'ALTER TABLE jobs ADD COLUMN selected_offer_price REAL'],
     ['deposit_amount', 'ALTER TABLE jobs ADD COLUMN deposit_amount REAL'],
+    ['payment_method', "ALTER TABLE jobs ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'card'"],
+    ['commission_payer', "ALTER TABLE jobs ADD COLUMN commission_payer TEXT NOT NULL DEFAULT 'client'"],
+    ['deposit_percent', 'ALTER TABLE jobs ADD COLUMN deposit_percent INTEGER NOT NULL DEFAULT 40'],
   ];
 
   for (const [name, sql] of patches) {
@@ -181,6 +180,15 @@ export async function createJob(request: Request, env: any) {
     );
   }
 
+  const paymentMethod = body.payment_method ?? 'card';
+
+  if (paymentMethod !== 'card' && paymentMethod !== 'cash') {
+    return Response.json(
+      { success: false, error: 'payment_method must be card or cash' },
+      { status: 400 }
+    );
+  }
+
   const budgetFrom = normalizeNumber(body.budget_from);
   const budgetTo = normalizeNumber(body.budget_to);
   const price =
@@ -197,7 +205,9 @@ export async function createJob(request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const depositAmount = calculateDeposit(price);
+  const paymentTerms = buildPaymentTerms(price, paymentMethod);
+  const initialStatus =
+    paymentMethod === 'cash' ? JOB_STATUS.open : JOB_STATUS.awaiting_payment;
 
   await env.DB.prepare(
     `INSERT INTO jobs (
@@ -215,15 +225,18 @@ export async function createJob(request: Request, env: any) {
       budget_from,
       budget_to,
       currency,
-      deposit_amount
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)`
+      deposit_amount,
+      payment_method,
+      commission_payer,
+      deposit_percent
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)`
   )
     .bind(
       id,
       body.title.trim(),
       price,
       body.category,
-      JOB_STATUS.awaiting_payment,
+      initialStatus,
       now,
       now,
       clientUserId,
@@ -233,7 +246,10 @@ export async function createJob(request: Request, env: any) {
       budgetFrom,
       budgetTo,
       body.currency || 'THB',
-      depositAmount
+      paymentTerms.depositAmount,
+      paymentTerms.paymentMethod,
+      paymentTerms.commissionPayer,
+      paymentTerms.depositPercent
     )
     .run();
 
