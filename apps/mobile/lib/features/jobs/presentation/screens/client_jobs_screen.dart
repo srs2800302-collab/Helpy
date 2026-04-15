@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/utils/category_mapper.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 import 'client_job_details_screen.dart';
 
 class ClientJobsScreen extends ConsumerStatefulWidget {
@@ -26,6 +26,50 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
     await ref.read(jobsControllerProvider.notifier).loadClientJobs();
   }
 
+  String _categoryLabel(AppLocalizations l10n, String slug) {
+    switch (slug) {
+      case 'cleaning':
+        return l10n.t('category_cleaning');
+      case 'handyman':
+        return l10n.t('category_handyman');
+      case 'plumbing':
+        return l10n.t('category_plumbing');
+      case 'electrical':
+        return l10n.t('category_electrical');
+      case 'locks':
+        return l10n.t('category_locks');
+      case 'aircon':
+        return l10n.t('category_aircon');
+      case 'furniture_assembly':
+        return l10n.t('category_furniture_assembly');
+      default:
+        return slug;
+    }
+  }
+
+  String _statusLabel(AppLocalizations l10n, String status) {
+    switch (status) {
+      case 'draft':
+        return l10n.t('status_draft');
+      case 'awaiting_payment':
+        return l10n.t('status_awaiting_payment');
+      case 'open':
+        return l10n.t('status_open');
+      case 'master_selected':
+        return l10n.t('status_master_selected');
+      case 'in_progress':
+        return l10n.t('status_in_progress');
+      case 'completed':
+        return l10n.t('status_completed');
+      case 'cancelled':
+        return l10n.t('status_cancelled');
+      case 'disputed':
+        return l10n.t('status_disputed');
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -37,6 +81,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
       appBar: AppBar(
         title: Text(l10n.t('my_jobs')),
         actions: [
+          const AppLanguageMenuButton(),
           IconButton(
             onPressed: state.isLoading ? null : _refresh,
             icon: const Icon(Icons.refresh),
@@ -49,9 +94,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: isInitialLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? const Center(child: CircularProgressIndicator())
               : state.errorMessage != null && state.items.isEmpty
                   ? ListView(
                       children: [
@@ -94,7 +137,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                               child: ListTile(
                                 title: Text(item.title),
                                 subtitle: Text(
-                                  '${mapCategory(item.categorySlug)} • ${item.status}\n${item.addressText ?? ''}',
+                                  '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${item.addressText ?? ''}',
                                 ),
                                 isThreeLine: true,
                                 trailing: const Icon(Icons.chevron_right),
