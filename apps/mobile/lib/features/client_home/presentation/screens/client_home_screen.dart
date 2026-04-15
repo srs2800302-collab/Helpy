@@ -74,7 +74,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   }
 
   String _roleLabel(AppLocalizations l10n, dynamic role) {
-    final value = role?.name?.toString();
+    final value = role?.toString()?.toString();
     switch (value) {
       case 'client':
         return l10n.t('client');

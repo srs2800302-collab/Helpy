@@ -141,7 +141,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     const SizedBox(height: 6),
                     Text('${l10n.t('phone_label')}: ${authState.session?.phone ?? '-'}'),
                     const SizedBox(height: 6),
-                    Text('${l10n.t('role_label')}: ${authState.session?.role?.name == 'client' ? l10n.t('client') : authState.session?.role?.name == 'master' ? l10n.t('master') : authState.session?.role?.name ?? 'null'}'),
+                    Text('${l10n.t('role_label')}: ${authState.session?.role?.toString() == 'client' ? l10n.t('client') : authState.session?.role?.toString() == 'master' ? l10n.t('master') : authState.session?.role?.toString() ?? 'null'}'),
                   ],
                 ),
               ),
