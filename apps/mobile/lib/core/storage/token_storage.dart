@@ -17,13 +17,14 @@ class FileTokenStorage implements TokenStorage {
   final File _refreshTokenFile;
 
   FileTokenStorage({
-    String accessTokenPath = '.fixi_access_token',
-    String refreshTokenPath = '.fixi_refresh_token',
-  })  : _accessTokenFile = File(accessTokenPath),
-        _refreshTokenFile = File(refreshTokenPath);
+    String accessTokenPath = 'fixi_access_token',
+    String refreshTokenPath = 'fixi_refresh_token',
+  })  : _accessTokenFile = File('${Directory.systemTemp.path}/$accessTokenPath'),
+        _refreshTokenFile = File('${Directory.systemTemp.path}/$refreshTokenPath');
 
   @override
   Future<void> saveAccessToken(String token) async {
+    await _accessTokenFile.parent.create(recursive: true);
     await _accessTokenFile.writeAsString(token, flush: true);
   }
 
@@ -46,6 +47,7 @@ class FileTokenStorage implements TokenStorage {
 
   @override
   Future<void> saveRefreshToken(String token) async {
+    await _refreshTokenFile.parent.create(recursive: true);
     await _refreshTokenFile.writeAsString(token, flush: true);
   }
 
