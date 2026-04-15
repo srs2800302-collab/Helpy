@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
 
 class CreateJobScreen extends ConsumerStatefulWidget {
@@ -25,6 +26,27 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     });
   }
 
+  String _categoryLabel(AppLocalizations l10n, String slug) {
+    switch (slug) {
+      case 'cleaning':
+        return l10n.t('category_cleaning');
+      case 'handyman':
+        return l10n.t('category_handyman');
+      case 'plumbing':
+        return l10n.t('category_plumbing');
+      case 'electrical':
+        return l10n.t('category_electrical');
+      case 'locks':
+        return l10n.t('category_locks');
+      case 'aircon':
+        return l10n.t('category_aircon');
+      case 'furniture_assembly':
+        return l10n.t('category_furniture_assembly');
+      default:
+        return slug;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -43,6 +65,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('create_job')),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -58,12 +83,11 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   .map(
                     (item) => DropdownMenuItem<String>(
                       value: item.slug,
-                      child: Text(item.slug),
+                      child: Text(_categoryLabel(l10n, item.slug)),
                     ),
                   )
                   .toList(),
-              onChanged:
-                  isBusy ? null : jobsController.setSelectedCategoryId,
+              onChanged: isBusy ? null : jobsController.setSelectedCategoryId,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('select_category'),

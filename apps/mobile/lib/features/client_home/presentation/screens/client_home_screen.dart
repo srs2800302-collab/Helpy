@@ -180,7 +180,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                       ),
                     );
                   },
-                  child: Text(l10n.t('my_jobs')),
+                  child: Text(l10n.t('open_jobs')),
                 ),
               ],
             ),
