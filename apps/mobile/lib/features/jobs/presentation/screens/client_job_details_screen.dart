@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/utils/job_status_mapper.dart';
-import '../../../../core/utils/category_mapper.dart';
-
-
+import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../client_offers/presentation/screens/job_offers_screen.dart';
@@ -18,6 +15,50 @@ class ClientJobDetailsScreen extends StatelessWidget {
     super.key,
     required this.job,
   });
+
+  String _categoryLabel(AppLocalizations l10n, String slug) {
+    switch (slug) {
+      case 'cleaning':
+        return l10n.t('category_cleaning');
+      case 'handyman':
+        return l10n.t('category_handyman');
+      case 'plumbing':
+        return l10n.t('category_plumbing');
+      case 'electrical':
+        return l10n.t('category_electrical');
+      case 'locks':
+        return l10n.t('category_locks');
+      case 'aircon':
+        return l10n.t('category_aircon');
+      case 'furniture_assembly':
+        return l10n.t('category_furniture_assembly');
+      default:
+        return slug;
+    }
+  }
+
+  String _statusLabel(AppLocalizations l10n, String status) {
+    switch (status) {
+      case 'draft':
+        return l10n.t('status_draft');
+      case 'awaiting_payment':
+        return l10n.t('status_awaiting_payment');
+      case 'open':
+        return l10n.t('status_open');
+      case 'master_selected':
+        return l10n.t('status_master_selected');
+      case 'in_progress':
+        return l10n.t('status_in_progress');
+      case 'completed':
+        return l10n.t('status_completed');
+      case 'cancelled':
+        return l10n.t('status_cancelled');
+      case 'disputed':
+        return l10n.t('status_disputed');
+      default:
+        return status;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,11 +118,9 @@ class ClientJobDetailsScreen extends StatelessWidget {
         },
         child: Text(l10n.t('chat')),
       );
-    } else if (
-      job.status == 'completed' &&
-      (job.selectedMasterUserId ?? '').isNotEmpty &&
-      job.hasReview != true
-    ) {
+    } else if (job.status == 'completed' &&
+        (job.selectedMasterUserId ?? '').isNotEmpty &&
+        job.hasReview != true) {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final reviewed = await Navigator.of(context).push<bool>(
@@ -121,6 +160,9 @@ class ClientJobDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(job.title),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -139,9 +181,9 @@ class ClientJobDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text('${l10n.t('categories')}: ${mapCategory(job.categorySlug)}'),
+                  Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
                   const SizedBox(height: 8),
-                  Text('${l10n.t('status_label')}: ${mapJobStatus(job.status)}'),
+                  Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
                   const SizedBox(height: 8),
                   Text('${l10n.t('created_label')}: ${job.createdAt.toLocal()}'),
                   if (job.price != null) ...[
@@ -156,15 +198,13 @@ class ClientJobDetailsScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text('${l10n.t('master_label')}: ${job.selectedMasterName}'),
                   ],
-                  if (job.selectedOfferPrice != null) ...[
                   if (job.hasReview == true) ...[
                     const SizedBox(height: 8),
                     Text(l10n.t('review_submitted')),
                   ],
+                  if (job.selectedOfferPrice != null) ...[
                     const SizedBox(height: 8),
-                    Text(
-                      'Selected price: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB',
-                    ),
+                    Text('${l10n.t('price_label')}: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
                   ],
                 ],
               ),
