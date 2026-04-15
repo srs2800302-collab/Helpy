@@ -16,6 +16,8 @@ class RefreshTokensResult {
   });
 }
 
+const _debugClientUserId = '6570ea80-6707-4c0d-87e8-6b5de0bac878';
+
 class ApiClient {
   final Dio _dio;
   final TokenStorage _tokenStorage;
@@ -40,8 +42,13 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await _tokenStorage.getAccessToken();
+          final isDebugToken =
+              kDebugMode && (token?.startsWith('debug_') ?? false);
 
-          if (token != null && token.isNotEmpty) {
+          if (isDebugToken) {
+            options.headers.remove('Authorization');
+            options.headers['x-user-id'] = _debugClientUserId;
+          } else if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
 
