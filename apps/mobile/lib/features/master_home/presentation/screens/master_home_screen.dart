@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/utils/category_mapper.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../offers/presentation/screens/master_offers_screen.dart';
 
@@ -23,6 +22,50 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
       ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
       ref.read(offersControllerProvider.notifier).loadMyOffers();
     });
+  }
+
+  String _categoryLabel(AppLocalizations l10n, String slug) {
+    switch (slug) {
+      case 'cleaning':
+        return l10n.t('category_cleaning');
+      case 'handyman':
+        return l10n.t('category_handyman');
+      case 'plumbing':
+        return l10n.t('category_plumbing');
+      case 'electrical':
+        return l10n.t('category_electrical');
+      case 'locks':
+        return l10n.t('category_locks');
+      case 'aircon':
+        return l10n.t('category_aircon');
+      case 'furniture_assembly':
+        return l10n.t('category_furniture_assembly');
+      default:
+        return slug;
+    }
+  }
+
+  String _statusLabel(AppLocalizations l10n, String status) {
+    switch (status) {
+      case 'draft':
+        return l10n.t('status_draft');
+      case 'awaiting_payment':
+        return l10n.t('status_awaiting_payment');
+      case 'open':
+        return l10n.t('status_open');
+      case 'master_selected':
+        return l10n.t('status_master_selected');
+      case 'in_progress':
+        return l10n.t('status_in_progress');
+      case 'completed':
+        return l10n.t('status_completed');
+      case 'cancelled':
+        return l10n.t('status_cancelled');
+      case 'disputed':
+        return l10n.t('status_disputed');
+      default:
+        return status;
+    }
   }
 
   Future<void> _refreshAll() async {
@@ -98,7 +141,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     const SizedBox(height: 6),
                     Text('${l10n.t('phone_label')}: ${authState.session?.phone ?? '-'}'),
                     const SizedBox(height: 6),
-                    Text('${l10n.t('role_label')}: ${authState.session?.role?.name ?? 'null'}'),
+                    Text('${l10n.t('role_label')}: ${authState.session?.role?.name == 'client' ? l10n.t('client') : authState.session?.role?.name == 'master' ? l10n.t('master') : authState.session?.role?.name ?? 'null'}'),
                   ],
                 ),
               ),
@@ -179,7 +222,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     (item) => Card(
                       child: ListTile(
                         title: Text(item.slug),
-                        subtitle: Text('sortOrder: ${item.sortOrder}'),
+                        subtitle: Text('${l10n.t('sort_order_label')}: ${item.sortOrder}'),
                       ),
                     ),
                   ),
@@ -227,7 +270,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     (item) => Card(
                       child: ListTile(
                         title: Text(item.title),
-                        subtitle: Text('${mapCategory(item.categorySlug)} • ${item.status}'),
+                        subtitle: Text('${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}'),
                       ),
                     ),
                   ),
@@ -275,7 +318,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     (item) => Card(
                       child: ListTile(
                         title: Text(item.jobTitle),
-                        subtitle: Text('${mapCategory(item.categorySlug)} • ${item.status}'),
+                        subtitle: Text('${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}'),
                       ),
                     ),
                   ),
