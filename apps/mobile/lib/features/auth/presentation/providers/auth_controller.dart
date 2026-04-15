@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +8,7 @@ import 'auth_state.dart';
 
 const _debugClientUserId = '6570ea80-6707-4c0d-87e8-6b5de0bac878';
 const _debugOtpCode = '123456';
+const _debugPhoneFallback = '+70000000000';
 
 class AuthController extends StateNotifier<AuthState> {
   final Ref ref;
@@ -21,12 +21,30 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final storage = ref.read(tokenStorageProvider);
       final accessToken = await storage.getAccessToken();
+      final refreshToken = await storage.getRefreshToken();
 
       if (accessToken == null || accessToken.isEmpty) {
         state = state.copyWith(
           isLoading: false,
           initialized: true,
           clearSession: true,
+        );
+        return;
+      }
+
+      if (kDebugMode && accessToken.startsWith('debug_')) {
+        state = state.copyWith(
+          isLoading: false,
+          initialized: true,
+          session: AuthSession(
+            userId: _debugClientUserId,
+            phone: state.phone.isNotEmpty ? state.phone : _debugPhoneFallback,
+            role: UserRole.client,
+            isNewUser: false,
+            needsRoleSelection: false,
+            accessToken: accessToken,
+            refreshToken: refreshToken ?? 'debug_refresh_token',
+          ),
         );
         return;
       }
@@ -246,27 +264,11 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   String _t(String key) {
-    final lang = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
-
     switch (key) {
       case 'validation_phone_invalid':
-        switch (lang) {
-          case 'ru':
-            return 'Введите корректный номер телефона';
-          case 'th':
-            return 'กรอกหมายเลขโทรศัพท์ให้ถูกต้อง';
-          default:
-            return 'Enter a valid phone number';
-        }
+        return 'validation_phone_invalid';
       case 'validation_otp_invalid':
-        switch (lang) {
-          case 'ru':
-            return 'Введите 6-значный код';
-          case 'th':
-            return 'กรอกรหัส 6 หลัก';
-          default:
-            return 'Enter the 6-digit code';
-        }
+        return 'validation_otp_invalid';
       default:
         return key;
     }
