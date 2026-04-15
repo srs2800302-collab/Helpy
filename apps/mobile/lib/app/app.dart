@@ -50,7 +50,8 @@ class _FixiAppState extends ConsumerState<FixiApp> {
     final currentLocale = ref.watch(currentLocaleProvider);
 
     return MaterialApp.router(
-      title: 'Fixi',
+      debugShowCheckedModeBanner: false,
+      title: 'Helpy',
       theme: buildAppTheme(),
       locale: currentLocale,
       routerConfig: router,

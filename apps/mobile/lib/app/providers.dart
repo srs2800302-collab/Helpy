@@ -41,7 +41,7 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 });
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) {
-  return FileTokenStorage();
+  return SharedPrefsTokenStorage();
 });
 
 final sessionExpiredTickProvider = StateProvider<int>((ref) {

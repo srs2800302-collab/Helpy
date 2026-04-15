@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class TokenStorage {
   Future<void> saveAccessToken(String token);
@@ -12,65 +12,56 @@ abstract class TokenStorage {
   Future<void> clearAll();
 }
 
-class FileTokenStorage implements TokenStorage {
-  final File _accessTokenFile;
-  final File _refreshTokenFile;
-
-  FileTokenStorage({
-    String accessTokenPath = 'fixi_access_token',
-    String refreshTokenPath = 'fixi_refresh_token',
-  })  : _accessTokenFile = File('${Directory.systemTemp.path}/$accessTokenPath'),
-        _refreshTokenFile = File('${Directory.systemTemp.path}/$refreshTokenPath');
+class SharedPrefsTokenStorage implements TokenStorage {
+  static const _accessKey = 'fixi_access_token';
+  static const _refreshKey = 'fixi_refresh_token';
 
   @override
   Future<void> saveAccessToken(String token) async {
-    await _accessTokenFile.parent.create(recursive: true);
-    await _accessTokenFile.writeAsString(token, flush: true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_accessKey, token);
   }
 
   @override
   Future<String?> getAccessToken() async {
-    if (!await _accessTokenFile.exists()) return null;
-
-    final value = await _accessTokenFile.readAsString();
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_accessKey);
+    if (value == null) return null;
     final trimmed = value.trim();
-
     return trimmed.isEmpty ? null : trimmed;
   }
 
   @override
   Future<void> clearAccessToken() async {
-    if (await _accessTokenFile.exists()) {
-      await _accessTokenFile.delete();
-    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_accessKey);
   }
 
   @override
   Future<void> saveRefreshToken(String token) async {
-    await _refreshTokenFile.parent.create(recursive: true);
-    await _refreshTokenFile.writeAsString(token, flush: true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_refreshKey, token);
   }
 
   @override
   Future<String?> getRefreshToken() async {
-    if (!await _refreshTokenFile.exists()) return null;
-
-    final value = await _refreshTokenFile.readAsString();
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_refreshKey);
+    if (value == null) return null;
     final trimmed = value.trim();
-
     return trimmed.isEmpty ? null : trimmed;
   }
 
   @override
   Future<void> clearRefreshToken() async {
-    if (await _refreshTokenFile.exists()) {
-      await _refreshTokenFile.delete();
-    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_refreshKey);
   }
 
   @override
   Future<void> clearAll() async {
-    await clearAccessToken();
-    await clearRefreshToken();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_accessKey);
+    await prefs.remove(_refreshKey);
   }
 }
