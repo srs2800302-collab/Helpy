@@ -19,35 +19,12 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(categoriesControllerProvider.notifier).load();
       ref.read(jobsControllerProvider.notifier).loadClientJobs();
     });
   }
 
   Future<void> _refreshAll() async {
-    await ref.read(categoriesControllerProvider.notifier).load();
     await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-  }
-
-  String _categoryLabel(AppLocalizations l10n, String slug) {
-    switch (slug) {
-      case 'cleaning':
-        return l10n.t('category_cleaning');
-      case 'handyman':
-        return l10n.t('category_handyman');
-      case 'plumbing':
-        return l10n.t('category_plumbing');
-      case 'electrical':
-        return l10n.t('category_electrical');
-      case 'locks':
-        return l10n.t('category_locks');
-      case 'aircon':
-        return l10n.t('category_aircon');
-      case 'furniture_assembly':
-        return l10n.t('category_furniture_assembly');
-      default:
-        return slug;
-    }
   }
 
   String _statusLabel(AppLocalizations l10n, String status) {
@@ -73,47 +50,45 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     }
   }
 
-  String _roleLabel(AppLocalizations l10n, dynamic role) {
-    final value = role?.toString()?.toString();
-    switch (value) {
-      case 'client':
-        return l10n.t('client');
-      case 'master':
-        return l10n.t('master');
-      case 'admin':
-        return 'Admin';
+  String _categoryLabel(AppLocalizations l10n, String slug) {
+    switch (slug) {
+      case 'cleaning':
+        return l10n.t('category_cleaning');
+      case 'handyman':
+        return l10n.t('category_handyman');
+      case 'plumbing':
+        return l10n.t('category_plumbing');
+      case 'electrical':
+        return l10n.t('category_electrical');
+      case 'locks':
+        return l10n.t('category_locks');
+      case 'aircon':
+        return l10n.t('category_aircon');
+      case 'furniture_assembly':
+        return l10n.t('category_furniture_assembly');
       default:
-        return 'null';
+        return slug;
     }
   }
 
   String? _visibleError(String? message) {
     if (message == null || message.trim().isEmpty) return null;
-
-    final lower = message.toLowerCase();
-    if (lower.contains('session expired')) {
-      return null;
-    }
-
+    if (message.toLowerCase().contains('session expired')) return null;
     return message;
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authControllerProvider);
-    final categoriesState = ref.watch(categoriesControllerProvider);
     final jobsState = ref.watch(jobsControllerProvider);
     final authController = ref.read(authControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
     final currentLocale = ref.watch(currentLocaleProvider);
 
-    final isRefreshing = categoriesState.isLoading || jobsState.isLoading;
-    final categoriesError = _visibleError(categoriesState.errorMessage);
     final jobsError = _visibleError(jobsState.errorMessage);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.t('client_home_title')),
+        title: Text(l10n.t('home_title')),
         actions: [
           PopupMenuButton<String>(
             tooltip: l10n.t('language'),
@@ -141,72 +116,35 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
             ),
           ),
           IconButton(
-            onPressed: isRefreshing ? null : _refreshAll,
+            onPressed: jobsState.isLoading ? null : _refreshAll,
             icon: const Icon(Icons.refresh),
             tooltip: l10n.t('refresh'),
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const CreateJobScreen(),
-            ),
-          );
-          if (mounted) {
-            await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-          }
-        },
-        label: Text(l10n.t('create_job')),
-        icon: const Icon(Icons.add),
-      ),
       body: RefreshIndicator(
         onRefresh: _refreshAll,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.t('client_home_title'),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const CreateJobScreen(),
                     ),
-                    const SizedBox(height: 12),
-                    Text('${l10n.t('user_id')}: ${authState.session?.userId ?? '-'}'),
-                    const SizedBox(height: 6),
-                    Text('${l10n.t('phone_label')}: ${authState.session?.phone ?? '-'}'),
-                    const SizedBox(height: 6),
-                    Text('${l10n.t('role_label')}: ${_roleLabel(l10n, authState.session?.role)}'),
-                  ],
-                ),
+                  );
+                  if (mounted) {
+                    await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+                  }
+                },
+                icon: const Icon(Icons.add),
+                label: Text(l10n.t('create_job')),
               ),
             ),
-            const SizedBox(height: 16),
-            if (categoriesError != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    categoriesError,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              ),
+            const SizedBox(height: 24),
             if (jobsError != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -223,38 +161,6 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                   ),
                 ),
               ),
-            Text(
-              l10n.t('categories'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (categoriesState.isLoading && categoriesState.items.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (categoriesState.items.isEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(l10n.t('loading')),
-                ),
-              )
-            else
-              ...categoriesState.items.take(5).map(
-                    (item) => Card(
-                      child: ListTile(
-                        title: Text(_categoryLabel(l10n, item.slug)),
-                        subtitle: Text('${l10n.t('sort_order_label')}: ${item.sortOrder}'),
-                      ),
-                    ),
-                  ),
-            const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
@@ -294,7 +200,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 ),
               )
             else
-              ...jobsState.items.take(3).map(
+              ...jobsState.items.take(10).map(
                     (item) => Card(
                       child: ListTile(
                         title: Text(item.title),
