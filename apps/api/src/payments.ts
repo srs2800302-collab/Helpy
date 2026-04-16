@@ -219,6 +219,21 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     return fail(error?.message ?? 'Invalid status transition', 400);
   }
 
+  const clientPaymentMethod = await env.DB.prepare(
+    `SELECT id, provider, provider_payment_method_id
+     FROM payment_methods
+     WHERE user_id = ?1
+       AND status = 'active'
+     ORDER BY is_default DESC, created_at ASC
+     LIMIT 1`
+  )
+    .bind(clientUserId)
+    .first();
+
+  if (!clientPaymentMethod) {
+    return fail('Active client payment method required for deposit payment', 400);
+  }
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const currency = job.currency || 'THB';
@@ -247,10 +262,10 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
         jobId,
         clientUserId,
         clientUserId,
-        null,
+        clientPaymentMethod.id,
         'client',
         'client_card',
-        'mock',
+        clientPaymentMethod.provider ?? 'mock',
         `mock_charge_${id}`,
         depositAmount,
         currency,
