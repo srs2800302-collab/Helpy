@@ -108,6 +108,10 @@ export async function handleRequest(request: Request, env: any) {
       return createMasterProfile(userId, request, env);
     }
 
+    if (parts.length === 6 && parts[4] === 'master-billing' && parts[5] === 'test-enable' && method === 'POST') {
+      return enableMasterBillingForTest(userId, request, env);
+    }
+
     if (parts.length === 4 && method === 'GET') {
       return getUser(userId, request, env);
     }
