@@ -24,6 +24,7 @@ import { ensureBaseSchema } from './init-schema';
 import { getAdminDisputes } from './admin-disputes';
 import { getAdminDashboard } from './admin-dashboard';
 import { createStripeSetupIntent } from './stripe-setup';
+import { syncStripePaymentMethod } from './stripe-payment-method-sync';
 
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
@@ -128,6 +129,10 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 7 && parts[4] === 'payment-methods' && parts[5] === 'stripe' && parts[6] === 'setup-intent' && method === 'POST') {
       return createStripeSetupIntent(userId, request, env);
+    }
+
+    if (parts.length === 7 && parts[4] === 'payment-methods' && parts[5] === 'stripe' && parts[6] === 'sync' && method === 'POST') {
+      return syncStripePaymentMethod(userId, request, env);
     }
 
     if (parts.length === 6 && parts[4] === 'master-billing' && parts[5] === 'test-enable' && method === 'POST') {
