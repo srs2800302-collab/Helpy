@@ -1,3 +1,4 @@
+import { extractStripeEventSummary } from './stripe-event-utils';
 function fail(error: string, status = 400) {
   return Response.json({ success: false, error }, { status });
 }
@@ -54,10 +55,11 @@ export async function handleStripeWebhook(request: Request, env: any) {
     return fail('Invalid JSON webhook body', 400);
   }
 
-  const providerEventId = event?.id?.toString?.().trim?.();
-  const eventType = event?.type?.toString?.().trim?.();
-  const objectType = event?.data?.object?.object?.toString?.().trim?.() ?? null;
-  const objectId = event?.data?.object?.id?.toString?.().trim?.() ?? null;
+  const summary = extractStripeEventSummary(event);
+  const providerEventId = summary.eventId;
+  const eventType = summary.eventType;
+  const objectType = summary.objectType;
+  const objectId = summary.objectId;
 
   if (!providerEventId) {
     return fail('provider event id is required', 400);
