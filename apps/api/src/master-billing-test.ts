@@ -49,17 +49,14 @@ export async function enableMasterBillingForTest(
     );
   }
 
-  const now = new Date().toISOString();
-
   await env.DB.prepare(
     `UPDATE master_profiles
      SET has_billing_method = 1,
          billing_status = 'active',
-         cash_jobs_enabled = 1,
-         updated_at = ?2
+         cash_jobs_enabled = 1
      WHERE user_id = ?1`
   )
-    .bind(masterUserId, now)
+    .bind(masterUserId)
     .run();
 
   return Response.json({
@@ -69,7 +66,6 @@ export async function enableMasterBillingForTest(
       has_billing_method: true,
       billing_status: 'active',
       cash_jobs_enabled: true,
-      updated_at: now,
     },
   });
 }
