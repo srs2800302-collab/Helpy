@@ -61,6 +61,13 @@ export async function handleStripeWebhook(request: Request, env: any) {
   const objectType = summary.objectType;
   const objectId = summary.objectId;
 
+  const finalStatus =
+    eventType === 'setup_intent.succeeded' &&
+    summary.customerId &&
+    summary.paymentMethodId
+      ? 'ready_for_sync'
+      : 'processed';
+
   if (!providerEventId) {
     return fail('provider event id is required', 400);
   }
@@ -127,11 +134,11 @@ export async function handleStripeWebhook(request: Request, env: any) {
 
   await env.DB.prepare(
     `UPDATE payment_events
-     SET status = 'processed',
-         processed_at = ?2
+     SET status = ?2,
+         processed_at = ?3
      WHERE id = ?1`
   )
-    .bind(id, processedAt)
+    .bind(id, finalStatus, processedAt)
     .run();
 
   return ok(
@@ -142,7 +149,9 @@ export async function handleStripeWebhook(request: Request, env: any) {
       event_type: eventType,
       object_type: objectType,
       object_id: objectId,
-      status: 'processed',
+      customer_id: summary.customerId,
+      payment_method_id: summary.paymentMethodId,
+      status: finalStatus,
       duplicate: false,
       created_at: now,
       processed_at: processedAt,
