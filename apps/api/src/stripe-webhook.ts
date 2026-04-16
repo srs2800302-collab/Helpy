@@ -16,12 +16,28 @@ async function ensurePaymentEventsSchema(env: any) {
       event_type TEXT NOT NULL,
       object_type TEXT,
       object_id TEXT,
+      customer_id TEXT,
+      payment_method_id TEXT,
       payload_json TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'received',
       created_at TEXT NOT NULL,
       processed_at TEXT
     )`
   ).run();
+
+  const columns = await env.DB.prepare('PRAGMA table_info(payment_events)').all();
+  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
+
+  const patches: Array<[string, string]> = [
+    ['customer_id', 'ALTER TABLE payment_events ADD COLUMN customer_id TEXT'],
+    ['payment_method_id', 'ALTER TABLE payment_events ADD COLUMN payment_method_id TEXT'],
+  ];
+
+  for (const [name, sql] of patches) {
+    if (!existing.has(name)) {
+      await env.DB.prepare(sql).run();
+    }
+  }
 
   await env.DB.prepare(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_events_provider_event_unique
@@ -77,7 +93,7 @@ export async function handleStripeWebhook(request: Request, env: any) {
   }
 
   const existing = await env.DB.prepare(
-    `SELECT id, provider, provider_event_id, event_type, status, created_at, processed_at
+    `SELECT id, provider, provider_event_id, event_type, customer_id, payment_method_id, status, created_at, processed_at
      FROM payment_events
      WHERE provider = 'stripe'
        AND provider_event_id = ?1
@@ -92,6 +108,8 @@ export async function handleStripeWebhook(request: Request, env: any) {
       provider: existing.provider,
       provider_event_id: existing.provider_event_id,
       event_type: existing.event_type,
+      customer_id: existing.customer_id ?? null,
+      payment_method_id: existing.payment_method_id ?? null,
       status: existing.status,
       duplicate: true,
       created_at: existing.created_at,
@@ -110,11 +128,13 @@ export async function handleStripeWebhook(request: Request, env: any) {
       event_type,
       object_type,
       object_id,
+      customer_id,
+      payment_method_id,
       payload_json,
       status,
       created_at,
       processed_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)`
   )
     .bind(
       id,
@@ -123,6 +143,8 @@ export async function handleStripeWebhook(request: Request, env: any) {
       eventType,
       objectType,
       objectId,
+      summary.customerId,
+      summary.paymentMethodId,
       payloadText,
       'received',
       now,
