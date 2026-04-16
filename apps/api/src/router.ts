@@ -26,6 +26,7 @@ import { getAdminDashboard } from './admin-dashboard';
 import { createStripeSetupIntent } from './stripe-setup';
 import { syncStripePaymentMethod } from './stripe-payment-method-sync';
 import { handleStripeWebhook } from './stripe-webhook';
+import { processPendingPaymentEvents } from './payment-event-processor';
 
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
@@ -53,6 +54,10 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/api/v1/payments/webhooks/stripe' && method === 'POST') {
     return handleStripeWebhook(request, env);
+  }
+
+  if (path === '/api/v1/payments/process-pending-events' && method === 'POST') {
+    return processPendingPaymentEvents(request, env);
   }
 
   if (path === '/api/v1/users' && method === 'POST') {
