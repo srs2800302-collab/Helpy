@@ -17,11 +17,13 @@ dependencies:
   dio: ^5.7.0
   intl: ^0.20.2
   path_provider: ^2.1.4
-  shared_preferences: ^2.3.3
+  shared_preferences: ^2.5.5
   flutter_dotenv: ^5.2.1
   equatable: ^2.0.5
 
 dev_dependencies:
+  flutter_native_splash: ^2.4.1
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
@@ -31,3 +33,14 @@ flutter:
   assets:
     - assets/translations/
     - .env
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon.png"
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/icon.png
+  android: true
+  ios: false
+  web: false
+  fullscreen: true
