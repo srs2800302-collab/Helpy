@@ -25,6 +25,7 @@ import { getAdminDisputes } from './admin-disputes';
 import { getAdminDashboard } from './admin-dashboard';
 import { createStripeSetupIntent } from './stripe-setup';
 import { syncStripePaymentMethod } from './stripe-payment-method-sync';
+import { handleStripeWebhook } from './stripe-webhook';
 
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
@@ -48,6 +49,10 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/api/v1/categories' && method === 'GET') {
     return getCategories();
+  }
+
+  if (path === '/api/v1/payments/webhooks/stripe' && method === 'POST') {
+    return handleStripeWebhook(request, env);
   }
 
   if (path === '/api/v1/users' && method === 'POST') {
