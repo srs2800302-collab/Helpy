@@ -11,6 +11,7 @@ import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
 import { getJobActions } from './job-actions';
 import { getOffersByMaster, getAvailableJobsForMaster } from './master-views';
+import { enableMasterBillingForTest } from './master-billing-test';
 import { getClientDashboard } from './dashboard';
 import { getClientHome } from './home';
 import { getJobsByStatus } from './jobs-by-status';
