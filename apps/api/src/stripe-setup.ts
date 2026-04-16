@@ -67,61 +67,65 @@ export async function createStripeSetupIntent(
     .bind(userId)
     .first();
 
-  const provider = new StripePaymentProvider(env);
+  try {
+    const provider = new StripePaymentProvider(env);
 
-  if (!paymentCustomer) {
-    const customer = await provider.createCustomer({
-      userId,
-      phone: user.phone ?? null,
-      email: null,
-      name: null,
+    if (!paymentCustomer) {
+      const customer = await provider.createCustomer({
+        userId,
+        phone: user.phone ?? null,
+        email: null,
+        name: null,
+      });
+
+      const now = new Date().toISOString();
+      const id = crypto.randomUUID();
+
+      await env.DB.prepare(
+        `INSERT INTO payment_customers (
+          id,
+          user_id,
+          provider,
+          provider_customer_id,
+          created_at,
+          updated_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+      )
+        .bind(
+          id,
+          userId,
+          'stripe',
+          customer.customerId,
+          now,
+          now,
+        )
+        .run();
+
+      paymentCustomer = {
+        id,
+        user_id: userId,
+        provider: 'stripe',
+        provider_customer_id: customer.customerId,
+        created_at: now,
+        updated_at: now,
+      };
+    }
+
+    const setupIntent = await provider.createSetupIntent({
+      customerId: paymentCustomer.provider_customer_id,
     });
 
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-
-    await env.DB.prepare(
-      `INSERT INTO payment_customers (
-        id,
-        user_id,
-        provider,
-        provider_customer_id,
-        created_at,
-        updated_at
-      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
-    )
-      .bind(
-        id,
-        userId,
-        'stripe',
-        customer.customerId,
-        now,
-        now,
-      )
-      .run();
-
-    paymentCustomer = {
-      id,
-      user_id: userId,
-      provider: 'stripe',
-      provider_customer_id: customer.customerId,
-      created_at: now,
-      updated_at: now,
-    };
+    return Response.json({
+      success: true,
+      data: {
+        provider: 'stripe',
+        customer_id: setupIntent.customerId,
+        setup_intent_id: setupIntent.setupIntentId,
+        client_secret: setupIntent.clientSecret,
+        publishable_key: setupIntent.publishableKey,
+      },
+    });
+  } catch (error: any) {
+    return fail(error?.message ?? 'Failed to create Stripe setup intent', 500);
   }
-
-  const setupIntent = await provider.createSetupIntent({
-    customerId: paymentCustomer.provider_customer_id,
-  });
-
-  return Response.json({
-    success: true,
-    data: {
-      provider: 'stripe',
-      customer_id: setupIntent.customerId,
-      setup_intent_id: setupIntent.setupIntentId,
-      client_secret: setupIntent.clientSecret,
-      publishable_key: setupIntent.publishableKey,
-    },
-  });
 }
