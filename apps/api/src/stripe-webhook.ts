@@ -121,6 +121,17 @@ export async function handleStripeWebhook(request: Request, env: any) {
     )
     .run();
 
+  const processedAt = new Date().toISOString();
+
+  await env.DB.prepare(
+    `UPDATE payment_events
+     SET status = 'processed',
+         processed_at = ?2
+     WHERE id = ?1`
+  )
+    .bind(id, processedAt)
+    .run();
+
   return ok(
     {
       id,
@@ -129,9 +140,10 @@ export async function handleStripeWebhook(request: Request, env: any) {
       event_type: eventType,
       object_type: objectType,
       object_id: objectId,
-      status: 'received',
+      status: 'processed',
       duplicate: false,
       created_at: now,
+      processed_at: processedAt,
     },
     201
   );
