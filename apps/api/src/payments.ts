@@ -307,13 +307,27 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     .bind(JOB_STATUS.open, now, depositAmount, jobId)
     .run();
 
+  const createdPayment = await env.DB.prepare(
+    'SELECT * FROM payments WHERE id = ?1 LIMIT 1'
+  )
+    .bind(id)
+    .first();
+
   return Response.json({
     success: true,
     data: paymentData(
-      {
+      createdPayment ?? {
         id,
+        client_user_id: clientUserId,
+        payer_user_id: clientUserId,
+        payment_method_id: clientPaymentMethod.id,
+        payer_role: 'client',
+        source: 'client_card',
+        provider: clientPaymentMethod.provider ?? 'mock',
+        provider_ref: `mock_charge_${id}`,
         amount: depositAmount,
         currency,
+        status: 'paid',
         created_at: now,
       },
       jobId,
