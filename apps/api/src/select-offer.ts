@@ -4,6 +4,7 @@ import { ensureJobsSchema } from './jobs';
 import { fail } from './response';
 import { ensureOffersSchema } from './offers';
 import { assertMasterCanAcceptCashJob } from './payments/payment-rules';
+import { ensurePaymentsSchema } from './payments';
 
 async function ensureMasterBillingSchema(env: any) {
   const columns = await env.DB.prepare('PRAGMA table_info(master_profiles)').all();
@@ -26,6 +27,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensureOffersSchema(env);
   await ensureMasterBillingSchema(env);
+  await ensurePaymentsSchema(env);
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
@@ -94,6 +96,8 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     }
   }
 
+  let masterPaymentMethod: any = null;
+
   if (job.payment_method === 'cash') {
     const masterProfile = await env.DB.prepare(
       `SELECT
@@ -118,6 +122,72 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
         'Master cannot accept cash job without active billing method',
         400
       );
+    }
+
+    masterPaymentMethod = await env.DB.prepare(
+      `SELECT id, provider, provider_payment_method_id
+       FROM payment_methods
+       WHERE user_id = ?1
+         AND status = 'active'
+       ORDER BY is_default DESC, created_at ASC
+       LIMIT 1`
+    )
+      .bind(offer.master_user_id)
+      .first();
+
+    if (!masterPaymentMethod) {
+      return fail('Active master payment method not found', 400);
+    }
+
+    const existingCashDeposit = await env.DB.prepare(
+      `SELECT id
+       FROM payments
+       WHERE job_id = ?1
+         AND type = 'deposit'
+         AND payer_role = 'master'
+       LIMIT 1`
+    )
+      .bind(jobId)
+      .first();
+
+    if (!existingCashDeposit) {
+      const paymentId = crypto.randomUUID();
+
+      await env.DB.prepare(
+        `INSERT INTO payments (
+          id,
+          job_id,
+          client_user_id,
+          payer_user_id,
+          payment_method_id,
+          payer_role,
+          source,
+          provider,
+          provider_ref,
+          amount,
+          currency,
+          type,
+          status,
+          created_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`
+      )
+        .bind(
+          paymentId,
+          jobId,
+          job.client_user_id,
+          offer.master_user_id,
+          masterPaymentMethod.id,
+          'master',
+          'master_card',
+          masterPaymentMethod.provider ?? 'mock',
+          `mock_master_charge_${paymentId}`,
+          job.deposit_amount,
+          job.currency || 'THB',
+          'deposit',
+          'paid',
+          new Date().toISOString()
+        )
+        .run();
     }
   }
 

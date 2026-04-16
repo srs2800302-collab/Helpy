@@ -7,9 +7,15 @@ function paymentData(payment: any, jobId: string, jobStatus: string) {
   return {
     id: payment.id,
     job_id: jobId,
+    payer_user_id: payment.payer_user_id ?? payment.client_user_id ?? null,
+    payment_method_id: payment.payment_method_id ?? null,
+    payer_role: payment.payer_role ?? 'client',
+    source: payment.source ?? 'client_card',
+    provider: payment.provider ?? 'mock',
+    provider_ref: payment.provider_ref ?? null,
     amount: payment.amount,
     currency: payment.currency,
-    status: 'paid',
+    status: payment.status ?? 'paid',
     job_status: jobStatus,
     ...(payment.created_at ? { created_at: payment.created_at } : {}),
   };
@@ -50,6 +56,12 @@ export async function ensurePaymentsSchema(env: any) {
       id TEXT PRIMARY KEY,
       job_id TEXT NOT NULL,
       client_user_id TEXT NOT NULL,
+      payer_user_id TEXT,
+      payment_method_id TEXT,
+      payer_role TEXT NOT NULL DEFAULT 'client',
+      source TEXT NOT NULL DEFAULT 'client_card',
+      provider TEXT NOT NULL DEFAULT 'mock',
+      provider_ref TEXT,
       amount REAL NOT NULL,
       currency TEXT NOT NULL,
       type TEXT NOT NULL,
@@ -64,6 +76,12 @@ export async function ensurePaymentsSchema(env: any) {
   const patches: Array<[string, string]> = [
     ['job_id', 'ALTER TABLE payments ADD COLUMN job_id TEXT'],
     ['client_user_id', 'ALTER TABLE payments ADD COLUMN client_user_id TEXT'],
+    ['payer_user_id', 'ALTER TABLE payments ADD COLUMN payer_user_id TEXT'],
+    ['payment_method_id', 'ALTER TABLE payments ADD COLUMN payment_method_id TEXT'],
+    ['payer_role', "ALTER TABLE payments ADD COLUMN payer_role TEXT NOT NULL DEFAULT 'client'"],
+    ['source', "ALTER TABLE payments ADD COLUMN source TEXT NOT NULL DEFAULT 'client_card'"],
+    ['provider', "ALTER TABLE payments ADD COLUMN provider TEXT NOT NULL DEFAULT 'mock'"],
+    ['provider_ref', 'ALTER TABLE payments ADD COLUMN provider_ref TEXT'],
     ['amount', 'ALTER TABLE payments ADD COLUMN amount REAL'],
     ['currency', "ALTER TABLE payments ADD COLUMN currency TEXT NOT NULL DEFAULT 'THB'"],
     ['type', "ALTER TABLE payments ADD COLUMN type TEXT NOT NULL DEFAULT 'deposit'"],
@@ -80,6 +98,11 @@ export async function ensurePaymentsSchema(env: any) {
   await env.DB.prepare(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_job_type_unique
      ON payments(job_id, type)`
+  ).run();
+
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_payments_payer_status
+     ON payments(payer_user_id, status, type)`
   ).run();
 }
 
@@ -104,17 +127,29 @@ export async function createRefundPayment(jobId: string, env: any) {
       id,
       job_id,
       client_user_id,
+      payer_user_id,
+      payment_method_id,
+      payer_role,
+      source,
+      provider,
+      provider_ref,
       amount,
       currency,
       type,
       status,
       created_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`
   )
     .bind(
       id,
       jobId,
       job.client_user_id,
+      job.client_user_id,
+      deposit.payment_method_id ?? null,
+      'client',
+      deposit.source ?? 'client_card',
+      deposit.provider ?? 'mock',
+      `refund_${deposit.id}`,
       -Math.abs(deposit.amount),
       deposit.currency,
       'refund',
@@ -127,6 +162,12 @@ export async function createRefundPayment(jobId: string, env: any) {
     id,
     job_id: jobId,
     client_user_id: job.client_user_id,
+    payer_user_id: job.client_user_id,
+    payment_method_id: deposit.payment_method_id ?? null,
+    payer_role: 'client',
+    source: deposit.source ?? 'client_card',
+    provider: deposit.provider ?? 'mock',
+    provider_ref: `refund_${deposit.id}`,
     amount: -Math.abs(deposit.amount),
     currency: deposit.currency,
     type: 'refund',
@@ -188,17 +229,29 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
         id,
         job_id,
         client_user_id,
+        payer_user_id,
+        payment_method_id,
+        payer_role,
+        source,
+        provider,
+        provider_ref,
         amount,
         currency,
         type,
         status,
         created_at
-      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`
     )
       .bind(
         id,
         jobId,
         clientUserId,
+        clientUserId,
+        null,
+        'client',
+        'client_card',
+        'mock',
+        `mock_charge_${id}`,
         depositAmount,
         currency,
         'deposit',
