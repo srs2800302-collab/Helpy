@@ -17,6 +17,7 @@ import { getClientHome } from './home';
 import { getJobsByStatus } from './jobs-by-status';
 import { createDeposit, getPayments } from './payments';
 import { getJobPaymentStatus } from './payment-status';
+import { listPaymentMethods, createMockCard, setDefaultPaymentMethod, deletePaymentMethod } from './payment-methods';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
 import { ensureBaseSchema } from './init-schema';
@@ -106,6 +107,22 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 5 && parts[4] === 'master-profile' && method === 'POST') {
       return createMasterProfile(userId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'payment-methods' && method === 'GET') {
+      return listPaymentMethods(userId, request, env);
+    }
+
+    if (parts.length === 6 && parts[4] === 'payment-methods' && parts[5] === 'mock-card' && method === 'POST') {
+      return createMockCard(userId, request, env);
+    }
+
+    if (parts.length === 7 && parts[4] === 'payment-methods' && parts[6] === 'default' && method === 'POST') {
+      return setDefaultPaymentMethod(userId, parts[5], request, env);
+    }
+
+    if (parts.length === 6 && parts[4] === 'payment-methods' && method === 'DELETE') {
+      return deletePaymentMethod(userId, parts[5], request, env);
     }
 
     if (parts.length === 6 && parts[4] === 'master-billing' && parts[5] === 'test-enable' && method === 'POST') {
