@@ -21,8 +21,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2800),
-    )..repeat();
+      duration: const Duration(milliseconds: 3400),
+    )..repeat(reverse: true);
 
     Future.microtask(() async {
       if (_initialized) return;
@@ -46,46 +46,50 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          final wave = math.sin(_controller.value * math.pi * 2);
-          final scale = 1.0 + ((wave + 1) / 2) * 0.04;
-          final offsetY = wave * 8;
+          final t = _controller.value;
+          final moveX = (t - 0.5) * screen.width * 0.28;
+          final bounce = math.sin(t * math.pi * 8) * 10;
+          final tilt = math.sin(t * math.pi * 4) * 0.04;
 
-          return Transform.translate(
-            offset: Offset(0, offsetY),
-            child: Transform.scale(
-              scale: scale,
-              child: child,
-            ),
-          );
-        },
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Center(
-              child: Image.asset(
-                'assets/icon.png',
-                width: screen.width * 0.92,
-                height: screen.height * 0.75,
-                fit: BoxFit.contain,
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/beach.png',
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const Positioned(
-              top: 48,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+              Positioned(
+                left: screen.width * 0.5 - 120 + moveX,
+                bottom: screen.height * 0.10 + bounce,
+                child: Transform.rotate(
+                  angle: tilt,
+                  child: Image.asset(
+                    'assets/crab.png',
+                    width: screen.width * 0.42,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+              const Positioned(
+                top: 48,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
