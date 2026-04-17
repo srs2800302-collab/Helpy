@@ -5,17 +5,14 @@ import 'package:flutter/material.dart';
 class HelpySplashScreen extends StatefulWidget {
   final Widget child;
 
-  const HelpySplashScreen({
-    super.key,
+  const HelpySplashScreen({                               super.key,
     required this.child,
   });
 
   @override
   State<HelpySplashScreen> createState() => _HelpySplashScreenState();
 }
-
-class _HelpySplashScreenState extends State<HelpySplashScreen>
-    with SingleTickerProviderStateMixin {
+                                                      class _HelpySplashScreenState extends State<HelpySplashScreen>                                                  with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   Timer? _timer;
   bool _showSplash = true;
@@ -26,10 +23,10 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2600),
+      duration: const Duration(milliseconds: 3000),
     )..repeat();
 
-    _timer = Timer(const Duration(milliseconds: 2600), () {
+    _timer = Timer(const Duration(milliseconds: 4000), () {
       if (!mounted) return;
       setState(() {
         _showSplash = false;
@@ -46,7 +43,7 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final curve = CurvedAnimation(
+    final wave = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     );
@@ -56,69 +53,55 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
       children: [
         widget.child,
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 350),
+          duration: const Duration(milliseconds: 600),
           child: _showSplash
               ? ColoredBox(
                   key: const ValueKey('helpy_splash'),
                   color: const Color(0xFFFFFFFF),
-                  child: SafeArea(
-                    child: Center(
-                      child: AnimatedBuilder(
-                        animation: curve,
-                        builder: (context, child) {
-                          final wave = math.sin(curve.value * math.pi * 2);
-                          final floatY = wave * 10;
-                          final tilt = wave * 0.03;
-                          final scale = 1.0 + ((wave + 1) / 2) * 0.05;
+                  child: AnimatedBuilder(
+                    animation: wave,
+                    builder: (context, child) {
+                      final v = math.sin(wave.value * math.pi * 2);
+                      final scale = 1.0 + ((v + 1) / 2) * 0.06;
 
-                          return Transform.translate(
-                            offset: Offset(0, floatY),
-                            child: Transform.rotate(
-                              angle: tilt,
-                              child: Transform.scale(
-                                scale: scale,
-                                child: child,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'Helpy',
-                              style: TextStyle(
-                                fontSize: 34,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.black,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Image.asset(
-                              'assets/icon.png',
-                              width: 220,
-                              height: 220,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(height: 28),
-                            const SizedBox(
-                              width: 28,
-                              height: 28,
+                      return Transform.scale(
+                        scale: scale,
+                        child: child,
+                      );
+                    },
+                    child: Stack(
+                      children: [
+                        // 🔥 FULLSCREEN IMAGE
+                        Positioned.fill(
+                          child: Image.asset(
+                            'assets/icon.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+
+                        // 🔥 LOADER
+                        const Positioned(
+                          bottom: 60,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: SizedBox(
+                              width: 36,
+                              height: 36,
                               child: CircularProgressIndicator(
-                                strokeWidth: 3,
+                                strokeWidth: 3.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.black,
+                                  Colors.white,
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 )
-              : const SizedBox.shrink(key: ValueKey('helpy_app')),
+              : const SizedBox.shrink(),
         ),
       ],
     );
