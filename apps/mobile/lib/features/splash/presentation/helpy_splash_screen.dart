@@ -26,7 +26,7 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 2800),
     )..repeat();
 
     _timer = Timer(const Duration(milliseconds: 4000), () {
@@ -58,7 +58,7 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
       children: [
         widget.child,
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 600),
+          duration: const Duration(milliseconds: 400),
           child: _showSplash
               ? ColoredBox(
                   key: const ValueKey('helpy_splash'),
@@ -67,11 +67,15 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
                     animation: wave,
                     builder: (context, child) {
                       final v = math.sin(wave.value * math.pi * 2);
-                      final scale = 1.0 + ((v + 1) / 2) * 0.05;
+                      final scale = 1.0 + ((v + 1) / 2) * 0.04;
+                      final offsetY = v * 8;
 
-                      return Transform.scale(
-                        scale: scale,
-                        child: child,
+                      return Transform.translate(
+                        offset: Offset(0, offsetY),
+                        child: Transform.scale(
+                          scale: scale,
+                          child: child,
+                        ),
                       );
                     },
                     child: Stack(
@@ -89,15 +93,15 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
                           ),
                         ),
                         const Positioned(
-                          bottom: 60,
+                          top: 48,
                           left: 0,
                           right: 0,
                           child: Center(
                             child: SizedBox(
-                              width: 36,
-                              height: 36,
+                              width: 28,
+                              height: 28,
                               child: CircularProgressIndicator(
-                                strokeWidth: 3.5,
+                                strokeWidth: 3,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   Colors.black,
                                 ),
