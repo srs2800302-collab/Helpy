@@ -28,7 +28,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       if (_initialized) return;
       _initialized = true;
 
-      await Future.delayed(const Duration(milliseconds: 3200));
+      await Future.delayed(const Duration(milliseconds: 3600));
       if (!mounted) return;
 
       await ref.read(authControllerProvider.notifier).initialize();
@@ -44,15 +44,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final screen = MediaQuery.of(context).size;
+    final crabWidth = screen.width * 0.72;
 
     return Scaffold(
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
           final t = _controller.value;
-          final moveX = (t - 0.5) * screen.width * 0.42;
-          final bounce = math.sin(t * math.pi * 10) * 18;
+
+          final walkX = (t - 0.5) * screen.width * 0.48;
+          final bounceY = math.sin(t * math.pi * 10) * 22;
           final tilt = math.sin(t * math.pi * 4) * 0.08;
+          final scale = 1.0 + math.sin(t * math.pi * 6) * 0.035;
 
           return Stack(
             fit: StackFit.expand,
@@ -64,14 +67,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 ),
               ),
               Positioned(
-                left: screen.width * 0.5 - (screen.width * 0.32) + moveX,
-                bottom: screen.height * 0.08 + bounce,
+                left: screen.width * 0.5 - (crabWidth / 2) + walkX,
+                bottom: screen.height * 0.07 + bounceY,
                 child: Transform.rotate(
                   angle: tilt,
-                  child: Image.asset(
-                    'assets/crab.png',
-                    width: screen.width * 0.64,
-                    fit: BoxFit.contain,
+                  child: Transform.scale(
+                    scale: scale,
+                    child: Image.asset(
+                      'assets/crab.png',
+                      width: crabWidth,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
