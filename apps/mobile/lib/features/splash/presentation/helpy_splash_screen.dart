@@ -26,8 +26,8 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 2600),
+    )..repeat();
 
     _timer = Timer(const Duration(milliseconds: 2600), () {
       if (!mounted) return;
@@ -56,7 +56,7 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
       children: [
         widget.child,
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 350),
           child: _showSplash
               ? ColoredBox(
                   key: const ValueKey('helpy_splash'),
@@ -66,15 +66,19 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
                       child: AnimatedBuilder(
                         animation: curve,
                         builder: (context, child) {
-                          final dx = math.sin(curve.value * math.pi * 2) * 8;
-                          final dy = math.cos(curve.value * math.pi * 2) * 5;
-                          final scale = 1 + (curve.value * 0.03);
+                          final wave = math.sin(curve.value * math.pi * 2);
+                          final floatY = wave * 10;
+                          final tilt = wave * 0.03;
+                          final scale = 1.0 + ((wave + 1) / 2) * 0.05;
 
                           return Transform.translate(
-                            offset: Offset(dx, dy),
-                            child: Transform.scale(
-                              scale: scale,
-                              child: child,
+                            offset: Offset(0, floatY),
+                            child: Transform.rotate(
+                              angle: tilt,
+                              child: Transform.scale(
+                                scale: scale,
+                                child: child,
+                              ),
                             ),
                           );
                         },
