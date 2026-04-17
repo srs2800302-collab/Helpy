@@ -5,14 +5,17 @@ import 'package:flutter/material.dart';
 class HelpySplashScreen extends StatefulWidget {
   final Widget child;
 
-  const HelpySplashScreen({                               super.key,
+  const HelpySplashScreen({
+    super.key,
     required this.child,
   });
 
   @override
   State<HelpySplashScreen> createState() => _HelpySplashScreenState();
 }
-                                                      class _HelpySplashScreenState extends State<HelpySplashScreen>                                                  with SingleTickerProviderStateMixin {
+
+class _HelpySplashScreenState extends State<HelpySplashScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   Timer? _timer;
   bool _showSplash = true;
@@ -48,6 +51,8 @@ class HelpySplashScreen extends StatefulWidget {
       curve: Curves.easeInOut,
     );
 
+    final screen = MediaQuery.of(context).size;
+
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -62,7 +67,7 @@ class HelpySplashScreen extends StatefulWidget {
                     animation: wave,
                     builder: (context, child) {
                       final v = math.sin(wave.value * math.pi * 2);
-                      final scale = 1.0 + ((v + 1) / 2) * 0.06;
+                      final scale = 1.0 + ((v + 1) / 2) * 0.05;
 
                       return Transform.scale(
                         scale: scale,
@@ -71,15 +76,18 @@ class HelpySplashScreen extends StatefulWidget {
                     },
                     child: Stack(
                       children: [
-                        // 🔥 FULLSCREEN IMAGE
                         Positioned.fill(
-                          child: Image.asset(
-                            'assets/icon.png',
-                            fit: BoxFit.cover,
+                          child: Container(
+                            color: Colors.white,
+                            alignment: Alignment.center,
+                            child: Image.asset(
+                              'assets/icon.png',
+                              fit: BoxFit.contain,
+                              width: screen.width * 0.92,
+                              height: screen.height * 0.75,
+                            ),
                           ),
                         ),
-
-                        // 🔥 LOADER
                         const Positioned(
                           bottom: 60,
                           left: 0,
@@ -91,7 +99,7 @@ class HelpySplashScreen extends StatefulWidget {
                               child: CircularProgressIndicator(
                                 strokeWidth: 3.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                                  Colors.black,
                                 ),
                               ),
                             ),
