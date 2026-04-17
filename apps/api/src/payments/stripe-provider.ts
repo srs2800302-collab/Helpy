@@ -14,6 +14,26 @@ type StripeEnv = {
   STRIPE_WEBHOOK_SECRET?: string;
 };
 
+type StripeErrorResponse = {
+  error?: {
+    message?: string;
+  };
+};
+
+type StripeCustomerResponse = {
+  id: string;
+};
+
+type StripeSetupIntentResponse = {
+  id: string;
+  client_secret: string;
+};
+
+type StripePaymentIntentResponse = {
+  id: string;
+  status: string;
+};
+
 function requireEnv(name: keyof StripeEnv, env: StripeEnv): string {
   const value = env[name];
   if (!value || !value.trim()) {
@@ -32,6 +52,27 @@ function formBody(data: Record<string, string | number | undefined | null>) {
   return params;
 }
 
+function isStripeErrorResponse(data: unknown): data is StripeErrorResponse {
+  return typeof data === 'object' && data !== null;
+}
+
+function getObjectValue(
+  data: unknown,
+): Record<string, unknown> | null {
+  return typeof data === 'object' && data !== null
+    ? (data as Record<string, unknown>)
+    : null;
+}
+
+function readStringField(data: unknown, field: string): string {
+  const obj = getObjectValue(data);
+  const value = obj?.[field];
+  if (typeof value !== 'string' || !value) {
+    throw new Error(`Stripe response missing valid "${field}"`);
+  }
+  return value;
+}
+
 export class StripePaymentProvider implements PaymentProvider {
   constructor(private readonly env: StripeEnv) {}
 
@@ -43,7 +84,7 @@ export class StripePaymentProvider implements PaymentProvider {
     return requireEnv('STRIPE_PUBLISHABLE_KEY', this.env);
   }
 
-  private async stripePost(path: string, body: URLSearchParams) {
+  private async stripePost(path: string, body: URLSearchParams): Promise<unknown> {
     const response = await fetch(`https://api.stripe.com/v1/${path}`, {
       method: 'POST',
       headers: {
@@ -53,12 +94,13 @@ export class StripePaymentProvider implements PaymentProvider {
       body,
     });
 
-    const data = await response.json<any>();
+    const data: unknown = await response.json();
 
     if (!response.ok) {
       const message =
-        data?.error?.message ||
-        `Stripe request failed: ${response.status}`;
+        isStripeErrorResponse(data) && data.error?.message
+          ? data.error.message
+          : `Stripe request failed: ${response.status}`;
       throw new Error(message);
     }
 
@@ -76,9 +118,13 @@ export class StripePaymentProvider implements PaymentProvider {
 
     const data = await this.stripePost('customers', body);
 
+    const customer: StripeCustomerResponse = {
+      id: readStringField(data, 'id'),
+    };
+
     return {
       provider: 'stripe',
-      customerId: data.id,
+      customerId: customer.id,
     };
   }
 
@@ -93,11 +139,16 @@ export class StripePaymentProvider implements PaymentProvider {
 
     const data = await this.stripePost('setup_intents', body);
 
+    const setupIntent: StripeSetupIntentResponse = {
+      id: readStringField(data, 'id'),
+      client_secret: readStringField(data, 'client_secret'),
+    };
+
     return {
       provider: 'stripe',
       customerId: input.customerId,
-      setupIntentId: data.id,
-      clientSecret: data.client_secret,
+      setupIntentId: setupIntent.id,
+      clientSecret: setupIntent.client_secret,
       publishableKey: this.publishableKey,
     };
   }
@@ -122,10 +173,15 @@ export class StripePaymentProvider implements PaymentProvider {
 
     const data = await this.stripePost('payment_intents', body);
 
+    const paymentIntent: StripePaymentIntentResponse = {
+      id: readStringField(data, 'id'),
+      status: readStringField(data, 'status'),
+    };
+
     return {
       provider: 'stripe',
-      paymentIntentId: data.id,
-      status: data.status,
+      paymentIntentId: paymentIntent.id,
+      status: paymentIntent.status,
     };
   }
 }
