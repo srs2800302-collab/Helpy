@@ -6,6 +6,6 @@
     </style>
 
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowBackground">@drawable/beach_bg</item>
     </style>
 </resources>

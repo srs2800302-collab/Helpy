@@ -34,6 +34,7 @@ flutter:
     - assets/
     - assets/translations/
     - .env
+
 flutter_launcher_icons:
   android: true
   ios: false
@@ -49,3 +50,5 @@ flutter_native_splash:
   web: false
   fullscreen: true
 
+dependency_overrides:
+  objective_c: 9.1.0
