@@ -30,20 +30,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            'assets/beach.png',
-            fit: BoxFit.cover,
-          ),
-          Center(
-            child: Image.asset(
-              'assets/crab.gif',
-              width: 220,
-            ),
-          ),
-        ],
+      body: SizedBox.expand(
+        child: Image.asset(
+          'assets/crab.gif',
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
