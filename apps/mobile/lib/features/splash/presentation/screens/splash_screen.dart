@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
@@ -10,25 +9,18 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2600),
-    )..repeat(reverse: true);
-
     Future.microtask(() async {
       if (_initialized) return;
       _initialized = true;
 
-      await Future.delayed(const Duration(milliseconds: 3600));
+      await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
 
       await ref.read(authControllerProvider.notifier).initialize();
@@ -36,69 +28,22 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final screen = MediaQuery.of(context).size;
-    final crabWidth = screen.width * 0.72;
-
     return Scaffold(
-      body: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          final t = _controller.value;
-
-          final walkX = (t - 0.5) * screen.width * 0.48;
-          final bounceY = math.sin(t * math.pi * 10) * 22;
-          final tilt = math.sin(t * math.pi * 4) * 0.08;
-          final scale = 1.0 + math.sin(t * math.pi * 6) * 0.035;
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/beach.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned(
-                left: screen.width * 0.5 - (crabWidth / 2) + walkX,
-                bottom: screen.height * 0.07 + bounceY,
-                child: Transform.rotate(
-                  angle: tilt,
-                  child: Transform.scale(
-                    scale: scale,
-                    child: Image.asset(
-                      'assets/crab.png',
-                      width: crabWidth,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ),
-              const Positioned(
-                top: 42,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/beach.png',
+            fit: BoxFit.cover,
+          ),
+          Center(
+            child: Image.asset(
+              'assets/crab.gif',
+              width: 220,
+            ),
+          ),
+        ],
       ),
     );
   }
