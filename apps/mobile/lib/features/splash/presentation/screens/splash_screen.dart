@@ -33,7 +33,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       body: SizedBox.expand(
         child: Image.asset(
           'assets/crab.gif',
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
         ),
       ),
     );
