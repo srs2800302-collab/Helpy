@@ -15,6 +15,10 @@ class VerifyOtpScreen extends ConsumerWidget {
 
     final isBusy = state.isLoading;
 
+    Future<void> submit() async {
+      await controller.verifyOtp();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('verify_title')),
@@ -34,7 +38,13 @@ class VerifyOtpScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             TextField(
               keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
               onChanged: controller.setOtpCode,
+              onSubmitted: (_) {
+                if (!isBusy) {
+                  submit();
+                }
+              },
               enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -61,11 +71,7 @@ class VerifyOtpScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isBusy
-                    ? null
-                    : () async {
-                        await controller.verifyOtp();
-                      },
+                onPressed: isBusy ? null : submit,
                 child: isBusy
                     ? const SizedBox(
                         height: 18,
