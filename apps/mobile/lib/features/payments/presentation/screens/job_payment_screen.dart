@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 
 class JobPaymentScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -80,12 +81,13 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
     final price = widget.price;
-    final depositPercent =
-        (price != null && price > 0) ? (widget.depositAmount / price * 100) : null;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('deposit_payment')),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -107,19 +109,12 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                     ),
                     if (price != null) ...[
                       const SizedBox(height: 12),
-                      Text('${l10n.t('total_price')}: ${price.toStringAsFixed(0)} THB'),
+                      Text(
+                        '${l10n.t('total_price')}: ${price.toStringAsFixed(0)} THB',
+                      ),
                     ],
                     const SizedBox(height: 12),
                     Text('${l10n.t('deposit_label')}: THB $amountLabel'),
-                    if (depositPercent != null) ...[
-                      const SizedBox(height: 8),
-                      Text('${l10n.t('platform_fee')}: ${depositPercent.toStringAsFixed(0)}%'),
-                    ],
-                    const SizedBox(height: 12),
-                    const Text(
-                      'This payment is the platform fee. The remaining amount is paid directly to the master.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
                   ],
                 ),
               ),
@@ -143,7 +138,8 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (_isPaying || widget.depositAmount <= 0) ? null : _payDeposit,
+                onPressed:
+                    (_isPaying || widget.depositAmount <= 0) ? null : _payDeposit,
                 child: _isPaying
                     ? const SizedBox(
                         height: 18,

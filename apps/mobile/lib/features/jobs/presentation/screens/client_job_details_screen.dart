@@ -180,19 +180,31 @@ class ClientJobDetailsScreen extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  if ((job.addressText ?? '').trim().isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(job.addressText!.trim()),
+                  ],
                   const SizedBox(height: 12),
-                  Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
+                  Text(
+                    '${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}',
+                  ),
                   const SizedBox(height: 8),
-                  Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
+                  Text(
+                    '${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}',
+                  ),
                   const SizedBox(height: 8),
                   Text('${l10n.t('created_label')}: ${job.createdAt.toLocal()}'),
                   if (job.price != null) ...[
                     const SizedBox(height: 8),
-                    Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
+                    Text(
+                      '${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB',
+                    ),
                   ],
                   if (job.depositAmount != null) ...[
                     const SizedBox(height: 8),
-                    Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
+                    Text(
+                      '${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB',
+                    ),
                   ],
                   if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
                     const SizedBox(height: 8),
@@ -204,30 +216,14 @@ class ClientJobDetailsScreen extends StatelessWidget {
                   ],
                   if (job.selectedOfferPrice != null) ...[
                     const SizedBox(height: 8),
-                    Text('${l10n.t('price_label')}: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
+                    Text(
+                      '${l10n.t('price_label')}: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB',
+                    ),
                   ],
                 ],
               ),
             ),
           ),
-          if ((job.description ?? '').trim().isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(job.description!.trim()),
-              ),
-            ),
-          ],
-          if ((job.addressText ?? '').trim().isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(job.addressText!.trim()),
-              ),
-            ),
-          ],
           if (primaryAction != null) ...[
             const SizedBox(height: 24),
             SizedBox(
