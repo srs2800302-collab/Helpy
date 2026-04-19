@@ -8,6 +8,7 @@ import '../../domain/auth_session.dart';
 import 'auth_state.dart';
 
 const _debugClientUserId = '6570ea80-6707-4c0d-87e8-6b5de0bac878';
+const _debugMasterUserId = '2cb75bef-d020-4b33-ad76-8573346f6f82';
 const _debugOtpCode = '123456';
 const _debugPhoneFallback = '+70000000000';
 
@@ -209,9 +210,12 @@ class AuthController extends StateNotifier<AuthState> {
           currentSession.accessToken.startsWith('debug_');
 
       if (isDebugSession) {
+        final userId =
+            role == UserRole.master ? _debugMasterUserId : _debugClientUserId;
+
         await _activateSession(
           AuthSession(
-            userId: currentSession.userId,
+            userId: userId,
             phone: currentSession.phone,
             role: role,
             isNewUser: false,
