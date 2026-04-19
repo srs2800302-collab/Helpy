@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 
 class CreateOfferScreen extends ConsumerWidget {
   final String jobId;
@@ -25,6 +26,9 @@ class CreateOfferScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(jobTitle),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -44,9 +48,9 @@ class CreateOfferScreen extends ConsumerWidget {
               keyboardType: TextInputType.number,
               onChanged: controller.setPrice,
               enabled: !isBusy,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Price (THB)',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: '${l10n.t('price_label')} (THB)',
               ),
             ),
             const SizedBox(height: 16),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/auth_session.dart';
 
 class RoleSelectionScreen extends ConsumerWidget {
@@ -19,6 +20,9 @@ class RoleSelectionScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('choose_role')),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -51,9 +55,8 @@ class RoleSelectionScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: isBusy
-                    ? null
-                    : () => controller.selectRole(UserRole.client),
+                onPressed:
+                    isBusy ? null : () => controller.selectRole(UserRole.client),
                 child: isBusy
                     ? const SizedBox(
                         height: 18,
@@ -67,9 +70,8 @@ class RoleSelectionScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: isBusy
-                    ? null
-                    : () => controller.selectRole(UserRole.master),
+                onPressed:
+                    isBusy ? null : () => controller.selectRole(UserRole.master),
                 child: isBusy
                     ? const SizedBox(
                         height: 18,

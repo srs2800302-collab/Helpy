@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/category_mapper.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
 
 class MasterMarketplaceScreen extends ConsumerStatefulWidget {
@@ -39,6 +40,7 @@ class _MasterMarketplaceScreenState
       appBar: AppBar(
         title: Text(l10n.t('marketplace')),
         actions: [
+          const AppLanguageMenuButton(),
           IconButton(
             onPressed: state.isLoading ? null : _refresh,
             icon: const Icon(Icons.refresh),
