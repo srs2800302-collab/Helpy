@@ -21,74 +21,54 @@ class SharedPrefsTokenStorage implements TokenStorage {
   static const _refreshKey = 'fixi_refresh_token';
   static const _backgroundedAtKey = 'fixi_backgrounded_at';
 
-  @override
-  Future<void> saveAccessToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_accessKey, token);
-  }
+  Future<SharedPreferences> get _prefs async => SharedPreferences.getInstance();
 
-  @override
-  Future<String?> getAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_accessKey);
+  Future<String?> _readTrimmed(String key) async {
+    final value = (await _prefs).getString(key);
     if (value == null) return null;
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
   }
 
-  @override
-  Future<void> clearAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_accessKey);
+  Future<void> _write(String key, String value) async {
+    await (await _prefs).setString(key, value);
+  }
+
+  Future<void> _remove(String key) async {
+    await (await _prefs).remove(key);
   }
 
   @override
-  Future<void> saveRefreshToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_refreshKey, token);
-  }
+  Future<void> saveAccessToken(String token) => _write(_accessKey, token);
 
   @override
-  Future<String?> getRefreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_refreshKey);
-    if (value == null) return null;
-    final trimmed = value.trim();
-    return trimmed.isEmpty ? null : trimmed;
-  }
+  Future<String?> getAccessToken() => _readTrimmed(_accessKey);
 
   @override
-  Future<void> clearRefreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_refreshKey);
-  }
+  Future<void> clearAccessToken() => _remove(_accessKey);
 
   @override
-  Future<void> saveBackgroundedAt(String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_backgroundedAtKey, value);
-  }
+  Future<void> saveRefreshToken(String token) => _write(_refreshKey, token);
 
   @override
-  Future<String?> getBackgroundedAt() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_backgroundedAtKey);
-    if (value == null) return null;
-    final trimmed = value.trim();
-    return trimmed.isEmpty ? null : trimmed;
-  }
+  Future<String?> getRefreshToken() => _readTrimmed(_refreshKey);
 
   @override
-  Future<void> clearBackgroundedAt() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_backgroundedAtKey);
-  }
+  Future<void> clearRefreshToken() => _remove(_refreshKey);
+
+  @override
+  Future<void> saveBackgroundedAt(String value) => _write(_backgroundedAtKey, value);
+
+  @override
+  Future<String?> getBackgroundedAt() => _readTrimmed(_backgroundedAtKey);
+
+  @override
+  Future<void> clearBackgroundedAt() => _remove(_backgroundedAtKey);
 
   @override
   Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_accessKey);
-    await prefs.remove(_refreshKey);
-    await prefs.remove(_backgroundedAtKey);
+    await _remove(_accessKey);
+    await _remove(_refreshKey);
+    await _remove(_backgroundedAtKey);
   }
 }

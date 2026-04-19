@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
+import '../../../../core/storage/token_storage.dart';
 import '../../domain/auth_session.dart';
 import 'auth_state.dart';
 
@@ -17,34 +18,27 @@ class AuthController extends StateNotifier<AuthState> {
 
   AuthController(this.ref) : super(const AuthState());
 
+  TokenStorage get _storage => ref.read(tokenStorageProvider);
+
   Future<void> initialize() async {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final storage = ref.read(tokenStorageProvider);
-      final backgroundedAtRaw = await storage.getBackgroundedAt();
+      final backgroundedAtRaw = await _storage.getBackgroundedAt();
 
       if (backgroundedAtRaw != null) {
         final backgroundedAt = DateTime.tryParse(backgroundedAtRaw);
         if (backgroundedAt != null &&
             DateTime.now().difference(backgroundedAt) >= _sessionTimeout) {
-          await storage.clearAll();
-          state = state.copyWith(
-            isLoading: false,
-            initialized: true,
-            phone: '',
-            otpCode: '',
-            clearSession: true,
-            clearError: true,
-          );
+          await _clearSessionState();
           return;
         }
 
-        await storage.clearBackgroundedAt();
+        await _storage.clearBackgroundedAt();
       }
 
-      final accessToken = await storage.getAccessToken();
-      final refreshToken = await storage.getRefreshToken();
+      final accessToken = await _storage.getAccessToken();
+      final refreshToken = await _storage.getRefreshToken();
 
       if (accessToken == null || accessToken.isEmpty) {
         state = state.copyWith(
@@ -56,10 +50,8 @@ class AuthController extends StateNotifier<AuthState> {
       }
 
       if (kDebugMode && accessToken.startsWith('debug_')) {
-        state = state.copyWith(
-          isLoading: false,
-          initialized: true,
-          session: AuthSession(
+        await _activateSession(
+          AuthSession(
             userId: _debugClientUserId,
             phone: state.phone.isNotEmpty ? state.phone : _debugPhoneFallback,
             role: UserRole.client,
@@ -68,20 +60,19 @@ class AuthController extends StateNotifier<AuthState> {
             accessToken: accessToken,
             refreshToken: refreshToken ?? 'debug_refresh_token',
           ),
+          persistTokens: false,
         );
         return;
       }
 
-      final api = ref.read(authApiProvider);
-      final current = await api.getCurrentUser();
-
+      final current = await ref.read(authApiProvider).getCurrentUser();
       state = state.copyWith(
         isLoading: false,
         initialized: true,
         session: current,
       );
     } catch (e) {
-      await ref.read(tokenStorageProvider).clearAll();
+      await _storage.clearAll();
       final appError = ApiErrorMapper.map(e);
 
       state = state.copyWith(
@@ -177,25 +168,16 @@ class AuthController extends StateNotifier<AuthState> {
           return false;
         }
 
-        final session = AuthSession(
-          userId: _debugClientUserId,
-          phone: normalizedPhone,
-          role: UserRole.client,
-          isNewUser: false,
-          needsRoleSelection: false,
-          accessToken: 'debug_access_token',
-          refreshToken: 'debug_refresh_token',
-        );
-
-        final storage = ref.read(tokenStorageProvider);
-        await storage.saveAccessToken(session.accessToken);
-        await storage.saveRefreshToken(session.refreshToken);
-        await storage.clearBackgroundedAt();
-
-        state = state.copyWith(
-          isLoading: false,
-          initialized: true,
-          session: session,
+        await _activateSession(
+          AuthSession(
+            userId: _debugClientUserId,
+            phone: normalizedPhone,
+            role: UserRole.client,
+            isNewUser: false,
+            needsRoleSelection: false,
+            accessToken: 'debug_access_token',
+            refreshToken: 'debug_refresh_token',
+          ),
         );
         return true;
       }
@@ -205,16 +187,7 @@ class AuthController extends StateNotifier<AuthState> {
             normalizedOtp,
           );
 
-      final storage = ref.read(tokenStorageProvider);
-      await storage.saveAccessToken(session.accessToken);
-      await storage.saveRefreshToken(session.refreshToken);
-      await storage.clearBackgroundedAt();
-
-      state = state.copyWith(
-        isLoading: false,
-        initialized: true,
-        session: session,
-      );
+      await _activateSession(session);
       return true;
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
@@ -232,15 +205,7 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final updated = await ref.read(authApiProvider).selectRole(role);
 
-      final storage = ref.read(tokenStorageProvider);
-      await storage.saveAccessToken(updated.accessToken);
-      await storage.saveRefreshToken(updated.refreshToken);
-      await storage.clearBackgroundedAt();
-
-      state = state.copyWith(
-        isLoading: false,
-        session: updated,
-      );
+      await _activateSession(updated);
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
@@ -251,7 +216,33 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> handleSessionExpired() async {
-    await ref.read(tokenStorageProvider).clearAll();
+    await _clearSessionState();
+  }
+
+  Future<void> logout() async {
+    await _storage.clearAll();
+    state = const AuthState(initialized: true);
+  }
+
+  Future<void> _activateSession(
+    AuthSession session, {
+    bool persistTokens = true,
+  }) async {
+    if (persistTokens) {
+      await _storage.saveAccessToken(session.accessToken);
+      await _storage.saveRefreshToken(session.refreshToken);
+    }
+    await _storage.clearBackgroundedAt();
+
+    state = state.copyWith(
+      isLoading: false,
+      initialized: true,
+      session: session,
+    );
+  }
+
+  Future<void> _clearSessionState() async {
+    await _storage.clearAll();
     state = state.copyWith(
       isLoading: false,
       initialized: true,
@@ -260,11 +251,6 @@ class AuthController extends StateNotifier<AuthState> {
       clearSession: true,
       clearError: true,
     );
-  }
-
-  Future<void> logout() async {
-    await ref.read(tokenStorageProvider).clearAll();
-    state = const AuthState(initialized: true);
   }
 
   String _normalizePhone(String value) {
