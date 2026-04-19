@@ -158,12 +158,12 @@ export async function handleRequest(request: Request, env: any) {
     return getJobs(request, env);
   }
 
-  if (path === '/api/v1/jobs/available' && method === 'GET') {
-    return getAvailableJobs(request, env);
-  }
-
   if (path === '/api/v1/jobs' && method === 'POST') {
     return createJob(request, env);
+  }
+
+  if (path === '/api/v1/jobs/available' && method === 'GET') {
+    return getAvailableJobs(request, env);
   }
 
   if (parts[0] === 'api' && parts[1] === 'v1' && parts[2] === 'jobs' && parts[3]) {
