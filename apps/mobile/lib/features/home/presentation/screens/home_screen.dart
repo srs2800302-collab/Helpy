@@ -39,7 +39,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
-        _pausedAt = DateTime.now();
+        final now = DateTime.now();
+        _pausedAt = now;
+        ref.read(tokenStorageProvider).saveBackgroundedAt(now.toIso8601String());
         break;
       case AppLifecycleState.resumed:
         _handleResumeTimeout();
@@ -58,7 +60,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
 
     final elapsed = DateTime.now().difference(pausedAt);
     final authState = ref.read(authControllerProvider);
-    if (authState.session == null || elapsed < _sessionTimeout) return;
+    final storage = ref.read(tokenStorageProvider);
+
+    if (authState.session == null) {
+      await storage.clearBackgroundedAt();
+      return;
+    }
+
+    if (elapsed < _sessionTimeout) {
+      await storage.clearBackgroundedAt();
+      return;
+    }
 
     _isHandlingTimeout = true;
     try {

@@ -11,6 +11,8 @@ const _debugOtpCode = '123456';
 const _debugPhoneFallback = '+70000000000';
 
 class AuthController extends StateNotifier<AuthState> {
+  static const _sessionTimeout = Duration(minutes: 5);
+
   final Ref ref;
 
   AuthController(this.ref) : super(const AuthState());
@@ -20,6 +22,27 @@ class AuthController extends StateNotifier<AuthState> {
 
     try {
       final storage = ref.read(tokenStorageProvider);
+      final backgroundedAtRaw = await storage.getBackgroundedAt();
+
+      if (backgroundedAtRaw != null) {
+        final backgroundedAt = DateTime.tryParse(backgroundedAtRaw);
+        if (backgroundedAt != null &&
+            DateTime.now().difference(backgroundedAt) >= _sessionTimeout) {
+          await storage.clearAll();
+          state = state.copyWith(
+            isLoading: false,
+            initialized: true,
+            phone: '',
+            otpCode: '',
+            clearSession: true,
+            clearError: true,
+          );
+          return;
+        }
+
+        await storage.clearBackgroundedAt();
+      }
+
       final accessToken = await storage.getAccessToken();
       final refreshToken = await storage.getRefreshToken();
 
@@ -167,6 +190,7 @@ class AuthController extends StateNotifier<AuthState> {
         final storage = ref.read(tokenStorageProvider);
         await storage.saveAccessToken(session.accessToken);
         await storage.saveRefreshToken(session.refreshToken);
+        await storage.clearBackgroundedAt();
 
         state = state.copyWith(
           isLoading: false,
@@ -184,6 +208,7 @@ class AuthController extends StateNotifier<AuthState> {
       final storage = ref.read(tokenStorageProvider);
       await storage.saveAccessToken(session.accessToken);
       await storage.saveRefreshToken(session.refreshToken);
+      await storage.clearBackgroundedAt();
 
       state = state.copyWith(
         isLoading: false,
@@ -210,6 +235,7 @@ class AuthController extends StateNotifier<AuthState> {
       final storage = ref.read(tokenStorageProvider);
       await storage.saveAccessToken(updated.accessToken);
       await storage.saveRefreshToken(updated.refreshToken);
+      await storage.clearBackgroundedAt();
 
       state = state.copyWith(
         isLoading: false,
