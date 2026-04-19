@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 
 class MasterOffersScreen extends ConsumerStatefulWidget {
@@ -50,9 +49,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: isInitialLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? const Center(child: CircularProgressIndicator())
               : state.errorMessage != null && state.items.isEmpty
                   ? ListView(
                       children: [
@@ -90,13 +87,28 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
+
+                            final title = item.jobTitle.trim().isNotEmpty
+                                ? item.jobTitle.trim()
+                                : 'Job ${item.jobId}';
+
+                            final comment = (item.priceComment ?? '').trim();
+                            final message = (item.message ?? '').trim();
+
                             return Card(
                               child: ListTile(
-                                title: Text(item.jobTitle),
-                                subtitle: Text(
-                                  '${mapCategory(item.categorySlug)} • ${item.status}\n${item.message ?? ''}',
+                                title: Text(title),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB'),
+                                    Text('ID: ${item.jobId}'),
+                                    if (comment.isNotEmpty) Text(comment),
+                                    if (message.isNotEmpty) Text(message),
+                                  ],
                                 ),
-                                isThreeLine: true,
+                                isThreeLine: comment.isNotEmpty || message.isNotEmpty,
+                                trailing: Text(item.status),
                               ),
                             );
                           },
