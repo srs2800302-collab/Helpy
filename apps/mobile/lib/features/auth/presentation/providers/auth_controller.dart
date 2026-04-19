@@ -176,7 +176,7 @@ class AuthController extends StateNotifier<AuthState> {
             role: null,
             isNewUser: false,
             needsRoleSelection: true,
-            accessToken: 'debug_access_token',
+            accessToken: 'debug_$_debugClientUserId',
             refreshToken: 'debug_refresh_token',
           ),
         );
@@ -220,7 +220,7 @@ class AuthController extends StateNotifier<AuthState> {
             role: role,
             isNewUser: false,
             needsRoleSelection: false,
-            accessToken: currentSession.accessToken,
+            accessToken: 'debug_$userId',
             refreshToken: currentSession.refreshToken,
           ),
           persistTokens: false,
