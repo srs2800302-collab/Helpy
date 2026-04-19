@@ -16,11 +16,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      if (_initialized) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_initialized || !mounted) return;
       _initialized = true;
-
-      if (!mounted) return;
       await ref.read(authControllerProvider.notifier).initialize();
     });
   }
@@ -28,7 +26,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: SizedBox.expand(
         child: Image(
           image: AssetImage('assets/crab.gif'),
