@@ -16,21 +16,15 @@ class FixiApp extends ConsumerStatefulWidget {
   ConsumerState<FixiApp> createState() => _FixiAppState();
 }
 
-class _FixiAppState extends ConsumerState<FixiApp> with WidgetsBindingObserver {
-  static const _sessionTimeout = Duration(minutes: 5);
-
+class _FixiAppState extends ConsumerState<FixiApp> {
   late final AuthRouterNotifier _routerNotifier;
   late final Object _authListener;
   late final Object _sessionExpiredListener;
   late final GoRouter router;
 
-  DateTime? _pausedAt;
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-
     _routerNotifier = AuthRouterNotifier(const AuthState());
     router = createRouter(_routerNotifier);
 
@@ -49,32 +43,6 @@ class _FixiAppState extends ConsumerState<FixiApp> with WidgetsBindingObserver {
         await ref.read(authControllerProvider.notifier).handleSessionExpired();
       },
     );
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.paused:
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.hidden:
-        _pausedAt = DateTime.now();
-        break;
-      case AppLifecycleState.resumed:
-        final pausedAt = _pausedAt;
-        _pausedAt = null;
-
-        if (pausedAt == null) return;
-
-        final elapsed = DateTime.now().difference(pausedAt);
-        final authState = ref.read(authControllerProvider);
-
-        if (authState.session != null && elapsed >= _sessionTimeout) {
-          ref.read(sessionExpiredTickProvider.notifier).state++;
-        }
-        break;
-      case AppLifecycleState.detached:
-        break;
-    }
   }
 
   @override
@@ -103,7 +71,6 @@ class _FixiAppState extends ConsumerState<FixiApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     (_authListener as ProviderSubscription<AuthState>).close();
     (_sessionExpiredListener as ProviderSubscription<int>).close();
     _routerNotifier.dispose();

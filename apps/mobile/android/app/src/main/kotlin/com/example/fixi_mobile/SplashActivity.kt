@@ -1,42 +1,27 @@
 package com.example.fixi_mobile
 
-import android.net.Uri
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.widget.VideoView
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.FlutterEngineCache
-import io.flutter.embedding.engine.dart.DartExecutor
+import android.widget.ImageView
+import pl.droidsonroids.gif.GifImageView
 
-class SplashActivity : android.app.Activity() {
+class SplashActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val videoView = VideoView(this).apply {
+        val imageView = GifImageView(this).apply {
+            setImageResource(R.raw.crab)
+            scaleType = ImageView.ScaleType.FIT_CENTER
             setBackgroundColor(android.graphics.Color.BLACK)
-            val uri = Uri.parse("android.resource://$packageName/${R.raw.crab_video}")
-            setVideoURI(uri)
-            setOnPreparedListener { mp ->
-                mp.isLooping = true
-                start()
-            }
         }
-        setContentView(videoView)
 
-        val engine = FlutterEngine(this)
-        engine.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint.createDefault()
-        )
-        FlutterEngineCache.getInstance().put("helpy_engine", engine)
+        setContentView(imageView)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(
-                FlutterActivity
-                    .withCachedEngine("helpy_engine")
-                    .build(this)
-            )
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }, 1200)
     }

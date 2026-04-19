@@ -16,13 +16,6 @@ class LoginPhoneScreen extends ConsumerWidget {
 
     final isBusy = state.isLoading;
 
-    Future<void> submit() async {
-      final ok = await controller.requestOtp();
-      if (ok && context.mounted) {
-        context.go('/verify-otp');
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('login_title')),
@@ -42,13 +35,7 @@ class LoginPhoneScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             TextField(
               keyboardType: TextInputType.phone,
-              textInputAction: TextInputAction.done,
               onChanged: controller.setPhone,
-              onSubmitted: (_) {
-                if (!isBusy) {
-                  submit();
-                }
-              },
               enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -75,7 +62,14 @@ class LoginPhoneScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isBusy ? null : submit,
+                onPressed: isBusy
+                    ? null
+                    : () async {
+                        final ok = await controller.requestOtp();
+                        if (ok && context.mounted) {
+                          context.go('/verify-otp');
+                        }
+                      },
                 child: isBusy
                     ? const SizedBox(
                         height: 18,
