@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../client_offers/presentation/screens/job_offers_screen.dart';
-import '../../../jobs/presentation/screens/client_jobs_screen.dart';
+import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
 
 class ClientHomeScreen extends ConsumerStatefulWidget {
@@ -122,6 +121,18 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async {
+              await authController.logout();
+            },
+            child: Text(l10n.t('logout')),
+          ),
+        ),
+      ),
       body: RefreshIndicator(
         onRefresh: _refreshAll,
         child: ListView(
@@ -161,28 +172,14 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                   ),
                 ),
               ),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.t('my_jobs'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+            Center(
+              child: Text(
+                l10n.t('my_jobs'),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ClientJobsScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(l10n.t('open_jobs')),
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 12),
             if (jobsState.isLoading && jobsState.items.isEmpty)
@@ -203,35 +200,21 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               ...jobsState.items.take(10).map(
                     (item) => Card(
                       child: ListTile(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ClientJobDetailsScreen(job: item),
+                            ),
+                          );
+                        },
                         title: Text(item.title),
                         subtitle: Text(
                           '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
                         ),
-                        trailing: (item.status == 'open' || item.status == 'master_selected')
-                            ? OutlinedButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => JobOffersScreen(
-                                        jobId: item.id,
-                                        jobTitle: item.title,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text(l10n.t('job_offers')),
-                              )
-                            : null,
+                        trailing: const Icon(Icons.chevron_right),
                       ),
                     ),
                   ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                await authController.logout();
-              },
-              child: Text(l10n.t('logout')),
-            ),
           ],
         ),
       ),
