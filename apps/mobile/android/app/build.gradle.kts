@@ -42,3 +42,7 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation("pl.droidsonroids.gif:android-gif-drawable:1.2.25")
+}
