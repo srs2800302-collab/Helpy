@@ -61,7 +61,7 @@ class AuthController extends StateNotifier<AuthState> {
             accessToken: accessToken,
             refreshToken: refreshToken ?? 'debug_refresh_token',
           ),
-          persistTokens: false,
+          persistTokens: true,
         );
         return;
       }
@@ -223,7 +223,7 @@ class AuthController extends StateNotifier<AuthState> {
             accessToken: 'debug_$userId',
             refreshToken: currentSession.refreshToken,
           ),
-          persistTokens: false,
+          persistTokens: true,
         );
         return;
       }
