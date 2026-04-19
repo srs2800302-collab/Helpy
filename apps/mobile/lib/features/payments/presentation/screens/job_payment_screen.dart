@@ -49,15 +49,10 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
         userId: session.userId,
         amount: widget.depositAmount,
         currency: 'THB',
-        provider: 'stub_mobile',
       );
 
       if (payment.status != 'paid') {
-        await paymentsApi.markPaymentPaid(
-          paymentId: payment.id,
-          provider: 'stub_mobile',
-          providerRef: payment.providerRef ?? payment.id,
-        );
+        throw Exception('Deposit payment was not completed');
       }
 
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();

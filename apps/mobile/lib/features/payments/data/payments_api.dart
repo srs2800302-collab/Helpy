@@ -11,8 +11,6 @@ class PaymentsApi {
     required String userId,
     required double amount,
     String currency = 'THB',
-    String? provider,
-    String? providerRef,
   }) async {
     final response = await apiClient.dio.post(
       '/jobs/$jobId/deposit',
@@ -24,24 +22,6 @@ class PaymentsApi {
     );
 
     return _mapPayment(response.data['data'] as Map<String, dynamic>);
-  }
-
-  Future<PaymentItem> markPaymentPaid({
-    required String paymentId,
-    String? provider,
-    String? providerRef,
-  }) async {
-    return PaymentItem(
-      id: paymentId,
-      jobId: '',
-      userId: '',
-      type: 'deposit',
-      status: 'paid',
-      amount: 0,
-      currency: 'THB',
-      provider: provider,
-      providerRef: providerRef,
-    );
   }
 
   PaymentItem _mapPayment(Map<String, dynamic> json) {
