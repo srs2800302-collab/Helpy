@@ -54,9 +54,9 @@ class AuthController extends StateNotifier<AuthState> {
           AuthSession(
             userId: _debugClientUserId,
             phone: state.phone.isNotEmpty ? state.phone : _debugPhoneFallback,
-            role: UserRole.client,
+            role: null,
             isNewUser: false,
-            needsRoleSelection: false,
+            needsRoleSelection: true,
             accessToken: accessToken,
             refreshToken: refreshToken ?? 'debug_refresh_token',
           ),
@@ -172,9 +172,9 @@ class AuthController extends StateNotifier<AuthState> {
           AuthSession(
             userId: _debugClientUserId,
             phone: normalizedPhone,
-            role: UserRole.client,
+            role: null,
             isNewUser: false,
-            needsRoleSelection: false,
+            needsRoleSelection: true,
             accessToken: 'debug_access_token',
             refreshToken: 'debug_refresh_token',
           ),
@@ -203,8 +203,28 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final updated = await ref.read(authApiProvider).selectRole(role);
+      final currentSession = state.session;
+      final isDebugSession = kDebugMode &&
+          currentSession != null &&
+          currentSession.accessToken.startsWith('debug_');
 
+      if (isDebugSession) {
+        await _activateSession(
+          AuthSession(
+            userId: currentSession.userId,
+            phone: currentSession.phone,
+            role: role,
+            isNewUser: false,
+            needsRoleSelection: false,
+            accessToken: currentSession.accessToken,
+            refreshToken: currentSession.refreshToken,
+          ),
+          persistTokens: false,
+        );
+        return;
+      }
+
+      final updated = await ref.read(authApiProvider).selectRole(role);
       await _activateSession(updated);
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
