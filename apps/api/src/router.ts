@@ -1,4 +1,4 @@
-import { createJob, getJobById, getJobs, getJobsByUser, updateJobStatus } from './jobs';
+import { createJob, getAvailableJobs, getJobById, getJobs, getJobsByUser, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
 import { createReview, getMasterSummary, getReviews } from './reviews';
@@ -156,6 +156,10 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/api/v1/jobs' && method === 'GET') {
     return getJobs(request, env);
+  }
+
+  if (path === '/api/v1/jobs/available' && method === 'GET') {
+    return getAvailableJobs(request, env);
   }
 
   if (path === '/api/v1/jobs' && method === 'POST') {

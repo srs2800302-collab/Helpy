@@ -93,6 +93,33 @@ export async function getJobs(request: Request, env: any) {
   });
 }
 
+export async function getAvailableJobs(request: Request, env: any) {
+  await ensureJobsSchema(env);
+
+  const auth = await requireAuth(request, env);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.role !== 'master') {
+    return Response.json(
+      { success: false, error: 'Only master can view available jobs' },
+      { status: 403 }
+    );
+  }
+
+  const result = await env.DB.prepare(
+    'SELECT * FROM jobs WHERE status = ?1 ORDER BY created_at DESC'
+  )
+    .bind(JOB_STATUS.open)
+    .all();
+
+  return Response.json({
+    success: true,
+    data: await sanitizeJobs(result.results ?? [], env),
+  });
+}
+
 export async function getJobById(id: string, request: Request, env: any) {
   await ensureJobsSchema(env);
 
