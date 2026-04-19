@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -126,10 +127,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final controller = ref.read(chatControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
 
-    final canSend = state.input.trim().isNotEmpty && !state.isLoading && !state.isSending;
+    final canSend =
+        state.input.trim().isNotEmpty && !state.isLoading && !state.isSending;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.t('chat'))),
+      appBar: AppBar(
+        title: Text(l10n.t('chat')),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
+      ),
       body: Column(
         children: [
           if (_currentStatus == 'master_selected')

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 
 class LoginPhoneScreen extends ConsumerWidget {
   const LoginPhoneScreen({super.key});
@@ -26,6 +27,9 @@ class LoginPhoneScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('login_title')),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 
 class VerifyOtpScreen extends ConsumerWidget {
   const VerifyOtpScreen({super.key});
@@ -22,6 +23,9 @@ class VerifyOtpScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('verify_title')),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
