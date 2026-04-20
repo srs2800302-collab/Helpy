@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -15,6 +16,50 @@ class CreateJobScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
+  Future<void> _useCurrentLocation() async {
+    final jobsController = ref.read(jobsControllerProvider.notifier);
+
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location services are disabled')),
+        );
+        return;
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location permission denied')),
+        );
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+
+      jobsController.setLatitude(position.latitude);
+      jobsController.setLongitude(position.longitude);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location added')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to get location: $e')),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -121,6 +166,21 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                 labelText: l10n.t('job_address'),
               ),
             ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: isBusy ? null : _useCurrentLocation,
+                            child: const Text('Use current location'),
+                          ),
+                        ),
+                        if (jobsState.latitude != null && jobsState.longitude != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Lat: ${jobsState.latitude!.toStringAsFixed(6)}, '
+                            'Lng: ${jobsState.longitude!.toStringAsFixed(6)}',
+                          ),
+                        ],
             const SizedBox(height: 16),
             if (jobsState.errorMessage != null) ...[
               Container(
