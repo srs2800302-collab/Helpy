@@ -123,17 +123,17 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       final picker = ImagePicker();
       final picked = await picker.pickMultiImage(
         imageQuality: 85,
-        limit: 5,
+        limit: 10,
       );
 
       if (picked.isEmpty) return;
 
       final current = List<XFile>.from(jobsState.photos);
-      final freeSlots = 5 - current.length;
+      final freeSlots = 10 - current.length;
       if (freeSlots <= 0) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Maximum 5 photos')),
+          const SnackBar(content: Text('Maximum 10 photos')),
         );
         return;
       }
@@ -143,7 +143,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Selected ${next.length} of 5 photos')),
+        SnackBar(content: Text('Selected ${next.length} of 10 photos')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -306,9 +306,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: isBusy || jobsState.photos.length >= 5 ? null : _pickPhotos,
+                    onPressed: isBusy || jobsState.photos.length >= 10 ? null : _pickPhotos,
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: Text('Добавить фото (${jobsState.photos.length}/5)'),
+                    label: Text('Добавить фото (${jobsState.photos.length}/10)'),
                   ),
                 ),
               ],
