@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -110,6 +112,82 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     );
   }
 
+  Widget _buildMiniMap({
+    required bool isBusy,
+    required double? latitude,
+    required double? longitude,
+  }) {
+    final point = LatLng(latitude ?? 12.923556, longitude ?? 100.882455);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isBusy ? null : _pickLocation,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: 72,
+          height: 56,
+          margin: const EdgeInsets.all(6),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Stack(
+            children: [
+              IgnorePointer(
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: point,
+                    initialZoom: 14,
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.none,
+                    ),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.helpy.app',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: point,
+                          width: 24,
+                          height: 24,
+                          child: const Icon(
+                            Icons.location_pin,
+                            size: 24,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                right: 4,
+                top: 4,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Icon(
+                    Icons.open_in_full,
+                    size: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -187,13 +265,19 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               controller: _addressController,
               onChanged: jobsController.setAddressText,
               enabled: !isBusy,
+              minLines: 1,
+              maxLines: 2,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('job_address'),
-                suffixIcon: IconButton(
-                  onPressed: isBusy ? null : _pickLocation,
-                  icon: const Icon(Icons.map_outlined),
-                  tooltip: 'Pick on map',
+                suffixIconConstraints: const BoxConstraints(
+                  minWidth: 84,
+                  minHeight: 68,
+                ),
+                suffixIcon: _buildMiniMap(
+                  isBusy: isBusy,
+                  latitude: jobsState.latitude,
+                  longitude: jobsState.longitude,
                 ),
               ),
             ),

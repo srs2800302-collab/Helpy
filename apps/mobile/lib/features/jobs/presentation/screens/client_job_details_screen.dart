@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
-
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
@@ -89,7 +88,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
         },
         child: Text(l10n.t('pay_deposit')),
       );
-    } else if (job.status == 'open' || job.status == 'master_selected') {
+    } else if (job.status == 'open') {
       primaryAction = OutlinedButton(
         onPressed: () async {
           final changed = await Navigator.of(context).push<bool>(
@@ -107,7 +106,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
         },
         child: Text(l10n.t('job_offers')),
       );
-    } else if (job.status == 'in_progress') {
+    } else if (job.status == 'master_selected' || job.status == 'in_progress') {
       primaryAction = ElevatedButton(
         onPressed: () {
           Navigator.of(context).push(
@@ -180,23 +179,6 @@ class ClientJobDetailsScreen extends ConsumerWidget {
             child: const Text('Delete draft'),
           )
         : null;
-
-    final Widget? secondaryAction =
-        job.status == 'master_selected' || job.status == 'in_progress'
-            ? ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ChatScreen(
-                        jobId: job.id,
-                        jobStatus: job.status,
-                      ),
-                    ),
-                  );
-                },
-                child: Text(l10n.t('chat')),
-              )
-            : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -272,20 +254,13 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               child: primaryAction,
             ),
           ],
-          if (secondaryAction != null) ...[
+          if (deleteDraftAction != null) ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: secondaryAction,
+              child: deleteDraftAction,
             ),
           ],
-        if (deleteDraftAction != null) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: deleteDraftAction,
-          ),
-        ],
         ],
       ),
     );
