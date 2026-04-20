@@ -34,7 +34,6 @@ flutter:
   assets:
     - assets/
     - assets/translations/
-    - .env
 
 flutter_launcher_icons:
   android: true
