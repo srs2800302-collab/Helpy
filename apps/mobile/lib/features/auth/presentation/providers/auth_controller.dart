@@ -55,9 +55,9 @@ class AuthController extends StateNotifier<AuthState> {
           AuthSession(
             userId: _debugClientUserId,
             phone: state.phone.isNotEmpty ? state.phone : _debugPhoneFallback,
-            role: UserRole.client,
+            role: null,
             isNewUser: false,
-            needsRoleSelection: false,
+            needsRoleSelection: true,
             accessToken: accessToken,
             refreshToken: refreshToken ?? 'debug_refresh_token',
           ),
@@ -173,9 +173,9 @@ class AuthController extends StateNotifier<AuthState> {
           AuthSession(
             userId: _debugClientUserId,
             phone: normalizedPhone,
-            role: UserRole.client,
+            role: null,
             isNewUser: false,
-            needsRoleSelection: false,
+            needsRoleSelection: true,
             accessToken: 'debug_$_debugClientUserId',
             refreshToken: 'debug_refresh_token',
           ),
