@@ -49,46 +49,36 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     }
   }
 
-  Future<void> _openOfferChat(String jobId) async {
-    try {
-      final job = await ref.read(jobsApiProvider).getJobById(jobId: jobId);
+  Future<void> _openOfferChat({
+    required String jobId,
+    required String jobStatus,
+  }) async {
+    const allowedStatuses = {
+      'master_selected',
+      'in_progress',
+      'completed',
+      'cancelled',
+      'disputed',
+    };
 
-      const allowedStatuses = {
-        'master_selected',
-        'in_progress',
-        'completed',
-        'cancelled',
-        'disputed',
-      };
-
-      if (!mounted) return;
-
-      if (!allowedStatuses.contains(job.status)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Client has not selected you yet'),
-          ),
-        );
-        return;
-      }
-
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ChatScreen(
-            jobId: jobId,
-            jobStatus: job.status,
-          ),
-        ),
-      );
-
-      if (!mounted) return;
-      await _refreshAll();
-    } catch (e) {
+    if (!allowedStatuses.contains(jobStatus)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to open chat: $e')),
+        const SnackBar(
+          content: Text('Client has not selected you yet'),
+        ),
       );
+      return;
     }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChatScreen(
+          jobId: jobId,
+          jobStatus: jobStatus,
+        ),
+      ),
+    );
   }
 
   String? _visibleError(String? message) {
@@ -225,7 +215,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
                 return Card(
                   child: ListTile(
-                    onTap: () => _openOfferChat(item.jobId),
+                    onTap: () => _openOfferChat(jobId: item.jobId, jobStatus: item.status),
                     title: Text(title),
                     subtitle: Text(
                       '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}',
