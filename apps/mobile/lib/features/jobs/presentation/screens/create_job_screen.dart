@@ -269,7 +269,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(l10n.t('save_draft')),
+                    : const Text('Разместить заказ'),
               ),
             ),
           ],
