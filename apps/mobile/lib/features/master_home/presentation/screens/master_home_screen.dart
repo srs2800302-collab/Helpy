@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
-import '../../../offers/presentation/screens/master_offers_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
+import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 
 class MasterHomeScreen extends ConsumerStatefulWidget {
   const MasterHomeScreen({super.key});
@@ -19,31 +18,12 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(categoriesControllerProvider.notifier).load();
-      ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
       ref.read(offersControllerProvider.notifier).loadMyOffers();
     });
   }
 
-  String _categoryLabel(AppLocalizations l10n, String slug) {
-    switch (slug) {
-      case 'cleaning':
-        return l10n.t('category_cleaning');
-      case 'handyman':
-        return l10n.t('category_handyman');
-      case 'plumbing':
-        return l10n.t('category_plumbing');
-      case 'electrical':
-        return l10n.t('category_electrical');
-      case 'locks':
-        return l10n.t('category_locks');
-      case 'aircon':
-        return l10n.t('category_aircon');
-      case 'furniture_assembly':
-        return l10n.t('category_furniture_assembly');
-      default:
-        return slug;
-    }
+  Future<void> _refreshAll() async {
+    await ref.read(offersControllerProvider.notifier).loadMyOffers();
   }
 
   String _statusLabel(AppLocalizations l10n, String status) {
@@ -69,23 +49,62 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     }
   }
 
-  Future<void> _refreshAll() async {
-    await ref.read(categoriesControllerProvider.notifier).load();
-    await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
-    await ref.read(offersControllerProvider.notifier).loadMyOffers();
+  Future<void> _openOfferChat(String jobId) async {
+    try {
+      final job = await ref.read(jobsApiProvider).getJobById(jobId: jobId);
+
+      const allowedStatuses = {
+        'master_selected',
+        'in_progress',
+        'completed',
+        'cancelled',
+        'disputed',
+      };
+
+      if (!mounted) return;
+
+      if (!allowedStatuses.contains(job.status)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Client has not selected you yet'),
+          ),
+        );
+        return;
+      }
+
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ChatScreen(
+            jobId: jobId,
+            jobStatus: job.status,
+          ),
+        ),
+      );
+
+      if (!mounted) return;
+      await _refreshAll();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to open chat: $e')),
+      );
+    }
+  }
+
+  String? _visibleError(String? message) {
+    if (message == null || message.trim().isEmpty) return null;
+    if (message.toLowerCase().contains('session expired')) return null;
+    return message;
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authControllerProvider);
-    final categoriesState = ref.watch(categoriesControllerProvider);
-    final marketplaceState = ref.watch(marketplaceControllerProvider);
     final offersState = ref.watch(offersControllerProvider);
     final authController = ref.read(authControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+    final currentLocale = ref.watch(currentLocaleProvider);
 
-    final isRefreshing =
-        categoriesState.isLoading || marketplaceState.isLoading || offersState.isLoading;
+    final offersError = _visibleError(offersState.errorMessage);
 
     return Scaffold(
       appBar: AppBar(
@@ -93,6 +112,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
         actions: [
           PopupMenuButton<String>(
             tooltip: l10n.t('language'),
+            initialValue: currentLocale.languageCode,
             onSelected: (value) {
               final locale = switch (value) {
                 'ru' => const Locale('ru'),
@@ -109,164 +129,78 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
             ],
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Icon(Icons.language),
+              child: Icon(
+                Icons.language,
+                color: Colors.lightBlue,
+              ),
             ),
           ),
           IconButton(
-            onPressed: isRefreshing ? null : _refreshAll,
+            onPressed: offersState.isLoading ? null : _refreshAll,
             icon: const Icon(Icons.refresh),
             tooltip: l10n.t('refresh'),
           ),
         ],
       ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async {
+              await authController.logout();
+            },
+            child: Text(l10n.t('logout')),
+          ),
+        ),
+      ),
       body: RefreshIndicator(
         onRefresh: _refreshAll,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.t('master_home_title'),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const MasterMarketplaceScreen(),
                     ),
-                    const SizedBox(height: 12),
-                    Text('${l10n.t('user_id')}: ${authState.session?.userId ?? '-'}'),
-                    const SizedBox(height: 6),
-                    Text('${l10n.t('phone_label')}: ${authState.session?.phone ?? '-'}'),
-                    const SizedBox(height: 6),
-                    Text('${l10n.t('role_label')}: ${authState.session?.role?.toString() == 'client' ? l10n.t('client') : authState.session?.role?.toString() == 'master' ? l10n.t('master') : authState.session?.role?.toString() ?? 'null'}'),
-                  ],
-                ),
+                  );
+                  if (mounted) {
+                    await _refreshAll();
+                  }
+                },
+                icon: const Icon(Icons.work_outline),
+                label: Text(l10n.t('marketplace')),
               ),
             ),
-            const SizedBox(height: 16),
-            if (categoriesState.errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    categoriesState.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              ),
-            if (marketplaceState.errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    marketplaceState.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              ),
-            if (offersState.errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    offersState.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              ),
             const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
+            if (offersError != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: Text(
-                    l10n.t('open_jobs'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    offersError,
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const MasterMarketplaceScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(l10n.t('marketplace')),
+              ),
+            Center(
+              child: Text(
+                l10n.t('my_offers'),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (marketplaceState.isLoading && marketplaceState.items.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (marketplaceState.items.isEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(l10n.t('empty_jobs')),
-                ),
-              )
-            else
-              ...marketplaceState.items.take(3).map(
-                    (item) => Card(
-                      child: ListTile(
-                        title: Text(item.title),
-                        subtitle: Text('${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}'),
-                      ),
-                    ),
-                  ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.t('my_offers'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const MasterOffersScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(l10n.t('my_offers')),
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 12),
             if (offersState.isLoading && offersState.items.isEmpty)
@@ -284,32 +218,22 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                 ),
               )
             else
-              ...offersState.items.take(3).map(
-                    (item) => Card(
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ChatScreen(
-                                jobId: item.jobId,
-                                jobStatus: 'master_selected',
-                              ),
-                            ),
-                          );
-                        },
-                        title: Text(item.jobTitle),
-                        subtitle: Text('${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}'),
-                        trailing: const Icon(Icons.chevron_right),
-                      ),
+              ...offersState.items.take(10).map((item) {
+                final title = item.jobTitle.trim().isNotEmpty
+                    ? item.jobTitle.trim()
+                    : 'Job ${item.jobId}';
+
+                return Card(
+                  child: ListTile(
+                    onTap: () => _openOfferChat(item.jobId),
+                    title: Text(title),
+                    subtitle: Text(
+                      '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}',
                     ),
+                    trailing: const Icon(Icons.chevron_right),
                   ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                await authController.logout();
-              },
-              child: Text(l10n.t('logout')),
-            ),
+                );
+              }),
           ],
         ),
       ),
