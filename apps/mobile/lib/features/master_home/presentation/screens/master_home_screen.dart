@@ -195,37 +195,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                   ),
                 ),
               ),
-            Text(
-              l10n.t('categories'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (categoriesState.isLoading && categoriesState.items.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (categoriesState.items.isEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(l10n.t('loading')),
-                ),
-              )
-            else
-              ...categoriesState.items.take(5).map(
-                    (item) => Card(
-                      child: ListTile(
-                        title: Text(item.slug),
-                        subtitle: Text('${l10n.t('sort_order_label')}: ${item.sortOrder}'),
-                      ),
-                    ),
-                  ),
             const SizedBox(height: 24),
             Row(
               children: [
