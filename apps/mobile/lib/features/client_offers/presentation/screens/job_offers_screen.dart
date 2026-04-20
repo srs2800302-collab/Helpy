@@ -84,9 +84,26 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                       ? ListView(
                           children: [
                             Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Text(l10n.t('empty_offers')),
+                              child: InkWell(
+                                onTap: _refresh,
+                                borderRadius: BorderRadius.circular(12),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(l10n.t('empty_offers')),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        l10n.t('refresh'),
+                                        style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ],
