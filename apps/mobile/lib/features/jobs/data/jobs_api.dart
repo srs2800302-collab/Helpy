@@ -56,6 +56,13 @@ class JobsApi {
         .toList();
   }
 
+  Future<JobItem> getJobById({
+    required String jobId,
+  }) async {
+    final response = await apiClient.dio.get('/jobs/$jobId');
+    return _mapJob(response.data['data'] as Map<String, dynamic>);
+  }
+
   JobItem _mapJob(Map<String, dynamic> json) {
     return JobItem(
       id: json['id'] as String,

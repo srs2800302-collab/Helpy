@@ -98,15 +98,45 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
 
                             return Card(
                               child: ListTile(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => ChatScreen(
-                                        jobId: item.jobId,
-                                        jobStatus: 'master_selected',
+                                onTap: () async {
+                                  try {
+                                    final job = await ref.read(jobsApiProvider).getJobById(
+                                          jobId: item.jobId,
+                                        );
+
+                                    const allowedStatuses = {
+                                      'master_selected',
+                                      'in_progress',
+                                      'completed',
+                                      'cancelled',
+                                      'disputed',
+                                    };
+
+                                    if (!context.mounted) return;
+
+                                    if (!allowedStatuses.contains(job.status)) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Client has not selected you yet'),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => ChatScreen(
+                                          jobId: item.jobId,
+                                          jobStatus: job.status,
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  } catch (e) {
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Failed to open chat: $e')),
+                                    );
+                                  }
                                 },
                                 title: Text(title),
                                 subtitle: Column(
