@@ -4,6 +4,7 @@ import { selectOffer } from './select-offer';
 import { createReview, getMasterSummary, getReviews } from './reviews';
 import { completeJob } from './complete-job';
 import { cancelJob } from './cancel-job';
+import { deleteJob } from './delete-job';
 import { createDispute, getDispute, resolveDispute } from './disputes';
 import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
@@ -171,6 +172,10 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 4 && method === 'GET') {
       return getJobById(jobId, request, env);
+    }
+
+    if (parts.length === 4 && method === 'DELETE') {
+      return deleteJob(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'status' && method === 'PATCH') {
