@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../auth/domain/auth_session.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -126,6 +127,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final state = ref.watch(chatControllerProvider);
     final controller = ref.read(chatControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+    final session = ref.watch(authControllerProvider).session;
+    final isMaster = session?.role == UserRole.master;
 
     final canSend =
         state.input.trim().isNotEmpty && !state.isLoading && !state.isSending;
@@ -139,7 +142,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
       body: Column(
         children: [
-          if (_currentStatus == 'master_selected')
+          if (_currentStatus == 'master_selected' && isMaster)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: SizedBox(
@@ -150,7 +153,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
               ),
             ),
-          if (_currentStatus == 'in_progress')
+          if (_currentStatus == 'in_progress' && isMaster)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: SizedBox(

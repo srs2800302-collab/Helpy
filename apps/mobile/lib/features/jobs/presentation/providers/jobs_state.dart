@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 import '../../domain/job_item.dart';
 
 class JobsState {
@@ -11,6 +13,7 @@ class JobsState {
   final String addressText;
   final double? latitude;
   final double? longitude;
+  final List<XFile> photos;
   final String? errorMessage;
   final String? successMessage;
 
@@ -25,6 +28,7 @@ class JobsState {
     this.addressText = '',
     this.latitude,
     this.longitude,
+    this.photos = const [],
     this.errorMessage,
     this.successMessage,
   });
@@ -40,11 +44,13 @@ class JobsState {
     String? addressText,
     double? latitude,
     double? longitude,
+    List<XFile>? photos,
     String? errorMessage,
     String? successMessage,
     bool clearError = false,
     bool clearSuccess = false,
     bool clearSelectedCategory = false,
+    bool clearPhotos = false,
   }) {
     return JobsState(
       isLoading: isLoading ?? this.isLoading,
@@ -58,6 +64,7 @@ class JobsState {
       addressText: addressText ?? this.addressText,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      photos: clearPhotos ? const [] : (photos ?? this.photos),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
     );

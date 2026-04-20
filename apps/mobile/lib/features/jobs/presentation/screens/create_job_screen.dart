@@ -1,9 +1,12 @@
+import 'dart:io';
+
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -110,6 +113,44 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Location selected')),
     );
+  }
+
+  Future<void> _pickPhotos() async {
+    final jobsState = ref.read(jobsControllerProvider);
+    final jobsController = ref.read(jobsControllerProvider.notifier);
+
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickMultiImage(
+        imageQuality: 85,
+        limit: 5,
+      );
+
+      if (picked.isEmpty) return;
+
+      final current = List<XFile>.from(jobsState.photos);
+      final freeSlots = 5 - current.length;
+      if (freeSlots <= 0) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Maximum 5 photos')),
+        );
+        return;
+      }
+
+      final next = [...current, ...picked.take(freeSlots)];
+      jobsController.setPhotos(next);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selected ${next.length} of 5 photos')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to pick photos: $e')),
+      );
+    }
   }
 
   Widget _buildMiniMap({
@@ -260,6 +301,64 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                 labelText: l10n.t('job_description'),
               ),
             ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: isBusy || jobsState.photos.length >= 5 ? null : _pickPhotos,
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: Text('Добавить фото (${jobsState.photos.length}/5)'),
+                  ),
+                ),
+              ],
+            ),
+            if (jobsState.photos.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 92,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: jobsState.photos.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final photo = jobsState.photos[index];
+                    return Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(photo.path),
+                            width: 92,
+                            height: 92,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          right: 4,
+                          top: 4,
+                          child: InkWell(
+                            onTap: () => jobsController.removePhotoAt(index),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             TextField(
               controller: _addressController,

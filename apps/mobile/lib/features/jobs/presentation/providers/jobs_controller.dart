@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
@@ -53,6 +55,24 @@ class JobsController extends StateNotifier<JobsState> {
   void setLongitude(double? value) {
     state = state.copyWith(
       longitude: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  void setPhotos(List<XFile> value) {
+    state = state.copyWith(
+      photos: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  void removePhotoAt(int index) {
+    if (index < 0 || index >= state.photos.length) return;
+    final next = List<XFile>.from(state.photos)..removeAt(index);
+    state = state.copyWith(
+      photos: next,
       clearError: true,
       clearSuccess: true,
     );
@@ -164,6 +184,7 @@ class JobsController extends StateNotifier<JobsState> {
         addressText: '',
         latitude: null,
         longitude: null,
+        clearPhotos: true,
         clearSelectedCategory: true,
         successMessage: 'Job created',
       );
