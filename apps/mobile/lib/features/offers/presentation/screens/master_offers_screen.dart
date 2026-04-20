@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../chat/presentation/screens/chat_screen.dart';
 
 class MasterOffersScreen extends ConsumerStatefulWidget {
   const MasterOffersScreen({super.key});
@@ -97,6 +98,16 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
 
                             return Card(
                               child: ListTile(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatScreen(
+                                        jobId: item.jobId,
+                                        jobStatus: 'master_selected',
+                                      ),
+                                    ),
+                                  );
+                                },
                                 title: Text(title),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +119,14 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   ],
                                 ),
                                 isThreeLine: comment.isNotEmpty || message.isNotEmpty,
-                                trailing: Text(item.status),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(item.status),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.chevron_right),
+                                  ],
+                                ),
                               ),
                             );
                           },

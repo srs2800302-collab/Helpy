@@ -5,6 +5,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../offers/presentation/screens/master_offers_screen.dart';
+import '../../../chat/presentation/screens/chat_screen.dart';
 
 class MasterHomeScreen extends ConsumerStatefulWidget {
   const MasterHomeScreen({super.key});
@@ -286,8 +287,19 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ...offersState.items.take(3).map(
                     (item) => Card(
                       child: ListTile(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                jobId: item.jobId,
+                                jobStatus: 'master_selected',
+                              ),
+                            ),
+                          );
+                        },
                         title: Text(item.jobTitle),
                         subtitle: Text('${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}'),
+                        trailing: const Icon(Icons.chevron_right),
                       ),
                     ),
                   ),
