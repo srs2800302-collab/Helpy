@@ -89,10 +89,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
         final parts = [
-          if ((p.name ?? '').trim().isNotEmpty) p.name!.trim(),
           if ((p.street ?? '').trim().isNotEmpty) p.street!.trim(),
           if ((p.subLocality ?? '').trim().isNotEmpty) p.subLocality!.trim(),
           if ((p.locality ?? '').trim().isNotEmpty) p.locality!.trim(),
+          if ((p.country ?? '').trim().isNotEmpty) p.country!.trim(),
         ];
 
         if (parts.isNotEmpty) {
