@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../reviews/domain/review_summary.dart';
 
 class JobOffersScreen extends ConsumerStatefulWidget {
@@ -43,6 +44,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
       appBar: AppBar(
         title: Text(widget.jobTitle),
         actions: [
+          const AppLanguageMenuButton(),
           IconButton(
             onPressed: state.isLoading ? null : _refresh,
             icon: const Icon(Icons.refresh),
