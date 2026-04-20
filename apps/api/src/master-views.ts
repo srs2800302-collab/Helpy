@@ -30,6 +30,10 @@ function sanitizeOffer(row: any) {
     comment: row.comment,
     created_at: row.created_at,
     master_user_id: row.master_user_id,
+    job_title: row.job_title ?? '',
+    category: row.category ?? '',
+    status: row.status ?? '',
+    address_text: row.address_text ?? '',
   };
 }
 
@@ -97,10 +101,22 @@ export async function getOffersByMaster(
   }
 
   const result = await env.DB.prepare(
-    `SELECT id, job_id, master_name, price, comment, created_at, master_user_id
-     FROM offers
-     WHERE master_user_id = ?1
-     ORDER BY created_at DESC`
+    `SELECT
+       o.id,
+       o.job_id,
+       o.master_name,
+       o.price,
+       o.comment,
+       o.created_at,
+       o.master_user_id,
+       j.title AS job_title,
+       j.category AS category,
+       j.status AS status,
+       j.address_text AS address_text
+     FROM offers o
+     JOIN jobs j ON j.id = o.job_id
+     WHERE o.master_user_id = ?1
+     ORDER BY o.created_at DESC`
   )
     .bind(access.userId)
     .all();
