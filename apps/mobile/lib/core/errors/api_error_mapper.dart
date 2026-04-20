@@ -15,7 +15,9 @@ class ApiErrorMapper {
       String? backendMessage;
       if (data is Map) {
         final errorNode = data['error'];
-        if (errorNode is Map && errorNode['message'] != null) {
+        if (errorNode is String && errorNode.trim().isNotEmpty) {
+          backendMessage = errorNode.trim();
+        } else if (errorNode is Map && errorNode['message'] != null) {
           backendMessage = errorNode['message'].toString();
         }
       }
@@ -56,6 +58,14 @@ class ApiErrorMapper {
             return AppException(
               message: backendMessage ?? 'Requested resource was not found.',
               code: 'not_found',
+              statusCode: statusCode,
+            );
+          }
+
+          if (statusCode == 409) {
+            return AppException(
+              message: backendMessage ?? 'This action has already been performed.',
+              code: 'conflict',
               statusCode: statusCode,
             );
           }
