@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../app/providers.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
@@ -8,7 +11,7 @@ import '../../../client_offers/presentation/screens/job_offers_screen.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../../reviews/presentation/screens/create_review_screen.dart';
 
-class ClientJobDetailsScreen extends StatelessWidget {
+class ClientJobDetailsScreen extends ConsumerWidget {
   final JobItem job;
 
   const ClientJobDetailsScreen({
@@ -61,7 +64,7 @@ class ClientJobDetailsScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
 
     Widget? primaryAction;
@@ -139,6 +142,44 @@ class ClientJobDetailsScreen extends StatelessWidget {
         child: Text(l10n.t('review')),
       );
     }
+
+    final bool canDeleteDraft =
+        job.status == 'draft' || job.status == 'awaiting_payment';
+
+    final Widget? deleteDraftAction = canDeleteDraft
+        ? OutlinedButton(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: Text(job.title),
+                  content: const Text('Delete this draft job?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                      child: const Text('No'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                      child: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed != true || !context.mounted) return;
+
+              final ok = await ref
+                  .read(jobsControllerProvider.notifier)
+                  .deleteDraftJob(jobId: job.id);
+
+              if (ok && context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: const Text('Delete draft'),
+          )
+        : null;
 
     final Widget? secondaryAction =
         job.status == 'master_selected' || job.status == 'in_progress'
@@ -238,6 +279,13 @@ class ClientJobDetailsScreen extends StatelessWidget {
               child: secondaryAction,
             ),
           ],
+        if (deleteDraftAction != null) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: deleteDraftAction,
+          ),
+        ],
         ],
       ),
     );

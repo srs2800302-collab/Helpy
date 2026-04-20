@@ -35,6 +35,12 @@ class JobsApi {
     return _mapJob(response.data['data'] as Map<String, dynamic>);
   }
 
+  Future<void> deleteDraftJob({
+    required String jobId,
+  }) async {
+    await apiClient.dio.delete('/jobs/$jobId');
+  }
+
   Future<List<JobItem>> listClientJobs({
     required String clientUserId,
   }) async {

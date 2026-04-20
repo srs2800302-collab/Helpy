@@ -75,6 +75,34 @@ class JobsController extends StateNotifier<JobsState> {
     }
   }
 
+  Future<bool> deleteDraftJob({
+    required String jobId,
+  }) async {
+    state = state.copyWith(
+      isSubmitting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await ref.read(jobsApiProvider).deleteDraftJob(jobId: jobId);
+      await loadClientJobs();
+
+      state = state.copyWith(
+        isSubmitting: false,
+        successMessage: 'Draft deleted',
+      );
+      return true;
+    } catch (e) {
+      final appError = ApiErrorMapper.map(e);
+      state = state.copyWith(
+        isSubmitting: false,
+        errorMessage: appError.message,
+      );
+      return false;
+    }
+  }
+
   Future<JobItem?> createDraft() async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
