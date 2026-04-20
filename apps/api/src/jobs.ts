@@ -56,6 +56,8 @@ export async function ensureJobsSchema(env: any) {
     ['selected_offer_id', 'ALTER TABLE jobs ADD COLUMN selected_offer_id TEXT'],
     ['selected_offer_price', 'ALTER TABLE jobs ADD COLUMN selected_offer_price REAL'],
     ['deposit_amount', 'ALTER TABLE jobs ADD COLUMN deposit_amount REAL'],
+    ['latitude', 'ALTER TABLE jobs ADD COLUMN latitude REAL'],
+    ['longitude', 'ALTER TABLE jobs ADD COLUMN longitude REAL'],
     ['payment_method', "ALTER TABLE jobs ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'card'"],
     ['commission_payer', "ALTER TABLE jobs ADD COLUMN commission_payer TEXT NOT NULL DEFAULT 'client'"],
     ['deposit_percent', 'ALTER TABLE jobs ADD COLUMN deposit_percent INTEGER NOT NULL DEFAULT 40'],
