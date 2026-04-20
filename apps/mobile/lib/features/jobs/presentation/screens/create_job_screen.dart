@@ -1,12 +1,13 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
+import 'job_location_picker_screen.dart';
 
 class CreateJobScreen extends ConsumerStatefulWidget {
   const CreateJobScreen({super.key});
@@ -16,59 +17,25 @@ class CreateJobScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
-  Future<void> _useCurrentLocation() async {
-    final jobsController = ref.read(jobsControllerProvider.notifier);
-
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location services are disabled')),
-        );
-        return;
-      }
-
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permission denied')),
-        );
-        return;
-      }
-
-      final position = await Geolocator.getCurrentPosition();
-
-      jobsController.setLatitude(position.latitude);
-      jobsController.setLongitude(position.longitude);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location added')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to get location: $e')),
-      );
-    }
-  }
+  late final TextEditingController _addressController;
 
   @override
   void initState() {
     super.initState();
+    _addressController = TextEditingController();
+
     Future.microtask(() {
       final categoriesState = ref.read(categoriesControllerProvider);
       if (!categoriesState.initialized && !categoriesState.isLoading) {
         ref.read(categoriesControllerProvider.notifier).load();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
   }
 
   String _categoryLabel(AppLocalizations l10n, String slug) {
@@ -92,12 +59,70 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     }
   }
 
+  Future<void> _pickLocation() async {
+    final jobsState = ref.read(jobsControllerProvider);
+    final jobsController = ref.read(jobsControllerProvider.notifier);
+
+    final result = await Navigator.of(context).push<JobLocationPickerResult>(
+      MaterialPageRoute(
+        builder: (_) => JobLocationPickerScreen(
+          initialLatitude: jobsState.latitude ?? 12.923556,
+          initialLongitude: jobsState.longitude ?? 100.882455,
+        ),
+      ),
+    );
+
+    if (result == null || !mounted) return;
+
+    jobsController.setLatitude(result.latitude);
+    jobsController.setLongitude(result.longitude);
+
+    String nextAddress =
+        '${result.latitude.toStringAsFixed(6)}, ${result.longitude.toStringAsFixed(6)}';
+
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        result.latitude,
+        result.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final p = placemarks.first;
+        final parts = [
+          if ((p.name ?? '').trim().isNotEmpty) p.name!.trim(),
+          if ((p.street ?? '').trim().isNotEmpty) p.street!.trim(),
+          if ((p.subLocality ?? '').trim().isNotEmpty) p.subLocality!.trim(),
+          if ((p.locality ?? '').trim().isNotEmpty) p.locality!.trim(),
+        ];
+
+        if (parts.isNotEmpty) {
+          nextAddress = parts.join(', ');
+        }
+      }
+    } catch (_) {}
+
+    _addressController.text = nextAddress;
+    jobsController.setAddressText(nextAddress);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Location selected')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final jobsState = ref.watch(jobsControllerProvider);
     final categoriesState = ref.watch(categoriesControllerProvider);
     final jobsController = ref.read(jobsControllerProvider.notifier);
+
+    if (_addressController.text != jobsState.addressText) {
+      _addressController.value = TextEditingValue(
+        text: jobsState.addressText,
+        selection: TextSelection.collapsed(offset: jobsState.addressText.length),
+      );
+    }
 
     final isBusy = jobsState.isSubmitting;
     final isCategoriesLoading =
@@ -159,28 +184,29 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
+              controller: _addressController,
               onChanged: jobsController.setAddressText,
               enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: l10n.t('job_address'),
+                suffixIcon: IconButton(
+                  onPressed: isBusy ? null : _pickLocation,
+                  icon: const Icon(Icons.map_outlined),
+                  tooltip: 'Pick on map',
+                ),
               ),
             ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: isBusy ? null : _useCurrentLocation,
-                            child: const Text('Use current location'),
-                          ),
-                        ),
-                        if (jobsState.latitude != null && jobsState.longitude != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            'Lat: ${jobsState.latitude!.toStringAsFixed(6)}, '
-                            'Lng: ${jobsState.longitude!.toStringAsFixed(6)}',
-                          ),
-                        ],
+            if (jobsState.latitude != null && jobsState.longitude != null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Lat: ${jobsState.latitude!.toStringAsFixed(6)}, '
+                  'Lng: ${jobsState.longitude!.toStringAsFixed(6)}',
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             if (jobsState.errorMessage != null) ...[
               Container(
@@ -218,6 +244,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                 onPressed: canSubmit
                     ? () async {
                         final job = await jobsController.createDraft();
+
                         if (job != null && context.mounted) {
                           final paid = await Navigator.of(context).push<bool>(
                             MaterialPageRoute(
