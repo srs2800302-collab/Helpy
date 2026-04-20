@@ -42,6 +42,22 @@ class JobsController extends StateNotifier<JobsState> {
     );
   }
 
+  void setLatitude(double? value) {
+    state = state.copyWith(
+      latitude: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  void setLongitude(double? value) {
+    state = state.copyWith(
+      longitude: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
   Future<void> loadClientJobs() async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
@@ -146,6 +162,8 @@ class JobsController extends StateNotifier<JobsState> {
         title: '',
         description: '',
         addressText: '',
+        latitude: null,
+        longitude: null,
         clearSelectedCategory: true,
         successMessage: 'Job created',
       );

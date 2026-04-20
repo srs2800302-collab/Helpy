@@ -12,6 +12,8 @@ class JobsApi {
     required String title,
     String? description,
     String? addressText,
+    double? latitude,
+    double? longitude,
   }) async {
     final response = await apiClient.dio.post(
       '/jobs',
@@ -29,6 +31,8 @@ class JobsApi {
         'budget_from': 1000,
         'price': 1000,
         'currency': 'THB',
+        'latitude': latitude,
+        'longitude': longitude,
       },
     );
 
@@ -73,6 +77,8 @@ class JobsApi {
         json['selected_offer_price']?.toString() ?? '',
       ),
       hasReview: json['has_review'] as bool?,
+      latitude: double.tryParse(json['latitude']?.toString() ?? ''),
+      longitude: double.tryParse(json['longitude']?.toString() ?? ''),
     );
   }
 }

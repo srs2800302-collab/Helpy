@@ -9,6 +9,8 @@ class JobsState {
   final String title;
   final String description;
   final String addressText;
+  final double? latitude;
+  final double? longitude;
   final String? errorMessage;
   final String? successMessage;
 
@@ -21,6 +23,8 @@ class JobsState {
     this.title = '',
     this.description = '',
     this.addressText = '',
+    this.latitude,
+    this.longitude,
     this.errorMessage,
     this.successMessage,
   });
@@ -34,6 +38,8 @@ class JobsState {
     String? title,
     String? description,
     String? addressText,
+    double? latitude,
+    double? longitude,
     String? errorMessage,
     String? successMessage,
     bool clearError = false,
@@ -50,6 +56,8 @@ class JobsState {
       title: title ?? this.title,
       description: description ?? this.description,
       addressText: addressText ?? this.addressText,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
     );

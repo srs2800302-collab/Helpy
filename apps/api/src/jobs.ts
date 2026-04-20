@@ -13,6 +13,8 @@ type CreateJobBody = {
   currency?: string;
   price?: number | null;
   payment_method?: JobPaymentMethod;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 function normalizeNumber(value: unknown): number | null {
@@ -278,7 +280,9 @@ export async function createJob(request: Request, env: any) {
       paymentTerms.depositAmount,
       paymentTerms.paymentMethod,
       paymentTerms.commissionPayer,
-      paymentTerms.depositPercent
+      paymentTerms.depositPercent,
+      normalizeNumber(body.latitude),
+      normalizeNumber(body.longitude)
     )
     .run();
 

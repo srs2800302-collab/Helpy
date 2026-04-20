@@ -16,6 +16,8 @@ class JobItem {
   final double? selectedOfferPrice;
 
   final bool? hasReview;
+  final double? latitude;
+  final double? longitude;
 
   const JobItem({
     required this.id,
@@ -32,5 +34,7 @@ class JobItem {
     required this.selectedOfferId,
     required this.selectedOfferPrice,
     required this.hasReview,
+    required this.latitude,
+    required this.longitude,
   });
 }
