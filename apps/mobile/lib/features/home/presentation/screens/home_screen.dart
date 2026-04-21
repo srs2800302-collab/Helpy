@@ -101,12 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
           ),
         );
       case null:
-        return Scaffold(
-          appBar: AppBar(title: Text(l10n.t('home_title'))),
-          body: Center(
-            child: Text(l10n.t('choose_role')),
-          ),
-        );
+        return const ClientHomeScreen();
     }
   }
 }

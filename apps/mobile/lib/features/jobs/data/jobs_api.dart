@@ -84,6 +84,7 @@ class JobsApi {
         json['selected_offer_price']?.toString() ?? '',
       ),
       hasReview: json['has_review'] as bool?,
+      offersCount: int.tryParse(json['offers_count']?.toString() ?? '') ?? 0,
       latitude: double.tryParse(json['latitude']?.toString() ?? ''),
       longitude: double.tryParse(json['longitude']?.toString() ?? ''),
     );

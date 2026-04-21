@@ -1,5 +1,5 @@
 {
-  "app_name": "Fixi",
+  "app_name": "Helpy",
   "loading": "Loading",
   "login_title": "Login",
   "enter_phone": "Enter your phone number",
@@ -10,7 +10,7 @@
   "otp_hint": "123456",
   "verify": "Verify",
   "choose_role": "Choose role",
-  "who_are_you": "Who are you in Fixi?",
+  "who_are_you": "Who are you in Helpy?",
   "client": "Client",
   "master": "Master",
   "home_title": "Home",
@@ -88,5 +88,9 @@
   "status_in_progress": "In progress",
   "status_completed": "Completed",
   "status_cancelled": "Cancelled",
-  "status_disputed": "Disputed"
+  "status_disputed": "Disputed",
+  "client_not_selected": "The client has not selected you yet",
+  "no_reviews": "No reviews yet",
+  "reviews_label": "reviews",
+  "job_offers_available": "Offers received"
 }

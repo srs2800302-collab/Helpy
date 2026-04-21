@@ -53,6 +53,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     required String jobId,
     required String jobStatus,
   }) async {
+    final l10n = AppLocalizations.of(context);
+
     const allowedStatuses = {
       'master_selected',
       'in_progress',
@@ -65,7 +67,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('client_not_selected'),
+          content: Text(l10n.t('client_not_selected')),
         ),
       );
       return;

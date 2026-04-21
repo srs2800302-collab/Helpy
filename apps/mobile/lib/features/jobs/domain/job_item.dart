@@ -16,6 +16,7 @@ class JobItem {
   final double? selectedOfferPrice;
 
   final bool? hasReview;
+  final int offersCount;
   final double? latitude;
   final double? longitude;
 
@@ -34,6 +35,7 @@ class JobItem {
     required this.selectedOfferId,
     required this.selectedOfferPrice,
     required this.hasReview,
+    required this.offersCount,
     required this.latitude,
     required this.longitude,
   });

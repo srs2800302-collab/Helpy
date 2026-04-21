@@ -21,18 +21,12 @@ GoRouter createRouter(ValueNotifier<AuthState> authNotifier) {
       }
 
       final isAuthenticated = auth.session != null;
-      final needsRoleSelection = auth.session?.needsRoleSelection ?? false;
-
       final isAuthRoute =
           location == '/login' || location == '/verify-otp' || location == '/splash';
       final isRoleRoute = location == '/select-role';
 
       if (!isAuthenticated) {
         return location == '/login' || location == '/verify-otp' ? null : '/login';
-      }
-
-      if (needsRoleSelection) {
-        return isRoleRoute ? null : '/select-role';
       }
 
       if (isAuthRoute || isRoleRoute) {

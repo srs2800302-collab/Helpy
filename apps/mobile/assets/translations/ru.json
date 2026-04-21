@@ -1,5 +1,5 @@
 {
-  "app_name": "Fixi",
+  "app_name": "Helpy",
   "loading": "Загрузка",
   "login_title": "Вход",
   "enter_phone": "Введите номер телефона",
@@ -10,7 +10,7 @@
   "otp_hint": "123456",
   "verify": "Подтвердить",
   "choose_role": "Выберите роль",
-  "who_are_you": "Кто вы в Fixi?",
+  "who_are_you": "Кто вы в Helpy?",
   "client": "Клиент",
   "master": "Мастер",
   "home_title": "Главная",
@@ -88,5 +88,9 @@
   "status_in_progress": "В работе",
   "status_completed": "Завершён",
   "status_cancelled": "Отменён",
-  "status_disputed": "Спор"
+  "status_disputed": "Спор",
+  "client_not_selected": "Клиент ещё не выбрал вас",
+  "no_reviews": "Пока нет отзывов",
+  "reviews_label": "отзывов",
+  "job_offers_available": "Есть отклики"
 }

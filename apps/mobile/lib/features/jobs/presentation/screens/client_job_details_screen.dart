@@ -89,23 +89,43 @@ class ClientJobDetailsScreen extends ConsumerWidget {
         child: Text(l10n.t('pay_deposit')),
       );
     } else if (job.status == 'open') {
-      primaryAction = OutlinedButton(
-        onPressed: () async {
-          final changed = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(
-              builder: (_) => JobOffersScreen(
-                jobId: job.id,
-                jobTitle: job.title,
-              ),
-            ),
-          );
+      final hasOffers = job.offersCount > 0;
 
-          if (changed == true && context.mounted) {
-            Navigator.of(context).pop(true);
-          }
-        },
-        child: Text(l10n.t('job_offers')),
-      );
+      primaryAction = hasOffers
+          ? ElevatedButton(
+              onPressed: () async {
+                final changed = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (_) => JobOffersScreen(
+                      jobId: job.id,
+                      jobTitle: job.title,
+                    ),
+                  ),
+                );
+
+                if (changed == true && context.mounted) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+              child: Text(l10n.t('job_offers_available')),
+            )
+          : OutlinedButton(
+              onPressed: () async {
+                final changed = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (_) => JobOffersScreen(
+                      jobId: job.id,
+                      jobTitle: job.title,
+                    ),
+                  ),
+                );
+
+                if (changed == true && context.mounted) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+              child: Text(l10n.t('job_offers')),
+            );
     } else if (job.status == 'master_selected' || job.status == 'in_progress') {
       primaryAction = ElevatedButton(
         onPressed: () {

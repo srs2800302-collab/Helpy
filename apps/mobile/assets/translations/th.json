@@ -1,5 +1,5 @@
 {
-  "app_name": "Fixi",
+  "app_name": "Helpy",
   "loading": "กำลังโหลด",
   "login_title": "เข้าสู่ระบบ",
   "enter_phone": "กรอกเบอร์โทรศัพท์",
@@ -10,7 +10,7 @@
   "otp_hint": "123456",
   "verify": "ยืนยัน",
   "choose_role": "เลือกบทบาท",
-  "who_are_you": "คุณคือใครใน Fixi?",
+  "who_are_you": "คุณคือใครใน Helpy?",
   "client": "ลูกค้า",
   "master": "ช่าง",
   "home_title": "หน้าหลัก",
@@ -88,5 +88,9 @@
   "status_in_progress": "กำลังดำเนินการ",
   "status_completed": "เสร็จสิ้น",
   "status_cancelled": "ยกเลิก",
-  "status_disputed": "ข้อพิพาท"
+  "status_disputed": "ข้อพิพาท",
+  "client_not_selected": "ลูกค้ายังไม่ได้เลือกคุณ",
+  "no_reviews": "ยังไม่มีรีวิว",
+  "reviews_label": "รีวิว",
+  "job_offers_available": "มีการเสนองานแล้ว"
 }
