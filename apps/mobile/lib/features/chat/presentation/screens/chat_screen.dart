@@ -24,6 +24,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   late String _currentStatus;
   late final TextEditingController _textController;
 
+  String _senderLabel({
+    required String senderUserId,
+    required String currentUserId,
+    required bool isMaster,
+    required AppLocalizations l10n,
+  }) {
+    if (senderUserId == currentUserId) {
+      return l10n.t('you_label');
+    }
+
+    return isMaster ? l10n.t('client_label') : l10n.t('master_label');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -180,10 +193,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     itemCount: state.messages.length,
                     itemBuilder: (context, index) {
                       final m = state.messages[index];
+                      final senderLabel = _senderLabel(
+                        senderUserId: m.senderUserId,
+                        currentUserId: session?.userId ?? '',
+                        isMaster: isMaster,
+                        l10n: l10n,
+                      );
                       return Card(
                         child: ListTile(
                           title: Text(m.text),
-                          subtitle: Text(m.senderUserId),
+                          subtitle: Text(senderLabel),
                         ),
                       );
                     },

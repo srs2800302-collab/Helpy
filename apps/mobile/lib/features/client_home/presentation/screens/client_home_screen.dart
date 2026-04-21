@@ -6,6 +6,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../auth/presentation/screens/role_selection_screen.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
+import '../../../client_offers/presentation/screens/job_offers_screen.dart';
 
 class ClientHomeScreen extends ConsumerStatefulWidget {
   const ClientHomeScreen({super.key});
@@ -85,6 +86,11 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     final currentLocale = ref.watch(currentLocaleProvider);
 
     final jobsError = _visibleError(jobsState.errorMessage);
+    final highlightedJob = jobsState.items
+        .where((item) => item.status == 'open' && item.offersCount > 0)
+        .toList().isNotEmpty
+        ? jobsState.items.where((item) => item.status == 'open' && item.offersCount > 0).first
+        : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -168,6 +174,34 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            if (highlightedJob != null) ...[
+              Card(
+                color: Colors.amber.shade50,
+                child: ListTile(
+                  leading: const Icon(Icons.notifications_active),
+                  title: Text(l10n.t('job_offers_available')),
+                  subtitle: Text(
+                    '${highlightedJob.title} • ${highlightedJob.offersCount} offers',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final changed = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(
+                        builder: (_) => JobOffersScreen(
+                          jobId: highlightedJob.id,
+                          jobTitle: highlightedJob.title,
+                        ),
+                      ),
+                    );
+
+                    if (changed == true && mounted) {
+                      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             if (jobsError != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),

@@ -92,5 +92,11 @@
   "client_not_selected": "The client has not selected you yet",
   "no_reviews": "No reviews yet",
   "reviews_label": "reviews",
-  "job_offers_available": "Offers received"
+  "job_offers_available": "Offers received",
+  "you_label": "You",
+  "client_label": "Client",
+  "delete_draft_confirm": "Delete this draft job?",
+  "delete_action": "Delete",
+  "cancel_action": "Cancel",
+  "delete_draft": "Delete draft"
 }

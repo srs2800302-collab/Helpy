@@ -92,5 +92,11 @@
   "client_not_selected": "ลูกค้ายังไม่ได้เลือกคุณ",
   "no_reviews": "ยังไม่มีรีวิว",
   "reviews_label": "รีวิว",
-  "job_offers_available": "มีการเสนองานแล้ว"
+  "job_offers_available": "มีการเสนองานแล้ว",
+  "you_label": "คุณ",
+  "client_label": "ลูกค้า",
+  "delete_draft_confirm": "ลบงานฉบับร่างนี้หรือไม่?",
+  "delete_action": "ลบ",
+  "cancel_action": "ยกเลิก",
+  "delete_draft": "ลบฉบับร่าง"
 }

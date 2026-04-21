@@ -98,6 +98,10 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final currentLocale = ref.watch(currentLocaleProvider);
 
     final offersError = _visibleError(offersState.errorMessage);
+    final marketplaceState = ref.watch(marketplaceControllerProvider);
+    final highlightedMarketplaceJob = marketplaceState.items.isNotEmpty
+        ? marketplaceState.items.first
+        : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -181,6 +185,30 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            if (highlightedMarketplaceJob != null) ...[
+              Card(
+                color: Colors.lightGreen.shade50,
+                child: ListTile(
+                  leading: const Icon(Icons.work_outline),
+                  title: const Text('New jobs available'),
+                  subtitle: Text(
+                    '${highlightedMarketplaceJob.title} • ${marketplaceState.items.length} open jobs',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const MasterMarketplaceScreen(),
+                      ),
+                    );
+                    if (mounted) {
+                      await _refreshAll();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             if (offersError != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),

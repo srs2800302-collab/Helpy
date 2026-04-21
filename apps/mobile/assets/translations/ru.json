@@ -92,5 +92,11 @@
   "client_not_selected": "Клиент ещё не выбрал вас",
   "no_reviews": "Пока нет отзывов",
   "reviews_label": "отзывов",
-  "job_offers_available": "Есть отклики"
+  "job_offers_available": "Есть отклики",
+  "you_label": "Вы",
+  "client_label": "Клиент",
+  "delete_draft_confirm": "Удалить черновик заказа?",
+  "delete_action": "Удалить",
+  "cancel_action": "Отмена",
+  "delete_draft": "Удалить черновик"
 }

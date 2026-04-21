@@ -172,15 +172,15 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                 context: context,
                 builder: (dialogContext) => AlertDialog(
                   title: Text(job.title),
-                  content: const Text('Delete this draft job?'),
+                  content: Text(l10n.t('delete_draft_confirm')),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(dialogContext).pop(false),
-                      child: const Text('No'),
+                      child: Text(l10n.t('cancel_action')),
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(dialogContext).pop(true),
-                      child: const Text('Delete'),
+                      child: Text(l10n.t('delete_action')),
                     ),
                   ],
                 ),
@@ -196,7 +196,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                 Navigator.of(context).pop(true);
               }
             },
-            child: const Text('Delete draft'),
+            child: Text(l10n.t('delete_draft')),
           )
         : null;
 
