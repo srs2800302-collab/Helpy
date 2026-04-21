@@ -12,7 +12,7 @@ class MarketplaceController extends StateNotifier<MarketplaceState> {
   Future<void> loadOpenJobs() async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
+      state = state.copyWith(errorMessage: 'no_session');
       return;
     }
 

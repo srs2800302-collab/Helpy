@@ -36,7 +36,7 @@ class OffersController extends StateNotifier<OffersState> {
   Future<void> loadMyOffers() async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
+      state = state.copyWith(errorMessage: 'no_session');
       return;
     }
 
@@ -71,7 +71,7 @@ class OffersController extends StateNotifier<OffersState> {
   }) async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
+      state = state.copyWith(errorMessage: 'no_session');
       return false;
     }
 

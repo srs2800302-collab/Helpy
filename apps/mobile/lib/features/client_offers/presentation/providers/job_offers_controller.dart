@@ -12,7 +12,7 @@ class JobOffersController extends StateNotifier<JobOffersState> {
   Future<void> loadJobOffers(String jobId) async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
+      state = state.copyWith(errorMessage: 'no_session');
       return;
     }
 
@@ -51,7 +51,7 @@ class JobOffersController extends StateNotifier<JobOffersState> {
   }) async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
-      state = state.copyWith(errorMessage: 'No active session');
+      state = state.copyWith(errorMessage: 'no_session');
       return false;
     }
 
@@ -70,7 +70,7 @@ class JobOffersController extends StateNotifier<JobOffersState> {
 
       state = state.copyWith(
         isSubmitting: false,
-        successMessage: 'Master selected',
+        successMessage: 'master_selected',
       );
 
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();

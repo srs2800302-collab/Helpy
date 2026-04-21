@@ -64,8 +64,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     if (!allowedStatuses.contains(jobStatus)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Client has not selected you yet'),
+        SnackBar(
+          content: Text('client_not_selected'),
         ),
       );
       return;

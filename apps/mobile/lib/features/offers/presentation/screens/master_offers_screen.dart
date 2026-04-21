@@ -109,8 +109,8 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
 
                                   if (!allowedStatuses.contains(item.status)) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Client has not selected you yet'),
+                                      SnackBar(
+                                        content: Text(l10n.t('client_not_selected')),
                                       ),
                                     );
                                     return;

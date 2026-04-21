@@ -1,22 +1,18 @@
-String mapJobStatus(String status) {
+String mapJobStatusKey(String status) {
   switch (status) {
-    case 'draft':
-      return 'Draft';
-    case 'awaiting_payment':
-      return 'Awaiting payment';
     case 'open':
-      return 'Open';
+      return 'status_open';
     case 'master_selected':
-      return 'Master selected';
+      return 'status_master_selected';
     case 'in_progress':
-      return 'In progress';
+      return 'status_in_progress';
     case 'completed':
-      return 'Completed';
+      return 'status_completed';
     case 'cancelled':
-      return 'Cancelled';
+      return 'status_cancelled';
     case 'disputed':
-      return 'Disputed';
+      return 'status_disputed';
     default:
-      return status;
+      return 'status_unknown';
   }
 }

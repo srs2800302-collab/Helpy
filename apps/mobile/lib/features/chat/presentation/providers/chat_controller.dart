@@ -64,7 +64,7 @@ class ChatController extends StateNotifier<ChatState> {
     if (session == null) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'No active session',
+        errorMessage: 'no_session',
       );
       return;
     }

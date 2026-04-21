@@ -32,7 +32,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
       setState(() {
-        _errorMessage = 'No active session';
+        _errorMessage = 'no_session';
       });
       return;
     }

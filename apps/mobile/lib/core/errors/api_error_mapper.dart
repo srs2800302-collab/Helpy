@@ -79,7 +79,7 @@ class ApiErrorMapper {
           }
 
           return AppException(
-            message: backendMessage ?? 'Server error. Please try again later.',
+            message: backendMessage ?? 'server_error',
             code: 'server_error',
             statusCode: statusCode,
           );

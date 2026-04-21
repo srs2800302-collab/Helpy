@@ -114,7 +114,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                             final item = state.items[index];
                             final isAlreadySelected =
                                 item.status != 'active' ||
-                                state.successMessage == 'Master selected';
+                                state.successMessage == 'master_selected';
                             final canSelect =
                                 !isAlreadySelected && !state.isSubmitting;
 
@@ -124,14 +124,14 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     .read(reviewsApiProvider)
                                     .getMasterSummary(item.masterUserId),
                                 builder: (context, snapshot) {
-                                  String ratingLine = 'No reviews yet';
+                                  String ratingLine = l10n.t('no_reviews');
 
                                   if (snapshot.hasData) {
                                     final summary = snapshot.data!;
                                     if (summary.reviewsCount > 0 &&
                                         summary.avgRating != null) {
                                       ratingLine =
-                                          '⭐ ${summary.avgRating!.toStringAsFixed(1)} · ${summary.reviewsCount} reviews';
+                                          '⭐ ${summary.avgRating!.toStringAsFixed(1)} · ${summary.reviewsCount} reviews_label';
                                     }
                                   }
 
