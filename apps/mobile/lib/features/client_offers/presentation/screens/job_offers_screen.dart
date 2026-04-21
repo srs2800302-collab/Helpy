@@ -131,7 +131,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     if (summary.reviewsCount > 0 &&
                                         summary.avgRating != null) {
                                       ratingLine =
-                                          '⭐ ${summary.avgRating!.toStringAsFixed(1)} · ${summary.reviewsCount} reviews_label';
+                                          '⭐ ${summary.avgRating!.toStringAsFixed(1)} · ${summary.reviewsCount} ${l10n.t('reviews_label')}';
                                     }
                                   }
 

@@ -23,11 +23,15 @@ class CreateJobScreen extends ConsumerStatefulWidget {
 
 class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   late final TextEditingController _addressController;
+  late final TextEditingController _titleController;
+  late final TextEditingController _descriptionController;
 
   @override
   void initState() {
     super.initState();
     _addressController = TextEditingController();
+    _titleController = TextEditingController();
+    _descriptionController = TextEditingController();
 
     Future.microtask(() {
       final categoriesState = ref.read(categoriesControllerProvider);
@@ -40,6 +44,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   @override
   void dispose() {
     _addressController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -261,6 +267,20 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       _addressController.value = TextEditingValue(
         text: jobsState.addressText,
         selection: TextSelection.collapsed(offset: jobsState.addressText.length),
+      );
+    }
+
+    if (_titleController.text != jobsState.title) {
+      _titleController.value = TextEditingValue(
+        text: jobsState.title,
+        selection: TextSelection.collapsed(offset: jobsState.title.length),
+      );
+    }
+
+    if (_descriptionController.text != jobsState.description) {
+      _descriptionController.value = TextEditingValue(
+        text: jobsState.description,
+        selection: TextSelection.collapsed(offset: jobsState.description.length),
       );
     }
 
