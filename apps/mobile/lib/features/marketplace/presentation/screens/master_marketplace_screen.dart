@@ -78,18 +78,18 @@ class _MasterMarketplaceScreenState
                             ),
                             isThreeLine: true,
                             trailing: ElevatedButton(
-                              onPressed: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => CreateOfferScreen(
-                                      jobId: item.id,
-                                      jobTitle: item.title,
+                                onPressed: () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => CreateOfferScreen(
+                                        jobId: item.id,
+                                        jobTitle: item.title,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                              child: Text(l10n.t('send_offer')),
-                            ),
+                                  );
+                                },
+                                child: Text(l10n.t('send_offer')),
+                              ),
                           ),
                         );
                       },

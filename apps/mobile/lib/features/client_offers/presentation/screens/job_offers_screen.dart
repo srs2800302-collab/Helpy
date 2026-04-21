@@ -112,8 +112,11 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
+                            final isAlreadySelected =
+                                item.status != 'active' ||
+                                state.successMessage == 'Master selected';
                             final canSelect =
-                                item.status == 'active' && !state.isSubmitting;
+                                !isAlreadySelected && !state.isSubmitting;
 
                             return Card(
                               child: FutureBuilder<ReviewSummary>(
@@ -140,33 +143,35 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                       '${item.status}\n$ratingLine\n${item.priceComment ?? ''}',
                                     ),
                                     isThreeLine: true,
-                                    trailing: ElevatedButton(
-                                      onPressed: canSelect
-                                          ? () async {
-                                              final ok = await controller.selectOffer(
-                                                jobId: widget.jobId,
-                                                offerId: item.id,
-                                              );
-                                              if (ok && context.mounted) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(l10n.t('master_selected')),
-                                                  ),
-                                                );
-                                                Navigator.of(context).pop(true);
-                                              }
-                                            }
-                                          : null,
-                                      child: state.isSubmitting
-                                          ? const SizedBox(
-                                              height: 18,
-                                              width: 18,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                              ),
-                                            )
-                                          : Text(l10n.t('select_master')),
-                                    ),
+                                    trailing: isAlreadySelected
+                                        ? Text(l10n.t('master_selected'))
+                                        : ElevatedButton(
+                                            onPressed: canSelect
+                                                ? () async {
+                                                    final ok = await controller.selectOffer(
+                                                      jobId: widget.jobId,
+                                                      offerId: item.id,
+                                                    );
+                                                    if (ok && context.mounted) {
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(l10n.t('master_selected')),
+                                                        ),
+                                                      );
+                                                      Navigator.of(context).pop(true);
+                                                    }
+                                                  }
+                                                : null,
+                                            child: state.isSubmitting
+                                                ? const SizedBox(
+                                                    height: 18,
+                                                    width: 18,
+                                                    child: CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
+                                                  )
+                                                : Text(l10n.t('select_master')),
+                                          ),
                                   );
                                 },
                               ),
