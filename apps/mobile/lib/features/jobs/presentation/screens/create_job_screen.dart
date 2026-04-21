@@ -305,6 +305,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
+                key: ValueKey('job_title_${Localizations.localeOf(context).languageCode}'),
               onChanged: jobsController.setTitle,
               enabled: !isBusy,
               decoration: InputDecoration(
@@ -314,6 +315,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
+                key: ValueKey('job_description_${Localizations.localeOf(context).languageCode}'),
               onChanged: jobsController.setDescription,
               enabled: !isBusy,
               maxLines: 4,
