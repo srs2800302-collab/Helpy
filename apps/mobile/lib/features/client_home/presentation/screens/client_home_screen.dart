@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../auth/presentation/screens/role_selection_screen.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
 
@@ -113,6 +114,17 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 color: Colors.lightBlue,
               ),
             ),
+          ),
+          IconButton(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const RoleSelectionScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: l10n.t('choose_role'),
           ),
           IconButton(
             onPressed: jobsState.isLoading ? null : _refreshAll,
