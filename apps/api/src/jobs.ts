@@ -7,6 +7,7 @@ type CreateJobBody = {
   category?: string;
   description?: string;
   address_text?: string;
+  source_language?: string;
   budget_type?: string;
   budget_from?: number | null;
   budget_to?: number | null;
@@ -41,7 +42,14 @@ async function withHasReview(row: any, env: any) {
 async function sanitizeJob(row: any, env: any) {
   if (!row) return row;
   const { client_id, ...safe } = row;
-  return withHasReview(safe, env);
+  return withHasReview({
+    ...safe,
+    title_original: safe.title_original ?? safe.title,
+    description_original: safe.description_original ?? safe.description,
+    source_language: safe.source_language ?? 'ru',
+    title_translations_json: safe.title_translations_json ?? null,
+    description_translations_json: safe.description_translations_json ?? null,
+  }, env);
 }
 
 async function sanitizeJobs(rows: any[], env: any) {
@@ -63,6 +71,11 @@ export async function ensureJobsSchema(env: any) {
     ['payment_method', "ALTER TABLE jobs ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'card'"],
     ['commission_payer', "ALTER TABLE jobs ADD COLUMN commission_payer TEXT NOT NULL DEFAULT 'client'"],
     ['deposit_percent', 'ALTER TABLE jobs ADD COLUMN deposit_percent INTEGER NOT NULL DEFAULT 40'],
+    ['title_original', 'ALTER TABLE jobs ADD COLUMN title_original TEXT'],
+    ['description_original', 'ALTER TABLE jobs ADD COLUMN description_original TEXT'],
+    ['source_language', 'ALTER TABLE jobs ADD COLUMN source_language TEXT'],
+    ['title_translations_json', 'ALTER TABLE jobs ADD COLUMN title_translations_json TEXT'],
+    ['description_translations_json', 'ALTER TABLE jobs ADD COLUMN description_translations_json TEXT'],
   ];
 
   for (const [name, sql] of patches) {
@@ -236,6 +249,7 @@ export async function createJob(request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const sourceLanguage = body.source_language?.trim() || 'ru';
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
   const initialStatus =
     paymentMethod === 'cash' ? JOB_STATUS.open : JOB_STATUS.awaiting_payment;
@@ -252,6 +266,11 @@ export async function createJob(request: Request, env: any) {
       client_user_id,
       description,
       address_text,
+      title_original,
+      description_original,
+      source_language,
+      title_translations_json,
+      description_translations_json,
       budget_type,
       budget_from,
       budget_to,
@@ -262,7 +281,7 @@ export async function createJob(request: Request, env: any) {
       deposit_percent,
       latitude,
       longitude
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20)`
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25)`
   )
     .bind(
       id,
@@ -275,6 +294,11 @@ export async function createJob(request: Request, env: any) {
       clientUserId,
       body.description.trim(),
       body.address_text.trim(),
+      body.title.trim(),
+      body.description.trim(),
+      sourceLanguage,
+      null,
+      null,
       body.budget_type || 'fixed',
       budgetFrom,
       budgetTo,

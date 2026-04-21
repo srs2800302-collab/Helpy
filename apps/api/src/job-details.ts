@@ -7,6 +7,7 @@ function sanitizeJob(row: any) {
   return {
     id: row.id,
     title: row.title,
+    title_original: row.title_original ?? row.title,
     price: row.price,
     category: row.category,
     status: row.status,
@@ -21,6 +22,10 @@ function sanitizeJob(row: any) {
     budget_to: row.budget_to,
     currency: row.currency,
     description: row.description,
+    description_original: row.description_original ?? row.description,
+    source_language: row.source_language ?? 'ru',
+    title_translations_json: row.title_translations_json ?? null,
+    description_translations_json: row.description_translations_json ?? null,
     updated_at: row.updated_at,
     selected_offer_price: row.selected_offer_price,
     deposit_amount: row.deposit_amount,
