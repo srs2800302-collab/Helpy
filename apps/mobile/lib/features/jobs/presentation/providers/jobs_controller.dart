@@ -167,6 +167,7 @@ class JobsController extends StateNotifier<JobsState> {
             clientUserId: session.userId,
             categoryId: state.selectedCategoryId!,
             title: state.title.trim(),
+            sourceLanguage: ref.read(currentLocaleProvider).languageCode,
             description: state.description.trim(),
             addressText: state.addressText.trim(),
           );

@@ -10,6 +10,7 @@ class JobsApi {
     required String clientUserId,
     required String categoryId,
     required String title,
+    required String sourceLanguage,
     String? description,
     String? addressText,
     double? latitude,
@@ -27,6 +28,7 @@ class JobsApi {
         'address_text': (addressText == null || addressText.trim().isEmpty)
             ? 'Pattaya'
             : addressText.trim(),
+        'source_language': sourceLanguage,
         'budget_type': 'fixed',
         'budget_from': 1000,
         'price': 1000,
