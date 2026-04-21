@@ -98,5 +98,15 @@
   "delete_draft_confirm": "Delete this draft job?",
   "delete_action": "Delete",
   "cancel_action": "Cancel",
-  "delete_draft": "Delete draft"
+  "delete_draft": "Delete draft",
+  "add_photo": "Add photo",
+  "post_job": "Post job",
+  "location_selected": "Location selected",
+  "max_photos": "Maximum 10 photos",
+  "selected_photos_count": "Selected photos: {count}/10",
+  "failed_pick_photos": "Failed to pick photos",
+  "pick_location": "Pick location",
+  "confirm_point": "Confirm point",
+  "latitude_short": "Lat",
+  "longitude_short": "Lng"
 }

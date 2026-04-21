@@ -98,5 +98,15 @@
   "delete_draft_confirm": "Удалить черновик заказа?",
   "delete_action": "Удалить",
   "cancel_action": "Отмена",
-  "delete_draft": "Удалить черновик"
+  "delete_draft": "Удалить черновик",
+  "add_photo": "Добавить фото",
+  "post_job": "Разместить заказ",
+  "location_selected": "Локация выбрана",
+  "max_photos": "Максимум 10 фото",
+  "selected_photos_count": "Выбрано фото: {count}/10",
+  "failed_pick_photos": "Не удалось выбрать фото",
+  "pick_location": "Выбрать точку",
+  "confirm_point": "Подтвердить точку",
+  "latitude_short": "Широта",
+  "longitude_short": "Долгота"
 }

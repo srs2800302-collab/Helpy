@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/localization/app_localizations.dart';
+
 class JobLocationPickerResult {
   final double latitude;
   final double longitude;
@@ -37,9 +39,11 @@ class _JobLocationPickerScreenState extends State<JobLocationPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pick location'),
+        title: Text(l10n.t('pick_location')),
       ),
       body: Column(
         children: [
@@ -96,7 +100,7 @@ class _JobLocationPickerScreenState extends State<JobLocationPickerScreen> {
                         ),
                       );
                     },
-                    child: const Text('Confirm point'),
+                    child: Text(l10n.t('confirm_point')),
                   ),
                 ),
               ],

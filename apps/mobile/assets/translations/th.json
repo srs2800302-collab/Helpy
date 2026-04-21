@@ -98,5 +98,15 @@
   "delete_draft_confirm": "ลบงานฉบับร่างนี้หรือไม่?",
   "delete_action": "ลบ",
   "cancel_action": "ยกเลิก",
-  "delete_draft": "ลบฉบับร่าง"
+  "delete_draft": "ลบฉบับร่าง",
+  "add_photo": "เพิ่มรูป",
+  "post_job": "ลงประกาศงาน",
+  "location_selected": "เลือกตำแหน่งแล้ว",
+  "max_photos": "ได้สูงสุด 10 รูป",
+  "selected_photos_count": "เลือกรูปแล้ว: {count}/10",
+  "failed_pick_photos": "ไม่สามารถเลือกรูปได้",
+  "pick_location": "เลือกตำแหน่ง",
+  "confirm_point": "ยืนยันจุด",
+  "latitude_short": "ละติจูด",
+  "longitude_short": "ลองจิจูด"
 }

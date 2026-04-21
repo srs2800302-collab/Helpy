@@ -43,6 +43,19 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     super.dispose();
   }
 
+  String _geocodingLocale(BuildContext context) {
+    final code = Localizations.localeOf(context).languageCode;
+    switch (code) {
+      case 'ru':
+        return 'ru_RU';
+      case 'th':
+        return 'th_TH';
+      case 'en':
+      default:
+        return 'en_US';
+    }
+  }
+
   String _categoryLabel(AppLocalizations l10n, String slug) {
     switch (slug) {
       case 'cleaning':
@@ -86,6 +99,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         '${result.latitude.toStringAsFixed(6)}, ${result.longitude.toStringAsFixed(6)}';
 
     try {
+      await setLocaleIdentifier(_geocodingLocale(context));
       final placemarks = await placemarkFromCoordinates(
         result.latitude,
         result.longitude,
@@ -110,8 +124,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     jobsController.setAddressText(nextAddress);
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Location selected')),
+      SnackBar(content: Text(l10n.t('location_selected'))),
     );
   }
 
@@ -132,8 +147,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       final freeSlots = 10 - current.length;
       if (freeSlots <= 0) {
         if (!mounted) return;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Maximum 10 photos')),
+          SnackBar(content: Text(l10n.t('max_photos'))),
         );
         return;
       }
@@ -142,13 +158,18 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       jobsController.setPhotos(next);
 
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final text = l10n
+          .t('selected_photos_count')
+          .replaceAll('{count}', next.length.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Selected ${next.length} of 10 photos')),
+        SnackBar(content: Text(text)),
       );
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to pick photos: $e')),
+        SnackBar(content: Text('${l10n.t('failed_pick_photos')}: $e')),
       );
     }
   }
@@ -308,7 +329,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   child: OutlinedButton.icon(
                     onPressed: isBusy || jobsState.photos.length >= 10 ? null : _pickPhotos,
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: Text('Добавить фото (${jobsState.photos.length}/10)'),
+                    label: Text(
+                      '${l10n.t('add_photo')} (${jobsState.photos.length}/10)',
+                    ),
                   ),
                 ),
               ],
@@ -452,7 +475,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Разместить заказ'),
+                    : Text(l10n.t('post_job')),
               ),
             ),
           ],
