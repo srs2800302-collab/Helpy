@@ -347,7 +347,15 @@ export async function getJobsByUser(userId: string, request: Request, env: any) 
   }
 
   const result = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE client_user_id = ?1 ORDER BY created_at DESC'
+    'SELECT j.*,
+  (
+    SELECT COUNT(*)
+    FROM offers o
+    WHERE o.job_id = j.id
+  ) as offers_count
+FROM jobs j
+WHERE j.client_user_id = ?1
+ORDER BY j.created_at DESC'
   )
     .bind(userId)
     .all();
