@@ -268,6 +268,37 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                       return Card(
                         color: _jobCardColor(item.status),
                         child: ListTile(
+                          onLongPress: isCompleted
+                              ? () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (dialogContext) => AlertDialog(
+                                      title: Text(item.title),
+                                      content: Text(l10n.t('delete_draft_confirm')),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.of(dialogContext).pop(false),
+                                          child: Text(l10n.t('cancel_action')),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.of(dialogContext).pop(true),
+                                          child: Text(l10n.t('delete_action')),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (confirmed != true || !context.mounted) return;
+
+                                  final ok = await ref
+                                      .read(jobsControllerProvider.notifier)
+                                      .deleteDraftJob(jobId: item.id);
+
+                                  if (ok && context.mounted) {
+                                    await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+                                  }
+                                }
+                              : null,
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
