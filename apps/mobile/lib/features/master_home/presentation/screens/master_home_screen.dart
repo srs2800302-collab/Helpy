@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -17,13 +18,64 @@ class MasterHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
+  static const _hiddenCompletedJobsKey = 'master_hidden_completed_job_ids';
+  Set<String> _hiddenCompletedJobIds = <String>{};
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
+      await _loadHiddenCompletedJobIds();
       await ref.read(offersControllerProvider.notifier).loadMyOffers();
       await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
     });
+  }
+
+  Future<void> _loadHiddenCompletedJobIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final items = prefs.getStringList(_hiddenCompletedJobsKey) ?? const <String>[];
+    if (!mounted) return;
+    setState(() {
+      _hiddenCompletedJobIds = items.toSet();
+    });
+  }
+
+  Future<void> _hideCompletedJob(String jobId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final next = {..._hiddenCompletedJobIds, jobId};
+    await prefs.setStringList(_hiddenCompletedJobsKey, next.toList());
+    if (!mounted) return;
+    setState(() {
+      _hiddenCompletedJobIds = next;
+    });
+  }
+
+  Future<void> _confirmHideCompletedJob({
+    required String jobId,
+    required String title,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(l10n.t('delete_confirm_short')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.t('cancel_action')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.t('delete_action')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _hideCompletedJob(jobId);
+    }
   }
 
   Future<void> _refreshAll() async {
@@ -124,6 +176,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
         .toList();
     final completedOffers = offersState.items
         .where((item) => item.status == 'completed')
+        .where((item) => !_hiddenCompletedJobIds.contains(item.jobId))
         .toList()
       ..sort((a, b) {
         final aTime = a.updatedAt ?? a.createdAt;
@@ -283,12 +336,15 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                   const SizedBox(height: 20),
                   Center(
                     child: InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(
+                      onTap: () async {
+                        await Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const MasterCompletedJobsScreen(),
                           ),
                         );
+                        if (mounted) {
+                          await _loadHiddenCompletedJobIds();
+                        }
                       },
                       child: Text(
                         l10n.t('completed_jobs'),
@@ -309,6 +365,12 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     return Card(
                       color: _offerCardColor(item.status),
                       child: ListTile(
+                        onLongPress: () async {
+                          await _confirmHideCompletedJob(
+                            jobId: item.jobId,
+                            title: title,
+                          );
+                        },
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -334,12 +396,15 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       padding: const EdgeInsets.only(top: 8),
                       child: Center(
                         child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
+                          onPressed: () async {
+                            await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => const MasterCompletedJobsScreen(),
                               ),
                             );
+                            if (mounted) {
+                              await _loadHiddenCompletedJobIds();
+                            }
                           },
                           child: Text(l10n.t('view_remaining_completed_jobs')),
                         ),

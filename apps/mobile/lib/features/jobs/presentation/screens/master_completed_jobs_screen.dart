@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -7,8 +8,69 @@ import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../offers/domain/offer_item.dart';
 import 'master_job_details_screen.dart';
 
-class MasterCompletedJobsScreen extends ConsumerWidget {
+class MasterCompletedJobsScreen extends ConsumerStatefulWidget {
   const MasterCompletedJobsScreen({super.key});
+
+  @override
+  ConsumerState<MasterCompletedJobsScreen> createState() => _MasterCompletedJobsScreenState();
+}
+
+class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsScreen> {
+  static const _hiddenCompletedJobsKey = 'master_hidden_completed_job_ids';
+  Set<String> _hiddenCompletedJobIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(_loadHiddenCompletedJobIds);
+  }
+
+  Future<void> _loadHiddenCompletedJobIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final items = prefs.getStringList(_hiddenCompletedJobsKey) ?? const <String>[];
+    if (!mounted) return;
+    setState(() {
+      _hiddenCompletedJobIds = items.toSet();
+    });
+  }
+
+  Future<void> _hideCompletedJob(String jobId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final next = {..._hiddenCompletedJobIds, jobId};
+    await prefs.setStringList(_hiddenCompletedJobsKey, next.toList());
+    if (!mounted) return;
+    setState(() {
+      _hiddenCompletedJobIds = next;
+    });
+  }
+
+  Future<void> _confirmHideCompletedJob({
+    required String jobId,
+    required String title,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(l10n.t('delete_confirm_short')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.t('cancel_action')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.t('delete_action')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _hideCompletedJob(jobId);
+    }
+  }
 
   String _statusLabel(AppLocalizations l10n, String status) {
     switch (status) {
@@ -28,7 +90,10 @@ class MasterCompletedJobsScreen extends ConsumerWidget {
   }
 
   List<OfferItem> _sortedCompleted(List<OfferItem> items) {
-    final completed = items.where((item) => item.status == 'completed').toList()
+    final completed = items
+        .where((item) => item.status == 'completed')
+        .where((item) => !_hiddenCompletedJobIds.contains(item.jobId))
+        .toList()
       ..sort((a, b) {
         final aTime = a.updatedAt ?? a.createdAt;
         final bTime = b.updatedAt ?? b.createdAt;
@@ -38,7 +103,7 @@ class MasterCompletedJobsScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final offersState = ref.watch(offersControllerProvider);
     final completedOffers = _sortedCompleted(offersState.items);
@@ -65,6 +130,12 @@ class MasterCompletedJobsScreen extends ConsumerWidget {
                     return Card(
                       color: Colors.grey.shade200,
                       child: ListTile(
+                        onLongPress: () async {
+                          await _confirmHideCompletedJob(
+                            jobId: item.jobId,
+                            title: title,
+                          );
+                        },
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
