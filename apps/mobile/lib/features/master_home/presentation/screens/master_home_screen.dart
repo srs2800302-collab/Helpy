@@ -61,7 +61,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     const allowedStatuses = {
       'master_selected',
       'in_progress',
-      'completed',
       'cancelled',
       'disputed',
     };
@@ -90,6 +89,17 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     if (message == null || message.trim().isEmpty) return null;
     if (message.toLowerCase().contains('session expired')) return null;
     return message;
+  }
+
+  Color? _offerCardColor(String status) {
+    switch (status) {
+      case 'completed':
+        return Colors.grey.shade200;
+      case 'cancelled':
+        return Colors.red.shade50;
+      default:
+        return null;
+    }
   }
 
   @override
@@ -258,6 +268,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     : 'Job ${item.jobId}';
 
                 return Card(
+                    color: _offerCardColor(item.status),
                   child: ListTile(
                     onTap: () => _openOfferChat(jobId: item.jobId, jobStatus: item.status),
                     title: Text(title),
