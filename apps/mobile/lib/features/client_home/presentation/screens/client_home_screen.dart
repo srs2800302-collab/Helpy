@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -16,12 +17,63 @@ class ClientHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
+  static const _hiddenCompletedJobsKey = 'client_hidden_completed_job_ids';
+  Set<String> _hiddenCompletedJobIds = <String>{};
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(jobsControllerProvider.notifier).loadClientJobs();
+    Future.microtask(() async {
+      await _loadHiddenCompletedJobIds();
+      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
     });
+  }
+
+  Future<void> _loadHiddenCompletedJobIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final items = prefs.getStringList(_hiddenCompletedJobsKey) ?? const <String>[];
+    if (!mounted) return;
+    setState(() {
+      _hiddenCompletedJobIds = items.toSet();
+    });
+  }
+
+  Future<void> _hideCompletedJob(String jobId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final next = {..._hiddenCompletedJobIds, jobId};
+    await prefs.setStringList(_hiddenCompletedJobsKey, next.toList());
+    if (!mounted) return;
+    setState(() {
+      _hiddenCompletedJobIds = next;
+    });
+  }
+
+  Future<void> _confirmHideCompletedJob({
+    required String jobId,
+    required String title,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(l10n.t('delete_confirm_short')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.t('cancel_action')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.t('delete_action')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _hideCompletedJob(jobId);
+    }
   }
 
   Future<void> _refreshAll() async {
@@ -103,10 +155,13 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     final currentLocale = ref.watch(currentLocaleProvider);
 
     final jobsError = _visibleError(jobsState.errorMessage);
-    final highlightedJob = jobsState.items
+    final visibleJobs = jobsState.items
+        .where((item) => !(item.status == 'completed' && _hiddenCompletedJobIds.contains(item.id)))
+        .toList();
+    final highlightedJob = visibleJobs
         .where((item) => item.status == 'open' && item.offersCount > 0)
         .toList().isNotEmpty
-        ? jobsState.items.where((item) => item.status == 'open' && item.offersCount > 0).first
+        ? visibleJobs.where((item) => item.status == 'open' && item.offersCount > 0).first
         : null;
 
     return Scaffold(
@@ -245,14 +300,14 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            if (jobsState.isLoading && jobsState.items.isEmpty)
+            if (jobsState.isLoading && visibleJobs.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: CircularProgressIndicator(),
                 ),
               )
-            else if (jobsState.items.isEmpty)
+            else if (visibleJobs.isEmpty)
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -260,7 +315,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 ),
               )
               else
-                ...jobsState.items.take(10).map(
+                ...visibleJobs.take(10).map(
                       (item) {
                         final completedAt = item.updatedAt ?? item.createdAt;
                         final isCompleted = item.status == 'completed';
@@ -268,6 +323,14 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                         return Card(
                           color: _jobCardColor(item.status),
                           child: ListTile(
+                            onLongPress: isCompleted
+                                ? () async {
+                                    await _confirmHideCompletedJob(
+                                      jobId: item.id,
+                                      title: item.title,
+                                    );
+                                  }
+                                : null,
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
