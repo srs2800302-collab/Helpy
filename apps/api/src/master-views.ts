@@ -34,6 +34,7 @@ function sanitizeOffer(row: any) {
     category: row.category ?? '',
     status: row.status ?? '',
     address_text: row.address_text ?? '',
+    updated_at: row.updated_at ?? null,
   };
 }
 

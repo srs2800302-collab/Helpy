@@ -108,5 +108,7 @@
   "pick_location": "Pick location",
   "confirm_point": "Confirm point",
   "latitude_short": "Lat",
-  "longitude_short": "Lng"
+  "longitude_short": "Lng",
+  "completed_jobs": "Completed jobs",
+  "completed_at_label": "Completed"
 }

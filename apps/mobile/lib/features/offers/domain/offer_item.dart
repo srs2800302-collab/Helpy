@@ -10,6 +10,7 @@ class OfferItem {
   final String jobTitle;
   final String categorySlug;
   final DateTime createdAt;
+  final DateTime? updatedAt;
 
   const OfferItem({
     required this.id,
@@ -23,5 +24,6 @@ class OfferItem {
     required this.jobTitle,
     required this.categorySlug,
     required this.createdAt,
+    required this.updatedAt,
   });
 }

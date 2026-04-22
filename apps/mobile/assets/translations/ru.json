@@ -108,5 +108,7 @@
   "pick_location": "Выбрать точку",
   "confirm_point": "Подтвердить точку",
   "latitude_short": "Широта",
-  "longitude_short": "Долгота"
+  "longitude_short": "Долгота",
+  "completed_jobs": "Завершённые заказы",
+  "completed_at_label": "Завершён"
 }

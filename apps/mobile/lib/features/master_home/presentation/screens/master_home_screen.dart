@@ -102,6 +102,12 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     }
   }
 
+  String _formatCompletedAt(DateTime value) {
+    final local = value.toLocal();
+    String two(int x) => x.toString().padLeft(2, '0');
+    return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final offersState = ref.watch(offersControllerProvider);
@@ -114,6 +120,18 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final highlightedMarketplaceJob = marketplaceState.items.isNotEmpty
         ? marketplaceState.items.first
         : null;
+    final activeOffers = offersState.items
+        .where((item) => item.status != 'completed')
+        .toList();
+    final completedOffers = offersState.items
+        .where((item) => item.status == 'completed')
+        .toList()
+      ..sort((a, b) {
+        final aTime = a.updatedAt ?? a.createdAt;
+        final bTime = b.updatedAt ?? b.createdAt;
+        return bTime.compareTo(aTime);
+      });
+    final visibleCompletedOffers = completedOffers.take(150).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -247,41 +265,74 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            if (offersState.isLoading && offersState.items.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (offersState.items.isEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(l10n.t('empty_offers')),
-                ),
-              )
-            else
-              ...offersState.items.take(10).map((item) {
-                final title = item.jobTitle.trim().isNotEmpty
-                    ? item.jobTitle.trim()
-                    : 'Job ${item.jobId}';
-
-                return Card(
-                    color: _offerCardColor(item.status),
-                  child: ListTile(
-                    onTap: () => _openOfferChat(jobId: item.jobId, jobStatus: item.status),
-                    title: Text(title),
-                    subtitle: Text(
-                      '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
+              if (offersState.isLoading && offersState.items.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: CircularProgressIndicator(),
                   ),
-                );
-              }),
-          ],
+                )
+              else if (offersState.items.isEmpty)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(l10n.t('empty_offers')),
+                  ),
+                )
+              else ...[
+                if (activeOffers.isNotEmpty)
+                  ...activeOffers.take(10).map((item) {
+                    final title = item.jobTitle.trim().isNotEmpty
+                        ? item.jobTitle.trim()
+                        : 'Job ${item.jobId}';
+
+                    return Card(
+                      color: _offerCardColor(item.status),
+                      child: ListTile(
+                        onTap: () => _openOfferChat(jobId: item.jobId, jobStatus: item.status),
+                        title: Text(title),
+                        subtitle: Text(
+                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}',
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                      ),
+                    );
+                  }),
+                if (visibleCompletedOffers.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      l10n.t('completed_jobs'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...visibleCompletedOffers.map((item) {
+                    final title = item.jobTitle.trim().isNotEmpty
+                        ? item.jobTitle.trim()
+                        : 'Job ${item.jobId}';
+                    final completedAt = item.updatedAt ?? item.createdAt;
+
+                    return Card(
+                      color: _offerCardColor(item.status),
+                      child: ListTile(
+                        title: Text(title),
+                        subtitle: Text(
+                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
+                          '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
+                        ),
+                        isThreeLine: true,
+                      ),
+                    );
+                  }),
+                ],
+              ],
+            ],
         ),
-      ),
-    );
+        ),
+      );
+    }
   }
-}
