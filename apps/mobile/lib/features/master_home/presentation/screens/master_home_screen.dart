@@ -18,13 +18,15 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(offersControllerProvider.notifier).loadMyOffers();
+    Future.microtask(() async {
+      await ref.read(offersControllerProvider.notifier).loadMyOffers();
+      await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
     });
   }
 
   Future<void> _refreshAll() async {
     await ref.read(offersControllerProvider.notifier).loadMyOffers();
+    await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
   }
 
   String _statusLabel(AppLocalizations l10n, String status) {
