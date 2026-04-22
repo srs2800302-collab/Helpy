@@ -274,7 +274,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                     context: context,
                                     builder: (dialogContext) => AlertDialog(
                                       title: Text(item.title),
-                                      content: Text(l10n.t('delete_draft_confirm')),
+                                      content: Text(l10n.t('delete_confirm_short')),
                                       actions: [
                                         TextButton(
                                           onPressed: () => Navigator.of(dialogContext).pop(false),

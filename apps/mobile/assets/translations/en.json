@@ -112,5 +112,6 @@
   "completed_jobs": "Completed jobs",
   "completed_at_label": "Completed",
   "new_jobs_available_title": "New jobs available",
-  "view_remaining_completed_jobs": "View remaining"
+  "view_remaining_completed_jobs": "View remaining",
+  "delete_confirm_short": "DELETE?"
 }

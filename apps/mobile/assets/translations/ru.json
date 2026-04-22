@@ -112,5 +112,6 @@
   "completed_jobs": "Завершённые заказы",
   "completed_at_label": "Завершён",
   "new_jobs_available_title": "Есть новые заказы",
-  "view_remaining_completed_jobs": "Посмотреть остальные"
+  "view_remaining_completed_jobs": "Посмотреть остальные",
+  "delete_confirm_short": "УДАЛИТЬ?"
 }

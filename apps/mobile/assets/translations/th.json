@@ -112,5 +112,6 @@
   "completed_jobs": "งานที่เสร็จแล้ว",
   "completed_at_label": "เสร็จสิ้นเมื่อ",
   "new_jobs_available_title": "มีงานใหม่",
-  "view_remaining_completed_jobs": "ดูที่เหลือ"
+  "view_remaining_completed_jobs": "ดูที่เหลือ",
+  "delete_confirm_short": "ลบใช่ไหม?"
 }
