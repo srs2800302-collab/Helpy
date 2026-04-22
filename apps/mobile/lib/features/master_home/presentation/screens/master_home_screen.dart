@@ -7,6 +7,7 @@ import '../../../auth/presentation/screens/role_selection_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
+import '../../../jobs/presentation/screens/master_completed_jobs_screen.dart';
 
 class MasterHomeScreen extends ConsumerStatefulWidget {
   const MasterHomeScreen({super.key});
@@ -118,9 +119,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
     final offersError = _visibleError(offersState.errorMessage);
     final marketplaceState = ref.watch(marketplaceControllerProvider);
-    final highlightedMarketplaceJob = marketplaceState.items.isNotEmpty
-        ? marketplaceState.items.first
-        : null;
     final activeOffers = offersState.items
         .where((item) => item.status != 'completed')
         .toList();
@@ -132,7 +130,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
         final bTime = b.updatedAt ?? b.createdAt;
         return bTime.compareTo(aTime);
       });
-    final visibleCompletedOffers = completedOffers.take(150).toList();
+    final visibleCompletedOffers = completedOffers.take(5).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -198,32 +196,14 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const MasterMarketplaceScreen(),
-                    ),
-                  );
-                  if (mounted) {
-                    await _refreshAll();
-                  }
-                },
-                icon: const Icon(Icons.work_outline),
-                label: Text(l10n.t('marketplace')),
-              ),
-            ),
-            const SizedBox(height: 24),
-            if (highlightedMarketplaceJob != null) ...[
+            if (marketplaceState.items.isNotEmpty) ...[
               Card(
                 color: Colors.lightGreen.shade50,
                 child: ListTile(
                   leading: const Icon(Icons.work_outline),
-                  title: const Text('New jobs available'),
+                  title: Text(l10n.t('new_jobs_available_title')),
                   subtitle: Text(
-                    '${highlightedMarketplaceJob.title} • ${marketplaceState.items.length} open jobs',
+                    '${marketplaceState.items.length} open jobs',
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
@@ -302,11 +282,20 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                 if (visibleCompletedOffers.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   Center(
-                    child: Text(
-                      l10n.t('completed_jobs'),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const MasterCompletedJobsScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        l10n.t('completed_jobs'),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -340,6 +329,22 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       ),
                     );
                   }),
+                  if (completedOffers.length > 5)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const MasterCompletedJobsScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(l10n.t('view_remaining_completed_jobs')),
+                        ),
+                      ),
+                    ),
                 ],
               ],
             ],

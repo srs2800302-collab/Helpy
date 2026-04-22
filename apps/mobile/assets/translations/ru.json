@@ -110,5 +110,7 @@
   "latitude_short": "Широта",
   "longitude_short": "Долгота",
   "completed_jobs": "Завершённые заказы",
-  "completed_at_label": "Завершён"
+  "completed_at_label": "Завершён",
+  "new_jobs_available_title": "Есть новые заказы",
+  "view_remaining_completed_jobs": "Посмотреть остальные"
 }

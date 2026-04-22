@@ -110,5 +110,7 @@
   "latitude_short": "Lat",
   "longitude_short": "Lng",
   "completed_jobs": "Completed jobs",
-  "completed_at_label": "Completed"
+  "completed_at_label": "Completed",
+  "new_jobs_available_title": "New jobs available",
+  "view_remaining_completed_jobs": "View remaining"
 }
