@@ -268,38 +268,26 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                       return Card(
                         color: _jobCardColor(item.status),
                         child: ListTile(
-                          onLongPress: isCompleted
-                              ? () async {
-                                  final confirmed = await showDialog<bool>(
-                                    context: context,
-                                    builder: (dialogContext) => AlertDialog(
-                                      title: Text(item.title),
-                                      content: Text(l10n.t('delete_confirm_short')),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.of(dialogContext).pop(false),
-                                          child: Text(l10n.t('cancel_action')),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.of(dialogContext).pop(true),
-                                          child: Text(l10n.t('delete_action')),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-
-                                  if (confirmed != true || !context.mounted) return;
-
-                                  final ok = await ref
-                                      .read(jobsControllerProvider.notifier)
-                                      .deleteDraftJob(jobId: item.id);
-
-                                  if (ok && context.mounted) {
-                                    await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-                                  }
-                                }
-                              : null,
+                      return Card(
+                        color: _jobCardColor(item.status),
+                        child: ListTile(
                           onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ClientJobDetailsScreen(job: item),
+                              ),
+                            );
+                          },
+                          title: Text(item.title),
+                          subtitle: Text(
+                            isCompleted
+                                ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}'
+                                : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                          ),
+                          isThreeLine: isCompleted,
+                          trailing: const Icon(Icons.chevron_right),
+                        ),
+                      );                          onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => ClientJobDetailsScreen(job: item),
