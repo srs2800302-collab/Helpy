@@ -78,6 +78,17 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     return message;
   }
 
+  Color? _jobCardColor(String status) {
+    switch (status) {
+      case 'completed':
+        return Colors.grey.shade200;
+      case 'cancelled':
+        return Colors.red.shade50;
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final jobsState = ref.watch(jobsControllerProvider);
@@ -245,6 +256,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
             else
               ...jobsState.items.take(10).map(
                     (item) => Card(
+                        color: _jobCardColor(item.status),
                       child: ListTile(
                         onTap: () {
                           Navigator.of(context).push(

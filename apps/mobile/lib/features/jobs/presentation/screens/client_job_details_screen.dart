@@ -165,7 +165,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
     final bool canDeleteDraft =
         job.status == 'draft' || job.status == 'awaiting_payment';
 
-    final Widget? deleteDraftAction = canDeleteDraft
+    final Widget? deleteJobAction = canDeleteDraft
         ? OutlinedButton(
             onPressed: () async {
               final confirmed = await showDialog<bool>(
@@ -274,11 +274,11 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               child: primaryAction,
             ),
           ],
-          if (deleteDraftAction != null) ...[
+          if (deleteJobAction != null) ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: deleteDraftAction,
+              child: deleteJobAction,
             ),
           ],
         ],

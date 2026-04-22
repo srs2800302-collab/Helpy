@@ -32,15 +32,27 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
     );
   }
 
-  const canDelete =
+  let canDelete =
     job.status === JOB_STATUS.draft ||
-    job.status === JOB_STATUS.awaiting_payment;
+    job.status === JOB_STATUS.awaiting_payment ||
+    job.status === JOB_STATUS.completed;
+
+  if (!canDelete && job.status === JOB_STATUS.open) {
+    const offersCountRow = await env.DB.prepare(
+      'SELECT COUNT(*) as count FROM offers WHERE job_id = ?1'
+    )
+      .bind(jobId)
+      .first();
+
+    const offersCount = Number(offersCountRow?.count ?? 0);
+    canDelete = offersCount === 0;
+  }
 
   if (!canDelete) {
     return Response.json(
       {
         success: false,
-        error: 'Only draft or unpaid job can be deleted',
+        error: 'Only draft, unpaid, completed, or open job without offers can be deleted',
       },
       { status: 400 }
     );
