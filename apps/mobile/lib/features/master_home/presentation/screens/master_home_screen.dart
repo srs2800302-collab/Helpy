@@ -6,6 +6,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../auth/presentation/screens/role_selection_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
+import '../../../jobs/presentation/screens/master_job_details_screen.dart';
 
 class MasterHomeScreen extends ConsumerStatefulWidget {
   const MasterHomeScreen({super.key});
@@ -319,12 +320,23 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     return Card(
                       color: _offerCardColor(item.status),
                       child: ListTile(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => MasterJobDetailsScreen(
+                                jobId: item.jobId,
+                                jobTitle: title,
+                              ),
+                            ),
+                          );
+                        },
                         title: Text(title),
                         subtitle: Text(
                           '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
                           '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
                         ),
                         isThreeLine: true,
+                        trailing: const Icon(Icons.chevron_right),
                       ),
                     );
                   }),

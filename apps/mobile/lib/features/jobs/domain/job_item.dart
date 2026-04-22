@@ -6,6 +6,7 @@ class JobItem {
   final String? addressText;
   final String status;
   final DateTime createdAt;
+  final DateTime? updatedAt;
 
   final double? price;
   final double? depositAmount;
@@ -28,6 +29,7 @@ class JobItem {
     required this.addressText,
     required this.status,
     required this.createdAt,
+    required this.updatedAt,
     required this.price,
     required this.depositAmount,
     required this.selectedMasterName,

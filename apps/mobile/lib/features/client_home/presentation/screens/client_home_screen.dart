@@ -89,6 +89,12 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     }
   }
 
+  String _formatCompletedAt(DateTime value) {
+    final local = value.toLocal();
+    String two(int x) => x.toString().padLeft(2, '0');
+    return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final jobsState = ref.watch(jobsControllerProvider);
@@ -255,23 +261,31 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               )
             else
               ...jobsState.items.take(10).map(
-                    (item) => Card(
+                    (item) {
+                      final completedAt = item.updatedAt ?? item.createdAt;
+                      final isCompleted = item.status == 'completed';
+
+                      return Card(
                         color: _jobCardColor(item.status),
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ClientJobDetailsScreen(job: item),
-                            ),
-                          );
-                        },
-                        title: Text(item.title),
-                        subtitle: Text(
-                          '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ClientJobDetailsScreen(job: item),
+                              ),
+                            );
+                          },
+                          title: Text(item.title),
+                          subtitle: Text(
+                            isCompleted
+                                ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}'
+                                : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                          ),
+                          isThreeLine: isCompleted,
+                          trailing: const Icon(Icons.chevron_right),
                         ),
-                        trailing: const Icon(Icons.chevron_right),
-                      ),
-                    ),
+                      );
+                    },
                   ),
           ],
         ),

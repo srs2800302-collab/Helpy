@@ -1,0 +1,164 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../app/providers.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../domain/job_item.dart';
+
+class MasterJobDetailsScreen extends ConsumerStatefulWidget {
+  final String jobId;
+  final String jobTitle;
+
+  const MasterJobDetailsScreen({
+    super.key,
+    required this.jobId,
+    required this.jobTitle,
+  });
+
+  @override
+  ConsumerState<MasterJobDetailsScreen> createState() => _MasterJobDetailsScreenState();
+}
+
+class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen> {
+  late Future<JobItem> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
+  }
+
+  String _categoryLabel(AppLocalizations l10n, String slug) {
+    switch (slug) {
+      case 'cleaning':
+        return l10n.t('category_cleaning');
+      case 'handyman':
+        return l10n.t('category_handyman');
+      case 'plumbing':
+        return l10n.t('category_plumbing');
+      case 'electrical':
+        return l10n.t('category_electrical');
+      case 'locks':
+        return l10n.t('category_locks');
+      case 'aircon':
+        return l10n.t('category_aircon');
+      case 'furniture_assembly':
+        return l10n.t('category_furniture_assembly');
+      default:
+        return slug;
+    }
+  }
+
+  String _statusLabel(AppLocalizations l10n, String status) {
+    switch (status) {
+      case 'draft':
+        return l10n.t('status_draft');
+      case 'awaiting_payment':
+        return l10n.t('status_awaiting_payment');
+      case 'open':
+        return l10n.t('status_open');
+      case 'master_selected':
+        return l10n.t('status_master_selected');
+      case 'in_progress':
+        return l10n.t('status_in_progress');
+      case 'completed':
+        return l10n.t('status_completed');
+      case 'cancelled':
+        return l10n.t('status_cancelled');
+      case 'disputed':
+        return l10n.t('status_disputed');
+      default:
+        return status;
+    }
+  }
+
+  String _formatDateTime(DateTime value) {
+    final local = value.toLocal();
+    String two(int x) => x.toString().padLeft(2, '0');
+    return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.jobTitle),
+        actions: const [
+          AppLanguageMenuButton(),
+        ],
+      ),
+      body: FutureBuilder<JobItem>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(snapshot.error?.toString() ?? 'Failed to load job'),
+              ),
+            );
+          }
+
+          final job = snapshot.data!;
+          final completedAt = job.updatedAt ?? job.createdAt;
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        job.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if ((job.addressText ?? '').trim().isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Text(job.addressText!.trim()),
+                      ],
+                      const SizedBox(height: 12),
+                      Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
+                      const SizedBox(height: 8),
+                      Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
+                      const SizedBox(height: 8),
+                      Text('${l10n.t('created_label')}: ${_formatDateTime(job.createdAt)}'),
+                      if (job.status == 'completed') ...[
+                        const SizedBox(height: 8),
+                        Text('${l10n.t('completed_at_label')}: ${_formatDateTime(completedAt)}'),
+                      ],
+                      if (job.price != null) ...[
+                        const SizedBox(height: 8),
+                        Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
+                      ],
+                      if (job.depositAmount != null) ...[
+                        const SizedBox(height: 8),
+                        Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
+                      ],
+                      if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text('${l10n.t('master_label')}: ${job.selectedMasterName!.trim()}'),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}

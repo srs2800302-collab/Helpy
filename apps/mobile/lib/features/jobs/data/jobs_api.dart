@@ -75,6 +75,7 @@ class JobsApi {
       status: json['status'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
       price: double.tryParse(json['price']?.toString() ?? ''),
       depositAmount:
           double.tryParse(json['deposit_amount']?.toString() ?? ''),
