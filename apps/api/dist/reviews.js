@@ -1,0 +1,166 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getReviews = getReviews;
+exports.createReview = createReview;
+exports.getMasterSummary = getMasterSummary;
+const auth_context_1 = require("./auth-context");
+async function ensureReviewsSchema(env) {
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS reviews (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      client_user_id TEXT NOT NULL,
+      master_user_id TEXT NOT NULL,
+      rating INTEGER NOT NULL,
+      comment TEXT,
+      created_at TEXT NOT NULL
+    )`).run();
+    const columns = await env.DB.prepare('PRAGMA table_info(reviews)').all();
+    const existing = new Set((columns.results ?? []).map((row) => row.name));
+    const patches = [
+        ['client_user_id', 'ALTER TABLE reviews ADD COLUMN client_user_id TEXT'],
+        ['master_user_id', 'ALTER TABLE reviews ADD COLUMN master_user_id TEXT'],
+        ['rating', 'ALTER TABLE reviews ADD COLUMN rating INTEGER'],
+        ['comment', 'ALTER TABLE reviews ADD COLUMN comment TEXT'],
+        ['created_at', 'ALTER TABLE reviews ADD COLUMN created_at TEXT'],
+    ];
+    for (const [name, sql] of patches) {
+        if (!existing.has(name)) {
+            await env.DB.prepare(sql).run();
+        }
+    }
+    await env.DB.prepare(`DELETE FROM reviews
+     WHERE id NOT IN (
+       SELECT MIN(id)
+       FROM reviews
+       GROUP BY job_id
+     )`).run();
+    await env.DB.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
+     ON reviews(job_id)`).run();
+}
+async function getReviews(jobId, request, env) {
+    await ensureReviewsSchema(env);
+    const auth = await (0, auth_context_1.requireAuth)(request, env);
+    if (!auth.ok) {
+        return auth.response;
+    }
+    const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
+        .bind(jobId)
+        .first();
+    if (!job) {
+        return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
+    }
+    const isAdmin = auth.role === 'admin';
+    const isClientOwner = job.client_user_id === auth.userId;
+    const isSelectedMaster = !!job.selected_master_user_id && job.selected_master_user_id === auth.userId;
+    if (!isAdmin && !isClientOwner && !isSelectedMaster) {
+        return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
+    const result = await env.DB.prepare('SELECT * FROM reviews WHERE job_id = ?1 ORDER BY created_at DESC')
+        .bind(jobId)
+        .all();
+    return Response.json({
+        success: true,
+        data: result.results ?? [],
+    });
+}
+async function createReview(jobId, request, env) {
+    await ensureReviewsSchema(env);
+    let body;
+    try {
+        body = await request.json();
+    }
+    catch {
+        return Response.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const auth = await (0, auth_context_1.requireAuth)(request, env);
+    if (!auth.ok) {
+        return auth.response;
+    }
+    const clientUserId = auth.userId;
+    if (!body.master_user_id || typeof body.rating !== 'number') {
+        return Response.json({
+            success: false,
+            error: 'master_user_id and rating are required',
+        }, { status: 400 });
+    }
+    if (body.rating < 1 || body.rating > 5) {
+        return Response.json({ success: false, error: 'rating must be between 1 and 5' }, { status: 400 });
+    }
+    const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
+        .bind(jobId)
+        .first();
+    if (!job) {
+        return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
+    }
+    if (job.status !== 'completed') {
+        return Response.json({ success: false, error: 'Review can be created only for completed job' }, { status: 400 });
+    }
+    if (job.client_user_id !== clientUserId) {
+        return Response.json({ success: false, error: 'Only job client can create review' }, { status: 403 });
+    }
+    if (job.selected_master_user_id !== body.master_user_id) {
+        return Response.json({ success: false, error: 'Review master does not match selected master' }, { status: 400 });
+    }
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    try {
+        await env.DB.prepare(`INSERT INTO reviews (
+        id,
+        job_id,
+        client_user_id,
+        master_user_id,
+        rating,
+        comment,
+        created_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`)
+            .bind(id, jobId, clientUserId, body.master_user_id, body.rating, body.comment ?? null, now)
+            .run();
+    }
+    catch (error) {
+        const message = error?.message ?? 'Failed to create review';
+        if (message.toLowerCase().includes('unique')) {
+            return Response.json({ success: false, error: 'Review already exists for this job' }, { status: 409 });
+        }
+        return Response.json({
+            success: false,
+            error: message,
+        }, { status: 500 });
+    }
+    return Response.json({
+        success: true,
+        data: {
+            id,
+            job_id: jobId,
+            client_user_id: clientUserId,
+            master_user_id: body.master_user_id,
+            rating: body.rating,
+            comment: body.comment ?? null,
+            created_at: now,
+        },
+    });
+}
+async function getMasterSummary(masterUserId, request, env) {
+    await ensureReviewsSchema(env);
+    const auth = await (0, auth_context_1.requireAuth)(request, env);
+    if (!auth.ok) {
+        return auth.response;
+    }
+    const result = await env.DB.prepare(`SELECT
+       COUNT(*) as reviewsCount,
+       AVG(rating) as avgRating
+     FROM reviews
+     WHERE master_user_id = ?1`)
+        .bind(masterUserId)
+        .first();
+    return Response.json({
+        success: true,
+        data: {
+            masterUserId,
+            reviewsCount: Number(result?.reviewsCount ?? 0),
+            avgRating: result?.avgRating !== null && result?.avgRating !== undefined
+                ? Number(result.avgRating)
+                : null,
+        },
+    });
+}
+//# sourceMappingURL=reviews.js.map

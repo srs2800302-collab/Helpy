@@ -31,10 +31,11 @@ async function ensureJobPhotosSchema(env: any) {
   ).run();
 }
 
-function canViewJobPhotos(job: any, actorUserId: string) {
+function canViewJobPhotos(job: any, actorUserId: string, actorRole?: string) {
   return (
     actorUserId === job.client_user_id ||
-    actorUserId === job.selected_master_user_id
+    actorUserId === job.selected_master_user_id ||
+    (actorRole === 'master' && job.status === JOB_STATUS.open)
   );
 }
 
@@ -203,6 +204,7 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
   }
 
   const actorUserId = auth.userId as string;
+  const actorRole = request.headers.get('x-user-role') ?? undefined;
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -217,7 +219,7 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (!canViewJobPhotos(job, actorUserId)) {
+  if (!canViewJobPhotos(job, actorUserId, actorRole)) {
     return Response.json(
       { success: false, error: 'Only job participants can view photos' },
       { status: 403 }

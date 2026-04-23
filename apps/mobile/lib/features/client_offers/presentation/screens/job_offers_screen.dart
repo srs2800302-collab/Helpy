@@ -135,14 +135,21 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     }
                                   }
 
+                                  final details = <String>[
+                                    item.status,
+                                    ratingLine,
+                                    if ((item.message ?? '').trim().isNotEmpty)
+                                      item.message!.trim(),
+                                    if ((item.priceComment ?? '').trim().isNotEmpty)
+                                      item.priceComment!.trim(),
+                                  ];
+
                                   return ListTile(
                                     title: Text(
                                       '${item.masterName} — ${item.price.toStringAsFixed(0)} THB',
                                     ),
-                                    subtitle: Text(
-                                      '${item.status}\n$ratingLine\n${item.priceComment ?? ''}',
-                                    ),
-                                    isThreeLine: true,
+                                    subtitle: Text(details.join('\n')),
+                                    isThreeLine: details.length >= 3,
                                     trailing: isAlreadySelected
                                         ? Text(l10n.t('master_selected'))
                                         : ElevatedButton(

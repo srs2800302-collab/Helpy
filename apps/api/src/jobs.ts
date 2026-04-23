@@ -161,8 +161,9 @@ export async function getJobById(id: string, request: Request, env: any) {
   const isClientOwner = result.client_user_id === auth.userId;
   const isSelectedMaster =
     !!result.selected_master_user_id && result.selected_master_user_id === auth.userId;
+  const isMarketplaceMaster = auth.role === 'master' && result.status === JOB_STATUS.open;
 
-  if (!isAdmin && !isClientOwner && !isSelectedMaster) {
+  if (!isAdmin && !isClientOwner && !isSelectedMaster && !isMarketplaceMaster) {
     return Response.json(
       { success: false, error: 'Forbidden' },
       { status: 403 }

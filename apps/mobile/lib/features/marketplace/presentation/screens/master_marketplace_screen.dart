@@ -6,6 +6,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
+import '../../../jobs/presentation/screens/master_job_details_screen.dart';
 
 class MasterMarketplaceScreen extends ConsumerStatefulWidget {
   const MasterMarketplaceScreen({super.key});
@@ -72,6 +73,16 @@ class _MasterMarketplaceScreenState
 
                         return Card(
                           child: ListTile(
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => MasterJobDetailsScreen(
+                                    jobId: item.id,
+                                    jobTitle: item.title,
+                                  ),
+                                ),
+                              );
+                            },
                             title: Text(item.title),
                             subtitle: Text(
                               '${mapCategory(item.categorySlug)} • ${item.status}\n${item.addressText ?? ''}',

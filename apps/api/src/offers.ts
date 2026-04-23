@@ -3,6 +3,8 @@ import { requireAuth } from './auth-context';
 type CreateOfferBody = {
   master_name?: string;
   price?: number;
+  message?: string;
+  comment?: string;
 };
 
 function fail(error: string, status = 400) {
@@ -17,6 +19,8 @@ export async function ensureOffersSchema(env: any) {
       master_user_id TEXT NOT NULL,
       master_name TEXT NOT NULL,
       price REAL NOT NULL,
+      comment TEXT,
+      message TEXT,
       created_at TEXT NOT NULL
     )`
   ).run();
@@ -30,6 +34,22 @@ export async function ensureOffersSchema(env: any) {
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_offers_job_master_unique
       ON offers(job_id, master_user_id)`
   ).run();
+
+  const alterStatements = [
+    ['comment', 'ALTER TABLE offers ADD COLUMN comment TEXT'],
+    ['message', 'ALTER TABLE offers ADD COLUMN message TEXT'],
+  ] as const;
+
+  for (const [column, sql] of alterStatements) {
+    try {
+      await env.DB.prepare(sql).run();
+    } catch (error: any) {
+      const msg = String(error?.message ?? '').toLowerCase();
+      if (!msg.includes('duplicate column name')) {
+        throw error;
+      }
+    }
+  }
 }
 
 export async function createOffer(jobId: string, request: Request, env: any) {
@@ -93,10 +113,21 @@ export async function createOffer(jobId: string, request: Request, env: any) {
         master_user_id,
         master_name,
         price,
+        comment,
+        message,
         created_at
-      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
     )
-      .bind(id, jobId, masterUserId, body.master_name, body.price, now)
+      .bind(
+        id,
+        jobId,
+        masterUserId,
+        body.master_name,
+        body.price,
+        body.comment?.toString().trim() || null,
+        body.message?.toString().trim() || null,
+        now,
+      )
       .run();
 
     return Response.json(
@@ -108,6 +139,8 @@ export async function createOffer(jobId: string, request: Request, env: any) {
           master_user_id: masterUserId,
           master_name: body.master_name,
           price: body.price,
+          comment: body.comment?.toString().trim() || null,
+          message: body.message?.toString().trim() || null,
           created_at: now,
         },
       },

@@ -5,6 +5,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
+import '../../../offers/presentation/screens/create_offer_screen.dart';
 
 class MasterJobDetailsScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -21,12 +22,23 @@ class MasterJobDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen> {
-  late Future<JobItem> _future;
+  late Future<JobItem> _jobFuture;
+  late Future<List<String>> _photosFuture;
 
   @override
   void initState() {
     super.initState();
-    _future = ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
+    _jobFuture = ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
+    _photosFuture = _loadPhotos();
+  }
+
+  Future<List<String>> _loadPhotos() async {
+    final response = await ref.read(apiClientProvider).dio.get('/jobs/${widget.jobId}/photos');
+    final data = response.data['data'] as List<dynamic>? ?? const [];
+    return data
+        .map((item) => (item as Map<String, dynamic>)['url']?.toString() ?? '')
+        .where((url) => url.trim().isNotEmpty)
+        .toList();
   }
 
   String _categoryLabel(AppLocalizations l10n, String slug) {
@@ -91,7 +103,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
         ],
       ),
       body: FutureBuilder<JobItem>(
-        future: _future,
+        future: _jobFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
@@ -108,6 +120,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
           final job = snapshot.data!;
           final completedAt = job.updatedAt ?? job.createdAt;
+          final canSendOffer = job.status == 'open';
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -125,6 +138,10 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      if ((job.description ?? '').trim().isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Text(job.description!.trim()),
+                      ],
                       if ((job.addressText ?? '').trim().isNotEmpty) ...[
                         const SizedBox(height: 12),
                         Text(job.addressText!.trim()),
@@ -155,6 +172,82 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+              FutureBuilder<List<String>>(
+                future: _photosFuture,
+                builder: (context, photosSnapshot) {
+                  if (photosSnapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (photosSnapshot.hasError) {
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(photosSnapshot.error.toString()),
+                      ),
+                    );
+                  }
+
+                  final photos = photosSnapshot.data ?? const <String>[];
+                  if (photos.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Photos',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...photos.map(
+                        (url) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              url,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                padding: const EdgeInsets.all(16),
+                                color: Colors.black12,
+                                child: const Text('Failed to load photo'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              if (canSendOffer) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final changed = await Navigator.of(context).push<bool>(
+                        MaterialPageRoute(
+                          builder: (_) => CreateOfferScreen(
+                            jobId: job.id,
+                            jobTitle: job.title,
+                          ),
+                        ),
+                      );
+                      if (changed == true && context.mounted) {
+                        Navigator.of(context).pop(true);
+                      }
+                    },
+                    child: Text(l10n.t('send_offer')),
+                  ),
+                ),
+              ],
             ],
           );
         },
