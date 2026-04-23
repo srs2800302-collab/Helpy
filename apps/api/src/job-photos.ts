@@ -1,4 +1,4 @@
-import { requireRequestUserId } from './auth-context';
+import { requireAuth, requireRequestUserId } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { JOB_STATUS } from './job-status';
 
@@ -63,12 +63,13 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
 
-  const actorUserId = auth.userId as string;
+  const actorUserId = auth.userId;
+  const actorRole = auth.role;
 
   if (!body.url || !body.url.toString().trim()) {
     return Response.json(
