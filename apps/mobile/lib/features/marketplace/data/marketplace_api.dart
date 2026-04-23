@@ -10,7 +10,7 @@ class MarketplaceApi {
     required String masterUserId,
   }) async {
     final response = await apiClient.dio.get(
-      '/jobs/available',
+      '/users/$masterUserId/available-jobs',
     );
 
     final data = response.data['data'] as List<dynamic>;
