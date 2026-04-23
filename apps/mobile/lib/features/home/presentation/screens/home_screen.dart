@@ -7,6 +7,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../auth/domain/auth_session.dart';
 import '../../../client_home/presentation/screens/client_home_screen.dart';
 import '../../../master_home/presentation/screens/master_home_screen.dart';
+import '../../../auth/presentation/screens/role_selection_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -101,7 +102,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
           ),
         );
       case null:
-        return const ClientHomeScreen();
+        return const RoleSelectionScreen();
     }
   }
 }
