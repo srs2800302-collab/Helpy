@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -112,6 +113,37 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     }
 
     return fallback?.trim() ?? '';
+  }
+
+
+  Widget _photoWidget(String url) {
+    if (url.startsWith('data:image/')) {
+      final commaIndex = url.indexOf(',');
+      if (commaIndex > 0 && commaIndex + 1 < url.length) {
+        try {
+          final bytes = base64Decode(url.substring(commaIndex + 1));
+          return Image.memory(
+            Uint8List.fromList(bytes),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.black12,
+              child: Text(AppLocalizations.of(context).t('failed_load_photo')),
+            ),
+          );
+        } catch (_) {}
+      }
+    }
+
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        padding: const EdgeInsets.all(16),
+        color: Colors.black12,
+        child: Text(AppLocalizations.of(context).t('failed_load_photo')),
+      ),
+    );
   }
 
   Widget _infoBlock({
@@ -237,13 +269,13 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
               ),
               const SizedBox(height: 12),
               _infoBlock(
-                title: 'Пояснение клиента',
+                title: l10n.t('client_note_label'),
                 body: displayDescription,
                 icon: Icons.notes_outlined,
               ),
               const SizedBox(height: 12),
               _infoBlock(
-                title: 'Адрес / номер комнаты',
+                title: l10n.t('address_room_label'),
                 body: displayAddress,
                 icon: Icons.location_on_outlined,
               ),
@@ -267,8 +299,8 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   final photos = photosSnapshot.data ?? const <String>[];
                   if (photos.isEmpty) {
                     return _infoBlock(
-                      title: 'Фото клиента',
-                      body: 'Фото не прикреплены или не были сохранены при создании заказа.',
+                      title: l10n.t('client_photos_label'),
+                      body: l10n.t('photos_not_saved'),
                       icon: Icons.photo_library_outlined,
                     );
                   }
@@ -276,9 +308,9 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Фото клиента',
-                        style: TextStyle(
+                      Text(
+                        l10n.t('client_photos_label'),
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -289,15 +321,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                           padding: const EdgeInsets.only(bottom: 12),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              url,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                padding: const EdgeInsets.all(16),
-                                color: Colors.black12,
-                                child: const Text('Не удалось загрузить фото'),
-                              ),
-                            ),
+                            child: _photoWidget(url),
                           ),
                         ),
                       ),

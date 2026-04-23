@@ -45,6 +45,14 @@ class JobsController extends StateNotifier<JobsState> {
     );
   }
 
+  void setRoomNumber(String value) {
+    state = state.copyWith(
+      roomNumber: value,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
   void setLatitude(double? value) {
     state = state.copyWith(
       latitude: value,
@@ -172,7 +180,7 @@ class JobsController extends StateNotifier<JobsState> {
             title: state.title.trim(),
             sourceLanguage: ref.read(currentLocaleProvider).languageCode,
             description: state.description.trim(),
-            addressText: state.addressText.trim(),
+            addressText: '${state.addressText.trim()} ${state.roomNumber.trim()}'.trim(),
           );
 
       for (final photo in selectedPhotos.take(10)) {
@@ -202,6 +210,7 @@ class JobsController extends StateNotifier<JobsState> {
         title: '',
         description: '',
         addressText: '',
+        roomNumber: '',
         latitude: null,
         longitude: null,
         clearPhotos: true,

@@ -11,6 +11,7 @@ class JobsState {
   final String title;
   final String description;
   final String addressText;
+  final String roomNumber;
   final double? latitude;
   final double? longitude;
   final List<XFile> photos;
@@ -26,6 +27,7 @@ class JobsState {
     this.title = '',
     this.description = '',
     this.addressText = '',
+    this.roomNumber = '',
     this.latitude,
     this.longitude,
     this.photos = const [],
@@ -42,6 +44,7 @@ class JobsState {
     String? title,
     String? description,
     String? addressText,
+    String? roomNumber,
     double? latitude,
     double? longitude,
     List<XFile>? photos,
@@ -62,6 +65,7 @@ class JobsState {
       title: title ?? this.title,
       description: description ?? this.description,
       addressText: addressText ?? this.addressText,
+      roomNumber: roomNumber ?? this.roomNumber,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       photos: clearPhotos ? const [] : (photos ?? this.photos),

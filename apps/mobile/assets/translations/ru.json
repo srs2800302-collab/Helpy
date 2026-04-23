@@ -113,5 +113,12 @@
   "completed_at_label": "Завершён",
   "new_jobs_available_title": "Есть новые заказы",
   "view_remaining_completed_jobs": "Посмотреть остальные",
-  "delete_confirm_short": "УДАЛИТЬ?"
+  "delete_confirm_short": "УДАЛИТЬ?",
+  "job_room_number": "Номер комнаты / юнита / кондо",
+  "job_room_required": "Укажите номер комнаты / юнита",
+  "client_note_label": "Пояснение клиента",
+  "address_room_label": "Адрес / номер комнаты",
+  "client_photos_label": "Фото клиента",
+  "photos_not_saved": "Фото не прикреплены или не были сохранены при создании заказа.",
+  "failed_load_photo": "Не удалось загрузить фото"
 }

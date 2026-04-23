@@ -113,5 +113,12 @@
   "completed_at_label": "เสร็จสิ้นเมื่อ",
   "new_jobs_available_title": "มีงานใหม่",
   "view_remaining_completed_jobs": "ดูที่เหลือ",
-  "delete_confirm_short": "ลบใช่ไหม?"
+  "delete_confirm_short": "ลบใช่ไหม?",
+  "job_room_number": "เลขห้อง / ยูนิต / คอนโด",
+  "job_room_required": "กรุณาระบุเลขห้อง / ยูนิต",
+  "client_note_label": "รายละเอียดจากลูกค้า",
+  "address_room_label": "ที่อยู่ / เลขห้อง",
+  "client_photos_label": "รูปภาพจากลูกค้า",
+  "photos_not_saved": "ไม่ได้แนบรูปภาพ หรือรูปภาพไม่ได้ถูกบันทึกตอนสร้างงาน",
+  "failed_load_photo": "โหลดรูปภาพไม่สำเร็จ"
 }

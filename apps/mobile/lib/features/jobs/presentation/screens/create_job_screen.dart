@@ -23,6 +23,7 @@ class CreateJobScreen extends ConsumerStatefulWidget {
 
 class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   late final TextEditingController _addressController;
+  late final TextEditingController _roomController;
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
 
@@ -30,6 +31,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   void initState() {
     super.initState();
     _addressController = TextEditingController();
+    _roomController = TextEditingController();
     _titleController = TextEditingController();
     _descriptionController = TextEditingController();
 
@@ -45,6 +47,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   @override
   void dispose() {
     _addressController.dispose();
+    _roomController.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -271,6 +274,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       );
     }
 
+    if (_roomController.text != jobsState.roomNumber) {
+      _roomController.value = TextEditingValue(
+        text: jobsState.roomNumber,
+        selection: TextSelection.collapsed(offset: jobsState.roomNumber.length),
+      );
+    }
+
     if (_titleController.text != jobsState.title) {
       _titleController.value = TextEditingValue(
         text: jobsState.title,
@@ -291,7 +301,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     final canSubmit = !isBusy &&
         !isCategoriesLoading &&
         (jobsState.selectedCategoryId ?? '').isNotEmpty &&
-        jobsState.title.trim().length >= 3;
+        jobsState.title.trim().length >= 3 &&
+        jobsState.roomNumber.trim().isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -424,6 +435,19 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   latitude: jobsState.latitude,
                   longitude: jobsState.longitude,
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _roomController,
+              onChanged: jobsController.setRoomNumber,
+              enabled: !isBusy,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: l10n.t('job_room_number'),
+                errorText: jobsState.roomNumber.trim().isEmpty
+                    ? l10n.t('job_room_required')
+                    : null,
               ),
             ),
             if (jobsState.latitude != null && jobsState.longitude != null) ...[
