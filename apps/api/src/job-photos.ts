@@ -7,7 +7,7 @@ type CreateJobPhotoBody = {
 };
 
 const MAX_JOB_PHOTOS = 10;
-const MAX_URL_LENGTH = 1000;
+const MAX_URL_LENGTH = 2_000_000;
 
 async function ensureJobPhotosSchema(env: any) {
   await env.DB.prepare(
@@ -87,9 +87,9 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (!/^https?:\/\//i.test(url)) {
+  if (!/^https?:\/\//i.test(url) && !/^data:image\/(jpeg|jpg|png|webp);base64,/i.test(url)) {
     return Response.json(
-      { success: false, error: 'url must start with http:// or https://' },
+      { success: false, error: 'url must be http(s) or data:image base64' },
       { status: 400 }
     );
   }

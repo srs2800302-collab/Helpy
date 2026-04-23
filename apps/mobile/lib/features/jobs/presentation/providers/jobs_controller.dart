@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -163,6 +164,8 @@ class JobsController extends StateNotifier<JobsState> {
     );
 
     try {
+      final selectedPhotos = List<XFile>.from(state.photos);
+
       final created = await ref.read(jobsApiProvider).createDraft(
             clientUserId: session.userId,
             categoryId: state.selectedCategoryId!,
@@ -171,6 +174,22 @@ class JobsController extends StateNotifier<JobsState> {
             description: state.description.trim(),
             addressText: state.addressText.trim(),
           );
+
+      for (final photo in selectedPhotos.take(10)) {
+        final bytes = await photo.readAsBytes();
+        final lowerName = photo.name.toLowerCase();
+        final ext = lowerName.endsWith('.png')
+            ? 'png'
+            : lowerName.endsWith('.webp')
+                ? 'webp'
+                : 'jpeg';
+        final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
+
+        await ref.read(jobsApiProvider).addJobPhoto(
+              jobId: created.id,
+              url: dataUrl,
+            );
+      }
 
       final nextItems = [
         created,

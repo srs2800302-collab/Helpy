@@ -65,6 +65,16 @@ class JobsApi {
     return _mapJob(response.data['data'] as Map<String, dynamic>);
   }
 
+  Future<void> addJobPhoto({
+    required String jobId,
+    required String url,
+  }) async {
+    await apiClient.dio.post(
+      '/jobs/$jobId/photos',
+      data: {'url': url},
+    );
+  }
+
   JobItem _mapJob(Map<String, dynamic> json) {
     return JobItem(
       id: json['id'] as String,
@@ -72,6 +82,11 @@ class JobsApi {
       categorySlug: (json['category'] ?? '') as String,
       description: json['description'] as String?,
       addressText: json['address_text'] as String?,
+      titleOriginal: json['title_original'] as String?,
+      descriptionOriginal: json['description_original'] as String?,
+      sourceLanguage: json['source_language'] as String?,
+      titleTranslationsJson: json['title_translations_json'] as String?,
+      descriptionTranslationsJson: json['description_translations_json'] as String?,
       status: json['status'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,6 +92,65 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
   }
 
+  String _translatedOrOriginal({
+    required BuildContext context,
+    required String? fallback,
+    required String? translationsJson,
+  }) {
+    final lang = Localizations.localeOf(context).languageCode;
+    final raw = translationsJson?.trim();
+
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map && (decoded[lang]?.toString().trim().isNotEmpty ?? false)) {
+          return decoded[lang].toString().trim();
+        }
+      } catch (_) {
+        // Ignore invalid translation JSON and fall back to original text.
+      }
+    }
+
+    return fallback?.trim() ?? '';
+  }
+
+  Widget _infoBlock({
+    required String title,
+    required String body,
+    IconData icon = Icons.info_outline,
+  }) {
+    if (body.trim().isEmpty) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(body.trim()),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -121,6 +181,17 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
           final job = snapshot.data!;
           final completedAt = job.updatedAt ?? job.createdAt;
           final canSendOffer = job.status == 'open';
+          final displayTitle = _translatedOrOriginal(
+            context: context,
+            fallback: job.titleOriginal ?? job.title,
+            translationsJson: job.titleTranslationsJson,
+          );
+          final displayDescription = _translatedOrOriginal(
+            context: context,
+            fallback: job.descriptionOriginal ?? job.description,
+            translationsJson: job.descriptionTranslationsJson,
+          );
+          final displayAddress = job.addressText?.trim() ?? '';
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -132,20 +203,12 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        job.title,
+                        displayTitle,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if ((job.description ?? '').trim().isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        Text(job.description!.trim()),
-                      ],
-                      if ((job.addressText ?? '').trim().isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        Text(job.addressText!.trim()),
-                      ],
                       const SizedBox(height: 12),
                       Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
                       const SizedBox(height: 8),
@@ -172,6 +235,18 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              _infoBlock(
+                title: 'Пояснение клиента',
+                body: displayDescription,
+                icon: Icons.notes_outlined,
+              ),
+              const SizedBox(height: 12),
+              _infoBlock(
+                title: 'Адрес / номер комнаты',
+                body: displayAddress,
+                icon: Icons.location_on_outlined,
+              ),
               const SizedBox(height: 16),
               FutureBuilder<List<String>>(
                 future: _photosFuture,
@@ -191,14 +266,18 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
                   final photos = photosSnapshot.data ?? const <String>[];
                   if (photos.isEmpty) {
-                    return const SizedBox.shrink();
+                    return _infoBlock(
+                      title: 'Фото клиента',
+                      body: 'Фото не прикреплены или не были сохранены при создании заказа.',
+                      icon: Icons.photo_library_outlined,
+                    );
                   }
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Photos',
+                        'Фото клиента',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -216,7 +295,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                               errorBuilder: (context, error, stackTrace) => Container(
                                 padding: const EdgeInsets.all(16),
                                 color: Colors.black12,
-                                child: const Text('Failed to load photo'),
+                                child: const Text('Не удалось загрузить фото'),
                               ),
                             ),
                           ),

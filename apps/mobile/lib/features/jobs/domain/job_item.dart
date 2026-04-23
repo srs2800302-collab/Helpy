@@ -4,6 +4,11 @@ class JobItem {
   final String categorySlug;
   final String? description;
   final String? addressText;
+  final String? titleOriginal;
+  final String? descriptionOriginal;
+  final String? sourceLanguage;
+  final String? titleTranslationsJson;
+  final String? descriptionTranslationsJson;
   final String status;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -27,6 +32,11 @@ class JobItem {
     required this.categorySlug,
     required this.description,
     required this.addressText,
+    required this.titleOriginal,
+    required this.descriptionOriginal,
+    required this.sourceLanguage,
+    required this.titleTranslationsJson,
+    required this.descriptionTranslationsJson,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
