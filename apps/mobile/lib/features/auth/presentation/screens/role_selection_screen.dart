@@ -59,10 +59,6 @@ class RoleSelectionScreen extends ConsumerWidget {
                       ? null
                       : () async {
                           await controller.selectRole(UserRole.client);
-                          if (context.mounted &&
-                              ref.read(authControllerProvider).session?.role == UserRole.client) {
-                            Navigator.of(context).pop();
-                          }
                         },
                 child: isBusy
                     ? const SizedBox(
@@ -81,10 +77,6 @@ class RoleSelectionScreen extends ConsumerWidget {
                       ? null
                       : () async {
                           await controller.selectRole(UserRole.master);
-                          if (context.mounted &&
-                              ref.read(authControllerProvider).session?.role == UserRole.master) {
-                            Navigator.of(context).pop();
-                          }
                         },
                 child: isBusy
                     ? const SizedBox(
