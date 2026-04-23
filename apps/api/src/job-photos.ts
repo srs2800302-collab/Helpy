@@ -199,13 +199,13 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensureJobPhotosSchema(env);
 
-  const auth = requireRequestUserId(request);
+  const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
   }
 
-  const actorUserId = auth.userId as string;
-  const actorRole = request.headers.get('x-user-role') ?? undefined;
+  const actorUserId = auth.userId;
+  const actorRole = auth.role;
 
   const job = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
