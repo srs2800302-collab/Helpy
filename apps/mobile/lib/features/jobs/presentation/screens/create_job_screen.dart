@@ -35,7 +35,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
     Future.microtask(() {
       final categoriesState = ref.read(categoriesControllerProvider);
-      if (!categoriesState.initialized && !categoriesState.isLoading) {
+      if ((!categoriesState.initialized || categoriesState.items.isEmpty) &&
+          !categoriesState.isLoading) {
         ref.read(categoriesControllerProvider.notifier).load();
       }
     });
