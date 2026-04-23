@@ -371,17 +371,18 @@ export async function getJobsByUser(userId: string, request: Request, env: any) 
     );
   }
 
-  const result = await env.DB.prepare(
-    `SELECT j.*,
-            (
-              SELECT COUNT(*)
-              FROM offers o
-              WHERE o.job_id = j.id
-            ) as offers_count
-     FROM jobs j
-     WHERE j.client_user_id = ?1
-     ORDER BY j.created_at DESC`
-  )
+    const result = await env.DB.prepare(
+      `SELECT j.*,
+              (
+                SELECT COUNT(*)
+                FROM offers o
+                WHERE o.job_id = j.id
+              ) as offers_count
+       FROM jobs j
+       WHERE j.client_user_id = ?1
+         AND j.status IN ('awaiting_payment', 'open', 'master_selected', 'in_progress')
+       ORDER BY j.created_at DESC`
+    )
     .bind(userId)
     .all();
 
