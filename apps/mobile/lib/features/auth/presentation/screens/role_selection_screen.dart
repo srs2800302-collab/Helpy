@@ -62,7 +62,11 @@ class RoleSelectionScreen extends ConsumerWidget {
                           await controller.selectRole(UserRole.client);
                           if (context.mounted &&
                               ref.read(authControllerProvider).session?.role == UserRole.client) {
-                            context.go('/home');
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            } else {
+                              context.go('/home');
+                            }
                           }
                         },
                 child: isBusy
@@ -84,7 +88,11 @@ class RoleSelectionScreen extends ConsumerWidget {
                           await controller.selectRole(UserRole.master);
                           if (context.mounted &&
                               ref.read(authControllerProvider).session?.role == UserRole.master) {
-                            context.go('/home');
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            } else {
+                              context.go('/home');
+                            }
                           }
                         },
                 child: isBusy
