@@ -51,13 +51,20 @@ class AuthController extends StateNotifier<AuthState> {
       }
 
       if (kDebugMode && accessToken.startsWith('debug_')) {
+        final debugUserId = accessToken.replaceFirst('debug_', '');
+        final debugRole = debugUserId == _debugMasterUserId
+            ? UserRole.master
+            : debugUserId == _debugClientUserId
+                ? UserRole.client
+                : null;
+
         await _activateSession(
           AuthSession(
-            userId: _debugClientUserId,
+            userId: debugUserId,
             phone: state.phone.isNotEmpty ? state.phone : _debugPhoneFallback,
-            role: null,
+            role: debugRole,
             isNewUser: false,
-            needsRoleSelection: true,
+            needsRoleSelection: debugRole == null,
             accessToken: accessToken,
             refreshToken: refreshToken ?? 'debug_refresh_token',
           ),
