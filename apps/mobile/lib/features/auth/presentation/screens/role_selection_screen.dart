@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -59,6 +60,10 @@ class RoleSelectionScreen extends ConsumerWidget {
                       ? null
                       : () async {
                           await controller.selectRole(UserRole.client);
+                          if (context.mounted &&
+                              ref.read(authControllerProvider).session?.role == UserRole.client) {
+                            context.go('/home');
+                          }
                         },
                 child: isBusy
                     ? const SizedBox(
@@ -77,6 +82,10 @@ class RoleSelectionScreen extends ConsumerWidget {
                       ? null
                       : () async {
                           await controller.selectRole(UserRole.master);
+                          if (context.mounted &&
+                              ref.read(authControllerProvider).session?.role == UserRole.master) {
+                            context.go('/home');
+                          }
                         },
                 child: isBusy
                     ? const SizedBox(
