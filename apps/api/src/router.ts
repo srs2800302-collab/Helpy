@@ -29,6 +29,40 @@ import { syncStripePaymentMethod } from './stripe-payment-method-sync';
 import { handleStripeWebhook } from './stripe-webhook';
 import { processPendingPaymentEvents } from './payment-event-processor';
 
+
+async function resetJobsData(request: Request, env: any) {
+  const userId = request.headers.get('x-user-id') ?? '';
+  const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+    .bind(userId)
+    .first();
+
+  if (!user || user.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Only admin can reset jobs data' },
+      { status: 403 },
+    );
+  }
+
+  const tables = [
+    'job_photos',
+    'chat_messages',
+    'payments',
+    'reviews',
+    'disputes',
+    'job_offers',
+    'jobs',
+  ];
+
+  for (const table of tables) {
+    await env.DB.prepare(`DROP TABLE IF EXISTS ${table}`).run();
+  }
+
+  return Response.json({
+    success: true,
+    data: { reset: true, tables },
+  });
+}
+
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
 
@@ -43,6 +77,11 @@ export async function handleRequest(request: Request, env: any) {
 
   if (path === '/api/v1/admin/disputes' && method === 'GET') {
     return getAdminDisputes(request, env);
+  }
+
+
+  if (path === '/api/v1/admin/reset-jobs' && method === 'POST') {
+    return resetJobsData(request, env);
   }
 
   if (path === '/api/v1/admin/dashboard' && method === 'GET') {
