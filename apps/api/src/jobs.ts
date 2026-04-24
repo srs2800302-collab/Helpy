@@ -251,6 +251,18 @@ export async function createJob(request: Request, env: any) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const sourceLanguage = body.source_language?.trim() || 'ru';
+
+  // === translations (MVP) ===
+  const titleTranslationsJson = JSON.stringify({
+    en: body.title.trim(),
+    th: body.title.trim(),
+  });
+
+  const descriptionTranslationsJson = JSON.stringify({
+    en: body.description.trim(),
+    th: body.description.trim(),
+  });
+
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
   const initialStatus =
     paymentMethod === 'cash' ? JOB_STATUS.open : JOB_STATUS.awaiting_payment;
@@ -298,8 +310,8 @@ export async function createJob(request: Request, env: any) {
       body.title.trim(),
       body.description.trim(),
       sourceLanguage,
-      null,
-      null,
+      titleTranslationsJson,
+      descriptionTranslationsJson,
       body.budget_type || 'fixed',
       budgetFrom,
       budgetTo,
