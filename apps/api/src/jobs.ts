@@ -93,6 +93,30 @@ export async function ensureJobsSchema(env: any) {
     )
   `).run();
 
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      client_user_id TEXT,
+      master_user_id TEXT,
+      rating INTEGER,
+      comment TEXT,
+      created_at TEXT
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS offers (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      master_user_id TEXT NOT NULL,
+      master_name TEXT NOT NULL,
+      price REAL NOT NULL,
+      comment TEXT,
+      created_at TEXT NOT NULL
+    )
+  `).run();
+
   const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
   const existing = new Set((columns.results ?? []).map((row: any) => row.name));
 
