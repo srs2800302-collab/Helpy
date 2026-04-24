@@ -223,7 +223,11 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
             fallback: job.descriptionOriginal ?? job.description,
             translationsJson: job.descriptionTranslationsJson,
           );
-          final displayAddress = job.addressText?.trim() ?? '';
+          final displayAddress = _translatedOrOriginal(
+            context: context,
+            fallback: job.addressText,
+            translationsJson: job.addressTranslationsJson,
+          );
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -235,7 +239,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        displayTitle,
+                        (job.titleOriginal ?? job.title).trim(),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -266,6 +270,12 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 12),
+              _infoBlock(
+                title: l10n.t('translated_title_label'),
+                body: displayTitle,
+                icon: Icons.translate_outlined,
               ),
               const SizedBox(height: 12),
               _infoBlock(

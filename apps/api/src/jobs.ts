@@ -49,6 +49,7 @@ async function sanitizeJob(row: any, env: any) {
     source_language: safe.source_language ?? 'ru',
     title_translations_json: safe.title_translations_json ?? null,
     description_translations_json: safe.description_translations_json ?? null,
+    address_translations_json: safe.address_translations_json ?? null,
   }, env);
 }
 
@@ -76,6 +77,7 @@ export async function ensureJobsSchema(env: any) {
     ['source_language', 'ALTER TABLE jobs ADD COLUMN source_language TEXT'],
     ['title_translations_json', 'ALTER TABLE jobs ADD COLUMN title_translations_json TEXT'],
     ['description_translations_json', 'ALTER TABLE jobs ADD COLUMN description_translations_json TEXT'],
+    ['address_translations_json', 'ALTER TABLE jobs ADD COLUMN address_translations_json TEXT'],
   ];
 
   for (const [name, sql] of patches) {
@@ -263,6 +265,11 @@ export async function createJob(request: Request, env: any) {
     th: body.description.trim(),
   });
 
+  const addressTranslationsJson = JSON.stringify({
+    en: body.address_text.trim(),
+    th: body.address_text.trim(),
+  });
+
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
   const initialStatus =
     paymentMethod === 'cash' ? JOB_STATUS.open : JOB_STATUS.awaiting_payment;
@@ -284,6 +291,7 @@ export async function createJob(request: Request, env: any) {
       source_language,
       title_translations_json,
       description_translations_json,
+      address_translations_json,
       budget_type,
       budget_from,
       budget_to,
@@ -294,7 +302,7 @@ export async function createJob(request: Request, env: any) {
       deposit_percent,
       latitude,
       longitude
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25)`
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26)`
   )
     .bind(
       id,
@@ -312,6 +320,7 @@ export async function createJob(request: Request, env: any) {
       sourceLanguage,
       titleTranslationsJson,
       descriptionTranslationsJson,
+      addressTranslationsJson,
       body.budget_type || 'fixed',
       budgetFrom,
       budgetTo,

@@ -9,6 +9,7 @@ class JobItem {
   final String? sourceLanguage;
   final String? titleTranslationsJson;
   final String? descriptionTranslationsJson;
+  final String? addressTranslationsJson;
   final String status;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -37,6 +38,7 @@ class JobItem {
     required this.sourceLanguage,
     required this.titleTranslationsJson,
     required this.descriptionTranslationsJson,
+    required this.addressTranslationsJson,
     required this.status,
     required this.createdAt,
     required this.updatedAt,

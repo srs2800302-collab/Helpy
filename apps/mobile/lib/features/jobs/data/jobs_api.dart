@@ -87,6 +87,7 @@ class JobsApi {
       sourceLanguage: json['source_language'] as String?,
       titleTranslationsJson: json['title_translations_json'] as String?,
       descriptionTranslationsJson: json['description_translations_json'] as String?,
+      addressTranslationsJson: json['address_translations_json'] as String?,
       status: json['status'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),

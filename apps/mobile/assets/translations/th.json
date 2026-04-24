@@ -120,5 +120,6 @@
   "address_room_label": "ที่อยู่ / เลขห้อง",
   "client_photos_label": "รูปภาพจากลูกค้า",
   "photos_not_saved": "ไม่ได้แนบรูปภาพ หรือรูปภาพไม่ได้ถูกบันทึกตอนสร้างงาน",
-  "failed_load_photo": "โหลดรูปภาพไม่สำเร็จ"
+  "failed_load_photo": "โหลดรูปภาพไม่สำเร็จ",
+  "translated_title_label": "ชื่องานที่แปลแล้ว"
 }
