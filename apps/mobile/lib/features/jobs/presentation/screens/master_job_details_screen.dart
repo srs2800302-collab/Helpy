@@ -245,6 +245,16 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      if (displayTitle.trim().isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          displayTitle.trim(),
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 12),
                       Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
                       const SizedBox(height: 8),
@@ -270,12 +280,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              _infoBlock(
-                title: l10n.t('translated_title_label'),
-                body: displayTitle,
-                icon: Icons.translate_outlined,
               ),
               const SizedBox(height: 12),
               _infoBlock(
