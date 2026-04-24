@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
@@ -91,28 +92,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     final local = value.toLocal();
     String two(int x) => x.toString().padLeft(2, '0');
     return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
-  }
-
-  String _translatedOrOriginal({
-    required BuildContext context,
-    required String? fallback,
-    required String? translationsJson,
-  }) {
-    final lang = Localizations.localeOf(context).languageCode;
-    final raw = translationsJson?.trim();
-
-    if (raw != null && raw.isNotEmpty) {
-      try {
-        final decoded = jsonDecode(raw);
-        if (decoded is Map && (decoded[lang]?.toString().trim().isNotEmpty ?? false)) {
-          return decoded[lang].toString().trim();
-        }
-      } catch (_) {
-        // Ignore invalid translation JSON and fall back to original text.
-      }
-    }
-
-    return fallback?.trim() ?? '';
   }
 
 
@@ -213,20 +192,22 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
           final job = snapshot.data!;
           final completedAt = job.updatedAt ?? job.createdAt;
           final canSendOffer = job.status == 'open';
-          final displayTitle = _translatedOrOriginal(
-            context: context,
-            fallback: job.titleOriginal ?? job.title,
+          final locale = Localizations.localeOf(context).languageCode;
+          final originalTitle = (job.titleOriginal ?? job.title).trim();
+          final displayTitle = translatedOrOriginal(
+            original: originalTitle,
             translationsJson: job.titleTranslationsJson,
+            locale: locale,
           );
-          final displayDescription = _translatedOrOriginal(
-            context: context,
-            fallback: job.descriptionOriginal ?? job.description,
+          final displayDescription = translatedOrOriginal(
+            original: job.descriptionOriginal ?? job.description,
             translationsJson: job.descriptionTranslationsJson,
+            locale: locale,
           );
-          final displayAddress = _translatedOrOriginal(
-            context: context,
-            fallback: job.addressText,
+          final displayAddress = translatedOrOriginal(
+            original: job.addressText,
             translationsJson: job.addressTranslationsJson,
+            locale: locale,
           );
 
           return ListView(
@@ -239,13 +220,13 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        (job.titleOriginal ?? job.title).trim(),
+                        originalTitle,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if (displayTitle.trim().isNotEmpty) ...[
+                      if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
                         const SizedBox(height: 6),
                         Text(
                           displayTitle.trim(),
