@@ -314,20 +314,20 @@ export async function createJob(request: Request, env: any) {
   const sourceLanguage = body.source_language?.trim() || 'ru';
 
   // === translations (MVP) ===
-  const titleTranslationsJson = JSON.stringify({
-    en: body.title.trim(),
-    th: body.title.trim(),
-  });
+  // Do not store fake translations. If source text is not already in the target
+  // language, keep target translation empty until a real translation provider is connected.
+  const buildTranslations = (value: string) => {
+    const text = value.trim();
 
-  const descriptionTranslationsJson = JSON.stringify({
-    en: body.description.trim(),
-    th: body.description.trim(),
-  });
+    return JSON.stringify({
+      en: sourceLanguage === 'en' ? text : '',
+      th: sourceLanguage === 'th' ? text : '',
+    });
+  };
 
-  const addressTranslationsJson = JSON.stringify({
-    en: body.address_text.trim(),
-    th: body.address_text.trim(),
-  });
+  const titleTranslationsJson = buildTranslations(body.title);
+  const descriptionTranslationsJson = buildTranslations(body.description);
+  const addressTranslationsJson = buildTranslations(body.address_text);
 
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
   const initialStatus =
