@@ -117,6 +117,11 @@ class _MasterMarketplaceScreenState
                       itemBuilder: (context, index) {
                         final item = state.items[index];
                         final originalTitle = (item.titleOriginal ?? item.title).trim();
+                        final displayTitle = translatedOrOriginal(
+                          original: originalTitle,
+                          translationsJson: item.titleTranslationsJson,
+                          locale: locale,
+                        );
                         final displayDescription = translatedOrOriginal(
                           original: item.descriptionOriginal ?? item.description,
                           translationsJson: item.descriptionTranslationsJson,
@@ -140,7 +145,22 @@ class _MasterMarketplaceScreenState
                                 ),
                               );
                             },
-                            title: Text(originalTitle),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(originalTitle),
+                                if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    displayTitle,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                             subtitle: Text(
                               '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${displayDescription.trim()}\n${displayAddress.trim()}',
                             ),
