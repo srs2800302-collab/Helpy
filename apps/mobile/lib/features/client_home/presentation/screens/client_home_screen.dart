@@ -158,11 +158,9 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     final visibleJobs = jobsState.items
         .where((item) => !(item.status == 'completed' && _hiddenCompletedJobIds.contains(item.id)))
         .toList();
-    final highlightedJob = visibleJobs
+    final jobsWithOffers = visibleJobs
         .where((item) => item.status == 'open' && item.offersCount > 0)
-        .toList().isNotEmpty
-        ? visibleJobs.where((item) => item.status == 'open' && item.offersCount > 0).first
-        : null;
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -246,30 +244,36 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            if (highlightedJob != null) ...[
+            if (jobsWithOffers.isNotEmpty) ...[
               Card(
                 color: Colors.amber.shade50,
-                child: ListTile(
-                  leading: const Icon(Icons.notifications_active),
-                  title: Text(l10n.t('job_offers_available')),
-                  subtitle: Text(
-                    '${highlightedJob.title} • ${highlightedJob.offersCount} offers',
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () async {
-                    final changed = await Navigator.of(context).push<bool>(
-                      MaterialPageRoute(
-                        builder: (_) => JobOffersScreen(
-                          jobId: highlightedJob.id,
-                          jobTitle: highlightedJob.title,
-                        ),
-                      ),
-                    );
+                child: Column(
+                  children: jobsWithOffers
+                      .map(
+                        (job) => ListTile(
+                          leading: const Icon(Icons.notifications_active),
+                          title: Text(l10n.t('job_offers_available')),
+                          subtitle: Text(
+                            '${job.title} • ${job.offersCount} offers',
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () async {
+                            final changed = await Navigator.of(context).push<bool>(
+                              MaterialPageRoute(
+                                builder: (_) => JobOffersScreen(
+                                  jobId: job.id,
+                                  jobTitle: job.title,
+                                ),
+                              ),
+                            );
 
-                    if (changed == true && mounted) {
-                      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-                    }
-                  },
+                            if (changed == true && mounted) {
+                              await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+                            }
+                          },
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
               const SizedBox(height: 12),
