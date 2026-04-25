@@ -73,6 +73,11 @@ class ClientJobDetailsScreen extends ConsumerWidget {
       translationsJson: job.titleTranslationsJson,
       locale: locale,
     );
+    final displayDescription = translatedOrOriginal(
+      original: job.descriptionOriginal ?? job.description,
+      translationsJson: job.descriptionTranslationsJson,
+      locale: locale,
+    );
     final displayAddress = translatedOrOriginal(
       original: job.addressText,
       translationsJson: job.addressTranslationsJson,
@@ -245,6 +250,10 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                  ],
+                  if (displayDescription.trim().isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(displayDescription.trim()),
                   ],
                   if (displayAddress.trim().isNotEmpty) ...[
                     const SizedBox(height: 12),
