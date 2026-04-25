@@ -319,16 +319,25 @@ export async function createJob(request: Request, env: any) {
     text: body.title,
     sourceLanguage,
     env,
+    entityType: 'job',
+    entityId: id,
+    fieldName: 'title',
   });
   const descriptionTranslationsJson = await buildTranslationsJson({
     text: body.description,
     sourceLanguage,
     env,
+    entityType: 'job',
+    entityId: id,
+    fieldName: 'description',
   });
   const addressTranslationsJson = await buildTranslationsJson({
     text: body.address_text,
     sourceLanguage,
     env,
+    entityType: 'job',
+    entityId: id,
+    fieldName: 'address_text',
   });
 
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
