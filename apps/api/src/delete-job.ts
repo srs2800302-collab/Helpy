@@ -5,6 +5,25 @@ import { ensureJobsSchema } from './jobs';
 export async function deleteJob(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
 
+  const cleanupSchema = [
+    `CREATE TABLE IF NOT EXISTS job_photos (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS chat_messages (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS payments (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS reviews (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS disputes (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS offers (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS translation_tasks (
+      id TEXT PRIMARY KEY,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL
+    )`,
+  ];
+
+  for (const sql of cleanupSchema) {
+    await env.DB.prepare(sql).run();
+  }
+
+
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
@@ -56,6 +75,20 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
       },
       { status: 400 }
     );
+  }
+
+  const relatedDeletes = [
+    'DELETE FROM job_photos WHERE job_id = ?1',
+    'DELETE FROM chat_messages WHERE job_id = ?1',
+    'DELETE FROM payments WHERE job_id = ?1',
+    'DELETE FROM reviews WHERE job_id = ?1',
+    'DELETE FROM disputes WHERE job_id = ?1',
+    'DELETE FROM offers WHERE job_id = ?1',
+    "DELETE FROM translation_tasks WHERE entity_type = 'job' AND entity_id = ?1",
+  ];
+
+  for (const sql of relatedDeletes) {
+    await env.DB.prepare(sql).bind(jobId).run();
   }
 
   await env.DB.prepare('DELETE FROM jobs WHERE id = ?1')
