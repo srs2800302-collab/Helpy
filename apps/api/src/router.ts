@@ -204,44 +204,30 @@ async function completeTranslationTask(request: Request, env: any) {
 }
 
 
-async function translateWithMicrosoft({
-  env,
+async function translateWithGooglePublic({
   text,
   sourceLanguage,
   targetLanguage,
 }: {
-  env: any;
   text: string;
   sourceLanguage: string;
   targetLanguage: string;
 }) {
-  const key = String(env.AZURE_TRANSLATOR_KEY ?? '').trim();
-  const region = String(env.AZURE_TRANSLATOR_REGION ?? '').trim();
+  const url =
+    `https://translate.googleapis.com/translate_a/single?client=gtx` +
+    `&sl=${encodeURIComponent(sourceLanguage)}` +
+    `&tl=${encodeURIComponent(targetLanguage)}` +
+    `&dt=t&q=${encodeURIComponent(text)}`;
 
-  if (!key || !region) {
-    throw new Error('AZURE_TRANSLATOR_KEY and AZURE_TRANSLATOR_REGION are required');
-  }
-
-  const response = await fetch(
-    `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${encodeURIComponent(sourceLanguage)}&to=${encodeURIComponent(targetLanguage)}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Ocp-Apim-Subscription-Key': key,
-        'Ocp-Apim-Subscription-Region': region,
-      },
-      body: JSON.stringify([{ text }]),
-    },
-  );
+  const response = await fetch(url, { method: 'GET' });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Microsoft Translator failed: ${response.status} ${errorText}`);
+    throw new Error(`Google public translate failed: ${response.status} ${errorText}`);
   }
 
   const payload = (await response.json()) as any;
-  return payload?.[0]?.translations?.[0]?.text?.toString().trim() ?? '';
+  return payload?.[0]?.[0]?.[0]?.toString().trim() ?? '';
 }
 
 async function processTranslationTasks(request: Request, env: any) {
@@ -254,16 +240,6 @@ async function processTranslationTasks(request: Request, env: any) {
     return Response.json(
       { success: false, error: 'Only admin can process translation tasks' },
       { status: 403 },
-    );
-  }
-
-  const key = String(env.AZURE_TRANSLATOR_KEY ?? '').trim();
-  const region = String(env.AZURE_TRANSLATOR_REGION ?? '').trim();
-
-  if (!key || !region) {
-    return Response.json(
-      { success: false, error: 'AZURE_TRANSLATOR_KEY and AZURE_TRANSLATOR_REGION are required' },
-      { status: 400 },
     );
   }
 
@@ -281,8 +257,7 @@ async function processTranslationTasks(request: Request, env: any) {
 
   for (const task of tasks) {
     try {
-      const translatedText = await translateWithMicrosoft({
-        env,
+      const translatedText = await translateWithGooglePublic({
         text: String(task.original_text ?? ''),
         sourceLanguage: String(task.source_language),
         targetLanguage: String(task.target_language),
