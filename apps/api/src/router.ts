@@ -63,6 +63,46 @@ async function resetJobsData(request: Request, env: any) {
   });
 }
 
+
+async function getTranslationTasks(request: Request, env: any) {
+  const userId = request.headers.get('x-user-id') ?? '';
+  const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+    .bind(userId)
+    .first();
+
+  if (!user || user.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Only admin can view translation tasks' },
+      { status: 403 },
+    );
+  }
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS translation_tasks (
+      id TEXT PRIMARY KEY,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      field_name TEXT NOT NULL,
+      source_language TEXT NOT NULL,
+      target_language TEXT NOT NULL,
+      original_text TEXT NOT NULL,
+      translated_text TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL,
+      updated_at TEXT
+    )
+  `).run();
+
+  const result = await env.DB.prepare(`
+    SELECT entity_type, entity_id, field_name, source_language, target_language, status, original_text, translated_text, created_at
+    FROM translation_tasks
+    ORDER BY created_at DESC
+    LIMIT 50
+  `).all();
+
+  return Response.json({ success: true, data: result.results ?? [] });
+}
+
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
 
@@ -79,6 +119,11 @@ export async function handleRequest(request: Request, env: any) {
     return getAdminDisputes(request, env);
   }
 
+
+
+  if (path === '/api/v1/admin/translation-tasks' && method === 'GET') {
+    return getTranslationTasks(request, env);
+  }
 
   if (path === '/api/v1/admin/reset-jobs' && method === 'POST') {
     return resetJobsData(request, env);
