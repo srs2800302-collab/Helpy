@@ -1,7 +1,7 @@
 import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
-import { buildTranslationsJson } from './translation';
+import { buildTranslationsJson, processPendingTranslationTasks } from './translation';
 
 type CreateJobBody = {
   title?: string;
@@ -403,6 +403,13 @@ export async function createJob(request: Request, env: any) {
       normalizeNumber(body.longitude)
     )
     .run();
+
+  await processPendingTranslationTasks({
+    env,
+    entityType: 'job',
+    entityId: id,
+    limit: 6,
+  });
 
   const created = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
