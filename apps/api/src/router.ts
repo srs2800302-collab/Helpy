@@ -103,6 +103,106 @@ async function getTranslationTasks(request: Request, env: any) {
   return Response.json({ success: true, data: result.results ?? [] });
 }
 
+
+async function completeTranslationTask(request: Request, env: any) {
+  const userId = request.headers.get('x-user-id') ?? '';
+  const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+    .bind(userId)
+    .first();
+
+  if (!user || user.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Only admin can complete translation tasks' },
+      { status: 403 },
+    );
+  }
+
+  let body: any;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return Response.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const entityId = body.entity_id?.toString().trim();
+  const fieldName = body.field_name?.toString().trim();
+  const targetLanguage = body.target_language?.toString().trim();
+  const translatedText = body.translated_text?.toString().trim();
+
+  if (!entityId || !fieldName || !targetLanguage || !translatedText) {
+    return Response.json(
+      { success: false, error: 'entity_id, field_name, target_language and translated_text are required' },
+      { status: 400 },
+    );
+  }
+
+  const task = await env.DB.prepare(`
+    SELECT *
+    FROM translation_tasks
+    WHERE entity_type = 'job'
+      AND entity_id = ?1
+      AND field_name = ?2
+      AND target_language = ?3
+    LIMIT 1
+  `).bind(entityId, fieldName, targetLanguage).first();
+
+  if (!task) {
+    return Response.json({ success: false, error: 'Translation task not found' }, { status: 404 });
+  }
+
+  const column =
+    fieldName === 'title'
+      ? 'title_translations_json'
+      : fieldName === 'description'
+        ? 'description_translations_json'
+        : fieldName === 'address_text'
+          ? 'address_translations_json'
+          : null;
+
+  if (!column) {
+    return Response.json({ success: false, error: 'Unsupported field_name' }, { status: 400 });
+  }
+
+  const job = await env.DB.prepare(`SELECT ${column} FROM jobs WHERE id = ?1`)
+    .bind(entityId)
+    .first();
+
+  if (!job) {
+    return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
+  }
+
+  let translations: any = {};
+  try {
+    translations = JSON.parse(job[column] ?? '{}');
+  } catch (_) {
+    translations = {};
+  }
+
+  translations[targetLanguage] = translatedText;
+
+  await env.DB.prepare(`
+    UPDATE translation_tasks
+    SET translated_text = ?1,
+        status = 'completed',
+        updated_at = ?2
+    WHERE id = ?3
+  `).bind(translatedText, new Date().toISOString(), task.id).run();
+
+  await env.DB.prepare(`UPDATE jobs SET ${column} = ?1, updated_at = ?2 WHERE id = ?3`)
+    .bind(JSON.stringify(translations), new Date().toISOString(), entityId)
+    .run();
+
+  return Response.json({
+    success: true,
+    data: {
+      entity_id: entityId,
+      field_name: fieldName,
+      target_language: targetLanguage,
+      translated_text: translatedText,
+    },
+  });
+}
+
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
 
@@ -120,6 +220,11 @@ export async function handleRequest(request: Request, env: any) {
   }
 
 
+
+
+  if (path === '/api/v1/admin/translation-tasks/complete' && method === 'POST') {
+    return completeTranslationTask(request, env);
+  }
 
   if (path === '/api/v1/admin/translation-tasks' && method === 'GET') {
     return getTranslationTasks(request, env);
