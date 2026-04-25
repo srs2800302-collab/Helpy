@@ -73,6 +73,11 @@ class _MasterMarketplaceScreenState
                       itemBuilder: (context, index) {
                         final item = state.items[index];
                         final originalTitle = (item.titleOriginal ?? item.title).trim();
+                        final displayDescription = translatedOrOriginal(
+                          original: item.descriptionOriginal ?? item.description,
+                          translationsJson: item.descriptionTranslationsJson,
+                          locale: locale,
+                        );
                         final displayAddress = translatedOrOriginal(
                           original: item.addressText,
                           translationsJson: item.addressTranslationsJson,
@@ -93,7 +98,7 @@ class _MasterMarketplaceScreenState
                             },
                             title: Text(originalTitle),
                             subtitle: Text(
-                              '${mapCategory(item.categorySlug)} • ${item.status}\n${displayAddress.trim()}',
+                              '${mapCategory(item.categorySlug)} • ${item.status}\n${displayDescription.trim()}\n${displayAddress.trim()}',
                             ),
                             isThreeLine: true,
                             trailing: ElevatedButton(
