@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/category_mapper.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
@@ -33,6 +34,7 @@ class _MasterMarketplaceScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final state = ref.watch(marketplaceControllerProvider);
 
     final isInitialLoading = state.isLoading && state.items.isEmpty;
@@ -70,6 +72,12 @@ class _MasterMarketplaceScreenState
                       itemCount: state.items.length,
                       itemBuilder: (context, index) {
                         final item = state.items[index];
+                        final originalTitle = (item.titleOriginal ?? item.title).trim();
+                        final displayAddress = translatedOrOriginal(
+                          original: item.addressText,
+                          translationsJson: item.addressTranslationsJson,
+                          locale: locale,
+                        );
 
                         return Card(
                           child: ListTile(
@@ -78,14 +86,14 @@ class _MasterMarketplaceScreenState
                                 MaterialPageRoute(
                                   builder: (_) => MasterJobDetailsScreen(
                                     jobId: item.id,
-                                    jobTitle: item.title,
+                                    jobTitle: originalTitle,
                                   ),
                                 ),
                               );
                             },
-                            title: Text(item.title),
+                            title: Text(originalTitle),
                             subtitle: Text(
-                              '${mapCategory(item.categorySlug)} • ${item.status}\n${item.addressText ?? ''}',
+                              '${mapCategory(item.categorySlug)} • ${item.status}\n${displayAddress.trim()}',
                             ),
                             isThreeLine: true,
                             trailing: ElevatedButton(
@@ -94,7 +102,7 @@ class _MasterMarketplaceScreenState
                                     MaterialPageRoute(
                                       builder: (_) => CreateOfferScreen(
                                         jobId: item.id,
-                                        jobTitle: item.title,
+                                        jobTitle: originalTitle,
                                       ),
                                     ),
                                   );

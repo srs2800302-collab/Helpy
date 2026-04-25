@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
@@ -65,6 +66,18 @@ class ClientJobDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final originalTitle = (job.titleOriginal ?? job.title).trim();
+    final displayTitle = translatedOrOriginal(
+      original: originalTitle,
+      translationsJson: job.titleTranslationsJson,
+      locale: locale,
+    );
+    final displayAddress = translatedOrOriginal(
+      original: job.addressText,
+      translationsJson: job.addressTranslationsJson,
+      locale: locale,
+    );
 
     Widget? primaryAction;
 
@@ -75,7 +88,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
             MaterialPageRoute(
               builder: (_) => JobPaymentScreen(
                 jobId: job.id,
-                jobTitle: job.title,
+                jobTitle: originalTitle,
                 depositAmount: job.depositAmount ?? 0,
                 price: job.price,
               ),
@@ -98,7 +111,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                   MaterialPageRoute(
                     builder: (_) => JobOffersScreen(
                       jobId: job.id,
-                      jobTitle: job.title,
+                      jobTitle: originalTitle,
                     ),
                   ),
                 );
@@ -115,7 +128,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                   MaterialPageRoute(
                     builder: (_) => JobOffersScreen(
                       jobId: job.id,
-                      jobTitle: job.title,
+                      jobTitle: originalTitle,
                     ),
                   ),
                 );
@@ -171,7 +184,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (dialogContext) => AlertDialog(
-                  title: Text(job.title),
+                  title: Text(originalTitle),
                   content: Text(l10n.t('delete_draft_confirm')),
                   actions: [
                     TextButton(
@@ -202,7 +215,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(job.title),
+        title: Text(originalTitle),
         actions: const [
           AppLanguageMenuButton(),
         ],
@@ -217,15 +230,25 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    job.title,
+                    originalTitle,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if ((job.addressText ?? '').trim().isNotEmpty) ...[
+                  if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      displayTitle,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                  if (displayAddress.trim().isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    Text(job.addressText!.trim()),
+                    Text(displayAddress.trim()),
                   ],
                   const SizedBox(height: 12),
                   Text(

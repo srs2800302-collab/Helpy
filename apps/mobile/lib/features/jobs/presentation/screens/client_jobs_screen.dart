@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import 'client_job_details_screen.dart';
 
@@ -73,6 +74,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final state = ref.watch(jobsControllerProvider);
 
     final isInitialLoading = state.isLoading && state.items.isEmpty;
@@ -132,12 +134,18 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                           itemCount: state.items.length,
                           itemBuilder: (context, index) {
                             final item = state.items[index];
+                            final originalTitle = (item.titleOriginal ?? item.title).trim();
+                            final displayAddress = translatedOrOriginal(
+                              original: item.addressText,
+                              translationsJson: item.addressTranslationsJson,
+                              locale: locale,
+                            );
 
                             return Card(
                               child: ListTile(
-                                title: Text(item.title),
+                                title: Text(originalTitle),
                                 subtitle: Text(
-                                  '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${item.addressText ?? ''}',
+                                  '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${displayAddress.trim()}',
                                 ),
                                 isThreeLine: true,
                                 trailing: const Icon(Icons.chevron_right),

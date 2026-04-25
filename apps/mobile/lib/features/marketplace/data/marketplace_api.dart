@@ -23,8 +23,13 @@ class MarketplaceApi {
     return MarketplaceJobItem(
       id: json['id'] as String,
       title: json['title'] as String? ?? '',
+      titleOriginal: json['title_original'] as String?,
       description: json['description'] as String?,
+      descriptionOriginal: json['description_original'] as String?,
       addressText: json['address_text'] as String?,
+      titleTranslationsJson: json['title_translations_json'] as String?,
+      descriptionTranslationsJson: json['description_translations_json'] as String?,
+      addressTranslationsJson: json['address_translations_json'] as String?,
       status: json['status'] as String? ?? '',
       categoryId: json['category'] as String? ?? '',
       categorySlug: json['category'] as String? ?? '',
