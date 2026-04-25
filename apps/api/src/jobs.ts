@@ -1,6 +1,7 @@
 import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
+import { buildTranslationsJson } from './translation';
 
 type CreateJobBody = {
   title?: string;
@@ -313,21 +314,22 @@ export async function createJob(request: Request, env: any) {
   const now = new Date().toISOString();
   const sourceLanguage = body.source_language?.trim() || 'ru';
 
-  // === translations (MVP) ===
-  // Do not store fake translations. If source text is not already in the target
-  // language, keep target translation empty until a real translation provider is connected.
-  const buildTranslations = (value: string) => {
-    const text = value.trim();
-
-    return JSON.stringify({
-      en: sourceLanguage === 'en' ? text : '',
-      th: sourceLanguage === 'th' ? text : '',
-    });
-  };
-
-  const titleTranslationsJson = buildTranslations(body.title);
-  const descriptionTranslationsJson = buildTranslations(body.description);
-  const addressTranslationsJson = buildTranslations(body.address_text);
+  // === translations ===
+  const titleTranslationsJson = await buildTranslationsJson({
+    text: body.title,
+    sourceLanguage,
+    env,
+  });
+  const descriptionTranslationsJson = await buildTranslationsJson({
+    text: body.description,
+    sourceLanguage,
+    env,
+  });
+  const addressTranslationsJson = await buildTranslationsJson({
+    text: body.address_text,
+    sourceLanguage,
+    env,
+  });
 
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
   const initialStatus =
