@@ -203,6 +203,162 @@ async function completeTranslationTask(request: Request, env: any) {
   });
 }
 
+
+async function translateWithMicrosoft({
+  env,
+  text,
+  sourceLanguage,
+  targetLanguage,
+}: {
+  env: any;
+  text: string;
+  sourceLanguage: string;
+  targetLanguage: string;
+}) {
+  const key = String(env.AZURE_TRANSLATOR_KEY ?? '').trim();
+  const region = String(env.AZURE_TRANSLATOR_REGION ?? '').trim();
+
+  if (!key || !region) {
+    throw new Error('AZURE_TRANSLATOR_KEY and AZURE_TRANSLATOR_REGION are required');
+  }
+
+  const response = await fetch(
+    `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${encodeURIComponent(sourceLanguage)}&to=${encodeURIComponent(targetLanguage)}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': key,
+        'Ocp-Apim-Subscription-Region': region,
+      },
+      body: JSON.stringify([{ text }]),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Microsoft Translator failed: ${response.status} ${errorText}`);
+  }
+
+  const payload = (await response.json()) as any;
+  return payload?.[0]?.translations?.[0]?.text?.toString().trim() ?? '';
+}
+
+async function processTranslationTasks(request: Request, env: any) {
+  const userId = request.headers.get('x-user-id') ?? '';
+  const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+    .bind(userId)
+    .first();
+
+  if (!user || user.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Only admin can process translation tasks' },
+      { status: 403 },
+    );
+  }
+
+  const key = String(env.AZURE_TRANSLATOR_KEY ?? '').trim();
+  const region = String(env.AZURE_TRANSLATOR_REGION ?? '').trim();
+
+  if (!key || !region) {
+    return Response.json(
+      { success: false, error: 'AZURE_TRANSLATOR_KEY and AZURE_TRANSLATOR_REGION are required' },
+      { status: 400 },
+    );
+  }
+
+  const tasksResult = await env.DB.prepare(`
+    SELECT *
+    FROM translation_tasks
+    WHERE status = 'pending'
+    ORDER BY created_at ASC
+    LIMIT 10
+  `).all();
+
+  const tasks = tasksResult.results ?? [];
+  const processed = [];
+  const failed = [];
+
+  for (const task of tasks) {
+    try {
+      const translatedText = await translateWithMicrosoft({
+        env,
+        text: String(task.original_text ?? ''),
+        sourceLanguage: String(task.source_language),
+        targetLanguage: String(task.target_language),
+      });
+
+      if (!translatedText) {
+        failed.push({ id: task.id, error: 'Empty translation result' });
+        continue;
+      }
+
+      const fieldName = String(task.field_name);
+      const column =
+        fieldName === 'title'
+          ? 'title_translations_json'
+          : fieldName === 'description'
+            ? 'description_translations_json'
+            : fieldName === 'address_text'
+              ? 'address_translations_json'
+              : null;
+
+      if (!column) {
+        failed.push({ id: task.id, error: 'Unsupported field_name' });
+        continue;
+      }
+
+      const job = await env.DB.prepare(`SELECT ${column} FROM jobs WHERE id = ?1`)
+        .bind(task.entity_id)
+        .first();
+
+      if (!job) {
+        failed.push({ id: task.id, error: 'Job not found' });
+        continue;
+      }
+
+      let translations: any = {};
+      try {
+        translations = JSON.parse(job[column] ?? '{}');
+      } catch (_) {
+        translations = {};
+      }
+
+      translations[String(task.target_language)] = translatedText;
+
+      await env.DB.prepare(`
+        UPDATE translation_tasks
+        SET translated_text = ?1,
+            status = 'completed',
+            updated_at = ?2
+        WHERE id = ?3
+      `).bind(translatedText, new Date().toISOString(), task.id).run();
+
+      await env.DB.prepare(`UPDATE jobs SET ${column} = ?1, updated_at = ?2 WHERE id = ?3`)
+        .bind(JSON.stringify(translations), new Date().toISOString(), task.entity_id)
+        .run();
+
+      processed.push({
+        id: task.id,
+        entity_id: task.entity_id,
+        field_name: task.field_name,
+        target_language: task.target_language,
+      });
+    } catch (error: any) {
+      failed.push({ id: task.id, error: error?.message ?? 'Unknown translation error' });
+    }
+  }
+
+  return Response.json({
+    success: true,
+    data: {
+      processed,
+      failed,
+      pending_checked: tasks.length,
+    },
+  });
+}
+
 export async function handleRequest(request: Request, env: any) {
   await ensureBaseSchema(env);
 
@@ -221,6 +377,11 @@ export async function handleRequest(request: Request, env: any) {
 
 
 
+
+
+  if (path === '/api/v1/admin/translation-tasks/process' && method === 'POST') {
+    return processTranslationTasks(request, env);
+  }
 
   if (path === '/api/v1/admin/translation-tasks/complete' && method === 'POST') {
     return completeTranslationTask(request, env);
