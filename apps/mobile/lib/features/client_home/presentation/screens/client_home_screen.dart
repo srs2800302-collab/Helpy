@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +20,7 @@ class ClientHomeScreen extends ConsumerStatefulWidget {
 class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   static const _hiddenCompletedJobsKey = 'client_hidden_completed_job_ids';
   Set<String> _hiddenCompletedJobIds = <String>{};
+  Timer? _jobsRefreshTimer;
 
   @override
   void initState() {
@@ -26,7 +28,17 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     Future.microtask(() async {
       await _loadHiddenCompletedJobIds();
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+      _jobsRefreshTimer = Timer.periodic(const Duration(seconds: 20), (_) async {
+        if (!mounted) return;
+        await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    _jobsRefreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadHiddenCompletedJobIds() async {
