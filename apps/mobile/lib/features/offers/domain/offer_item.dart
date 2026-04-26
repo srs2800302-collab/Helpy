@@ -5,7 +5,9 @@ class OfferItem {
   final String masterName;
   final double price;
   final String? message;
+  final String? messageTranslationsJson;
   final String? priceComment;
+  final String? priceCommentTranslationsJson;
   final String status;
   final String jobTitle;
   final String categorySlug;
@@ -19,7 +21,9 @@ class OfferItem {
     required this.masterName,
     required this.price,
     required this.message,
+    required this.messageTranslationsJson,
     required this.priceComment,
+    required this.priceCommentTranslationsJson,
     required this.status,
     required this.jobTitle,
     required this.categorySlug,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../reviews/domain/review_summary.dart';
 
@@ -38,6 +39,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
     final state = ref.watch(jobOffersControllerProvider);
     final controller = ref.read(jobOffersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
     return Scaffold(
@@ -135,13 +137,24 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     }
                                   }
 
+                                  final displayMessage = translatedOrOriginal(
+                                    original: item.message,
+                                    translationsJson: item.messageTranslationsJson,
+                                    locale: locale,
+                                  );
+                                  final displayPriceComment = translatedOrOriginal(
+                                    original: item.priceComment,
+                                    translationsJson: item.priceCommentTranslationsJson,
+                                    locale: locale,
+                                  );
+
                                   final details = <String>[
                                     item.status,
                                     ratingLine,
-                                    if ((item.message ?? '').trim().isNotEmpty)
-                                      item.message!.trim(),
-                                    if ((item.priceComment ?? '').trim().isNotEmpty)
-                                      item.priceComment!.trim(),
+                                    if (displayMessage.trim().isNotEmpty)
+                                      displayMessage.trim(),
+                                    if (displayPriceComment.trim().isNotEmpty)
+                                      displayPriceComment.trim(),
                                   ];
 
                                   return ListTile(
