@@ -1,0 +1,30 @@
+name: D1 Clean Job
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        required: true
+        type: string
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clean job-related rows
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/api
+          command: >
+            d1 execute fixi-db --remote --command
+            "DELETE FROM job_photos WHERE job_id = '${{ inputs.job_id }}';
+             DELETE FROM chat_messages WHERE job_id = '${{ inputs.job_id }}';
+             DELETE FROM payments WHERE job_id = '${{ inputs.job_id }}';
+             DELETE FROM reviews WHERE job_id = '${{ inputs.job_id }}';
+             DELETE FROM disputes WHERE job_id = '${{ inputs.job_id }}';
+             DELETE FROM offers WHERE job_id = '${{ inputs.job_id }}';
+             DELETE FROM translation_tasks WHERE entity_id = '${{ inputs.job_id }}';
+             DELETE FROM jobs WHERE id = '${{ inputs.job_id }}';"
