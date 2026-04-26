@@ -183,33 +183,46 @@ export async function processPendingTranslationTasks({
         continue;
       }
 
+      const entityTypeValue = String(task.entity_type);
       const fieldName = String(task.field_name);
-      const column =
-        fieldName === 'title'
-          ? 'title_translations_json'
-          : fieldName === 'description'
-            ? 'description_translations_json'
-            : fieldName === 'address_text'
-              ? 'address_translations_json'
-              : null;
 
-      if (!column) {
-        failed.push({ id: task.id, error: 'Unsupported field_name' });
+      const table =
+        entityTypeValue === 'job'
+          ? 'jobs'
+          : entityTypeValue === 'offer'
+            ? 'offers'
+            : null;
+
+      const column =
+        entityTypeValue === 'job' && fieldName === 'title'
+          ? 'title_translations_json'
+          : entityTypeValue === 'job' && fieldName === 'description'
+            ? 'description_translations_json'
+            : entityTypeValue === 'job' && fieldName === 'address_text'
+              ? 'address_translations_json'
+              : entityTypeValue === 'offer' && fieldName === 'comment'
+                ? 'comment_translations_json'
+                : entityTypeValue === 'offer' && fieldName === 'message'
+                  ? 'message_translations_json'
+                  : null;
+
+      if (!table || !column) {
+        failed.push({ id: task.id, error: 'Unsupported translation target' });
         continue;
       }
 
-      const job = await env.DB.prepare(`SELECT ${column} FROM jobs WHERE id = ?1`)
+      const entity = await env.DB.prepare(`SELECT ${column} FROM ${table} WHERE id = ?1`)
         .bind(task.entity_id)
         .first();
 
-      if (!job) {
-        failed.push({ id: task.id, error: 'Job not found' });
+      if (!entity) {
+        failed.push({ id: task.id, error: 'Translation entity not found' });
         continue;
       }
 
       let translations: any = {};
       try {
-        translations = JSON.parse(job[column] ?? '{}');
+        translations = JSON.parse(entity[column] ?? '{}');
       } catch (_) {
         translations = {};
       }
@@ -224,7 +237,7 @@ export async function processPendingTranslationTasks({
         WHERE id = ?3
       `).bind(translatedText, new Date().toISOString(), task.id).run();
 
-      await env.DB.prepare(`UPDATE jobs SET ${column} = ?1, updated_at = ?2 WHERE id = ?3`)
+      await env.DB.prepare(`UPDATE ${table} SET ${column} = ?1 WHERE id = ?3`)
         .bind(JSON.stringify(translations), new Date().toISOString(), task.entity_id)
         .run();
 
