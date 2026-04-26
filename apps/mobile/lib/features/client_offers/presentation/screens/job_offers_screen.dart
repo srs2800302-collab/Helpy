@@ -149,7 +149,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                   );
 
                                   final details = <String>[
-                                    item.status,
+                                    l10n.t('status_open'),
                                     ratingLine,
                                     if (displayMessage.trim().isNotEmpty)
                                       displayMessage.trim(),
