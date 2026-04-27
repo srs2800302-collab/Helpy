@@ -81,6 +81,7 @@ class OffersApi {
       status: 'accepted',
       jobTitle: '',
       categorySlug: '',
+      addressText: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.tryParse(data['updated_at'] as String? ?? ''),
       lastMessage: null,
@@ -106,6 +107,7 @@ class OffersApi {
       status: json['status'] as String? ?? 'active',
       jobTitle: json['job_title'] as String? ?? '',
       categorySlug: json['category'] as String? ?? '',
+      addressText: json['address_text'] as String?,
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),

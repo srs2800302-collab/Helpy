@@ -335,6 +335,11 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                       (item) {
                         final completedAt = item.updatedAt ?? item.createdAt;
                         final isCompleted = item.status == 'completed';
+                        final lastMessage = (item.lastMessage ?? '').trim();
+                        final session = ref.read(authControllerProvider).session;
+                        final hasUnreadMessage = lastMessage.isNotEmpty &&
+                            item.lastMessageSenderUserId != null &&
+                            item.lastMessageSenderUserId != session?.userId;
 
                         return Card(
                           color: _jobCardColor(item.status),
@@ -354,13 +359,19 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                 ),
                               );
                             },
-                            title: Text(item.title),
+                            title: Row(
+                              children: [
+                                Expanded(child: Text(item.title)),
+                                if (hasUnreadMessage)
+                                  const Icon(Icons.mark_chat_unread, size: 18),
+                              ],
+                            ),
                             subtitle: Text(
                               isCompleted
-                                  ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}'
-                                  : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                                  ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}'
+                                  : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}',
                             ),
-                            isThreeLine: isCompleted,
+                            isThreeLine: isCompleted || lastMessage.isNotEmpty,
                             trailing: const Icon(Icons.chevron_right),
                           ),
                         );

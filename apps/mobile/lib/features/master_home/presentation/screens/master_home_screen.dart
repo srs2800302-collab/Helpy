@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../auth/presentation/screens/role_selection_screen.dart';
-import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
 import '../../../jobs/presentation/screens/master_completed_jobs_screen.dart';
@@ -104,39 +103,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
       default:
         return status;
     }
-  }
-
-  Future<void> _openOfferChat({
-    required String jobId,
-    required String jobStatus,
-  }) async {
-    final l10n = AppLocalizations.of(context);
-
-    const allowedStatuses = {
-      'master_selected',
-      'in_progress',
-      'cancelled',
-      'disputed',
-    };
-
-    if (!allowedStatuses.contains(jobStatus)) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.t('client_not_selected')),
-        ),
-      );
-      return;
-    }
-
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ChatScreen(
-          jobId: jobId,
-          jobStatus: jobStatus,
-        ),
-      ),
-    );
   }
 
   String? _visibleError(String? message) {
@@ -320,14 +286,44 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         ? item.jobTitle.trim()
                         : 'Job ${item.jobId}';
 
+                    final address = (item.addressText ?? '').trim();
+                    final comment = (item.priceComment ?? '').trim();
+                    final lastMessage = (item.lastMessage ?? '').trim();
+                    final hasUnreadMessage = lastMessage.isNotEmpty &&
+                        item.lastMessageSenderUserId != null &&
+                        item.lastMessageSenderUserId !=
+                            ref.read(authControllerProvider).session?.userId;
+
                     return Card(
                       color: _offerCardColor(item.status),
                       child: ListTile(
-                        onTap: () => _openOfferChat(jobId: item.jobId, jobStatus: item.status),
-                        title: Text(title),
-                        subtitle: Text(
-                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => MasterJobDetailsScreen(
+                                jobId: item.jobId,
+                                jobTitle: title,
+                              ),
+                            ),
+                          );
+                          if (mounted) {
+                            await _refreshAll();
+                          }
+                        },
+                        title: Row(
+                          children: [
+                            Expanded(child: Text(title)),
+                            if (hasUnreadMessage)
+                              const Icon(Icons.mark_chat_unread, size: 18),
+                          ],
                         ),
+                        subtitle: Text(
+                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'
+                          '${address.isNotEmpty ? '\n$address' : ''}'
+                          '${comment.isNotEmpty ? '\n${l10n.t('comment_label')}: $comment' : ''}'
+                          '${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}',
+                        ),
+                        isThreeLine: true,
                         trailing: const Icon(Icons.chevron_right),
                       ),
                     );

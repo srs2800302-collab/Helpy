@@ -11,6 +11,7 @@ class OfferItem {
   final String status;
   final String jobTitle;
   final String categorySlug;
+  final String? addressText;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? lastMessage;
@@ -30,6 +31,7 @@ class OfferItem {
     required this.status,
     required this.jobTitle,
     required this.categorySlug,
+    required this.addressText,
     required this.createdAt,
     required this.updatedAt,
     required this.lastMessage,

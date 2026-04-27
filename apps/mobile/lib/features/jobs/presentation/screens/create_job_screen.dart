@@ -66,6 +66,19 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     }
   }
 
+  bool _isReadableAddressPart(String value) {
+    final text = value.trim();
+    if (text.isEmpty) return false;
+    if (RegExp(r'^[A-Z0-9]{4,}\+[A-Z0-9]{2,}$').hasMatch(text)) return false;
+    if (RegExp(r'^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$').hasMatch(text)) return false;
+    return true;
+  }
+
+  String _readableAddressPart(String? value) {
+    final text = (value ?? '').trim();
+    return _isReadableAddressPart(text) ? text : '';
+  }
+
   String _categoryLabel(AppLocalizations l10n, String slug) {
     switch (slug) {
       case 'cleaning':
@@ -118,11 +131,14 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
         final parts = [
-          if ((p.street ?? '').trim().isNotEmpty) p.street!.trim(),
-          if ((p.subLocality ?? '').trim().isNotEmpty) p.subLocality!.trim(),
-          if ((p.locality ?? '').trim().isNotEmpty) p.locality!.trim(),
-          if ((p.country ?? '').trim().isNotEmpty) p.country!.trim(),
-        ];
+          _readableAddressPart(p.name),
+          _readableAddressPart(p.thoroughfare),
+          _readableAddressPart(p.subThoroughfare),
+          _readableAddressPart(p.subLocality),
+          _readableAddressPart(p.locality),
+          _readableAddressPart(p.administrativeArea),
+          _readableAddressPart(p.country),
+        ].where((part) => part.isNotEmpty).toSet().toList();
 
         if (parts.isNotEmpty) {
           nextAddress = parts.join(', ');

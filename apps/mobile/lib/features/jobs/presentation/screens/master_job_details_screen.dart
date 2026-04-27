@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -121,6 +123,107 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
         padding: const EdgeInsets.all(16),
         color: Colors.black12,
         child: Text(AppLocalizations.of(context).t('failed_load_photo')),
+      ),
+    );
+  }
+
+
+  Widget _jobLocationMap({
+    required double latitude,
+    required double longitude,
+  }) {
+    final point = LatLng(latitude, longitude);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => Scaffold(
+                appBar: AppBar(
+                  title: Text(AppLocalizations.of(context).t('address_room_label')),
+                ),
+                body: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: point,
+                    initialZoom: 17,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.helpy.app',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: point,
+                          width: 44,
+                          height: 44,
+                          child: const Icon(
+                            Icons.location_pin,
+                            size: 44,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+        child: SizedBox(
+          height: 150,
+          child: Stack(
+            children: [
+              FlutterMap(
+                options: MapOptions(
+                  initialCenter: point,
+                  initialZoom: 16,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.none,
+                  ),
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.helpy.app',
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: point,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(
+                          Icons.location_pin,
+                          size: 40,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Positioned(
+                right: 8,
+                bottom: 8,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(Icons.open_in_full, size: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -274,6 +377,13 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                 body: displayAddress,
                 icon: Icons.location_on_outlined,
               ),
+              if (job.latitude != null && job.longitude != null) ...[
+                const SizedBox(height: 8),
+                _jobLocationMap(
+                  latitude: job.latitude!,
+                  longitude: job.longitude!,
+                ),
+              ],
               const SizedBox(height: 16),
               FutureBuilder<List<String>>(
                 future: _photosFuture,
