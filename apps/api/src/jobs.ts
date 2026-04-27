@@ -2,6 +2,7 @@ import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
 import { buildTranslationsJson, processPendingTranslationTasks } from './translation';
+import { ensureChatSchema } from './chat';
 
 type CreateJobBody = {
   title?: string;
