@@ -1,3 +1,4 @@
+import 'dart:ui';
 import '../../../core/network/api_client.dart';
 import '../domain/chat_message.dart';
 import 'package:dio/dio.dart';
@@ -27,7 +28,8 @@ class ChatApi {
         id: m['id'] as String,
         jobId: m['job_id'] as String,
         senderUserId: m['sender_user_id'] as String,
-        text: m['text'] as String,
+        text: m['text'] as String? ?? '',
+        textTranslationsJson: m['text_translations_json'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
       );
     }).toList();
@@ -38,6 +40,7 @@ class ChatApi {
     required String userId,
     required String text,
   }) async {
+    final sourceLanguage = PlatformDispatcher.instance.locale.languageCode;
     await apiClient.dio.post(
       '/jobs/$jobId/messages',
       options: Options(
@@ -47,6 +50,7 @@ class ChatApi {
       ),
       data: {
         'text': text,
+        'source_language': sourceLanguage,
       },
     );
   }

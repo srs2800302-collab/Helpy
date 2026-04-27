@@ -76,6 +76,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final state = ref.watch(jobsControllerProvider);
+    final session = ref.watch(authControllerProvider).session;
 
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
@@ -141,11 +142,22 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                               locale: locale,
                             );
 
+                            final lastMessage = (item.lastMessage ?? '').trim();
+                            final hasUnreadMessage = lastMessage.isNotEmpty &&
+                                item.lastMessageSenderUserId != null &&
+                                item.lastMessageSenderUserId != session?.userId;
+
                             return Card(
                               child: ListTile(
-                                title: Text(originalTitle),
+                                title: Row(
+                                  children: [
+                                    Expanded(child: Text(originalTitle)),
+                                    if (hasUnreadMessage)
+                                      const Icon(Icons.mark_chat_unread, size: 18),
+                                  ],
+                                ),
                                 subtitle: Text(
-                                  '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${displayAddress.trim()}',
+                                  '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${displayAddress.trim()}${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}',
                                 ),
                                 isThreeLine: true,
                                 trailing: const Icon(Icons.chevron_right),

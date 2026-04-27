@@ -6,7 +6,7 @@ const auth_context_1 = require("./auth-context");
 const jobs_1 = require("./jobs");
 const job_status_1 = require("./job-status");
 const MAX_JOB_PHOTOS = 10;
-const MAX_URL_LENGTH = 1000;
+const MAX_URL_LENGTH = 2_000_000;
 async function ensureJobPhotosSchema(env) {
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS job_photos (
       id TEXT PRIMARY KEY,
@@ -44,11 +44,12 @@ async function addJobPhoto(jobId, request, env) {
     catch {
         return Response.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
     }
-    const auth = (0, auth_context_1.requireRequestUserId)(request);
+    const auth = await (0, auth_context_1.requireAuth)(request, env);
     if (!auth.ok) {
         return auth.response;
     }
     const actorUserId = auth.userId;
+    const actorRole = auth.role;
     if (!body.url || !body.url.toString().trim()) {
         return Response.json({ success: false, error: 'url is required' }, { status: 400 });
     }
@@ -56,8 +57,8 @@ async function addJobPhoto(jobId, request, env) {
     if (url.length > MAX_URL_LENGTH) {
         return Response.json({ success: false, error: `url must be at most ${MAX_URL_LENGTH} characters` }, { status: 400 });
     }
-    if (!/^https?:\/\//i.test(url)) {
-        return Response.json({ success: false, error: 'url must start with http:// or https://' }, { status: 400 });
+    if (!/^https?:\/\//i.test(url) && !/^data:image\/(jpeg|jpg|png|webp);base64,/i.test(url)) {
+        return Response.json({ success: false, error: 'url must be http(s) or data:image base64' }, { status: 400 });
     }
     const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
         .bind(jobId)
@@ -118,12 +119,12 @@ async function addJobPhoto(jobId, request, env) {
 async function getJobPhotos(jobId, request, env) {
     await (0, jobs_1.ensureJobsSchema)(env);
     await ensureJobPhotosSchema(env);
-    const auth = (0, auth_context_1.requireRequestUserId)(request);
+    const auth = await (0, auth_context_1.requireAuth)(request, env);
     if (!auth.ok) {
         return auth.response;
     }
     const actorUserId = auth.userId;
-    const actorRole = request.headers.get('x-user-role') ?? undefined;
+    const actorRole = auth.role;
     const job = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
         .bind(jobId)
         .first();

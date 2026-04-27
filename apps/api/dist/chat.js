@@ -5,6 +5,7 @@ exports.sendMessage = sendMessage;
 exports.startWork = startWork;
 const job_status_1 = require("./job-status");
 const auth_context_1 = require("./auth-context");
+const translation_1 = require("./translation");
 const MAX_MESSAGE_LENGTH = 2000;
 const DEFAULT_MESSAGES_LIMIT = 50;
 const MAX_MESSAGES_LIMIT = 100;
@@ -16,10 +17,20 @@ async function ensureChatSchema(env) {
       job_id TEXT NOT NULL,
       sender_user_id TEXT NOT NULL,
       text TEXT NOT NULL,
+      text_translations_json TEXT,
       created_at TEXT NOT NULL
     )`).run();
     await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created
      ON chat_messages(job_id, created_at)`).run();
+    try {
+        await env.DB.prepare('ALTER TABLE chat_messages ADD COLUMN text_translations_json TEXT').run();
+    }
+    catch (error) {
+        const message = String(error?.message ?? '').toLowerCase();
+        if (!message.includes('duplicate column') && !message.includes('already exists')) {
+            throw error;
+        }
+    }
 }
 function canAccessJobChat(job, userId) {
     return (userId === job.client_user_id ||
@@ -111,6 +122,7 @@ async function sendMessage(jobId, request, env) {
     }
     const senderUserId = auth.userId;
     const text = body?.text?.toString().trim();
+    const sourceLanguage = body?.source_language?.toString().trim() || 'ru';
     if (!text) {
         return Response.json({ success: false, error: 'text is required' }, { status: 400 });
     }
@@ -147,15 +159,30 @@ async function sendMessage(jobId, request, env) {
     }
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
+    const textTranslationsJson = await (0, translation_1.buildTranslationsJson)({
+        text,
+        sourceLanguage,
+        env,
+        entityType: 'chat_message',
+        entityId: id,
+        fieldName: 'text',
+    });
     await env.DB.prepare(`INSERT INTO chat_messages (
       id,
       job_id,
       sender_user_id,
       text,
+      text_translations_json,
       created_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5)`)
-        .bind(id, jobId, senderUserId, text, now)
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`)
+        .bind(id, jobId, senderUserId, text, textTranslationsJson, now)
         .run();
+    await (0, translation_1.processPendingTranslationTasks)({
+        env,
+        entityType: 'chat_message',
+        entityId: id,
+        limit: 2,
+    });
     const created = await env.DB.prepare('SELECT * FROM chat_messages WHERE id = ?1')
         .bind(id)
         .first();

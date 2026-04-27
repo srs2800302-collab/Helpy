@@ -35,6 +35,9 @@ function sanitizeOffer(row: any) {
     status: row.status ?? '',
     address_text: row.address_text ?? '',
     updated_at: row.updated_at ?? null,
+    last_message: row.last_message ?? null,
+    last_message_sender_user_id: row.last_message_sender_user_id ?? null,
+    last_message_created_at: row.last_message_created_at ?? null,
   };
 }
 
@@ -119,7 +122,28 @@ export async function getOffersByMaster(
        j.title AS job_title,
        j.category AS category,
        j.status AS status,
-       j.address_text AS address_text
+       j.address_text AS address_text,
+       (
+         SELECT cm.text
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message,
+       (
+         SELECT cm.sender_user_id
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message_sender_user_id,
+       (
+         SELECT cm.created_at
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message_created_at
      FROM offers o
      JOIN jobs j ON j.id = o.job_id
      WHERE o.master_user_id = ?1

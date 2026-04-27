@@ -25,12 +25,164 @@ const payment_methods_1 = require("./payment-methods");
 const categories_1 = require("./categories");
 const chat_1 = require("./chat");
 const init_schema_1 = require("./init-schema");
+const translation_1 = require("./translation");
 const admin_disputes_1 = require("./admin-disputes");
 const admin_dashboard_1 = require("./admin-dashboard");
 const stripe_setup_1 = require("./stripe-setup");
 const stripe_payment_method_sync_1 = require("./stripe-payment-method-sync");
 const stripe_webhook_1 = require("./stripe-webhook");
 const payment_event_processor_1 = require("./payment-event-processor");
+async function resetJobsData(request, env) {
+    const userId = request.headers.get('x-user-id') ?? '';
+    const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+        .bind(userId)
+        .first();
+    if (!user || user.role !== 'admin') {
+        return Response.json({ success: false, error: 'Only admin can reset jobs data' }, { status: 403 });
+    }
+    const tables = [
+        'job_photos',
+        'chat_messages',
+        'payments',
+        'reviews',
+        'disputes',
+        'job_offers',
+        'jobs',
+    ];
+    for (const table of tables) {
+        await env.DB.prepare(`DROP TABLE IF EXISTS ${table}`).run();
+    }
+    return Response.json({
+        success: true,
+        data: { reset: true, tables },
+    });
+}
+async function getTranslationTasks(request, env) {
+    const userId = request.headers.get('x-user-id') ?? '';
+    const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+        .bind(userId)
+        .first();
+    if (!user || user.role !== 'admin') {
+        return Response.json({ success: false, error: 'Only admin can view translation tasks' }, { status: 403 });
+    }
+    await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS translation_tasks (
+      id TEXT PRIMARY KEY,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      field_name TEXT NOT NULL,
+      source_language TEXT NOT NULL,
+      target_language TEXT NOT NULL,
+      original_text TEXT NOT NULL,
+      translated_text TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL,
+      updated_at TEXT
+    )
+  `).run();
+    const result = await env.DB.prepare(`
+    SELECT entity_type, entity_id, field_name, source_language, target_language, status, original_text, translated_text, created_at
+    FROM translation_tasks
+    ORDER BY created_at DESC
+    LIMIT 50
+  `).all();
+    return Response.json({ success: true, data: result.results ?? [] });
+}
+async function completeTranslationTask(request, env) {
+    const userId = request.headers.get('x-user-id') ?? '';
+    const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+        .bind(userId)
+        .first();
+    if (!user || user.role !== 'admin') {
+        return Response.json({ success: false, error: 'Only admin can complete translation tasks' }, { status: 403 });
+    }
+    let body;
+    try {
+        body = await request.json();
+    }
+    catch (_) {
+        return Response.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const entityId = body.entity_id?.toString().trim();
+    const fieldName = body.field_name?.toString().trim();
+    const targetLanguage = body.target_language?.toString().trim();
+    const translatedText = body.translated_text?.toString().trim();
+    if (!entityId || !fieldName || !targetLanguage || !translatedText) {
+        return Response.json({ success: false, error: 'entity_id, field_name, target_language and translated_text are required' }, { status: 400 });
+    }
+    const task = await env.DB.prepare(`
+    SELECT *
+    FROM translation_tasks
+    WHERE entity_type = 'job'
+      AND entity_id = ?1
+      AND field_name = ?2
+      AND target_language = ?3
+    LIMIT 1
+  `).bind(entityId, fieldName, targetLanguage).first();
+    if (!task) {
+        return Response.json({ success: false, error: 'Translation task not found' }, { status: 404 });
+    }
+    const column = fieldName === 'title'
+        ? 'title_translations_json'
+        : fieldName === 'description'
+            ? 'description_translations_json'
+            : fieldName === 'address_text'
+                ? 'address_translations_json'
+                : null;
+    if (!column) {
+        return Response.json({ success: false, error: 'Unsupported field_name' }, { status: 400 });
+    }
+    const job = await env.DB.prepare(`SELECT ${column} FROM jobs WHERE id = ?1`)
+        .bind(entityId)
+        .first();
+    if (!job) {
+        return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
+    }
+    let translations = {};
+    try {
+        translations = JSON.parse(job[column] ?? '{}');
+    }
+    catch (_) {
+        translations = {};
+    }
+    translations[targetLanguage] = translatedText;
+    await env.DB.prepare(`
+    UPDATE translation_tasks
+    SET translated_text = ?1,
+        status = 'completed',
+        updated_at = ?2
+    WHERE id = ?3
+  `).bind(translatedText, new Date().toISOString(), task.id).run();
+    await env.DB.prepare(`UPDATE jobs SET ${column} = ?1, updated_at = ?2 WHERE id = ?3`)
+        .bind(JSON.stringify(translations), new Date().toISOString(), entityId)
+        .run();
+    return Response.json({
+        success: true,
+        data: {
+            entity_id: entityId,
+            field_name: fieldName,
+            target_language: targetLanguage,
+            translated_text: translatedText,
+        },
+    });
+}
+async function processTranslationTasks(request, env) {
+    const userId = request.headers.get('x-user-id') ?? '';
+    const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+        .bind(userId)
+        .first();
+    if (!user || user.role !== 'admin') {
+        return Response.json({ success: false, error: 'Only admin can process translation tasks' }, { status: 403 });
+    }
+    const result = await (0, translation_1.processPendingTranslationTasks)({
+        env,
+        limit: 10,
+    });
+    return Response.json({
+        success: true,
+        data: result,
+    });
+}
 async function handleRequest(request, env) {
     await (0, init_schema_1.ensureBaseSchema)(env);
     const url = new URL(request.url);
@@ -42,6 +194,18 @@ async function handleRequest(request, env) {
     }
     if (path === '/api/v1/admin/disputes' && method === 'GET') {
         return (0, admin_disputes_1.getAdminDisputes)(request, env);
+    }
+    if (path === '/api/v1/admin/translation-tasks/process' && method === 'POST') {
+        return processTranslationTasks(request, env);
+    }
+    if (path === '/api/v1/admin/translation-tasks/complete' && method === 'POST') {
+        return completeTranslationTask(request, env);
+    }
+    if (path === '/api/v1/admin/translation-tasks' && method === 'GET') {
+        return getTranslationTasks(request, env);
+    }
+    if (path === '/api/v1/admin/reset-jobs' && method === 'POST') {
+        return resetJobsData(request, env);
     }
     if (path === '/api/v1/admin/dashboard' && method === 'GET') {
         return (0, admin_dashboard_1.getAdminDashboard)(request, env);

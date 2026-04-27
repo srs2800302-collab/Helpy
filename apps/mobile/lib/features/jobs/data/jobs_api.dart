@@ -106,6 +106,9 @@ class JobsApi {
       offersCount: int.tryParse(json['offers_count']?.toString() ?? '') ?? 0,
       latitude: double.tryParse(json['latitude']?.toString() ?? ''),
       longitude: double.tryParse(json['longitude']?.toString() ?? ''),
+      lastMessage: json['last_message'] as String?,
+      lastMessageSenderUserId: json['last_message_sender_user_id'] as String?,
+      lastMessageCreatedAt: DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
     );
   }
 }

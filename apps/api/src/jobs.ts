@@ -475,7 +475,28 @@ export async function getJobsByUser(userId: string, request: Request, env: any) 
                 SELECT COUNT(*)
                 FROM offers o
                 WHERE o.job_id = j.id
-              ) as offers_count
+              ) as offers_count,
+              (
+                SELECT cm.text
+                FROM chat_messages cm
+                WHERE cm.job_id = j.id
+                ORDER BY cm.created_at DESC
+                LIMIT 1
+              ) as last_message,
+              (
+                SELECT cm.sender_user_id
+                FROM chat_messages cm
+                WHERE cm.job_id = j.id
+                ORDER BY cm.created_at DESC
+                LIMIT 1
+              ) as last_message_sender_user_id,
+              (
+                SELECT cm.created_at
+                FROM chat_messages cm
+                WHERE cm.job_id = j.id
+                ORDER BY cm.created_at DESC
+                LIMIT 1
+              ) as last_message_created_at
        FROM jobs j
        WHERE j.client_user_id = ?1
          AND j.status IN ('awaiting_payment', 'open', 'master_selected', 'in_progress')

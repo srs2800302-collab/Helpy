@@ -28,6 +28,7 @@ function sanitizeJob(row) {
         source_language: row.source_language ?? 'ru',
         title_translations_json: row.title_translations_json ?? null,
         description_translations_json: row.description_translations_json ?? null,
+        address_translations_json: row.address_translations_json ?? null,
         updated_at: row.updated_at,
         selected_offer_price: row.selected_offer_price,
         deposit_amount: row.deposit_amount,

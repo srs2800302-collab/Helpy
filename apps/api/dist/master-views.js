@@ -26,6 +26,9 @@ function sanitizeOffer(row) {
         status: row.status ?? '',
         address_text: row.address_text ?? '',
         updated_at: row.updated_at ?? null,
+        last_message: row.last_message ?? null,
+        last_message_sender_user_id: row.last_message_sender_user_id ?? null,
+        last_message_created_at: row.last_message_created_at ?? null,
     };
 }
 function sanitizeAvailableJob(row) {
@@ -39,6 +42,12 @@ function sanitizeAvailableJob(row) {
         status: row.status,
         created_at: row.created_at,
         address_text: row.address_text,
+        title_original: row.title_original ?? row.title,
+        description_original: row.description_original ?? row.description,
+        source_language: row.source_language ?? 'ru',
+        title_translations_json: row.title_translations_json ?? null,
+        description_translations_json: row.description_translations_json ?? null,
+        address_translations_json: row.address_translations_json ?? null,
         budget_type: row.budget_type,
         budget_from: row.budget_from,
         budget_to: row.budget_to,
@@ -84,7 +93,28 @@ async function getOffersByMaster(request, pathUserId, env) {
        j.title AS job_title,
        j.category AS category,
        j.status AS status,
-       j.address_text AS address_text
+       j.address_text AS address_text,
+       (
+         SELECT cm.text
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message,
+       (
+         SELECT cm.sender_user_id
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message_sender_user_id,
+       (
+         SELECT cm.created_at
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message_created_at
      FROM offers o
      JOIN jobs j ON j.id = o.job_id
      WHERE o.master_user_id = ?1
@@ -110,6 +140,12 @@ async function getAvailableJobsForMaster(request, pathUserId, env) {
        status,
        created_at,
        address_text,
+       title_original,
+       description_original,
+       source_language,
+       title_translations_json,
+       description_translations_json,
+       address_translations_json,
        budget_type,
        budget_from,
        budget_to,

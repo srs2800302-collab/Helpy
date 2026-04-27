@@ -83,6 +83,9 @@ class OffersApi {
       categorySlug: '',
       createdAt: DateTime.now(),
       updatedAt: DateTime.tryParse(data['updated_at'] as String? ?? ''),
+      lastMessage: null,
+      lastMessageSenderUserId: null,
+      lastMessageCreatedAt: null,
     );
   }
 
@@ -106,6 +109,9 @@ class OffersApi {
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
+      lastMessage: json['last_message'] as String?,
+      lastMessageSenderUserId: json['last_message_sender_user_id'] as String?,
+      lastMessageCreatedAt: DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
     );
   }
 }

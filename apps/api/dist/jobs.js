@@ -10,6 +10,7 @@ exports.getJobsByUser = getJobsByUser;
 const job_status_1 = require("./job-status");
 const auth_context_1 = require("./auth-context");
 const payment_rules_1 = require("./payments/payment-rules");
+const translation_1 = require("./translation");
 function normalizeNumber(value) {
     if (value === null || value === undefined || value === '')
         return null;
@@ -38,12 +39,69 @@ async function sanitizeJob(row, env) {
         source_language: safe.source_language ?? 'ru',
         title_translations_json: safe.title_translations_json ?? null,
         description_translations_json: safe.description_translations_json ?? null,
+        address_translations_json: safe.address_translations_json ?? null,
     }, env);
 }
 async function sanitizeJobs(rows, env) {
     return Promise.all((rows ?? []).map((row) => sanitizeJob(row, env)));
 }
 async function ensureJobsSchema(env) {
+    await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS jobs (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      price REAL NOT NULL DEFAULT 0,
+      category TEXT NOT NULL,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT,
+      client_user_id TEXT NOT NULL,
+      description TEXT,
+      address_text TEXT,
+      title_original TEXT,
+      description_original TEXT,
+      source_language TEXT,
+      title_translations_json TEXT,
+      description_translations_json TEXT,
+      address_translations_json TEXT,
+      budget_type TEXT,
+      budget_from REAL,
+      budget_to REAL,
+      currency TEXT DEFAULT 'THB',
+      selected_master_user_id TEXT,
+      selected_master_name TEXT,
+      selected_offer_id TEXT,
+      selected_offer_price REAL,
+      deposit_amount REAL,
+      latitude REAL,
+      longitude REAL,
+      payment_method TEXT NOT NULL DEFAULT 'card',
+      commission_payer TEXT NOT NULL DEFAULT 'client',
+      deposit_percent INTEGER NOT NULL DEFAULT 40
+    )
+  `).run();
+    await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      client_user_id TEXT,
+      master_user_id TEXT,
+      rating INTEGER,
+      comment TEXT,
+      created_at TEXT
+    )
+  `).run();
+    await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS offers (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      master_user_id TEXT NOT NULL,
+      master_name TEXT NOT NULL,
+      price REAL NOT NULL,
+      comment TEXT,
+      created_at TEXT NOT NULL
+    )
+  `).run();
     const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
     const existing = new Set((columns.results ?? []).map((row) => row.name));
     const patches = [
@@ -62,6 +120,7 @@ async function ensureJobsSchema(env) {
         ['source_language', 'ALTER TABLE jobs ADD COLUMN source_language TEXT'],
         ['title_translations_json', 'ALTER TABLE jobs ADD COLUMN title_translations_json TEXT'],
         ['description_translations_json', 'ALTER TABLE jobs ADD COLUMN description_translations_json TEXT'],
+        ['address_translations_json', 'ALTER TABLE jobs ADD COLUMN address_translations_json TEXT'],
     ];
     for (const [name, sql] of patches) {
         if (!existing.has(name)) {
@@ -164,6 +223,30 @@ async function createJob(request, env) {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const sourceLanguage = body.source_language?.trim() || 'ru';
+    const titleTranslationsJson = await (0, translation_1.buildTranslationsJson)({
+        text: body.title,
+        sourceLanguage,
+        env,
+        entityType: 'job',
+        entityId: id,
+        fieldName: 'title',
+    });
+    const descriptionTranslationsJson = await (0, translation_1.buildTranslationsJson)({
+        text: body.description,
+        sourceLanguage,
+        env,
+        entityType: 'job',
+        entityId: id,
+        fieldName: 'description',
+    });
+    const addressTranslationsJson = await (0, translation_1.buildTranslationsJson)({
+        text: body.address_text,
+        sourceLanguage,
+        env,
+        entityType: 'job',
+        entityId: id,
+        fieldName: 'address_text',
+    });
     const paymentTerms = (0, payment_rules_1.buildPaymentTerms)(price, paymentMethod);
     const initialStatus = paymentMethod === 'cash' ? job_status_1.JOB_STATUS.open : job_status_1.JOB_STATUS.awaiting_payment;
     await env.DB.prepare(`INSERT INTO jobs (
@@ -182,6 +265,7 @@ async function createJob(request, env) {
       source_language,
       title_translations_json,
       description_translations_json,
+      address_translations_json,
       budget_type,
       budget_from,
       budget_to,
@@ -192,9 +276,15 @@ async function createJob(request, env) {
       deposit_percent,
       latitude,
       longitude
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25)`)
-        .bind(id, body.title.trim(), price, body.category, initialStatus, now, now, clientUserId, body.description.trim(), body.address_text.trim(), body.title.trim(), body.description.trim(), sourceLanguage, null, null, body.budget_type || 'fixed', budgetFrom, budgetTo, body.currency || 'THB', paymentTerms.depositAmount, paymentTerms.paymentMethod, paymentTerms.commissionPayer, paymentTerms.depositPercent, normalizeNumber(body.latitude), normalizeNumber(body.longitude))
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26)`)
+        .bind(id, body.title.trim(), price, body.category, initialStatus, now, now, clientUserId, body.description.trim(), body.address_text.trim(), body.title.trim(), body.description.trim(), sourceLanguage, titleTranslationsJson, descriptionTranslationsJson, addressTranslationsJson, body.budget_type || 'fixed', budgetFrom, budgetTo, body.currency || 'THB', paymentTerms.depositAmount, paymentTerms.paymentMethod, paymentTerms.commissionPayer, paymentTerms.depositPercent, normalizeNumber(body.latitude), normalizeNumber(body.longitude))
         .run();
+    await (0, translation_1.processPendingTranslationTasks)({
+        env,
+        entityType: 'job',
+        entityId: id,
+        limit: 6,
+    });
     const created = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1').bind(id).first();
     return Response.json({
         success: true,
@@ -228,14 +318,36 @@ async function getJobsByUser(userId, request, env) {
         return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
     const result = await env.DB.prepare(`SELECT j.*,
-            (
-              SELECT COUNT(*)
-              FROM offers o
-              WHERE o.job_id = j.id
-            ) as offers_count
-     FROM jobs j
-     WHERE j.client_user_id = ?1
-     ORDER BY j.created_at DESC`)
+              (
+                SELECT COUNT(*)
+                FROM offers o
+                WHERE o.job_id = j.id
+              ) as offers_count,
+              (
+                SELECT cm.text
+                FROM chat_messages cm
+                WHERE cm.job_id = j.id
+                ORDER BY cm.created_at DESC
+                LIMIT 1
+              ) as last_message,
+              (
+                SELECT cm.sender_user_id
+                FROM chat_messages cm
+                WHERE cm.job_id = j.id
+                ORDER BY cm.created_at DESC
+                LIMIT 1
+              ) as last_message_sender_user_id,
+              (
+                SELECT cm.created_at
+                FROM chat_messages cm
+                WHERE cm.job_id = j.id
+                ORDER BY cm.created_at DESC
+                LIMIT 1
+              ) as last_message_created_at
+       FROM jobs j
+       WHERE j.client_user_id = ?1
+         AND j.status IN ('awaiting_payment', 'open', 'master_selected', 'in_progress')
+       ORDER BY j.created_at DESC`)
         .bind(userId)
         .all();
     return Response.json({

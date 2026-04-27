@@ -13,6 +13,9 @@ class OfferItem {
   final String categorySlug;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? lastMessage;
+  final String? lastMessageSenderUserId;
+  final DateTime? lastMessageCreatedAt;
 
   const OfferItem({
     required this.id,
@@ -29,5 +32,8 @@ class OfferItem {
     required this.categorySlug,
     required this.createdAt,
     required this.updatedAt,
+    required this.lastMessage,
+    required this.lastMessageSenderUserId,
+    required this.lastMessageCreatedAt,
   });
 }

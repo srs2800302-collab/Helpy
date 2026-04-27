@@ -26,6 +26,9 @@ class JobItem {
   final int offersCount;
   final double? latitude;
   final double? longitude;
+  final String? lastMessage;
+  final String? lastMessageSenderUserId;
+  final DateTime? lastMessageCreatedAt;
 
   const JobItem({
     required this.id,
@@ -52,5 +55,8 @@ class JobItem {
     required this.offersCount,
     required this.latitude,
     required this.longitude,
+    required this.lastMessage,
+    required this.lastMessageSenderUserId,
+    required this.lastMessageCreatedAt,
   });
 }

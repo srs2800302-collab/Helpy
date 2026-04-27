@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../auth/domain/auth_session.dart';
 
@@ -199,9 +200,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         isMaster: isMaster,
                         l10n: l10n,
                       );
+                      final displayText = translatedOrOriginal(
+                        original: m.text,
+                        translationsJson: m.textTranslationsJson,
+                        locale: Localizations.localeOf(context).languageCode,
+                      );
                       return Card(
                         child: ListTile(
-                          title: Text(m.text),
+                          title: Text(displayText),
                           subtitle: Text(senderLabel),
                         ),
                       );

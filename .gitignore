@@ -54,3 +54,4 @@ apps/api/prisma/dev.db-journal
 # Misc
 tmp/
 temp/
+helpy-debug-apk/

@@ -191,7 +191,9 @@ export async function processPendingTranslationTasks({
           ? 'jobs'
           : entityTypeValue === 'offer'
             ? 'offers'
-            : null;
+            : entityTypeValue === 'chat_message'
+              ? 'chat_messages'
+              : null;
 
       const column =
         entityTypeValue === 'job' && fieldName === 'title'
@@ -204,7 +206,9 @@ export async function processPendingTranslationTasks({
                 ? 'comment_translations_json'
                 : entityTypeValue === 'offer' && fieldName === 'message'
                   ? 'message_translations_json'
-                  : null;
+                  : entityTypeValue === 'chat_message' && fieldName === 'text'
+                    ? 'text_translations_json'
+                    : null;
 
       if (!table || !column) {
         failed.push({ id: task.id, error: 'Unsupported translation target' });

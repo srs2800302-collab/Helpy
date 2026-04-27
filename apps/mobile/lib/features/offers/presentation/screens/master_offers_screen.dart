@@ -30,6 +30,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(offersControllerProvider);
+    final session = ref.watch(authControllerProvider).session;
 
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
@@ -95,6 +96,10 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
 
                             final comment = (item.priceComment ?? '').trim();
                             final message = (item.message ?? '').trim();
+                            final lastMessage = (item.lastMessage ?? '').trim();
+                            final hasUnreadMessage = lastMessage.isNotEmpty &&
+                                item.lastMessageSenderUserId != null &&
+                                item.lastMessageSenderUserId != session?.userId;
 
                             return Card(
                               child: ListTile(
@@ -125,7 +130,13 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                     ),
                                   );
                                 },
-                                title: Text(title),
+                                title: Row(
+                                  children: [
+                                    Expanded(child: Text(title)),
+                                    if (hasUnreadMessage)
+                                      const Icon(Icons.mark_chat_unread, size: 18),
+                                  ],
+                                ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -133,6 +144,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                     Text('ID: ${item.jobId}'),
                                     if (comment.isNotEmpty) Text(comment),
                                     if (message.isNotEmpty) Text(message),
+                                    if (lastMessage.isNotEmpty) Text('💬 $lastMessage'),
                                   ],
                                 ),
                                 isThreeLine: comment.isNotEmpty || message.isNotEmpty,

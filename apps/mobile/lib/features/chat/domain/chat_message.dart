@@ -3,6 +3,7 @@ class ChatMessage {
   final String jobId;
   final String senderUserId;
   final String text;
+  final String? textTranslationsJson;
   final DateTime createdAt;
 
   const ChatMessage({
@@ -10,6 +11,7 @@ class ChatMessage {
     required this.jobId,
     required this.senderUserId,
     required this.text,
+    required this.textTranslationsJson,
     required this.createdAt,
   });
 }
