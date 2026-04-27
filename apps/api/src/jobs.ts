@@ -455,6 +455,7 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
 
 export async function getJobsByUser(userId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
+  await ensureChatSchema(env);
 
   const auth = await requireAuth(request, env);
 

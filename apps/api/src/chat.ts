@@ -8,7 +8,7 @@ const MAX_MESSAGES_LIMIT = 100;
 const DEFAULT_MESSAGES_OFFSET = 0;
 const MIN_MESSAGE_INTERVAL_MS = 1000;
 
-async function ensureChatSchema(env: any) {
+export async function ensureChatSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS chat_messages (
       id TEXT PRIMARY KEY,
