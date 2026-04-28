@@ -1,4 +1,3 @@
-import 'dart:ui';
 import '../../../core/network/api_client.dart';
 import '../domain/chat_message.dart';
 import 'package:dio/dio.dart';
@@ -40,7 +39,6 @@ class ChatApi {
     required String userId,
     required String text,
   }) async {
-    final sourceLanguage = PlatformDispatcher.instance.locale.languageCode;
     await apiClient.dio.post(
       '/jobs/$jobId/messages',
       options: Options(
@@ -50,7 +48,6 @@ class ChatApi {
       ),
       data: {
         'text': text,
-        'source_language': sourceLanguage,
       },
     );
   }
