@@ -5,8 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../auth/presentation/screens/role_selection_screen.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
+import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
 import '../../../client_offers/presentation/screens/job_offers_screen.dart';
 
@@ -165,6 +167,8 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     final authController = ref.read(authControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
     final currentLocale = ref.watch(currentLocaleProvider);
+    final locale = currentLocale.languageCode;
+    final session = ref.watch(authControllerProvider).session;
 
     final jobsError = _visibleError(jobsState.errorMessage);
     final visibleJobs = jobsState.items
@@ -172,6 +176,12 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
         .toList();
     final jobsWithOffers = visibleJobs
         .where((item) => item.status == 'open' && item.offersCount > 0)
+        .toList();
+    final incomingMessageJobs = visibleJobs
+        .where((item) =>
+            (item.lastMessage ?? '').trim().isNotEmpty &&
+            item.lastMessageSenderUserId != null &&
+            item.lastMessageSenderUserId != session?.userId)
         .toList();
 
     return Scaffold(
@@ -290,6 +300,45 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               ),
               const SizedBox(height: 12),
             ],
+
+            if (incomingMessageJobs.isNotEmpty) ...[
+              Card(
+                color: Colors.lightBlue.shade50,
+                child: Column(
+                  children: incomingMessageJobs
+                      .map((job) {
+                        final displayMessage = translatedOrOriginal(
+                          original: job.lastMessage,
+                          translationsJson: job.lastMessageTranslationsJson,
+                          locale: locale,
+                        );
+
+                        return ListTile(
+                          leading: const Icon(Icons.mark_chat_unread),
+                          title: Text(l10n.t('new_message')),
+                          subtitle: Text('${job.title}\n💬 $displayMessage'),
+                          isThreeLine: true,
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ChatScreen(
+                                  jobId: job.id,
+                                  jobStatus: job.status,
+                                ),
+                              ),
+                            );
+                            if (mounted) {
+                              await _refreshAll();
+                            }
+                          },
+                        );
+                      })
+                      .toList(),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             if (jobsError != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -335,12 +384,6 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                       (item) {
                         final completedAt = item.updatedAt ?? item.createdAt;
                         final isCompleted = item.status == 'completed';
-                        final lastMessage = (item.lastMessage ?? '').trim();
-                        final session = ref.read(authControllerProvider).session;
-                        final hasUnreadMessage = lastMessage.isNotEmpty &&
-                            item.lastMessageSenderUserId != null &&
-                            item.lastMessageSenderUserId != session?.userId;
-
                         return Card(
                           color: _jobCardColor(item.status),
                           child: ListTile(
@@ -362,16 +405,15 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                             title: Row(
                               children: [
                                 Expanded(child: Text(item.title)),
-                                if (hasUnreadMessage)
-                                  const Icon(Icons.mark_chat_unread, size: 18),
+
                               ],
                             ),
                             subtitle: Text(
                               isCompleted
-                                  ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}'
-                                  : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}',
+                                  ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}'
+                                  : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
                             ),
-                            isThreeLine: isCompleted || lastMessage.isNotEmpty,
+                            isThreeLine: isCompleted,
                             trailing: const Icon(Icons.chevron_right),
                           ),
                         );

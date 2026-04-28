@@ -29,6 +29,7 @@ class JobItem {
   final String? lastMessage;
   final String? lastMessageSenderUserId;
   final DateTime? lastMessageCreatedAt;
+  final String? lastMessageTranslationsJson;
 
   const JobItem({
     required this.id,
@@ -58,5 +59,6 @@ class JobItem {
     required this.lastMessage,
     required this.lastMessageSenderUserId,
     required this.lastMessageCreatedAt,
+    required this.lastMessageTranslationsJson,
   });
 }

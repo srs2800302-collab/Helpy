@@ -17,6 +17,7 @@ class OfferItem {
   final String? lastMessage;
   final String? lastMessageSenderUserId;
   final DateTime? lastMessageCreatedAt;
+  final String? lastMessageTranslationsJson;
 
   const OfferItem({
     required this.id,
@@ -37,5 +38,6 @@ class OfferItem {
     required this.lastMessage,
     required this.lastMessageSenderUserId,
     required this.lastMessageCreatedAt,
+    required this.lastMessageTranslationsJson,
   });
 }

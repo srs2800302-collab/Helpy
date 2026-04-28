@@ -4,7 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../auth/presentation/screens/role_selection_screen.dart';
+import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
 import '../../../jobs/presentation/screens/master_completed_jobs_screen.dart';
@@ -134,11 +136,19 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final authController = ref.read(authControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
     final currentLocale = ref.watch(currentLocaleProvider);
+    final locale = currentLocale.languageCode;
+    final session = ref.watch(authControllerProvider).session;
 
     final offersError = _visibleError(offersState.errorMessage);
     final marketplaceState = ref.watch(marketplaceControllerProvider);
     final activeOffers = offersState.items
         .where((item) => item.status != 'completed')
+        .toList();
+    final incomingMessageOffers = activeOffers
+        .where((item) =>
+            (item.lastMessage ?? '').trim().isNotEmpty &&
+            item.lastMessageSenderUserId != null &&
+            item.lastMessageSenderUserId != session?.userId)
         .toList();
     final completedOffers = offersState.items
         .where((item) => item.status == 'completed')
@@ -239,6 +249,48 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ),
               const SizedBox(height: 12),
             ],
+
+            if (incomingMessageOffers.isNotEmpty) ...[
+              Card(
+                color: Colors.lightBlue.shade50,
+                child: Column(
+                  children: incomingMessageOffers
+                      .map((item) {
+                        final title = item.jobTitle.trim().isNotEmpty
+                            ? item.jobTitle.trim()
+                            : 'Job ${item.jobId}';
+                        final displayMessage = translatedOrOriginal(
+                          original: item.lastMessage,
+                          translationsJson: item.lastMessageTranslationsJson,
+                          locale: locale,
+                        );
+
+                        return ListTile(
+                          leading: const Icon(Icons.mark_chat_unread),
+                          title: Text(l10n.t('new_message')),
+                          subtitle: Text('$title\n💬 $displayMessage'),
+                          isThreeLine: true,
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ChatScreen(
+                                  jobId: item.jobId,
+                                  jobStatus: item.status,
+                                ),
+                              ),
+                            );
+                            if (mounted) {
+                              await _refreshAll();
+                            }
+                          },
+                        );
+                      })
+                      .toList(),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             if (offersError != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -287,12 +339,12 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         : 'Job ${item.jobId}';
 
                     final address = (item.addressText ?? '').trim();
-                    final comment = (item.priceComment ?? '').trim();
-                    final lastMessage = (item.lastMessage ?? '').trim();
-                    final hasUnreadMessage = lastMessage.isNotEmpty &&
-                        item.lastMessageSenderUserId != null &&
-                        item.lastMessageSenderUserId !=
-                            ref.read(authControllerProvider).session?.userId;
+                    final rawComment = (item.priceComment ?? '').trim();
+                    final comment = translatedOrOriginal(
+                      original: item.priceComment,
+                      translationsJson: item.priceCommentTranslationsJson,
+                      locale: locale,
+                    ).trim();
 
                     return Card(
                       color: _offerCardColor(item.status),
@@ -313,15 +365,13 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         title: Row(
                           children: [
                             Expanded(child: Text(title)),
-                            if (hasUnreadMessage)
-                              const Icon(Icons.mark_chat_unread, size: 18),
+
                           ],
                         ),
                         subtitle: Text(
                           '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'
                           '${address.isNotEmpty ? '\n$address' : ''}'
-                          '${comment.isNotEmpty ? '\n${l10n.t('comment_label')}: $comment' : ''}'
-                          '${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}',
+                          '${rawComment.isNotEmpty ? '\n${l10n.t('comment_label')}: $comment' : ''}',
                         ),
                         isThreeLine: true,
                         trailing: const Icon(Icons.chevron_right),

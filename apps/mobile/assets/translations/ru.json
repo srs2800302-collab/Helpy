@@ -121,5 +121,7 @@
   "client_photos_label": "Фото клиента",
   "photos_not_saved": "Фото не прикреплены или не были сохранены при создании заказа.",
   "failed_load_photo": "Не удалось загрузить фото",
-  "translated_title_label": "Перевод названия заказа"
+  "translated_title_label": "Перевод названия заказа",
+  "comment_label": "Комментарий",
+  "new_message": "Новое сообщение"
 }

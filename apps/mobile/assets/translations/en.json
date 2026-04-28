@@ -121,5 +121,7 @@
   "client_photos_label": "Client photos",
   "photos_not_saved": "No photos attached or photos were not saved when the job was created.",
   "failed_load_photo": "Failed to load photo",
-  "translated_title_label": "Translated job title"
+  "translated_title_label": "Translated job title",
+  "comment_label": "Comment",
+  "new_message": "New message"
 }

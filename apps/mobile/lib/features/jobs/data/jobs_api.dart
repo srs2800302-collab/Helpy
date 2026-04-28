@@ -109,6 +109,7 @@ class JobsApi {
       lastMessage: json['last_message'] as String?,
       lastMessageSenderUserId: json['last_message_sender_user_id'] as String?,
       lastMessageCreatedAt: DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
+      lastMessageTranslationsJson: json['last_message_translations_json'] as String?,
     );
   }
 }
