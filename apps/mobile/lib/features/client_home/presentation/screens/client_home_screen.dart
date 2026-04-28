@@ -20,8 +20,10 @@ class ClientHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
+  static const _readClientMessageTimestampsKey = 'readClientMessageTimestampsKey';
   static const _hiddenCompletedJobsKey = 'client_hidden_completed_job_ids';
   Set<String> _hiddenCompletedJobIds = <String>{};
+  Set<String> _readMessageTimestamps = <String>{};
   Timer? _jobsRefreshTimer;
 
   @override
@@ -29,6 +31,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     super.initState();
     Future.microtask(() async {
       await _loadHiddenCompletedJobIds();
+      await _loadReadMessageTimestamps();
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();
       _jobsRefreshTimer = Timer.periodic(const Duration(seconds: 20), (_) async {
         if (!mounted) return;
@@ -41,6 +44,27 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   void dispose() {
     _jobsRefreshTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadReadMessageTimestamps() async {
+    final prefs = await SharedPreferences.getInstance();
+    final items = prefs.getStringList(_readClientMessageTimestampsKey) ?? const <String>[];
+    if (!mounted) return;
+    setState(() {
+      _readMessageTimestamps = items.toSet();
+    });
+  }
+
+  Future<void> _markMessageRead(DateTime? createdAt) async {
+    if (createdAt == null) return;
+    final value = createdAt.toIso8601String();
+    final prefs = await SharedPreferences.getInstance();
+    final next = {..._readMessageTimestamps, value};
+    await prefs.setStringList(_readClientMessageTimestampsKey, next.toList());
+    if (!mounted) return;
+    setState(() {
+      _readMessageTimestamps = next;
+    });
   }
 
   Future<void> _loadHiddenCompletedJobIds() async {
@@ -320,6 +344,8 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                           isThreeLine: true,
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () async {
+                            await _markMessageRead(job.lastMessageCreatedAt);
+                            if (!context.mounted) return;
                             await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => ChatScreen(

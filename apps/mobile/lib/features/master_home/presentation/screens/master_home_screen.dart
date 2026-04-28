@@ -19,16 +19,40 @@ class MasterHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
+  static const _readMasterMessageTimestampsKey = 'readMasterMessageTimestampsKey';
   static const _hiddenCompletedJobsKey = 'master_hidden_completed_job_ids';
   Set<String> _hiddenCompletedJobIds = <String>{};
+  Set<String> _readMessageTimestamps = <String>{};
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
       await _loadHiddenCompletedJobIds();
+      await _loadReadMessageTimestamps();
       await ref.read(offersControllerProvider.notifier).loadMyOffers();
       await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
+    });
+  }
+
+  Future<void> _loadReadMessageTimestamps() async {
+    final prefs = await SharedPreferences.getInstance();
+    final items = prefs.getStringList(_readMasterMessageTimestampsKey) ?? const <String>[];
+    if (!mounted) return;
+    setState(() {
+      _readMessageTimestamps = items.toSet();
+    });
+  }
+
+  Future<void> _markMessageRead(DateTime? createdAt) async {
+    if (createdAt == null) return;
+    final value = createdAt.toIso8601String();
+    final prefs = await SharedPreferences.getInstance();
+    final next = {..._readMessageTimestamps, value};
+    await prefs.setStringList(_readMasterMessageTimestampsKey, next.toList());
+    if (!mounted) return;
+    setState(() {
+      _readMessageTimestamps = next;
     });
   }
 
@@ -145,10 +169,13 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
         .where((item) => item.status != 'completed')
         .toList();
     final incomingMessageOffers = activeOffers
-        .where((item) =>
-            (item.lastMessage ?? '').trim().isNotEmpty &&
-            item.lastMessageSenderUserId != null &&
-            item.lastMessageSenderUserId != session?.userId)
+        .where((item) {
+          final readKey = item.lastMessageCreatedAt?.toIso8601String();
+          return (item.lastMessage ?? '').trim().isNotEmpty &&
+              item.lastMessageSenderUserId != null &&
+              item.lastMessageSenderUserId != session?.userId &&
+              (readKey == null || !_readMessageTimestamps.contains(readKey));
+        })
         .toList();
     final completedOffers = offersState.items
         .where((item) => item.status == 'completed')
@@ -272,6 +299,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                           isThreeLine: true,
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () async {
+                            await _markMessageRead(item.lastMessageCreatedAt);
+                            if (!context.mounted) return;
                             await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => ChatScreen(
