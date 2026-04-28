@@ -123,5 +123,6 @@
   "failed_load_photo": "Не удалось загрузить фото",
   "translated_title_label": "Перевод названия заказа",
   "comment_label": "Комментарий",
-  "new_message": "Новое сообщение"
+  "new_message": "Новое сообщение",
+  "open_jobs_count": "{count} открытых заказов"
 }

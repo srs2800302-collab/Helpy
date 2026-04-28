@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 
 class JobPaymentScreen extends ConsumerStatefulWidget {
   final String jobId;
   final String jobTitle;
+  final String? jobTitleTranslationsJson;
   final double depositAmount;
   final double? price;
 
@@ -16,6 +18,7 @@ class JobPaymentScreen extends ConsumerStatefulWidget {
     super.key,
     required this.jobId,
     required this.jobTitle,
+    this.jobTitleTranslationsJson,
     required this.depositAmount,
     this.price,
   });
@@ -81,6 +84,11 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
     final price = widget.price;
+    final displayTitle = translatedOrOriginal(
+      original: widget.jobTitle,
+      translationsJson: widget.jobTitleTranslationsJson,
+      locale: Localizations.localeOf(context).languageCode,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -107,6 +115,16 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    if (hasRealTranslation(original: widget.jobTitle, translated: displayTitle)) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        displayTitle,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                     if (price != null) ...[
                       const SizedBox(height: 12),
                       Text(

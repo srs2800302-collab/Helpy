@@ -259,7 +259,10 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                   leading: const Icon(Icons.work_outline),
                   title: Text(l10n.t('new_jobs_available_title')),
                   subtitle: Text(
-                    '${marketplaceState.items.length} open jobs',
+                    l10n.t('open_jobs_count').replaceAll(
+                      '{count}',
+                      marketplaceState.items.length.toString(),
+                    ),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
@@ -286,6 +289,11 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         final title = item.jobTitle.trim().isNotEmpty
                             ? item.jobTitle.trim()
                             : 'Job ${item.jobId}';
+                        final displayTitle = translatedOrOriginal(
+                          original: title,
+                          translationsJson: item.jobTitleTranslationsJson,
+                          locale: locale,
+                        );
                         final displayMessage = translatedOrOriginal(
                           original: item.lastMessage,
                           translationsJson: item.lastMessageTranslationsJson,
@@ -295,7 +303,11 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         return ListTile(
                           leading: const Icon(Icons.mark_chat_unread),
                           title: Text(l10n.t('new_message')),
-                          subtitle: Text('$title\n💬 $displayMessage'),
+                          subtitle: Text(
+                            hasRealTranslation(original: title, translated: displayTitle)
+                                ? '$title\n$displayTitle\n💬 $displayMessage'
+                                : '$title\n💬 $displayMessage',
+                          ),
                           isThreeLine: true,
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () async {
@@ -366,6 +378,11 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     final title = item.jobTitle.trim().isNotEmpty
                         ? item.jobTitle.trim()
                         : 'Job ${item.jobId}';
+                    final displayTitle = translatedOrOriginal(
+                      original: title,
+                      translationsJson: item.jobTitleTranslationsJson,
+                      locale: locale,
+                    );
 
                     final address = (item.addressText ?? '').trim();
                     final rawComment = (item.priceComment ?? '').trim();
@@ -393,7 +410,19 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         },
                         title: Row(
                           children: [
-                            Expanded(child: Text(title)),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(title),
+                                  if (hasRealTranslation(original: title, translated: displayTitle))
+                                    Text(
+                                      displayTitle,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                ],
+                              ),
+                            ),
 
                           ],
                         ),
