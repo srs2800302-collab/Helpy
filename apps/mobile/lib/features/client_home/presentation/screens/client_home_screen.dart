@@ -331,6 +331,12 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 child: Column(
                   children: incomingMessageJobs
                       .map((job) {
+                        final title = job.title.trim();
+                        final displayTitle = translatedOrOriginal(
+                          original: title,
+                          translationsJson: job.titleTranslationsJson,
+                          locale: locale,
+                        );
                         final displayMessage = translatedOrOriginal(
                           original: job.lastMessage,
                           translationsJson: job.lastMessageTranslationsJson,
@@ -340,7 +346,11 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                         return ListTile(
                           leading: const Icon(Icons.mark_chat_unread),
                           title: Text(l10n.t('new_message')),
-                          subtitle: Text('${job.title}\n💬 $displayMessage'),
+                          subtitle: Text(
+                            hasRealTranslation(original: title, translated: displayTitle)
+                                ? '$title\n$displayTitle\n💬 $displayMessage'
+                                : '$title\n💬 $displayMessage',
+                          ),
                           isThreeLine: true,
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () async {
