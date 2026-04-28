@@ -498,7 +498,14 @@ export async function getJobsByUser(userId: string, request: Request, env: any) 
                 WHERE cm.job_id = j.id
                 ORDER BY cm.created_at DESC
                 LIMIT 1
-              ) as last_message_created_at
+              ) as last_message_created_at,
+              (
+                SELECT cm.text_translations_json
+                FROM chat_messages cm
+                WHERE cm.job_id = j.id
+                ORDER BY cm.created_at DESC
+                LIMIT 1
+              ) as last_message_translations_json
        FROM jobs j
        WHERE j.client_user_id = ?1
          AND j.status IN ('awaiting_payment', 'open', 'master_selected', 'in_progress')

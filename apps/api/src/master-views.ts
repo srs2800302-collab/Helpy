@@ -39,6 +39,7 @@ function sanitizeOffer(row: any) {
     last_message: row.last_message ?? null,
     last_message_sender_user_id: row.last_message_sender_user_id ?? null,
     last_message_created_at: row.last_message_created_at ?? null,
+    last_message_translations_json: row.last_message_translations_json ?? null,
   };
 }
 
@@ -145,7 +146,14 @@ export async function getOffersByMaster(
          WHERE cm.job_id = j.id
          ORDER BY cm.created_at DESC
          LIMIT 1
-       ) AS last_message_created_at
+       ) AS last_message_created_at,
+       (
+         SELECT cm.text_translations_json
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message_translations_json
      FROM offers o
      JOIN jobs j ON j.id = o.job_id
      WHERE o.master_user_id = ?1
