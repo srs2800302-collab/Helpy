@@ -124,5 +124,6 @@
   "translated_title_label": "Перевод названия заказа",
   "comment_label": "Комментарий",
   "new_message": "Новое сообщение",
-  "open_jobs_count": "{count} открытых заказов"
+  "open_jobs_count": "{count} открытых заказов",
+  "open_chat": "Открыть чат"
 }

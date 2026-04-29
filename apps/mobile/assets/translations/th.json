@@ -124,5 +124,6 @@
   "translated_title_label": "ชื่องานที่แปลแล้ว",
   "comment_label": "ความคิดเห็น",
   "new_message": "ข้อความใหม่",
-  "open_jobs_count": "{count} งานที่เปิดอยู่"
+  "open_jobs_count": "{count} งานที่เปิดอยู่",
+  "open_chat": "เปิดแชท"
 }

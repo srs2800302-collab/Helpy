@@ -124,5 +124,6 @@
   "translated_title_label": "Translated job title",
   "comment_label": "Comment",
   "new_message": "New message",
-  "open_jobs_count": "{count} open jobs"
+  "open_jobs_count": "{count} open jobs",
+  "open_chat": "Open chat"
 }

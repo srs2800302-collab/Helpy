@@ -11,6 +11,7 @@ import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
+import '../../../chat/presentation/screens/chat_screen.dart';
 
 class MasterJobDetailsScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -384,6 +385,29 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   longitude: job.longitude!,
                 ),
               ],
+              
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ChatScreen(
+                          jobId: job.id,
+                          jobStatus: job.status,
+                        ),
+                      ),
+                    );
+                    if (mounted) {
+                      setState(() {});
+                    }
+                  },
+                  icon: const Icon(Icons.chat_bubble_outline),
+                  label: Text(l10n.t('open_chat')),
+                ),
+              ),
+
               const SizedBox(height: 16),
               FutureBuilder<List<String>>(
                 future: _photosFuture,
