@@ -40,6 +40,7 @@ class ChatState {
 }
 
 class ChatController extends StateNotifier<ChatState> {
+  String? _currentJobId;
   final Ref ref;
   Timer? _polling;
 
@@ -59,6 +60,12 @@ class ChatController extends StateNotifier<ChatState> {
   }
 
   Future<void> load(String jobId, {bool silent = false}) async {
+    if (_currentJobId != jobId) {
+      _currentJobId = jobId;
+      state = const ChatState(isLoading: true);
+      silent = false;
+    }
+
     final session = ref.read(authControllerProvider).session;
 
     if (session == null) {

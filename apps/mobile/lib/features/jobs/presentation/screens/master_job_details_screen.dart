@@ -296,6 +296,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
           final job = snapshot.data!;
           final completedAt = job.updatedAt ?? job.createdAt;
           final canSendOffer = job.status == 'open';
+          final canOpenChat = job.status == 'master_selected' || job.status == 'in_progress';
           final locale = Localizations.localeOf(context).languageCode;
           final originalTitle = (job.titleOriginal ?? job.title).trim();
           final displayTitle = translatedOrOriginal(
@@ -386,27 +387,29 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                 ),
               ],
               
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ChatScreen(
-                          jobId: job.id,
-                          jobStatus: job.status,
+              if (canOpenChat) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ChatScreen(
+                            jobId: job.id,
+                            jobStatus: job.status,
+                          ),
                         ),
-                      ),
-                    );
-                    if (mounted) {
-                      setState(() {});
-                    }
-                  },
-                  icon: const Icon(Icons.chat_bubble_outline),
-                  label: Text(l10n.t('open_chat')),
+                      );
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                    icon: const Icon(Icons.chat_bubble_outline),
+                    label: Text(l10n.t('open_chat')),
+                  ),
                 ),
-              ),
+              ],
 
               const SizedBox(height: 16),
               FutureBuilder<List<String>>(
