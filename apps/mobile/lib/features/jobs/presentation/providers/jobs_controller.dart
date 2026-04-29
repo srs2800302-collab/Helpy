@@ -181,6 +181,8 @@ class JobsController extends StateNotifier<JobsState> {
             sourceLanguage: ref.read(currentLocaleProvider).languageCode,
             description: state.description.trim(),
             addressText: '${state.addressText.trim()} ${state.roomNumber.trim()}'.trim(),
+            latitude: state.latitude,
+            longitude: state.longitude,
           );
 
       for (final photo in selectedPhotos.take(10)) {
