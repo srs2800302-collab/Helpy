@@ -12,6 +12,14 @@ import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../../reviews/presentation/screens/create_review_screen.dart';
 
 class ClientJobDetailsScreen extends ConsumerWidget {
+  Future<List<String>> _loadPhotos(WidgetRef ref, String jobId) async {
+    final res = await ref.read(apiClientProvider).dio.get('/jobs/$jobId/photos');
+    final data = res.data['data'] as List<dynamic>;
+    return data
+        .map((item) => (item as Map<String, dynamic>)['url']?.toString() ?? '')
+        .where((url) => url.trim().isNotEmpty)
+        .toList();
+  }
   final JobItem job;
 
   const ClientJobDetailsScreen({
@@ -94,6 +102,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               builder: (_) => JobPaymentScreen(
                 jobId: job.id,
                 jobTitle: originalTitle,
+                jobTitleTranslationsJson: job.titleTranslationsJson,
                 depositAmount: job.depositAmount ?? 0,
                 price: job.price,
               ),
@@ -117,6 +126,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                     builder: (_) => JobOffersScreen(
                       jobId: job.id,
                       jobTitle: originalTitle,
+                jobTitleTranslationsJson: job.titleTranslationsJson,
                     ),
                   ),
                 );
@@ -134,6 +144,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                     builder: (_) => JobOffersScreen(
                       jobId: job.id,
                       jobTitle: originalTitle,
+                jobTitleTranslationsJson: job.titleTranslationsJson,
                     ),
                   ),
                 );
@@ -189,7 +200,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (dialogContext) => AlertDialog(
-                  title: Text(originalTitle),
+                  title: Text(displayTitle),
                   content: Text(l10n.t('delete_draft_confirm')),
                   actions: [
                     TextButton(
@@ -220,7 +231,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(originalTitle),
+        title: Text(displayTitle),
         actions: const [
           AppLanguageMenuButton(),
         ],
@@ -255,6 +266,46 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Text(displayDescription.trim()),
                   ],
+
+                  const SizedBox(height: 16),
+
+                  FutureBuilder<List<String>>(
+                    future: _loadPhotos(ref, job.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final photos = snapshot.data ?? const [];
+
+                      if (photos.isEmpty) {
+                        return Text(l10n.t('photos_not_saved'));
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.t('client_photos_label')),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: photos.map((url) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  url,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                   if (displayAddress.trim().isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Text(displayAddress.trim()),

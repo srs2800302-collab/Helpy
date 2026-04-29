@@ -10,11 +10,13 @@ import '../../../reviews/domain/review_summary.dart';
 class JobOffersScreen extends ConsumerStatefulWidget {
   final String jobId;
   final String jobTitle;
+  final String? jobTitleTranslationsJson;
 
   const JobOffersScreen({
     super.key,
     required this.jobId,
     required this.jobTitle,
+    this.jobTitleTranslationsJson,
   });
 
   @override
@@ -39,12 +41,17 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
     final state = ref.watch(jobOffersControllerProvider);
     final controller = ref.read(jobOffersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+    final displayTitle = translatedOrOriginal(
+      original: widget.jobTitle,
+      translationsJson: widget.jobTitleTranslationsJson,
+      locale: Localizations.localeOf(context).languageCode,
+    );
     final locale = Localizations.localeOf(context).languageCode;
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.jobTitle),
+        title: Text(displayTitle),
         actions: [
           const AppLanguageMenuButton(),
           IconButton(
@@ -152,17 +159,20 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     l10n.t('status_open'),
                                     ratingLine,
                                     if (displayMessage.trim().isNotEmpty)
-                                      displayMessage.trim(),
+                                      '${l10n.t('offer_message')}: ${displayMessage.trim()}',
                                     if (displayPriceComment.trim().isNotEmpty)
-                                      displayPriceComment.trim(),
+                                      '${l10n.t('comment_label')}: ${displayPriceComment.trim()}',
                                   ];
 
                                   return ListTile(
                                     title: Text(
-                                      '${item.masterName} — ${item.price.toStringAsFixed(0)} THB',
+                                      item.masterName,
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
                                     ),
-                                    subtitle: Text(details.join('\n')),
-                                    isThreeLine: details.length >= 3,
+                                    subtitle: Text(
+                                      '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB\n${details.join('\n')}',
+                                    ),
+                                    isThreeLine: true,
                                     trailing: isAlreadySelected
                                         ? Text(l10n.t('master_selected'))
                                         : ElevatedButton(

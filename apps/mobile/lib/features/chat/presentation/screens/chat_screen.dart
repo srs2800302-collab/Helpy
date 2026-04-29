@@ -187,9 +187,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ),
           Expanded(
-            child: state.isLoading && state.messages.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
+            child: RefreshIndicator(
+              onRefresh: () => controller.load(widget.jobId),
+              child: state.isLoading && state.messages.isEmpty
+                  ? ListView(
+                      children: const [
+                        SizedBox(height: 240),
+                        Center(child: CircularProgressIndicator()),
+                      ],
+                    )
+                  : ListView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: state.messages.length,
                     itemBuilder: (context, index) {
@@ -213,6 +220,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       );
                     },
                   ),
+            ),
           ),
           SafeArea(
             child: Padding(

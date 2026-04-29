@@ -16,11 +16,13 @@ import '../../../chat/presentation/screens/chat_screen.dart';
 class MasterJobDetailsScreen extends ConsumerStatefulWidget {
   final String jobId;
   final String jobTitle;
+  final String? jobTitleTranslationsJson;
 
   const MasterJobDetailsScreen({
     super.key,
     required this.jobId,
     required this.jobTitle,
+    this.jobTitleTranslationsJson,
   });
 
   @override
@@ -272,7 +274,13 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.jobTitle),
+        title: Text(
+          translatedOrOriginal(
+            original: widget.jobTitle,
+            translationsJson: widget.jobTitleTranslationsJson,
+            locale: Localizations.localeOf(context).languageCode,
+          ),
+        ),
         actions: const [
           AppLanguageMenuButton(),
         ],

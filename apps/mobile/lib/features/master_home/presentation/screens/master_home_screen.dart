@@ -401,6 +401,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               builder: (_) => MasterJobDetailsScreen(
                                 jobId: item.jobId,
                                 jobTitle: title,
+                                jobTitleTranslationsJson: item.jobTitleTranslationsJson,
                               ),
                             ),
                           );
@@ -481,6 +482,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               builder: (_) => MasterJobDetailsScreen(
                                 jobId: item.jobId,
                                 jobTitle: title,
+                                jobTitleTranslationsJson: item.jobTitleTranslationsJson,
                               ),
                             ),
                           );

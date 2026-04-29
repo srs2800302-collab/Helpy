@@ -125,5 +125,6 @@
   "comment_label": "Comment",
   "new_message": "New message",
   "open_jobs_count": "{count} open jobs",
-  "open_chat": "Open chat"
-}
+  "open_chat": "Open chat",
+  "offers_count": "{count} offers"
+}\n

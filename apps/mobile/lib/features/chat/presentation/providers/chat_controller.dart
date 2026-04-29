@@ -92,6 +92,7 @@ class ChatController extends StateNotifier<ChatState> {
       state = state.copyWith(
         isLoading: false,
         messages: messages,
+        clearError: true,
       );
     } catch (e) {
       final appError = ApiErrorMapper.map(e);

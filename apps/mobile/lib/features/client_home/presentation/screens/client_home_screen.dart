@@ -296,19 +296,31 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 child: Column(
                   children: jobsWithOffers
                       .map(
-                        (job) => ListTile(
-                          leading: const Icon(Icons.notifications_active),
-                          title: Text(l10n.t('job_offers_available')),
-                          subtitle: Text(
-                            '${job.title} • ${job.offersCount} offers',
-                          ),
-                          trailing: const Icon(Icons.chevron_right),
+                        (job) {
+                          final title = job.title.trim();
+                          final displayTitle = translatedOrOriginal(
+                            original: title,
+                            translationsJson: job.titleTranslationsJson,
+                            locale: locale,
+                          );
+
+                          return ListTile(
+                            leading: const Icon(Icons.notifications_active),
+                            title: Text(l10n.t('job_offers_available')),
+                            subtitle: Text(
+                              hasRealTranslation(original: title, translated: displayTitle)
+                                  ? '$title\n$displayTitle • ${l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())}'
+                                  : '$title • ${l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())}',
+                            ),
+                            isThreeLine: hasRealTranslation(original: title, translated: displayTitle),
+                            trailing: const Icon(Icons.chevron_right),
                           onTap: () async {
                             final changed = await Navigator.of(context).push<bool>(
                               MaterialPageRoute(
                                 builder: (_) => JobOffersScreen(
                                   jobId: job.id,
                                   jobTitle: job.title,
+                                  jobTitleTranslationsJson: job.titleTranslationsJson,
                                 ),
                               ),
                             );
@@ -317,8 +329,8 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                               await ref.read(jobsControllerProvider.notifier).loadClientJobs();
                             }
                           },
-                        ),
-                      )
+                        );
+                      })
                       .toList(),
                 ),
               ),
