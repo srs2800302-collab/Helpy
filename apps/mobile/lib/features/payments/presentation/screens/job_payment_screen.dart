@@ -6,6 +6,8 @@ import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../jobs/domain/job_item.dart';
+import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 
 class JobPaymentScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -13,6 +15,7 @@ class JobPaymentScreen extends ConsumerStatefulWidget {
   final String? jobTitleTranslationsJson;
   final double depositAmount;
   final double? price;
+  final JobItem job;
 
   const JobPaymentScreen({
     super.key,
@@ -21,6 +24,7 @@ class JobPaymentScreen extends ConsumerStatefulWidget {
     this.jobTitleTranslationsJson,
     required this.depositAmount,
     this.price,
+    required this.job,
   });
 
   @override
@@ -103,9 +107,21 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () async {
+                  final changed = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) => ClientJobDetailsScreen(job: widget.job),
+                    ),
+                  );
+                  if (changed == true && context.mounted) {
+                    Navigator.of(context).pop(true);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -133,8 +149,17 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                     ],
                     const SizedBox(height: 12),
                     Text('${l10n.t('deposit_label')}: THB $amountLabel'),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.touch_app, size: 16),
+                        const SizedBox(width: 6),
+                        Text(l10n.t('view_details')),
+                      ],
+                    ),
                   ],
                 ),
+              ),
               ),
             ),
             const SizedBox(height: 16),

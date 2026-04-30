@@ -541,6 +541,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                                 jobTitleTranslationsJson: job.titleTranslationsJson,
                                 depositAmount: job.depositAmount ?? 0,
                                 price: job.price,
+                                job: job,
                               ),
                             ),
                           );

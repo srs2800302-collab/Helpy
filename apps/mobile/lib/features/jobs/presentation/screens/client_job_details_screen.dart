@@ -106,6 +106,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                 jobTitleTranslationsJson: job.titleTranslationsJson,
                 depositAmount: job.depositAmount ?? 0,
                 price: job.price,
+                job: job,
               ),
             ),
           );
