@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 
@@ -93,10 +94,27 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                             final title = item.jobTitle.trim().isNotEmpty
                                 ? item.jobTitle.trim()
                                 : 'Job ${item.jobId}';
+                            final displayTitle = translatedOrOriginal(
+                              original: title,
+                              translationsJson: item.jobTitleTranslationsJson,
+                              locale: Localizations.localeOf(context).languageCode,
+                            );
 
-                            final comment = (item.priceComment ?? '').trim();
-                            final message = (item.message ?? '').trim();
-                            final lastMessage = (item.lastMessage ?? '').trim();
+                            final comment = translatedOrOriginal(
+                              original: item.priceComment,
+                              translationsJson: item.priceCommentTranslationsJson,
+                              locale: Localizations.localeOf(context).languageCode,
+                            ).trim();
+                            final message = translatedOrOriginal(
+                              original: item.message,
+                              translationsJson: item.messageTranslationsJson,
+                              locale: Localizations.localeOf(context).languageCode,
+                            ).trim();
+                            final lastMessage = translatedOrOriginal(
+                              original: item.lastMessage,
+                              translationsJson: item.lastMessageTranslationsJson,
+                              locale: Localizations.localeOf(context).languageCode,
+                            ).trim();
                             final hasUnreadMessage = lastMessage.isNotEmpty &&
                                 item.lastMessageSenderUserId != null &&
                                 item.lastMessageSenderUserId != session?.userId;
@@ -132,7 +150,16 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                 },
                                 title: Row(
                                   children: [
-                                    Expanded(child: Text(title)),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(title),
+                                          if (hasRealTranslation(original: title, translated: displayTitle))
+                                            Text(displayTitle, style: const TextStyle(fontSize: 14)),
+                                        ],
+                                      ),
+                                    ),
                                     if (hasUnreadMessage)
                                       const Icon(Icons.mark_chat_unread, size: 18),
                                   ],

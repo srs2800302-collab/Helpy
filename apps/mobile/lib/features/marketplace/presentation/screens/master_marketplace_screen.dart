@@ -141,6 +141,7 @@ class _MasterMarketplaceScreenState
                                   builder: (_) => MasterJobDetailsScreen(
                                     jobId: item.id,
                                     jobTitle: originalTitle,
+                                    jobTitleTranslationsJson: item.titleTranslationsJson,
                                   ),
                                 ),
                               );
@@ -172,6 +173,7 @@ class _MasterMarketplaceScreenState
                                       builder: (_) => CreateOfferScreen(
                                         jobId: item.id,
                                         jobTitle: originalTitle,
+                                        jobTitleTranslationsJson: item.titleTranslationsJson,
                                       ),
                                     ),
                                   );

@@ -480,6 +480,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                           builder: (_) => CreateOfferScreen(
                             jobId: job.id,
                             jobTitle: job.title,
+                            jobTitleTranslationsJson: job.titleTranslationsJson,
                           ),
                         ),
                       );

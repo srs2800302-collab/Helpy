@@ -3,16 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 
 class CreateOfferScreen extends ConsumerWidget {
   final String jobId;
   final String jobTitle;
+  final String? jobTitleTranslationsJson;
 
   const CreateOfferScreen({
     super.key,
     required this.jobId,
     required this.jobTitle,
+    this.jobTitleTranslationsJson,
   });
 
   @override
@@ -20,12 +23,17 @@ class CreateOfferScreen extends ConsumerWidget {
     final state = ref.watch(offersControllerProvider);
     final controller = ref.read(offersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+    final displayTitle = translatedOrOriginal(
+      original: jobTitle,
+      translationsJson: jobTitleTranslationsJson,
+      locale: Localizations.localeOf(context).languageCode,
+    );
 
     final isBusy = state.isSubmitting;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(jobTitle),
+        title: Text(displayTitle),
         actions: const [
           AppLanguageMenuButton(),
         ],

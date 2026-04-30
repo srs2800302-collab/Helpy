@@ -200,7 +200,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (dialogContext) => AlertDialog(
-                  title: Text(displayTitle),
+                  title: Text(originalTitle),
                   content: Text(l10n.t('delete_draft_confirm')),
                   actions: [
                     TextButton(
@@ -231,7 +231,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(displayTitle),
+        title: Text(originalTitle),
         actions: const [
           AppLanguageMenuButton(),
         ],
