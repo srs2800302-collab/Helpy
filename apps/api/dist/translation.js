@@ -83,7 +83,11 @@ async function translateWithGooglePublic({ text, sourceLanguage, targetLanguage,
         throw new Error(`Google public translate failed: ${response.status} ${errorText}`);
     }
     const payload = (await response.json());
-    return payload?.[0]?.[0]?.[0]?.toString().trim() ?? '';
+    const segments = Array.isArray(payload?.[0]) ? payload[0] : [];
+    return segments
+        .map((segment) => segment?.[0]?.toString() ?? '')
+        .join('')
+        .trim();
 }
 async function processPendingTranslationTasks({ env, entityType, entityId, limit = 10, }) {
     await ensureTranslationTasksSchema(env);

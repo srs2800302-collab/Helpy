@@ -137,7 +137,12 @@ async function translateWithGooglePublic({
   }
 
   const payload = (await response.json()) as any;
-  return payload?.[0]?.[0]?.[0]?.toString().trim() ?? '';
+  const segments = Array.isArray(payload?.[0]) ? payload[0] : [];
+
+  return segments
+    .map((segment: any) => segment?.[0]?.toString() ?? '')
+    .join('')
+    .trim();
 }
 
 export async function processPendingTranslationTasks({
