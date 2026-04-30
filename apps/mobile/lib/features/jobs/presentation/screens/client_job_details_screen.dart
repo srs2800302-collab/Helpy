@@ -369,15 +369,8 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               ),
             ),
           ),
-          if (primaryAction != null) ...[
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: primaryAction,
-            ),
-          ],
           if (editJobAction != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: editJobAction,
@@ -388,6 +381,13 @@ class ClientJobDetailsScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: deleteJobAction,
+            ),
+          ],
+          if (primaryAction != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: primaryAction,
             ),
           ],
         ],
