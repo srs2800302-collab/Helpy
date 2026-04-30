@@ -149,6 +149,8 @@ class JobsController extends StateNotifier<JobsState> {
   }
 
   Future<JobItem?> createDraft() async {
+    if (state.isSubmitting) return null;
+
     final session = ref.read(authControllerProvider).session;
     if (session == null) {
       state = state.copyWith(errorMessage: 'no_session');
@@ -185,20 +187,26 @@ class JobsController extends StateNotifier<JobsState> {
             longitude: state.longitude,
           );
 
-      for (final photo in selectedPhotos.take(10)) {
-        final bytes = await photo.readAsBytes();
-        final lowerName = photo.name.toLowerCase();
-        final ext = lowerName.endsWith('.png')
-            ? 'png'
-            : lowerName.endsWith('.webp')
-                ? 'webp'
-                : 'jpeg';
-        final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
+      var failedPhotoUploads = 0;
 
-        await ref.read(jobsApiProvider).addJobPhoto(
-              jobId: created.id,
-              url: dataUrl,
-            );
+      for (final photo in selectedPhotos.take(10)) {
+        try {
+          final bytes = await photo.readAsBytes();
+          final lowerName = photo.name.toLowerCase();
+          final ext = lowerName.endsWith('.png')
+              ? 'png'
+              : lowerName.endsWith('.webp')
+                  ? 'webp'
+                  : 'jpeg';
+          final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
+
+          await ref.read(jobsApiProvider).addJobPhoto(
+                jobId: created.id,
+                url: dataUrl,
+              );
+        } catch (_) {
+          failedPhotoUploads += 1;
+        }
       }
 
       final nextItems = [
@@ -217,7 +225,9 @@ class JobsController extends StateNotifier<JobsState> {
         longitude: null,
         clearPhotos: true,
         clearSelectedCategory: true,
-        successMessage: 'Job created',
+        successMessage: failedPhotoUploads > 0
+            ? 'Job created, but some photos were not uploaded'
+            : 'Job created',
       );
 
       return created;
