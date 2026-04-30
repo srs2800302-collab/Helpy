@@ -83,6 +83,7 @@ class OffersApi {
       jobTitleTranslationsJson: null,
       categorySlug: '',
       addressText: null,
+      addressTranslationsJson: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.tryParse(data['updated_at'] as String? ?? ''),
       lastMessage: null,
@@ -111,6 +112,7 @@ class OffersApi {
       jobTitleTranslationsJson: json['job_title_translations_json'] as String?,
       categorySlug: json['category'] as String? ?? '',
       addressText: json['address_text'] as String?,
+      addressTranslationsJson: json['address_translations_json'] as String?,
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),

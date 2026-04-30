@@ -13,6 +13,7 @@ class OfferItem {
   final String? jobTitleTranslationsJson;
   final String categorySlug;
   final String? addressText;
+  final String? addressTranslationsJson;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? lastMessage;
@@ -35,6 +36,7 @@ class OfferItem {
     required this.jobTitleTranslationsJson,
     required this.categorySlug,
     required this.addressText,
+    required this.addressTranslationsJson,
     required this.createdAt,
     required this.updatedAt,
     required this.lastMessage,
