@@ -24,6 +24,7 @@ class JobItem {
 
   final bool? hasReview;
   final int offersCount;
+  final bool hasApplied;
   final double? latitude;
   final double? longitude;
   final String? lastMessage;
@@ -54,6 +55,7 @@ class JobItem {
     required this.selectedOfferPrice,
     required this.hasReview,
     required this.offersCount,
+    required this.hasApplied,
     required this.latitude,
     required this.longitude,
     required this.lastMessage,

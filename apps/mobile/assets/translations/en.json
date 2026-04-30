@@ -127,5 +127,6 @@
   "open_jobs_count": "{count} open jobs",
   "open_chat": "Open chat",
   "offers_count": "{count} offers",
-  "edit_job": "Edit job"
+  "edit_job": "Edit job",
+  "offer_sent": "Offer sent"
 }

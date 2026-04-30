@@ -297,7 +297,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
           final job = snapshot.data!;
           final completedAt = job.updatedAt ?? job.createdAt;
-          final canSendOffer = job.status == 'open';
+          final canSendOffer = job.status == 'open' && !job.hasApplied;
           final canOpenChat = job.status == 'master_selected' || job.status == 'in_progress';
           final locale = Localizations.localeOf(context).languageCode;
           final originalTitle = (job.titleOriginal ?? job.title).trim();
@@ -463,27 +463,37 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   );
                 },
               ),
-              if (canSendOffer) ...[
+              if (job.status == 'open') ...[
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final changed = await Navigator.of(context).push<bool>(
-                        MaterialPageRoute(
-                          builder: (_) => CreateOfferScreen(
-                            jobId: job.id,
-                            jobTitle: job.title,
-                            jobTitleTranslationsJson: job.titleTranslationsJson,
-                          ),
+                  child: job.hasApplied
+                      ? OutlinedButton.icon(
+                          onPressed: null,
+                          icon: const Icon(Icons.check_circle_outline),
+                          label: Text(l10n.t('offer_sent')),
+                        )
+                      : ElevatedButton(
+                          onPressed: canSendOffer
+                              ? () async {
+                                  final changed =
+                                      await Navigator.of(context).push<bool>(
+                                    MaterialPageRoute(
+                                      builder: (_) => CreateOfferScreen(
+                                        jobId: job.id,
+                                        jobTitle: job.title,
+                                        jobTitleTranslationsJson:
+                                            job.titleTranslationsJson,
+                                      ),
+                                    ),
+                                  );
+                                  if (changed == true && context.mounted) {
+                                    Navigator.of(context).pop(true);
+                                  }
+                                }
+                              : null,
+                          child: Text(l10n.t('send_offer')),
                         ),
-                      );
-                      if (changed == true && context.mounted) {
-                        Navigator.of(context).pop(true);
-                      }
-                    },
-                    child: Text(l10n.t('send_offer')),
-                  ),
                 ),
               ],
             ],

@@ -134,6 +134,9 @@ class JobsApi {
       ),
       hasReview: json['has_review'] as bool?,
       offersCount: int.tryParse(json['offers_count']?.toString() ?? '') ?? 0,
+      hasApplied: json['has_applied'] == true ||
+          json['has_applied'] == 1 ||
+          json['has_applied']?.toString() == '1',
       latitude: double.tryParse(json['latitude']?.toString() ?? ''),
       longitude: double.tryParse(json['longitude']?.toString() ?? ''),
       lastMessage: json['last_message'] as String?,

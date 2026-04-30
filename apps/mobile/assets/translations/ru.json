@@ -127,5 +127,6 @@
   "open_jobs_count": "{count} открытых заказов",
   "open_chat": "Открыть чат",
   "offers_count": "{count} откликов",
-  "edit_job": "Редактировать заказ"
+  "edit_job": "Редактировать заказ",
+  "offer_sent": "Отклик отправлен"
 }

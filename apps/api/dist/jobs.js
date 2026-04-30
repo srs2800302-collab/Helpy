@@ -154,8 +154,17 @@ async function getAvailableJobs(request, env) {
     if (auth.role !== 'master') {
         return Response.json({ success: false, error: 'Only master can view available jobs' }, { status: 403 });
     }
-    const result = await env.DB.prepare('SELECT * FROM jobs WHERE status = ?1 ORDER BY created_at DESC')
-        .bind(job_status_1.JOB_STATUS.open)
+    const result = await env.DB.prepare(`SELECT j.*,
+            EXISTS(
+              SELECT 1
+              FROM offers o
+              WHERE o.job_id = j.id
+                AND o.master_user_id = ?2
+            ) as has_applied
+     FROM jobs j
+     WHERE j.status = ?1
+     ORDER BY j.created_at DESC`)
+        .bind(job_status_1.JOB_STATUS.open, auth.userId)
         .all();
     return Response.json({
         success: true,
