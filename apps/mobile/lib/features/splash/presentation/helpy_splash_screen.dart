@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'app_splash_view.dart';
 
 class HelpySplashScreen extends StatefulWidget {
   final Widget child;
@@ -15,7 +16,7 @@ class HelpySplashScreen extends StatefulWidget {
 }
 
 class _HelpySplashScreenState extends State<HelpySplashScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _controller;
   Timer? _timer;
   bool _showSplash = true;
@@ -23,6 +24,8 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     _controller = AnimationController(
       vsync: this,
@@ -39,9 +42,27 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed || !mounted) return;
+
+    _timer?.cancel();
+    setState(() {
+      _showSplash = true;
+    });
+
+    _timer = Timer(const Duration(milliseconds: 4000), () {
+      if (!mounted) return;
+      setState(() {
+        _showSplash = false;
+      });
+    });
   }
 
   @override
@@ -50,8 +71,6 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
       parent: _controller,
       curve: Curves.easeInOut,
     );
-
-    final screen = MediaQuery.of(context).size;
 
     return Stack(
       fit: StackFit.expand,
@@ -78,40 +97,7 @@ class _HelpySplashScreenState extends State<HelpySplashScreen>
                         ),
                       );
                     },
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Container(
-                            color: Colors.white,
-                            alignment: Alignment.center,
-                            child: Image.asset(
-                              'assets/icon.png',
-                              fit: BoxFit.contain,
-                              width: screen.width * 0.92,
-                              height: screen.height * 0.75,
-                            ),
-                          ),
-                        ),
-                        const Positioned(
-                          top: 48,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                    child: const AppSplashView(),                  ),
                 )
               : const SizedBox.shrink(),
         ),

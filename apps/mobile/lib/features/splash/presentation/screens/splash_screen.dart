@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
+import '../app_splash_view.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -26,14 +27,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Colors.black,
-      body: SizedBox.expand(
-        child: Image(
-          image: AssetImage('assets/crab.gif'),
-          fit: BoxFit.contain,
-          gaplessPlayback: true,
-        ),
-      ),
+      body: AppSplashView(),
     );
   }
 }
