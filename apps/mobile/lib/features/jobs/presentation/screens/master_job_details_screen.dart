@@ -421,18 +421,37 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                 icon: Icons.notes_outlined,
               ),
               const SizedBox(height: 12),
-              _infoBlock(
-                title: l10n.t('address_room_label'),
-                body: displayAddress,
-                icon: Icons.location_on_outlined,
-              ),
-              if (job.latitude != null && job.longitude != null) ...[
-                const SizedBox(height: 8),
-                _jobLocationMap(
-                  latitude: job.latitude!,
-                  longitude: job.longitude!,
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_outlined),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.t('address_room_label'),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      if (displayAddress.trim().isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(displayAddress.trim()),
+                      ],
+                      if (job.latitude != null && job.longitude != null) ...[
+                        const SizedBox(height: 12),
+                        _jobLocationMap(
+                          latitude: job.latitude!,
+                          longitude: job.longitude!,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-              ],
+              ),
               
               if (canOpenChat) ...[
                 const SizedBox(height: 16),
