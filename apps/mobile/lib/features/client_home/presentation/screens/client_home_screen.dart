@@ -202,10 +202,13 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
         .where((item) => item.status == 'open' && item.offersCount > 0)
         .toList();
     final incomingMessageJobs = visibleJobs
-        .where((item) =>
-            (item.lastMessage ?? '').trim().isNotEmpty &&
-            item.lastMessageSenderUserId != null &&
-            item.lastMessageSenderUserId != session?.userId)
+        .where((item) {
+          final readKey = item.lastMessageCreatedAt?.toIso8601String();
+          return (item.lastMessage ?? '').trim().isNotEmpty &&
+              item.lastMessageSenderUserId != null &&
+              item.lastMessageSenderUserId != session?.userId &&
+              (readKey == null || !_readMessageTimestamps.contains(readKey));
+        })
         .toList();
 
     return Scaffold(
