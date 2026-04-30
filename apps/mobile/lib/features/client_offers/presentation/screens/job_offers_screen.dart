@@ -41,17 +41,12 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
     final state = ref.watch(jobOffersControllerProvider);
     final controller = ref.read(jobOffersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
-    final displayTitle = translatedOrOriginal(
-      original: widget.jobTitle,
-      translationsJson: widget.jobTitleTranslationsJson,
-      locale: Localizations.localeOf(context).languageCode,
-    );
     final locale = Localizations.localeOf(context).languageCode;
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(displayTitle),
+        title: Text(l10n.t('offers')),
         actions: [
           const AppLanguageMenuButton(),
           IconButton(

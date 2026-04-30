@@ -274,13 +274,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          translatedOrOriginal(
-            original: widget.jobTitle,
-            translationsJson: widget.jobTitleTranslationsJson,
-            locale: Localizations.localeOf(context).languageCode,
-          ),
-        ),
+        title: Text(l10n.t('job_details')),
         actions: const [
           AppLanguageMenuButton(),
         ],
