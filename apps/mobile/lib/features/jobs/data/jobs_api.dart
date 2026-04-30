@@ -47,6 +47,36 @@ class JobsApi {
     await apiClient.dio.delete('/jobs/$jobId');
   }
 
+  Future<JobItem> updateDraftJob({
+    required String jobId,
+    required String categoryId,
+    required String title,
+    required String sourceLanguage,
+    String? description,
+    String? addressText,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final response = await apiClient.dio.patch(
+      '/jobs/$jobId',
+      data: {
+        'category': categoryId,
+        'title': title,
+        'description': (description == null || description.trim().isEmpty)
+            ? title
+            : description.trim(),
+        'address_text': (addressText == null || addressText.trim().isEmpty)
+            ? 'Pattaya'
+            : addressText.trim(),
+        'source_language': sourceLanguage,
+        'latitude': latitude,
+        'longitude': longitude,
+      },
+    );
+
+    return _mapJob(response.data['data'] as Map<String, dynamic>);
+  }
+
   Future<List<JobItem>> listClientJobs({
     required String clientUserId,
   }) async {

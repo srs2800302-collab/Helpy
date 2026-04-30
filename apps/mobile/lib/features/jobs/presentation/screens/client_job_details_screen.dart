@@ -10,6 +10,7 @@ import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../client_offers/presentation/screens/job_offers_screen.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../../reviews/presentation/screens/create_review_screen.dart';
+import 'create_job_screen.dart';
 
 class ClientJobDetailsScreen extends ConsumerWidget {
   Future<List<String>> _loadPhotos(WidgetRef ref, String jobId) async {
@@ -194,6 +195,23 @@ class ClientJobDetailsScreen extends ConsumerWidget {
     final bool canDeleteDraft =
         job.status == 'draft' || job.status == 'awaiting_payment';
 
+    final Widget? editJobAction = canDeleteDraft
+      ? OutlinedButton(
+          onPressed: () async {
+            final changed = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(
+                builder: (_) => CreateJobScreen(editJob: job),
+              ),
+            );
+
+            if (changed == true && context.mounted) {
+              Navigator.of(context).pop(true);
+            }
+          },
+          child: Text(l10n.t('edit_job')),
+        )
+      : null;
+
     final Widget? deleteJobAction = canDeleteDraft
         ? OutlinedButton(
             onPressed: () async {
@@ -355,6 +373,13 @@ class ClientJobDetailsScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: primaryAction,
+            ),
+          ],
+          if (editJobAction != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: editJobAction,
             ),
           ],
           if (deleteJobAction != null) ...[

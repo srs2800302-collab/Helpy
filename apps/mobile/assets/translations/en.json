@@ -95,10 +95,10 @@
   "job_offers_available": "Offers received",
   "you_label": "You",
   "client_label": "Client",
-  "delete_draft_confirm": "Delete this draft job?",
+  "delete_draft_confirm": "Delete this job?",
   "delete_action": "Delete",
   "cancel_action": "Cancel",
-  "delete_draft": "Delete draft",
+  "delete_draft": "Delete job",
   "add_photo": "Add photo",
   "post_job": "Post job",
   "location_selected": "Location selected",
@@ -126,5 +126,6 @@
   "new_message": "New message",
   "open_jobs_count": "{count} open jobs",
   "open_chat": "Open chat",
-  "offers_count": "{count} offers"
+  "offers_count": "{count} offers",
+  "edit_job": "Edit job"
 }

@@ -307,6 +307,9 @@ async function handleRequest(request, env) {
         if (parts.length === 4 && method === 'DELETE') {
             return (0, delete_job_1.deleteJob)(jobId, request, env);
         }
+        if (parts.length === 4 && method === 'PATCH') {
+            return (0, jobs_1.updateJob)(jobId, request, env);
+        }
         if (parts.length === 5 && parts[4] === 'status' && method === 'PATCH') {
             return (0, jobs_1.updateJobStatus)(jobId, request, env);
         }

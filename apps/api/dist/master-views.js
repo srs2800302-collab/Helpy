@@ -4,6 +4,7 @@ exports.getOffersByMaster = getOffersByMaster;
 exports.getAvailableJobsForMaster = getAvailableJobsForMaster;
 const auth_context_1 = require("./auth-context");
 const jobs_1 = require("./jobs");
+const chat_1 = require("./chat");
 function forbidden() {
     return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
 }
@@ -19,9 +20,11 @@ function sanitizeOffer(row) {
         master_name: row.master_name,
         price: row.price,
         comment: row.comment,
+        comment_translations_json: row.comment_translations_json ?? null,
         created_at: row.created_at,
         master_user_id: row.master_user_id,
         job_title: row.job_title ?? '',
+        job_title_translations_json: row.job_title_translations_json ?? null,
         category: row.category ?? '',
         status: row.status ?? '',
         address_text: row.address_text ?? '',
@@ -29,6 +32,7 @@ function sanitizeOffer(row) {
         last_message: row.last_message ?? null,
         last_message_sender_user_id: row.last_message_sender_user_id ?? null,
         last_message_created_at: row.last_message_created_at ?? null,
+        last_message_translations_json: row.last_message_translations_json ?? null,
     };
 }
 function sanitizeAvailableJob(row) {
@@ -78,6 +82,7 @@ async function ensureMasterAccess(request, pathUserId, env) {
 }
 async function getOffersByMaster(request, pathUserId, env) {
     await (0, jobs_1.ensureJobsSchema)(env);
+    await (0, chat_1.ensureChatSchema)(env);
     const access = await ensureMasterAccess(request, pathUserId, env);
     if (!access.ok) {
         return access.response;
@@ -88,9 +93,11 @@ async function getOffersByMaster(request, pathUserId, env) {
        o.master_name,
        o.price,
        o.comment,
+       o.comment_translations_json,
        o.created_at,
        o.master_user_id,
        j.title AS job_title,
+       j.title_translations_json AS job_title_translations_json,
        j.category AS category,
        j.status AS status,
        j.address_text AS address_text,
@@ -114,7 +121,14 @@ async function getOffersByMaster(request, pathUserId, env) {
          WHERE cm.job_id = j.id
          ORDER BY cm.created_at DESC
          LIMIT 1
-       ) AS last_message_created_at
+       ) AS last_message_created_at,
+       (
+         SELECT cm.text_translations_json
+         FROM chat_messages cm
+         WHERE cm.job_id = j.id
+         ORDER BY cm.created_at DESC
+         LIMIT 1
+       ) AS last_message_translations_json
      FROM offers o
      JOIN jobs j ON j.id = o.job_id
      WHERE o.master_user_id = ?1

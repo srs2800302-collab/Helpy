@@ -12,10 +12,16 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
+import '../../domain/job_item.dart';
 import 'job_location_picker_screen.dart';
 
 class CreateJobScreen extends ConsumerStatefulWidget {
-  const CreateJobScreen({super.key});
+  final JobItem? editJob;
+
+  const CreateJobScreen({
+    super.key,
+    this.editJob,
+  });
 
   @override
   ConsumerState<CreateJobScreen> createState() => _CreateJobScreenState();
@@ -40,6 +46,18 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       if ((!categoriesState.initialized || categoriesState.items.isEmpty) &&
           !categoriesState.isLoading) {
         ref.read(categoriesControllerProvider.notifier).load();
+      }
+
+      final editJob = widget.editJob;
+      if (editJob != null) {
+        final controller = ref.read(jobsControllerProvider.notifier);
+        controller.setSelectedCategoryId(editJob.categorySlug);
+        controller.setTitle(editJob.titleOriginal ?? editJob.title);
+        controller.setDescription(editJob.descriptionOriginal ?? editJob.description ?? '');
+        controller.setAddressText(editJob.addressText ?? '');
+        controller.setRoomNumber('');
+        controller.setLatitude(editJob.latitude);
+        controller.setLongitude(editJob.longitude);
       }
     });
   }
@@ -322,7 +340,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.t('create_job')),
+        title: Text(widget.editJob == null ? l10n.t('create_job') : l10n.t('edit_job')),
         actions: const [
           AppLanguageMenuButton(),
         ],

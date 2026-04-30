@@ -1,4 +1,4 @@
-import { createJob, getAvailableJobs, getJobById, getJobs, getJobsByUser, updateJobStatus } from './jobs';
+import { createJob, getAvailableJobs, getJobById, getJobs, getJobsByUser, updateJob, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
 import { createReview, getMasterSummary, getReviews } from './reviews';
@@ -397,6 +397,10 @@ export async function handleRequest(request: Request, env: any) {
 
     if (parts.length === 4 && method === 'DELETE') {
       return deleteJob(jobId, request, env);
+    }
+
+    if (parts.length === 4 && method === 'PATCH') {
+      return updateJob(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'status' && method === 'PATCH') {

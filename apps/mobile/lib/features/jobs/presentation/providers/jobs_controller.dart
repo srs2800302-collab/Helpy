@@ -148,7 +148,65 @@ class JobsController extends StateNotifier<JobsState> {
     }
   }
 
-  Future<JobItem?> createDraft() async {
+
+  Future<JobItem?> updateDraft({
+    required String jobId,
+  }) async {
+    if (state.isSubmitting) return null;
+
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) {
+      state = state.copyWith(errorMessage: 'no_session');
+      return null;
+    }
+
+    if ((state.selectedCategoryId ?? '').isEmpty) {
+      state = state.copyWith(errorMessage: 'Category is required');
+      return null;
+    }
+
+    if (state.title.trim().length < 3) {
+      state = state.copyWith(errorMessage: 'Title is too short');
+      return null;
+    }
+
+    state = state.copyWith(
+      isSubmitting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      final updated = await ref.read(jobsApiProvider).updateDraftJob(
+        jobId: jobId,
+        categoryId: state.selectedCategoryId!,
+        title: state.title.trim(),
+        sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+        description: state.description.trim(),
+        addressText: '${state.addressText.trim()} ${state.roomNumber.trim()}'.trim(),
+        latitude: state.latitude,
+        longitude: state.longitude,
+      );
+
+      await loadClientJobs();
+
+      state = state.copyWith(
+        isSubmitting: false,
+        successMessage: 'Job updated',
+      );
+
+      return updated;
+    } catch (e) {
+      final appError = ApiErrorMapper.map(e);
+      state = state.copyWith(
+        isSubmitting: false,
+        errorMessage: appError.message,
+      );
+      return null;
+    }
+  }
+
+Future<JobItem?> createDraft() async {
     if (state.isSubmitting) return null;
 
     final session = ref.read(authControllerProvider).session;

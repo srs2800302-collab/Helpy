@@ -425,6 +425,124 @@ export async function createJob(request: Request, env: any) {
   );
 }
 
+
+export async function updateJob(id: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
+
+  const userId = request.headers.get('x-user-id') ?? '';
+  const current = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
+    .bind(id)
+    .first();
+
+  if (!current) {
+    return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
+  }
+
+  if (current.client_user_id !== userId) {
+    return Response.json({ success: false, error: 'Only job client can edit job' }, { status: 403 });
+  }
+
+  if (current.status !== JOB_STATUS.draft && current.status !== JOB_STATUS.awaiting_payment) {
+    return Response.json(
+      { success: false, error: 'Only unpaid job can be edited' },
+      { status: 400 }
+    );
+  }
+
+  const body = (await request.json()) as any;
+  const title = typeof body.title === 'string' ? body.title.trim() : current.title;
+  const description = typeof body.description === 'string' ? body.description.trim() : current.description;
+  const addressText = typeof body.address_text === 'string' ? body.address_text.trim() : current.address_text;
+  const category = typeof body.category === 'string' ? body.category.trim() : current.category;
+  const sourceLanguage = body.source_language?.trim() || current.source_language || 'ru';
+
+  if (!title || title.length < 3) {
+    return Response.json({ success: false, error: 'title is required' }, { status: 400 });
+  }
+
+  if (!category) {
+    return Response.json({ success: false, error: 'category is required' }, { status: 400 });
+  }
+
+  const titleTranslationsJson = await buildTranslationsJson({
+    text: title,
+    sourceLanguage,
+    env,
+    entityType: 'job',
+    entityId: id,
+    fieldName: 'title',
+  });
+
+  const descriptionTranslationsJson = await buildTranslationsJson({
+    text: description || title,
+    sourceLanguage,
+    env,
+    entityType: 'job',
+    entityId: id,
+    fieldName: 'description',
+  });
+
+  const addressTranslationsJson = await buildTranslationsJson({
+    text: addressText || 'Pattaya',
+    sourceLanguage,
+    env,
+    entityType: 'job',
+    entityId: id,
+    fieldName: 'address_text',
+  });
+
+  const now = new Date().toISOString();
+
+  await env.DB.prepare(
+    `UPDATE jobs
+     SET title = ?1,
+         description = ?2,
+         address_text = ?3,
+         category = ?4,
+         source_language = ?5,
+         title_original = ?6,
+         description_original = ?7,
+         title_translations_json = ?8,
+         description_translations_json = ?9,
+         address_translations_json = ?10,
+         latitude = ?11,
+         longitude = ?12,
+         updated_at = ?13
+     WHERE id = ?14`
+  )
+    .bind(
+      title,
+      description || title,
+      addressText || 'Pattaya',
+      category,
+      sourceLanguage,
+      title,
+      description || title,
+      titleTranslationsJson,
+      descriptionTranslationsJson,
+      addressTranslationsJson,
+      normalizeNumber(body.latitude),
+      normalizeNumber(body.longitude),
+      now,
+      id
+    )
+    .run();
+
+  await processPendingTranslationTasks({
+    env,
+    entityType: 'job',
+    entityId: id,
+    limit: 6,
+  });
+
+  const updated = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
+    .bind(id)
+    .first();
+
+  return Response.json({ success: true, data: updated });
+}
+
+
 export async function updateJobStatus(id: string, request: Request, env: any) {
   await ensureJobsSchema(env);
 

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ensureChatSchema = ensureChatSchema;
 exports.getMessages = getMessages;
 exports.sendMessage = sendMessage;
 exports.startWork = startWork;

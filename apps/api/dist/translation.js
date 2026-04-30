@@ -40,12 +40,15 @@ function buildEmptyTranslations(originalText, sourceLanguage) {
 }
 async function buildTranslationsJson({ text, sourceLanguage, env, entityType, entityId, fieldName, }) {
     const originalText = text.trim();
-    const source = normalizeLanguage(sourceLanguage);
+    const useAutoDetect = entityType === 'chat_message';
+    const source = useAutoDetect ? 'auto' : normalizeLanguage(sourceLanguage);
     await ensureTranslationTasksSchema(env);
-    const translations = buildEmptyTranslations(originalText, source);
+    const translations = useAutoDetect
+        ? { ru: '', en: '', th: '' }
+        : buildEmptyTranslations(originalText, source);
     const now = new Date().toISOString();
     for (const target of SUPPORTED_LANGUAGES) {
-        if (target === source)
+        if (!useAutoDetect && target === source)
             continue;
         await env.DB.prepare(`
       INSERT OR REPLACE INTO translation_tasks (

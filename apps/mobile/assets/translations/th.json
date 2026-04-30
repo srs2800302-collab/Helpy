@@ -95,10 +95,10 @@
   "job_offers_available": "มีการเสนองานแล้ว",
   "you_label": "คุณ",
   "client_label": "ลูกค้า",
-  "delete_draft_confirm": "ลบงานฉบับร่างนี้หรือไม่?",
+  "delete_draft_confirm": "ลบงานนี้หรือไม่?",
   "delete_action": "ลบ",
   "cancel_action": "ยกเลิก",
-  "delete_draft": "ลบฉบับร่าง",
+  "delete_draft": "ลบงาน",
   "add_photo": "เพิ่มรูป",
   "post_job": "ลงประกาศงาน",
   "location_selected": "เลือกตำแหน่งแล้ว",
@@ -126,5 +126,6 @@
   "new_message": "ข้อความใหม่",
   "open_jobs_count": "{count} งานที่เปิดอยู่",
   "open_chat": "เปิดแชท",
-  "offers_count": "{count} ข้อเสนอ"
+  "offers_count": "{count} ข้อเสนอ",
+  "edit_job": "แก้ไขงาน"
 }

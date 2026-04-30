@@ -95,10 +95,10 @@
   "job_offers_available": "Есть отклики",
   "you_label": "Вы",
   "client_label": "Клиент",
-  "delete_draft_confirm": "Удалить черновик заказа?",
+  "delete_draft_confirm": "Удалить заказ?",
   "delete_action": "Удалить",
   "cancel_action": "Отмена",
-  "delete_draft": "Удалить черновик",
+  "delete_draft": "Удалить заказ",
   "add_photo": "Добавить фото",
   "post_job": "Разместить заказ",
   "location_selected": "Локация выбрана",
@@ -126,5 +126,6 @@
   "new_message": "Новое сообщение",
   "open_jobs_count": "{count} открытых заказов",
   "open_chat": "Открыть чат",
-  "offers_count": "{count} откликов"
+  "offers_count": "{count} откликов",
+  "edit_job": "Редактировать заказ"
 }
