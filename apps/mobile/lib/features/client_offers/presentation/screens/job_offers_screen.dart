@@ -150,53 +150,96 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     locale: locale,
                                   );
 
-                                  final details = <String>[
-                                    l10n.t('status_open'),
-                                    ratingLine,
-                                    if (displayMessage.trim().isNotEmpty)
-                                      '${l10n.t('offer_message')}: ${displayMessage.trim()}',
-                                    if (displayPriceComment.trim().isNotEmpty)
-                                      '${l10n.t('comment_label')}: ${displayPriceComment.trim()}',
-                                  ];
-
-                                  return ListTile(
-                                    title: Text(
-                                      item.masterName,
-                                      style: const TextStyle(fontWeight: FontWeight.w600),
-                                    ),
-                                    subtitle: Text(
-                                      '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB\n${details.join('\n')}',
-                                    ),
-                                    isThreeLine: true,
-                                    trailing: isAlreadySelected
-                                        ? Text(l10n.t('master_selected'))
-                                        : ElevatedButton(
-                                            onPressed: canSelect
-                                                ? () async {
-                                                    final ok = await controller.selectOffer(
-                                                      jobId: widget.jobId,
-                                                      offerId: item.id,
-                                                    );
-                                                    if (ok && context.mounted) {
-                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(l10n.t('master_selected')),
-                                                        ),
-                                                      );
-                                                      Navigator.of(context).pop(true);
-                                                    }
-                                                  }
-                                                : null,
-                                            child: state.isSubmitting
-                                                ? const SizedBox(
-                                                    height: 18,
-                                                    width: 18,
-                                                    child: CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                    ),
-                                                  )
-                                                : Text(l10n.t('select_master')),
+                                  return Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                item.masterName,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              '${item.price.toStringAsFixed(0)} THB',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          ratingLine,
+                                          style: Theme.of(context).textTheme.bodyMedium,
+                                        ),
+                                        if (displayMessage.trim().isNotEmpty) ...[
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            l10n.t('offer_message'),
+                                            style: const TextStyle(fontWeight: FontWeight.w600),
                                           ),
+                                          const SizedBox(height: 4),
+                                          Text(displayMessage.trim()),
+                                        ],
+                                        if (displayPriceComment.trim().isNotEmpty) ...[
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            l10n.t('comment_label'),
+                                            style: const TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(displayPriceComment.trim()),
+                                        ],
+                                        const SizedBox(height: 14),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: isAlreadySelected
+                                              ? OutlinedButton(
+                                                  onPressed: null,
+                                                  child: Text(l10n.t('master_selected')),
+                                                )
+                                              : ElevatedButton(
+                                                  onPressed: canSelect
+                                                      ? () async {
+                                                          final ok = await controller.selectOffer(
+                                                            jobId: widget.jobId,
+                                                            offerId: item.id,
+                                                          );
+                                                          if (ok && context.mounted) {
+                                                            ScaffoldMessenger.of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                  l10n.t('master_selected'),
+                                                                ),
+                                                              ),
+                                                            );
+                                                            Navigator.of(context).pop(true);
+                                                          }
+                                                        }
+                                                      : null,
+                                                  child: state.isSubmitting
+                                                      ? const SizedBox(
+                                                          height: 18,
+                                                          width: 18,
+                                                          child: CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                          ),
+                                                        )
+                                                      : Text(l10n.t('select_master')),
+                                                ),
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 },
                               ),
