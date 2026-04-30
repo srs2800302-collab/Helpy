@@ -35,6 +35,9 @@ class MarketplaceApi {
       categorySlug: json['category'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
+      hasApplied: json['has_applied'] == true ||
+          json['has_applied'] == 1 ||
+          json['has_applied']?.toString() == '1',
     );
   }
 }

@@ -12,6 +12,7 @@ class MarketplaceJobItem {
   final String categoryId;
   final String categorySlug;
   final DateTime createdAt;
+  final bool hasApplied;
 
   const MarketplaceJobItem({
     required this.id,
@@ -27,5 +28,6 @@ class MarketplaceJobItem {
     required this.categoryId,
     required this.categorySlug,
     required this.createdAt,
+    required this.hasApplied,
   });
 }
