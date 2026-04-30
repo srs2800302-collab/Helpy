@@ -435,6 +435,13 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                       (item) {
                         final completedAt = item.updatedAt ?? item.createdAt;
                         final isCompleted = item.status == 'completed';
+                        final originalTitle =
+                            (item.titleOriginal ?? item.title).trim();
+                        final displayTitle = translatedOrOriginal(
+                          original: originalTitle,
+                          translationsJson: item.titleTranslationsJson,
+                          locale: locale,
+                        );
                         return Card(
                           color: _jobCardColor(item.status),
                           child: ListTile(
@@ -453,10 +460,20 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                 ),
                               );
                             },
-                            title: Row(
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(child: Text(item.title)),
-
+                                Text(originalTitle),
+                                if (hasRealTranslation(
+                                  original: originalTitle,
+                                  translated: displayTitle,
+                                )) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    displayTitle,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
                               ],
                             ),
                             subtitle: Text(
