@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -15,16 +16,43 @@ class ClientJobsScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
+  static const _readClientJobsMessageTimestampsKey =
+      'readClientJobsMessageTimestampsKey';
+  Set<String> _readMessageTimestamps = <String>{};
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(jobsControllerProvider.notifier).loadClientJobs();
+    Future.microtask(() async {
+      await _loadReadMessageTimestamps();
+      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
     });
   }
 
   Future<void> _refresh() async {
     await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+  }
+
+  Future<void> _loadReadMessageTimestamps() async {
+    final prefs = await SharedPreferences.getInstance();
+    final items =
+        prefs.getStringList(_readClientJobsMessageTimestampsKey) ?? const <String>[];
+    if (!mounted) return;
+    setState(() {
+      _readMessageTimestamps = items.toSet();
+    });
+  }
+
+  Future<void> _markMessageRead(DateTime? createdAt) async {
+    if (createdAt == null) return;
+    final value = createdAt.toIso8601String();
+    final prefs = await SharedPreferences.getInstance();
+    final next = {..._readMessageTimestamps, value};
+    await prefs.setStringList(_readClientJobsMessageTimestampsKey, next.toList());
+    if (!mounted) return;
+    setState(() {
+      _readMessageTimestamps = next;
+    });
   }
 
   String _categoryLabel(AppLocalizations l10n, String slug) {
@@ -143,9 +171,13 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                             );
 
                             final lastMessage = (item.lastMessage ?? '').trim();
+                            final readKey =
+                                item.lastMessageCreatedAt?.toIso8601String();
                             final hasUnreadMessage = lastMessage.isNotEmpty &&
                                 item.lastMessageSenderUserId != null &&
-                                item.lastMessageSenderUserId != session?.userId;
+                                item.lastMessageSenderUserId != session?.userId &&
+                                (readKey == null ||
+                                    !_readMessageTimestamps.contains(readKey));
 
                             return Card(
                               child: ListTile(
@@ -162,6 +194,8 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                 isThreeLine: true,
                                 trailing: const Icon(Icons.chevron_right),
                                 onTap: () async {
+                                  await _markMessageRead(item.lastMessageCreatedAt);
+                                  if (!context.mounted) return;
                                   final changed = await Navigator.of(context).push<bool>(
                                     MaterialPageRoute(
                                       builder: (_) => ClientJobDetailsScreen(job: item),
