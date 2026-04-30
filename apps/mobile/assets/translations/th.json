@@ -128,5 +128,6 @@
   "open_chat": "เปิดแชท",
   "offers_count": "{count} ข้อเสนอ",
   "edit_job": "แก้ไขงาน",
-  "offer_sent": "ส่งข้อเสนอแล้ว"
+  "offer_sent": "ส่งข้อเสนอแล้ว",
+  "view_details": "ดูรายละเอียด"
 }

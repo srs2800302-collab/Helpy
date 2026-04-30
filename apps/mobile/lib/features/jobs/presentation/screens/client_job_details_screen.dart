@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -70,6 +72,42 @@ class ClientJobDetailsScreen extends ConsumerWidget {
       default:
         return status;
     }
+  }
+
+  Widget _photoWidget(BuildContext context, String url) {
+    if (url.startsWith('data:image/')) {
+      final commaIndex = url.indexOf(',');
+      if (commaIndex > 0 && commaIndex + 1 < url.length) {
+        try {
+          final bytes = base64Decode(url.substring(commaIndex + 1));
+          return Image.memory(
+            Uint8List.fromList(bytes),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.black12,
+              child: Text(AppLocalizations.of(context).t('failed_load_photo')),
+            ),
+          );
+        } catch (_) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.black12,
+            child: Text(AppLocalizations.of(context).t('failed_load_photo')),
+          );
+        }
+      }
+    }
+
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        padding: const EdgeInsets.all(16),
+        color: Colors.black12,
+        child: Text(AppLocalizations.of(context).t('failed_load_photo')),
+      ),
+    );
   }
 
   @override
@@ -219,7 +257,11 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (dialogContext) => AlertDialog(
-                  title: Text(originalTitle),
+                  title: Text(
+          hasRealTranslation(original: originalTitle, translated: displayTitle)
+              ? displayTitle.trim()
+              : originalTitle,
+        ),
                   content: Text(l10n.t('delete_draft_confirm')),
                   actions: [
                     TextButton(
@@ -304,22 +346,22 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.t('client_photos_label')),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: photos.map((url) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  url,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                              );
-                            }).toList(),
+                          Text(
+                            l10n.t('client_photos_label'),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ...photos.map(
+                            (url) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: _photoWidget(context, url),
+                              ),
+                            ),
                           ),
                         ],
                       );
