@@ -277,27 +277,27 @@ Future<JobItem?> createDraft() async {
             longitude: state.longitude,
           );
 
-      var failedPhotoUploads = 0;
+      // upload photos in background (non-blocking)
+Future(() async {
+  for (final photo in selectedPhotos.take(10)) {
+    try {
+      final bytes = await photo.readAsBytes();
+      final lowerName = photo.name.toLowerCase();
+      final ext = lowerName.endsWith('.png')
+          ? 'png'
+          : lowerName.endsWith('.webp')
+              ? 'webp'
+              : 'jpeg';
 
-      for (final photo in selectedPhotos.take(10)) {
-        try {
-          final bytes = await photo.readAsBytes();
-          final lowerName = photo.name.toLowerCase();
-          final ext = lowerName.endsWith('.png')
-              ? 'png'
-              : lowerName.endsWith('.webp')
-                  ? 'webp'
-                  : 'jpeg';
-          final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
+      final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
 
-          await ref.read(jobsApiProvider).addJobPhoto(
-                jobId: created.id,
-                url: dataUrl,
-              );
-        } catch (_) {
-          failedPhotoUploads += 1;
-        }
-      }
+      await ref.read(jobsApiProvider).addJobPhoto(
+            jobId: created.id,
+            url: dataUrl,
+          );
+    } catch (_) {}
+  }
+});
 
       final nextItems = [
         created,
@@ -315,9 +315,7 @@ Future<JobItem?> createDraft() async {
         longitude: null,
         clearPhotos: true,
         clearSelectedCategory: true,
-        successMessage: failedPhotoUploads > 0
-            ? 'Job created, but some photos were not uploaded'
-            : 'Job created',
+        successMessage: 'Job created',
       );
 
       return created;
