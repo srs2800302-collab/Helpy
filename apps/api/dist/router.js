@@ -183,7 +183,7 @@ async function processTranslationTasks(request, env) {
         data: result,
     });
 }
-async function handleRequest(request, env) {
+async function handleRequest(request, env, ctx) {
     await (0, init_schema_1.ensureBaseSchema)(env);
     const url = new URL(request.url);
     const path = url.pathname;
@@ -294,7 +294,7 @@ async function handleRequest(request, env) {
         return (0, jobs_1.getJobs)(request, env);
     }
     if (path === '/api/v1/jobs' && method === 'POST') {
-        return (0, jobs_1.createJob)(request, env);
+        return (0, jobs_1.createJob)(request, env, ctx);
     }
     if (path === '/api/v1/jobs/available' && method === 'GET') {
         return (0, jobs_1.getAvailableJobs)(request, env);

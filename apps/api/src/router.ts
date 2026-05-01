@@ -230,7 +230,7 @@ async function processTranslationTasks(request: Request, env: any) {
 }
 
 
-export async function handleRequest(request: Request, env: any) {
+export async function handleRequest(request: Request, env: any, ctx?: any) {
   await ensureBaseSchema(env);
 
   const url = new URL(request.url);
@@ -381,7 +381,7 @@ export async function handleRequest(request: Request, env: any) {
   }
 
   if (path === '/api/v1/jobs' && method === 'POST') {
-    return createJob(request, env);
+    return createJob(request, env, ctx);
   }
 
   if (path === '/api/v1/jobs/available' && method === 'GET') {

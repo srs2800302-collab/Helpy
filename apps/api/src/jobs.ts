@@ -249,7 +249,7 @@ export async function getJobById(id: string, request: Request, env: any) {
   });
 }
 
-export async function createJob(request: Request, env: any) {
+export async function createJob(request: Request, env: any, ctx?: any) {
   await ensureJobsSchema(env);
 
   let body: CreateJobBody;
@@ -415,13 +415,15 @@ export async function createJob(request: Request, env: any) {
     )
     .run();
 
-  // process translations in background (non-blocking)
-  processPendingTranslationTasks({
-    env,
-    entityType: 'job',
-    entityId: id,
-    limit: 6,
-  }).catch(() => {});
+  // process translations in background without blocking job creation
+  ctx?.waitUntil(
+    processPendingTranslationTasks({
+      env,
+      entityType: 'job',
+      entityId: id,
+      limit: 6,
+    }),
+  );
 
   const created = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
