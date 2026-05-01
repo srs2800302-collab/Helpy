@@ -210,13 +210,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           format: CompressFormat.jpeg,
         );
 
-        compressedPicked.add(
-          XFile.fromData(
-            compressedBytes,
-            name: 'compressed_${photo.name}.jpg',
-            mimeType: 'image/jpeg',
-          ),
-        );
+        final tempDir = Directory.systemTemp;
+        final fileName =
+            'helpy_${DateTime.now().microsecondsSinceEpoch}_${compressedPicked.length}.jpg';
+        final tempFile = File('${tempDir.path}/$fileName');
+        await tempFile.writeAsBytes(compressedBytes, flush: true);
+
+        compressedPicked.add(XFile(tempFile.path));
       }
 
       final next = [...current, ...compressedPicked];
