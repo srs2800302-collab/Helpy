@@ -277,36 +277,27 @@ Future<JobItem?> createDraft() async {
             longitude: state.longitude,
           );
 
-      // upload photos in background with limited parallelism (non-blocking)
-      Future(() async {
-        final photos = selectedPhotos.take(10).toList();
-        const batchSize = 3;
+      // upload photos in background (non-blocking)
+Future(() async {
+  for (final photo in selectedPhotos.take(10)) {
+    try {
+      final bytes = await photo.readAsBytes();
+      final lowerName = photo.name.toLowerCase();
+      final ext = lowerName.endsWith('.png')
+          ? 'png'
+          : lowerName.endsWith('.webp')
+              ? 'webp'
+              : 'jpeg';
 
-        for (var i = 0; i < photos.length; i += batchSize) {
-          final batch = photos.skip(i).take(batchSize);
+      final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
 
-          await Future.wait(
-            batch.map((photo) async {
-              try {
-                final bytes = await photo.readAsBytes();
-                final lowerName = photo.name.toLowerCase();
-                final ext = lowerName.endsWith('.png')
-                    ? 'png'
-                    : lowerName.endsWith('.webp')
-                        ? 'webp'
-                        : 'jpeg';
-
-                final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
-
-                await ref.read(jobsApiProvider).addJobPhoto(
-                      jobId: created.id,
-                      url: dataUrl,
-                    );
-              } catch (_) {}
-            }),
+      await ref.read(jobsApiProvider).addJobPhoto(
+            jobId: created.id,
+            url: dataUrl,
           );
-        }
-      });
+    } catch (_) {}
+  }
+});
 
       final nextItems = [
         created,
