@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -198,7 +199,27 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         return;
       }
 
-      final next = [...current, ...picked.take(freeSlots)];
+      final compressedPicked = <XFile>[];
+      for (final photo in picked.take(freeSlots)) {
+        final originalBytes = await photo.readAsBytes();
+        final compressedBytes = await FlutterImageCompress.compressWithList(
+          originalBytes,
+          minWidth: 1280,
+          minHeight: 1280,
+          quality: 72,
+          format: CompressFormat.jpeg,
+        );
+
+        compressedPicked.add(
+          XFile.fromData(
+            compressedBytes,
+            name: 'compressed_${photo.name}.jpg',
+            mimeType: 'image/jpeg',
+          ),
+        );
+      }
+
+      final next = [...current, ...compressedPicked];
       jobsController.setPhotos(next);
 
       if (!mounted) return;
