@@ -281,7 +281,7 @@ Future<JobItem?> createDraft() async {
 Future(() async {
   await Future<void>.delayed(const Duration(milliseconds: 900));
 
-  for (final photo in selectedPhotos.take(10)) {
+  for (final photo in selectedPhotos.take(6)) {
     try {
       final bytes = await photo.readAsBytes();
       final lowerName = photo.name.toLowerCase();
