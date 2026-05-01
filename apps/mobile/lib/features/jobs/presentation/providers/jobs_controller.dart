@@ -277,8 +277,10 @@ Future<JobItem?> createDraft() async {
             longitude: state.longitude,
           );
 
-      // upload photos in background (non-blocking)
+      // upload photos in background after UI has moved on (non-blocking)
 Future(() async {
+  await Future<void>.delayed(const Duration(milliseconds: 900));
+
   for (final photo in selectedPhotos.take(10)) {
     try {
       final originalBytes = await photo.readAsBytes();
