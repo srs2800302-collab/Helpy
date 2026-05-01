@@ -129,5 +129,6 @@
   "offers_count": "{count} откликов",
   "edit_job": "Редактировать заказ",
   "offer_sent": "Отклик отправлен",
-  "view_details": "Посмотреть детали"
+  "view_details": "Посмотреть детали",
+  "job_details": "Детали заказа"
 }

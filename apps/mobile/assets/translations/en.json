@@ -129,5 +129,6 @@
   "offers_count": "{count} offers",
   "edit_job": "Edit job",
   "offer_sent": "Offer sent",
-  "view_details": "View details"
+  "view_details": "View details",
+  "job_details": "Job details"
 }
