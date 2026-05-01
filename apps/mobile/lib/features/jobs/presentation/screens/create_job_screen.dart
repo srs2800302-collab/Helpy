@@ -182,13 +182,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       final picker = ImagePicker();
       final picked = await picker.pickMultiImage(
         imageQuality: 85,
-        limit: 6,
+        limit: 10,
       );
 
       if (picked.isEmpty) return;
 
       final current = List<XFile>.from(jobsState.photos);
-      final freeSlots = 6 - current.length;
+      final freeSlots = 10 - current.length;
       if (freeSlots <= 0) {
         if (!mounted) return;
         final l10n = AppLocalizations.of(context);
@@ -395,10 +395,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: isBusy || jobsState.photos.length >= 6 ? null : _pickPhotos,
+                    onPressed: isBusy || jobsState.photos.length >= 10 ? null : _pickPhotos,
                     icon: const Icon(Icons.photo_library_outlined),
                     label: Text(
-                      '${l10n.t('add_photo')} (${jobsState.photos.length}/6)',
+                      '${l10n.t('add_photo')} (${jobsState.photos.length}/10)',
                     ),
                   ),
                 ),
