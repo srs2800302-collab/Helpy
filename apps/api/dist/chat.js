@@ -182,7 +182,7 @@ async function sendMessage(jobId, request, env) {
         env,
         entityType: 'chat_message',
         entityId: id,
-        limit: 2,
+        limit: 3,
     });
     const created = await env.DB.prepare('SELECT * FROM chat_messages WHERE id = ?1')
         .bind(id)

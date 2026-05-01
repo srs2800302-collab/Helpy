@@ -263,7 +263,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     env,
     entityType: 'chat_message',
     entityId: id,
-    limit: 2,
+    limit: 3,
   });
 
   const created = await env.DB.prepare(
