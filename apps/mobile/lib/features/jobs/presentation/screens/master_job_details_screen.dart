@@ -528,7 +528,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                                     MaterialPageRoute(
                                       builder: (_) => CreateOfferScreen(
                                         jobId: job.id,
-                                        jobTitle: job.title,
+                                        jobTitle: originalTitle,
                                         jobTitleTranslationsJson:
                                             job.titleTranslationsJson,
                                       ),

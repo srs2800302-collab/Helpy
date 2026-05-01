@@ -303,10 +303,14 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         return ListTile(
                           leading: const Icon(Icons.mark_chat_unread),
                           title: Text(l10n.t('new_message')),
-                          subtitle: Text(
-                            hasRealTranslation(original: title, translated: displayTitle)
-                                ? '$title\n$displayTitle\n💬 $displayMessage'
-                                : '$title\n💬 $displayMessage',
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(title),
+                              if (hasRealTranslation(original: title, translated: displayTitle))
+                                Text(displayTitle),
+                              Text('💬 $displayMessage'),
+                            ],
                           ),
                           isThreeLine: true,
                           trailing: const Icon(Icons.chevron_right),

@@ -292,11 +292,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          hasRealTranslation(original: originalTitle, translated: displayTitle)
-              ? displayTitle.trim()
-              : originalTitle,
-        ),
+        title: Text(l10n.t('job_details')),
         actions: const [
           AppLanguageMenuButton(),
         ],

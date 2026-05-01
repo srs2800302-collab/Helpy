@@ -88,8 +88,9 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
     final price = widget.price;
+    final originalTitle = (widget.job.titleOriginal ?? widget.jobTitle).trim();
     final displayTitle = translatedOrOriginal(
-      original: widget.jobTitle,
+      original: originalTitle,
       translationsJson: widget.jobTitleTranslationsJson,
       locale: Localizations.localeOf(context).languageCode,
     );
@@ -125,13 +126,13 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.jobTitle,
+                      originalTitle,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (hasRealTranslation(original: widget.jobTitle, translated: displayTitle)) ...[
+                    if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
                       const SizedBox(height: 6),
                       Text(
                         displayTitle,

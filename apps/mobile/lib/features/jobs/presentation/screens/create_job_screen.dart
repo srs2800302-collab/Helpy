@@ -537,7 +537,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                             MaterialPageRoute(
                               builder: (_) => JobPaymentScreen(
                                 jobId: job.id,
-                                jobTitle: job.title,
+                                jobTitle: (job.titleOriginal ?? job.title).trim(),
                                 jobTitleTranslationsJson: job.titleTranslationsJson,
                                 depositAmount: job.depositAmount ?? 0,
                                 price: job.price,

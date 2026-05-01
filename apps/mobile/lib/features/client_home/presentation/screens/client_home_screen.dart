@@ -288,7 +288,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                   children: jobsWithOffers
                       .map(
                         (job) {
-                          final title = job.title.trim();
+                          final title = (job.titleOriginal ?? job.title).trim();
                           final displayTitle = translatedOrOriginal(
                             original: title,
                             translationsJson: job.titleTranslationsJson,
@@ -298,10 +298,14 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                           return ListTile(
                             leading: const Icon(Icons.notifications_active),
                             title: Text(l10n.t('job_offers_available')),
-                            subtitle: Text(
-                              hasRealTranslation(original: title, translated: displayTitle)
-                                  ? '$title\n$displayTitle • ${l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())}'
-                                  : '$title • ${l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())}',
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(title),
+                                if (hasRealTranslation(original: title, translated: displayTitle))
+                                  Text(displayTitle),
+                                Text(l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())),
+                              ],
                             ),
                             isThreeLine: hasRealTranslation(original: title, translated: displayTitle),
                             trailing: const Icon(Icons.chevron_right),
@@ -310,7 +314,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                               MaterialPageRoute(
                                 builder: (_) => JobOffersScreen(
                                   jobId: job.id,
-                                  jobTitle: job.title,
+                                  jobTitle: title,
                                   jobTitleTranslationsJson: job.titleTranslationsJson,
                                 ),
                               ),
@@ -334,7 +338,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 child: Column(
                   children: incomingMessageJobs
                       .map((job) {
-                        final title = job.title.trim();
+                        final title = (job.titleOriginal ?? job.title).trim();
                         final displayTitle = translatedOrOriginal(
                           original: title,
                           translationsJson: job.titleTranslationsJson,
@@ -349,10 +353,14 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                         return ListTile(
                           leading: const Icon(Icons.mark_chat_unread),
                           title: Text(l10n.t('new_message')),
-                          subtitle: Text(
-                            hasRealTranslation(original: title, translated: displayTitle)
-                                ? '$title\n$displayTitle\n💬 $displayMessage'
-                                : '$title\n💬 $displayMessage',
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(title),
+                              if (hasRealTranslation(original: title, translated: displayTitle))
+                                Text(displayTitle),
+                              Text('💬 $displayMessage'),
+                            ],
                           ),
                           isThreeLine: true,
                           trailing: const Icon(Icons.chevron_right),

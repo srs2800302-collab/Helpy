@@ -30,6 +30,25 @@ String _buildAddressDetails({
 }
 
 
+
+bool _hasTranslationForLocale({
+  required String? translationsJson,
+  required String locale,
+}) {
+  final raw = translationsJson?.trim();
+  if (raw == null || raw.isEmpty) return false;
+
+  try {
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map) return false;
+
+    final value = (decoded[locale] ?? '').toString().trim();
+    return value.isNotEmpty;
+  } catch (_) {
+    return false;
+  }
+}
+
 class JobsController extends StateNotifier<JobsState> {
   final Ref ref;
 
@@ -277,6 +296,28 @@ Future<JobItem?> createDraft() async {
             longitude: state.longitude,
           );
 
+      final locale = ref.read(currentLocaleProvider).languageCode;
+      var createdForUi = created;
+
+      for (var attempt = 0; attempt < 5; attempt += 1) {
+        if (_hasTranslationForLocale(
+          translationsJson: createdForUi.titleTranslationsJson,
+          locale: locale,
+        )) {
+          break;
+        }
+
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+
+        try {
+          createdForUi = await ref.read(jobsApiProvider).getJobById(
+                jobId: created.id,
+              );
+        } catch (_) {
+          break;
+        }
+      }
+
       // Upload photos in background so job creation is not blocked.
       Future(() async {
         for (final photo in selectedPhotos.take(10)) {
@@ -300,7 +341,7 @@ Future<JobItem?> createDraft() async {
       });
 
       final nextItems = [
-        created,
+        createdForUi,
         ...state.items.where((item) => item.id != created.id),
       ];
 
@@ -318,7 +359,7 @@ Future<JobItem?> createDraft() async {
         successMessage: 'Job created',
       );
 
-      return created;
+      return createdForUi;
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
