@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -440,6 +440,39 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                       if (displayAddress.trim().isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(displayAddress.trim()),
+
+                      if (job.latitude != null && job.longitude != null) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: () async {
+                                final gps =
+                                    '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
+                                await Clipboard.setData(ClipboardData(text: gps));
+
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(l10n.t('copied'))),
+                                  );
+                                }
+                              },
+                              child: Text(l10n.t('copy')),
+                            ),
+                          ],
+                        ),
+                      ],
                       ],
                       if (job.latitude != null && job.longitude != null) ...[
                         const SizedBox(height: 12),
