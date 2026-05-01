@@ -95,6 +95,7 @@ export async function ensureJobsSchema(env: any) {
     )
   `).run();
 
+
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS reviews (
       id TEXT PRIMARY KEY,
@@ -413,6 +414,14 @@ export async function createJob(request: Request, env: any) {
       normalizeNumber(body.longitude)
     )
     .run();
+
+  // process translations in background (non-blocking)
+  processPendingTranslationTasks({
+    env,
+    entityType: 'job',
+    entityId: id,
+    limit: 6,
+  }).catch(() => {});
 
   const created = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
