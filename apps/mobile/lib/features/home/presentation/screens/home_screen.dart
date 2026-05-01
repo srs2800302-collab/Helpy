@@ -8,6 +8,7 @@ import '../../../auth/domain/auth_session.dart';
 import '../../../client_home/presentation/screens/client_home_screen.dart';
 import '../../../master_home/presentation/screens/master_home_screen.dart';
 import '../../../auth/presentation/screens/role_selection_screen.dart';
+import '../../../splash/presentation/app_splash_view.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +22,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
 
   DateTime? _pausedAt;
   bool _isHandlingTimeout = false;
+  bool _showResumeSplash = false;
 
   @override
   void initState() {
@@ -45,6 +47,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
         ref.read(tokenStorageProvider).saveBackgroundedAt(now.toIso8601String());
         break;
       case AppLifecycleState.resumed:
+        setState(() {
+          _showResumeSplash = true;
+        });
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          setState(() {
+            _showResumeSplash = false;
+          });
+        });
         _handleResumeTimeout();
         break;
       case AppLifecycleState.detached:
@@ -89,20 +100,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
     final authState = ref.watch(authControllerProvider);
     final l10n = AppLocalizations.of(context);
 
-    switch (authState.session?.role) {
-      case UserRole.client:
-        return const ClientHomeScreen();
-      case UserRole.master:
-        return const MasterHomeScreen();
-      case UserRole.admin:
-        return Scaffold(
+    final Widget child = switch (authState.session?.role) {
+      UserRole.client => const ClientHomeScreen(),
+      UserRole.master => const MasterHomeScreen(),
+      UserRole.admin => Scaffold(
           appBar: AppBar(title: Text(l10n.t('home_title'))),
           body: Center(
             child: Text(l10n.t('not_implemented')),
           ),
-        );
-      case null:
-        return const RoleSelectionScreen();
-    }
+        ),
+      null => const RoleSelectionScreen(),
+    };
+
+    return Stack(
+      children: [
+        child,
+        if (_showResumeSplash) const Positioned.fill(child: AppSplashView()),
+      ],
+    );
   }
 }
