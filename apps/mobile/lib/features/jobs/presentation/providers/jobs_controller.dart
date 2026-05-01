@@ -8,6 +8,28 @@ import '../../../../core/errors/api_error_mapper.dart';
 import '../../domain/job_item.dart';
 import 'jobs_state.dart';
 
+String _buildAddressDetails({
+  required String addressText,
+  required String roomNumber,
+  required double? latitude,
+  required double? longitude,
+}) {
+  final address = addressText.trim();
+  final room = roomNumber.trim();
+  final gps = latitude != null && longitude != null
+      ? '${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}'
+      : '';
+
+  final lines = <String>[
+    if (address.isNotEmpty) 'Address: $address',
+    if (room.isNotEmpty) 'Room/unit: $room',
+    if (gps.isNotEmpty) 'GPS: $gps',
+  ];
+
+  return lines.join('\n');
+}
+
+
 class JobsController extends StateNotifier<JobsState> {
   final Ref ref;
 
@@ -183,7 +205,12 @@ class JobsController extends StateNotifier<JobsState> {
         title: state.title.trim(),
         sourceLanguage: ref.read(currentLocaleProvider).languageCode,
         description: state.description.trim(),
-        addressText: '${state.addressText.trim()} ${state.roomNumber.trim()}'.trim(),
+        addressText: _buildAddressDetails(
+          addressText: state.addressText,
+          roomNumber: state.roomNumber,
+          latitude: state.latitude,
+          longitude: state.longitude,
+        ),
         latitude: state.latitude,
         longitude: state.longitude,
       );
@@ -240,7 +267,12 @@ Future<JobItem?> createDraft() async {
             title: state.title.trim(),
             sourceLanguage: ref.read(currentLocaleProvider).languageCode,
             description: state.description.trim(),
-            addressText: '${state.addressText.trim()} ${state.roomNumber.trim()}'.trim(),
+            addressText: _buildAddressDetails(
+          addressText: state.addressText,
+          roomNumber: state.roomNumber,
+          latitude: state.latitude,
+          longitude: state.longitude,
+        ),
             latitude: state.latitude,
             longitude: state.longitude,
           );
