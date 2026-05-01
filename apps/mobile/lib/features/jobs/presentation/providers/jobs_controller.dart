@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -283,16 +283,15 @@ Future(() async {
 
   for (final photo in selectedPhotos.take(10)) {
     try {
-      final originalBytes = await photo.readAsBytes();
-      final compressedBytes = await FlutterImageCompress.compressWithList(
-        originalBytes,
-        minWidth: 1280,
-        minHeight: 1280,
-        quality: 72,
-        format: CompressFormat.jpeg,
-      );
+      final bytes = await photo.readAsBytes();
+      final lowerName = photo.name.toLowerCase();
+      final ext = lowerName.endsWith('.png')
+          ? 'png'
+          : lowerName.endsWith('.webp')
+              ? 'webp'
+              : 'jpeg';
 
-      final dataUrl = 'data:image/jpeg;base64,${base64Encode(compressedBytes)}';
+      final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
 
       await ref.read(jobsApiProvider).addJobPhoto(
             jobId: created.id,
