@@ -414,13 +414,6 @@ export async function createJob(request: Request, env: any) {
     )
     .run();
 
-  await processPendingTranslationTasks({
-    env,
-    entityType: 'job',
-    entityId: id,
-    limit: 6,
-  });
-
   const created = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
   ).bind(id).first();

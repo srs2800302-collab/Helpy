@@ -290,12 +290,6 @@ async function createJob(request, env) {
     ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26)`)
         .bind(id, body.title.trim(), price, body.category, initialStatus, now, now, clientUserId, body.description.trim(), body.address_text.trim(), body.title.trim(), body.description.trim(), sourceLanguage, titleTranslationsJson, descriptionTranslationsJson, addressTranslationsJson, body.budget_type || 'fixed', budgetFrom, budgetTo, body.currency || 'THB', paymentTerms.depositAmount, paymentTerms.paymentMethod, paymentTerms.commissionPayer, paymentTerms.depositPercent, normalizeNumber(body.latitude), normalizeNumber(body.longitude))
         .run();
-    await (0, translation_1.processPendingTranslationTasks)({
-        env,
-        entityType: 'job',
-        entityId: id,
-        limit: 6,
-    });
     const created = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1').bind(id).first();
     return Response.json({
         success: true,
