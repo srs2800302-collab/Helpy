@@ -110,6 +110,48 @@ class ClientJobDetailsScreen extends ConsumerWidget {
     );
   }
 
+
+  Widget _photosBlock(BuildContext context, WidgetRef ref, AppLocalizations l10n, String jobId) {
+    return FutureBuilder<List<String>>(
+      future: _loadPhotos(ref, jobId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final photos = snapshot.data ?? const [];
+
+        if (photos.isEmpty) {
+          return Text(l10n.t('photos_not_saved'));
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.t('client_photos_label'),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...photos.map(
+              (url) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: _photoWidget(context, url),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -328,45 +370,6 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                     Text(displayDescription.trim()),
                   ],
 
-                  const SizedBox(height: 16),
-
-                  FutureBuilder<List<String>>(
-                    future: _loadPhotos(ref, job.id),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      final photos = snapshot.data ?? const [];
-
-                      if (photos.isEmpty) {
-                        return Text(l10n.t('photos_not_saved'));
-                      }
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.t('client_photos_label'),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          ...photos.map(
-                            (url) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: _photoWidget(context, url),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
                   if (displayAddress.trim().isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Text(displayAddress.trim()),
@@ -411,6 +414,9 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          _photosBlock(context, ref, l10n, job.id),
+
           if (editJobAction != null) ...[
             const SizedBox(height: 24),
             SizedBox(

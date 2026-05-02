@@ -268,6 +268,55 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     );
   }
 
+
+  Widget _photosBlock(AppLocalizations l10n) {
+    return FutureBuilder<List<String>>(
+      future: _photosFuture,
+      builder: (context, photosSnapshot) {
+        if (photosSnapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (photosSnapshot.hasError) {
+          return Text(photosSnapshot.error.toString());
+        }
+
+        final photos = photosSnapshot.data ?? const <String>[];
+        if (photos.isEmpty) {
+          return _infoBlock(
+            title: l10n.t('client_photos_label'),
+            body: l10n.t('photos_not_saved'),
+            icon: Icons.photo_library_outlined,
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.t('client_photos_label'),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...photos.map(
+              (url) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: _photoWidget(url),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -366,50 +415,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                         Text('${l10n.t('master_label')}: ${job.selectedMasterName!.trim()}'),
                       ],
                       const SizedBox(height: 16),
-                      FutureBuilder<List<String>>(
-                        future: _photosFuture,
-                        builder: (context, photosSnapshot) {
-                          if (photosSnapshot.connectionState != ConnectionState.done) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-
-                          if (photosSnapshot.hasError) {
-                            return Text(photosSnapshot.error.toString());
-                          }
-
-                          final photos = photosSnapshot.data ?? const <String>[];
-                          if (photos.isEmpty) {
-                            return _infoBlock(
-                              title: l10n.t('client_photos_label'),
-                              body: l10n.t('photos_not_saved'),
-                              icon: Icons.photo_library_outlined,
-                            );
-                          }
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.t('client_photos_label'),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              ...photos.map(
-                                (url) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: _photoWidget(url),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
                     ],
                   ),
                 ),
@@ -486,6 +491,9 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                 ),
               ),
               
+              const SizedBox(height: 12),
+              _photosBlock(l10n),
+
               if (canOpenChat) ...[
                 const SizedBox(height: 16),
                 SizedBox(
