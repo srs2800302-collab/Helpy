@@ -301,13 +301,11 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(title),
-                                if (hasRealTranslation(original: title, translated: displayTitle))
-                                  Text(displayTitle),
+                                Text(displayTitle),
                                 Text(l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())),
                               ],
                             ),
-                            isThreeLine: hasRealTranslation(original: title, translated: displayTitle),
+                            isThreeLine: false,
                             trailing: const Icon(Icons.chevron_right),
                           onTap: () async {
                             final changed = await Navigator.of(context).push<bool>(

@@ -5,40 +5,31 @@ String translatedOrOriginal({
   required String? translationsJson,
   required String locale,
 }) {
-  final originalText = (original ?? '').trim();
+  final rawOriginal = (original ?? '').trim();
   final raw = translationsJson?.trim();
 
-  if (raw == null || raw.isEmpty) {
-    return originalText;
-  }
+  if (raw == null || raw.isEmpty) return rawOriginal;
 
   try {
     final decoded = jsonDecode(raw);
-    if (decoded is! Map) return originalText;
-
-    final translatedText = (decoded[locale] ?? '').toString().trim();
-
-    if (translatedText.isEmpty) {
-      return originalText;
+    if (decoded is Map) {
+      final value = decoded[locale]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
     }
-
-    if (translatedText.toLowerCase() == originalText.toLowerCase()) {
-      return originalText;
-    }
-
-    return translatedText;
   } catch (_) {
-    return originalText;
+    return rawOriginal;
   }
+
+  return rawOriginal;
 }
 
 bool hasRealTranslation({
   required String? original,
   required String? translated,
 }) {
-  final originalText = (original ?? '').trim();
-  final translatedText = (translated ?? '').trim();
-
-  return translatedText.isNotEmpty &&
-      translatedText.toLowerCase() != originalText.toLowerCase();
+  final rawOriginal = (original ?? '').trim();
+  final rawTranslated = (translated ?? '').trim();
+  return rawTranslated.isNotEmpty && rawTranslated != rawOriginal;
 }
