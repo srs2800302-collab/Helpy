@@ -445,41 +445,28 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                       if (displayAddress.trim().isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(displayAddress.trim()),
-
-                      if (job.latitude != null && job.longitude != null) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            TextButton(
-                              onPressed: () async {
-                                final gps =
-                                    '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
-                                await Clipboard.setData(ClipboardData(text: gps));
-
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(l10n.t('copied'))),
-                                  );
-                                }
-                              },
-                              child: Text(l10n.t('copy')),
-                            ),
-                          ],
-                        ),
-                      ],
                       ],
                       if (job.latitude != null && job.longitude != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: () async {
+                            final gps =
+                                '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
+                            await Clipboard.setData(ClipboardData(text: gps));
+
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.t('copied'))),
+                              );
+                            }
+                          },
+                          child: Text(l10n.t('copy')),
+                        ),
                         const SizedBox(height: 12),
                         _jobLocationMap(
                           latitude: job.latitude!,
@@ -490,7 +477,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 12),
               _photosBlock(l10n),
 
