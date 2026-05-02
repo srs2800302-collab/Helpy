@@ -249,8 +249,8 @@ export async function processPendingTranslationTasks({
         WHERE id = ?3
       `).bind(translatedText, new Date().toISOString(), task.id).run();
 
-      await env.DB.prepare(`UPDATE ${table} SET ${column} = ?1 WHERE id = ?3`)
-        .bind(JSON.stringify(translations), new Date().toISOString(), task.entity_id)
+      await env.DB.prepare(`UPDATE ${table} SET ${column} = ?1 WHERE id = ?2`)
+        .bind(JSON.stringify(translations), task.entity_id)
         .run();
 
       processed.push({
