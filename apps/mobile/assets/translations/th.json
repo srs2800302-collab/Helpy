@@ -131,5 +131,6 @@
   "offer_sent": "ส่งข้อเสนอแล้ว",
   "view_details": "ดูรายละเอียด",
   "job_details": "รายละเอียดงาน",
-  "offers": "ข้อเสนอ"
+  "offers": "ข้อเสนอ",
+  "open_in_maps": "เปิดใน Google Maps"
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -453,19 +454,37 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                           style: const TextStyle(fontSize: 13),
                         ),
                         const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: () async {
-                            final gps =
-                                '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
-                            await Clipboard.setData(ClipboardData(text: gps));
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            TextButton(
+                              onPressed: () async {
+                                final gps =
+                                    '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
+                                await Clipboard.setData(ClipboardData(text: gps));
 
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l10n.t('copied'))),
-                              );
-                            }
-                          },
-                          child: Text(l10n.t('copy')),
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(l10n.t('copied'))),
+                                  );
+                                }
+                              },
+                              child: Text(l10n.t('copy')),
+                            ),
+                            TextButton.icon(
+                              onPressed: () async {
+                                final uri = Uri.parse(
+                                  'https://www.google.com/maps/search/?api=1&query=${job.latitude},${job.longitude}',
+                                );
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              },
+                              icon: const Icon(Icons.map_outlined),
+                              label: Text(l10n.t('open_in_maps')),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         _jobLocationMap(
