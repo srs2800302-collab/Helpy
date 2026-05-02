@@ -354,9 +354,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(title),
-                              if (hasRealTranslation(original: title, translated: displayTitle))
-                                Text(displayTitle),
+                              Text(displayTitle),
                               Text('💬 $displayMessage'),
                             ],
                           ),

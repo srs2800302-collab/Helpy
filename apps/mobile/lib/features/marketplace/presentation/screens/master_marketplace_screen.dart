@@ -149,17 +149,7 @@ class _MasterMarketplaceScreenState
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(originalTitle),
-                                if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    displayTitle,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
+                                Text(displayTitle),
                               ],
                             ),
                             subtitle: Text(

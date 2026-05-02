@@ -306,9 +306,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(title),
-                              if (hasRealTranslation(original: title, translated: displayTitle))
-                                Text(displayTitle),
+                              Text(displayTitle),
                               Text('💬 $displayMessage'),
                             ],
                           ),
@@ -424,12 +422,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(title),
-                                  if (hasRealTranslation(original: title, translated: displayTitle))
-                                    Text(
-                                      displayTitle,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
+                                  Text(displayTitle),
                                 ],
                               ),
                             ),

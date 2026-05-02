@@ -189,9 +189,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(title),
-                                          if (hasRealTranslation(original: title, translated: displayTitle))
-                                            Text(displayTitle, style: const TextStyle(fontSize: 14)),
+                                          Text(displayTitle),
                                         ],
                                       ),
                                     ),
