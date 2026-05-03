@@ -377,45 +377,58 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        originalTitle,
+                        displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
                         style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          height: 1.15,
                         ),
                       ),
                       if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
                         const SizedBox(height: 6),
                         Text(
-                          displayTitle.trim(),
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
+                          originalTitle,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                            height: 1.25,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 12),
-                      Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
-                      const SizedBox(height: 8),
-                      Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
-                      const SizedBox(height: 8),
-                      Text('${l10n.t('created_label')}: ${_formatDateTime(job.createdAt)}'),
-                      if (job.status == 'completed') ...[
-                        const SizedBox(height: 8),
-                        Text('${l10n.t('completed_at_label')}: ${_formatDateTime(completedAt)}'),
-                      ],
-                      if (job.price != null) ...[
-                        const SizedBox(height: 8),
-                        Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
-                      ],
-                      if (job.depositAmount != null) ...[
-                        const SizedBox(height: 8),
-                        Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
-                      ],
-                      if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text('${l10n.t('master_label')}: ${job.selectedMasterName!.trim()}'),
-                      ],
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
+                      DefaultTextStyle(
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade700,
+                          height: 1.35,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
+                            const SizedBox(height: 6),
+                            Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
+                            const SizedBox(height: 6),
+                            Text('${l10n.t('created_label')}: ${_formatDateTime(job.createdAt)}'),
+                            if (job.status == 'completed') ...[
+                              const SizedBox(height: 6),
+                              Text('${l10n.t('completed_at_label')}: ${_formatDateTime(completedAt)}'),
+                            ],
+                            if (job.price != null) ...[
+                              const SizedBox(height: 6),
+                              Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
+                            ],
+                            if (job.depositAmount != null) ...[
+                              const SizedBox(height: 6),
+                              Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
+                            ],
+                            if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Text('${l10n.t('master_label')}: ${job.selectedMasterName!.trim()}'),
+                            ],
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
