@@ -125,7 +125,12 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: isInitialLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? ListView(
+                  children: const [
+                    SizedBox(height: 240),
+                    Center(child: CircularProgressIndicator()),
+                  ],
+                )
               : state.errorMessage != null && state.items.isEmpty
                   ? ListView(
                       children: [
