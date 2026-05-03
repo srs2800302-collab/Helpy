@@ -100,7 +100,12 @@ class _MasterMarketplaceScreenState
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: isInitialLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? ListView(
+                  children: const [
+                    SizedBox(height: 240),
+                    Center(child: CircularProgressIndicator()),
+                  ],
+                )
               : state.items.isEmpty
                   ? ListView(
                       children: [
