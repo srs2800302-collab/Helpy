@@ -220,8 +220,16 @@ export async function getJobById(id: string, request: Request, env: any) {
   }
 
   const result = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  ).bind(id).first();
+    `SELECT j.*,
+            EXISTS(
+              SELECT 1
+              FROM offers o
+              WHERE o.job_id = j.id
+                AND o.master_user_id = ?2
+            ) as has_applied
+     FROM jobs j
+     WHERE j.id = ?1`
+  ).bind(id, auth.userId).first();
 
   if (!result) {
     return Response.json(
