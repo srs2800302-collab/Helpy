@@ -231,6 +231,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     child: TextField(
                       controller: _textController,
                       onChanged: controller.setInput,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) {
+                        if (canSend) {
+                          _sendMessage();
+                        }
+                      },
                       decoration: InputDecoration(
                         hintText: l10n.t('message_hint'),
                         border: const OutlineInputBorder(),
