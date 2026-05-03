@@ -392,6 +392,13 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       translationsJson: item.addressTranslationsJson,
                       locale: locale,
                     ).trim();
+                    final rawMessage = (item.message ?? '').trim();
+                    final message = translatedOrOriginal(
+                      original: item.message,
+                      translationsJson: item.messageTranslationsJson,
+                      locale: locale,
+                    ).trim();
+
                     final rawComment = (item.priceComment ?? '').trim();
                     final comment = translatedOrOriginal(
                       original: item.priceComment,
@@ -432,6 +439,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         subtitle: Text(
                           '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'
                           '${rawAddress.isNotEmpty ? '\n$address' : ''}'
+                          '${rawMessage.isNotEmpty ? '\n$message' : ''}'
                           '${rawComment.isNotEmpty ? '\n${l10n.t('comment_label')}: $comment' : ''}',
                         ),
                         isThreeLine: true,
