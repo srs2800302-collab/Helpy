@@ -50,6 +50,18 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
         .toList();
   }
 
+  Future<void> _refresh() async {
+    setState(() {
+      _jobFuture = ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
+      _photosFuture = _loadPhotos();
+    });
+
+    await Future.wait([
+      _jobFuture,
+      _photosFuture,
+    ]);
+  }
+
   String _categoryLabel(AppLocalizations l10n, String slug) {
     switch (slug) {
       case 'cleaning':
@@ -329,250 +341,253 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
           AppLanguageMenuButton(),
         ],
       ),
-      body: FutureBuilder<JobItem>(
-        future: _jobFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: FutureBuilder<JobItem>(
+          future: _jobFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError || !snapshot.hasData) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(snapshot.error?.toString() ?? 'Failed to load job'),
-              ),
-            );
-          }
-
-          final job = snapshot.data!;
-          final completedAt = job.updatedAt ?? job.createdAt;
-          final canSendOffer = job.status == 'open' && !job.hasApplied;
-          final canOpenChat = job.status == 'master_selected' || job.status == 'in_progress';
-          final locale = Localizations.localeOf(context).languageCode;
-          final originalTitle = (job.titleOriginal ?? job.title).trim();
-          final displayTitle = translatedOrOriginal(
-            original: originalTitle,
-            translationsJson: job.titleTranslationsJson,
-            locale: locale,
-          );
-          final displayDescription = translatedOrOriginal(
-            original: job.descriptionOriginal ?? job.description,
-            translationsJson: job.descriptionTranslationsJson,
-            locale: locale,
-          );
-          final displayAddress = translatedOrOriginal(
-            original: job.addressText,
-            translationsJson: job.addressTranslationsJson,
-            locale: locale,
-          );
-
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Card(
+            if (snapshot.hasError || !snapshot.hasData) {
+              return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          height: 1.15,
-                        ),
-                      ),
-                      if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
-                        const SizedBox(height: 6),
+                  child: Text(snapshot.error?.toString() ?? 'Failed to load job'),
+                ),
+              );
+            }
+
+            final job = snapshot.data!;
+            final completedAt = job.updatedAt ?? job.createdAt;
+            final canSendOffer = job.status == 'open' && !job.hasApplied;
+            final canOpenChat = job.status == 'master_selected' || job.status == 'in_progress';
+            final locale = Localizations.localeOf(context).languageCode;
+            final originalTitle = (job.titleOriginal ?? job.title).trim();
+            final displayTitle = translatedOrOriginal(
+              original: originalTitle,
+              translationsJson: job.titleTranslationsJson,
+              locale: locale,
+            );
+            final displayDescription = translatedOrOriginal(
+              original: job.descriptionOriginal ?? job.description,
+              translationsJson: job.descriptionTranslationsJson,
+              locale: locale,
+            );
+            final displayAddress = translatedOrOriginal(
+              original: job.addressText,
+              translationsJson: job.addressTranslationsJson,
+              locale: locale,
+            );
+
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          originalTitle,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                            height: 1.25,
+                          displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
                           ),
                         ),
-                      ],
-                      const SizedBox(height: 18),
-                      DefaultTextStyle(
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade700,
-                          height: 1.35,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
-                            const SizedBox(height: 6),
-                            Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
-                            const SizedBox(height: 6),
-                            Text('${l10n.t('created_label')}: ${_formatDateTime(job.createdAt)}'),
-                            if (job.status == 'completed') ...[
-                              const SizedBox(height: 6),
-                              Text('${l10n.t('completed_at_label')}: ${_formatDateTime(completedAt)}'),
-                            ],
-                            if (job.price != null) ...[
-                              const SizedBox(height: 6),
-                              Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
-                            ],
-                            if (job.depositAmount != null) ...[
-                              const SizedBox(height: 6),
-                              Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
-                            ],
-                            if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Text('${l10n.t('master_label')}: ${job.selectedMasterName!.trim()}'),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _infoBlock(
-                title: l10n.t('client_note_label'),
-                body: displayDescription,
-                icon: Icons.notes_outlined,
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on_outlined),
-                          const SizedBox(width: 8),
+                        if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
+                          const SizedBox(height: 6),
                           Text(
-                            l10n.t('address_room_label'),
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            originalTitle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                              height: 1.25,
+                            ),
                           ),
                         ],
-                      ),
-                      if (displayAddress.trim().isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(displayAddress.trim()),
-                      ],
-                      if (job.latitude != null && job.longitude != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
-                          style: const TextStyle(fontSize: 13),
+                        const SizedBox(height: 18),
+                        DefaultTextStyle(
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade700,
+                            height: 1.35,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
+                              const SizedBox(height: 6),
+                              Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
+                              const SizedBox(height: 6),
+                              Text('${l10n.t('created_label')}: ${_formatDateTime(job.createdAt)}'),
+                              if (job.status == 'completed') ...[
+                                const SizedBox(height: 6),
+                                Text('${l10n.t('completed_at_label')}: ${_formatDateTime(completedAt)}'),
+                              ],
+                              if (job.price != null) ...[
+                                const SizedBox(height: 6),
+                                Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
+                              ],
+                              if (job.depositAmount != null) ...[
+                                const SizedBox(height: 6),
+                                Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
+                              ],
+                              if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
+                                const SizedBox(height: 6),
+                                Text('${l10n.t('master_label')}: ${job.selectedMasterName!.trim()}'),
+                              ],
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _infoBlock(
+                  title: l10n.t('client_note_label'),
+                  body: displayDescription,
+                  icon: Icons.notes_outlined,
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            TextButton(
-                              onPressed: () async {
-                                final gps =
-                                    '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
-                                await Clipboard.setData(ClipboardData(text: gps));
-
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(l10n.t('copied'))),
-                                  );
-                                }
-                              },
-                              child: Text(l10n.t('copy')),
-                            ),
-                            TextButton.icon(
-                              onPressed: () async {
-                                final uri = Uri.parse(
-                                  'https://www.google.com/maps/search/?api=1&query=${job.latitude},${job.longitude}',
-                                );
-                                await launchUrl(
-                                  uri,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              },
-                              icon: const Icon(Icons.map_outlined),
-                              label: Text(l10n.t('open_in_maps')),
+                            const Icon(Icons.location_on_outlined),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.t('address_room_label'),
+                              style: const TextStyle(fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        _jobLocationMap(
-                          latitude: job.latitude!,
-                          longitude: job.longitude!,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-              _photosBlock(l10n),
-
-              if (canOpenChat) ...[
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ChatScreen(
-                            jobId: job.id,
-                            jobStatus: job.status,
+                        if (displayAddress.trim().isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(displayAddress.trim()),
+                        ],
+                        if (job.latitude != null && job.longitude != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
+                            style: const TextStyle(fontSize: 13),
                           ),
-                        ),
-                      );
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
-                    icon: const Icon(Icons.chat_bubble_outline),
-                    label: Text(l10n.t('open_chat')),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              TextButton(
+                                onPressed: () async {
+                                  final gps =
+                                      '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
+                                  await Clipboard.setData(ClipboardData(text: gps));
+
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(l10n.t('copied'))),
+                                    );
+                                  }
+                                },
+                                child: Text(l10n.t('copy')),
+                              ),
+                              TextButton.icon(
+                                onPressed: () async {
+                                  final uri = Uri.parse(
+                                    'https://www.google.com/maps/search/?api=1&query=${job.latitude},${job.longitude}',
+                                  );
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                },
+                                icon: const Icon(Icons.map_outlined),
+                                label: Text(l10n.t('open_in_maps')),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _jobLocationMap(
+                            latitude: job.latitude!,
+                            longitude: job.longitude!,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
-              ],
 
-              if (job.status == 'open') ...[
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: job.hasApplied
-                      ? OutlinedButton.icon(
-                          onPressed: null,
-                          icon: const Icon(Icons.check_circle_outline),
-                          label: Text(l10n.t('offer_sent')),
-                        )
-                      : ElevatedButton(
-                          onPressed: canSendOffer
-                              ? () async {
-                                  final changed =
-                                      await Navigator.of(context).push<bool>(
-                                    MaterialPageRoute(
-                                      builder: (_) => CreateOfferScreen(
-                                        jobId: job.id,
-                                        jobTitle: originalTitle,
-                                        jobTitleTranslationsJson:
-                                            job.titleTranslationsJson,
+                const SizedBox(height: 12),
+                _photosBlock(l10n),
+
+                if (canOpenChat) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              jobId: job.id,
+                              jobStatus: job.status,
+                            ),
+                          ),
+                        );
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      },
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      label: Text(l10n.t('open_chat')),
+                    ),
+                  ),
+                ],
+
+                if (job.status == 'open') ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: job.hasApplied
+                        ? OutlinedButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.check_circle_outline),
+                            label: Text(l10n.t('offer_sent')),
+                          )
+                        : ElevatedButton(
+                            onPressed: canSendOffer
+                                ? () async {
+                                    final changed =
+                                        await Navigator.of(context).push<bool>(
+                                      MaterialPageRoute(
+                                        builder: (_) => CreateOfferScreen(
+                                          jobId: job.id,
+                                          jobTitle: originalTitle,
+                                          jobTitleTranslationsJson:
+                                              job.titleTranslationsJson,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                  if (changed == true && context.mounted) {
-                                    Navigator.of(context).pop(true);
+                                    );
+                                    if (changed == true && context.mounted) {
+                                      Navigator.of(context).pop(true);
+                                    }
                                   }
-                                }
-                              : null,
-                          child: Text(l10n.t('send_offer')),
-                        ),
-                ),
+                                : null,
+                            child: Text(l10n.t('send_offer')),
+                          ),
+                  ),
+                ],
               ],
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
