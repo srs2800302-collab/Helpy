@@ -24,6 +24,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   late String _currentStatus;
   late final TextEditingController _textController;
+  late final ScrollController _scrollController;
 
   String _senderLabel({
     required String senderUserId,
@@ -43,15 +44,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.initState();
     _currentStatus = widget.jobStatus;
     _textController = TextEditingController();
+    _scrollController = ScrollController();
 
-    Future.microtask(() {
-      ref.read(chatControllerProvider.notifier).init(widget.jobId);
+    Future.microtask(() async {
+      await ref.read(chatControllerProvider.notifier).init(widget.jobId);
+      _scrollToBottom();
     });
   }
 
   @override
   void dispose() {
     _textController.dispose();
+    _scrollController.dispose();
     ref.read(chatControllerProvider.notifier).disposePolling();
     super.dispose();
   }
@@ -122,6 +126,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
   Future<void> _sendMessage() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
@@ -133,6 +148,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final error = ref.read(chatControllerProvider).errorMessage;
     if (error == null) {
       _textController.clear();
+      _scrollToBottom();
     }
   }
 
@@ -191,13 +207,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               onRefresh: () => controller.load(widget.jobId),
               child: state.isLoading && state.messages.isEmpty
                   ? ListView(
-                      children: const [
+                          controller: _scrollController,
+                          children: const [
                         SizedBox(height: 240),
                         Center(child: CircularProgressIndicator()),
                       ],
                     )
                   : ListView.builder(
-                    padding: const EdgeInsets.all(12),
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(12),
                     itemCount: state.messages.length,
                     itemBuilder: (context, index) {
                       final m = state.messages[index];
