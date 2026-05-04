@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../offers/domain/offer_item.dart';
 import 'master_job_details_screen.dart';
@@ -110,6 +111,7 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final offersState = ref.watch(offersControllerProvider);
     final completedOffers = _sortedCompleted(offersState.items);
 
@@ -135,6 +137,11 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                     final title = item.jobTitle.trim().isNotEmpty
                         ? item.jobTitle.trim()
                         : 'Job ${item.jobId}';
+                    final displayTitle = translatedOrOriginal(
+                      original: title,
+                      translationsJson: item.jobTitleTranslationsJson,
+                      locale: locale,
+                    );
                     final completedAt = item.updatedAt ?? item.createdAt;
 
                     return Card(
@@ -156,7 +163,32 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                             ),
                           );
                         },
-                        title: Text(title),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayTitle.trim().isNotEmpty
+                                  ? displayTitle.trim()
+                                  : title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (hasRealTranslation(
+                              original: title,
+                              translated: displayTitle,
+                            )) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
                         subtitle: Text(
                           '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
                           '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
