@@ -53,7 +53,7 @@ function sanitizeSelectedMaster(row: any) {
   return {
     id: row.id,
     role: row.role,
-    phone: row.phone,
+    public_name: row.name?.trim() || `Master #${String(row.id ?? '').slice(0, 4).toUpperCase()}`,
     language: row.language,
     name: row.name,
     category: row.category,
@@ -167,7 +167,6 @@ export async function getUserJobDetails(
       `SELECT
          u.id,
          u.role,
-         u.phone,
          u.language,
          mp.name,
          mp.category,
