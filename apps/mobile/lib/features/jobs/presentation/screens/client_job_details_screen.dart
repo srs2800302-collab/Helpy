@@ -1,7 +1,10 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -135,6 +138,147 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
   }
 
 
+  Widget _infoBlock({
+    required String title,
+    required String body,
+    IconData icon = Icons.info_outline,
+  }) {
+    if (body.trim().isEmpty) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    body.trim(),
+                    maxLines: 16,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _jobLocationMap({
+    required double latitude,
+    required double longitude,
+  }) {
+    final point = LatLng(latitude, longitude);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => Scaffold(
+                appBar: AppBar(
+                  title: Text(AppLocalizations.of(context).t('address_room_label')),
+                ),
+                body: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: point,
+                    initialZoom: 17,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.helpy.app',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: point,
+                          width: 44,
+                          height: 44,
+                          child: const Icon(
+                            Icons.location_pin,
+                            size: 44,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+        child: SizedBox(
+          height: 150,
+          child: Stack(
+            children: [
+              FlutterMap(
+                options: MapOptions(
+                  initialCenter: point,
+                  initialZoom: 16,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.none,
+                  ),
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.helpy.app',
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: point,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(
+                          Icons.location_pin,
+                          size: 40,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Positioned(
+                right: 8,
+                bottom: 8,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(Icons.open_in_full, size: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _photosBlock(BuildContext context, WidgetRef ref, AppLocalizations l10n, String jobId) {
     return FutureBuilder<List<String>>(
       future: widget._loadPhotos(ref, jobId),
@@ -152,11 +296,13 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.t('client_photos_label'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+            Center(
+              child: Text(
+                l10n.t('client_photos_label'),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -196,6 +342,8 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
       translationsJson: _job.addressTranslationsJson,
       locale: locale,
     );
+    final addressHasGps =
+        (_job.addressText ?? '').toLowerCase().contains('gps:');
 
     Widget? primaryAction;
 
@@ -393,14 +541,6 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                       ),
                     ),
                   ],
-                  if (displayDescription.trim().isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    Text(displayDescription.trim()),
-                  ],
-                  if (displayAddress.trim().isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(displayAddress.trim()),
-                  ],
                   const SizedBox(height: 18),
                   DefaultTextStyle(
                     style: TextStyle(
@@ -444,7 +584,85 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
             ),
           ),
           const SizedBox(height: 12),
-          _photosBlock(context, ref, l10n, _job.id),
+            _infoBlock(
+              title: l10n.t('client_note_label'),
+              body: displayDescription,
+              icon: Icons.notes_outlined,
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_outlined),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.t('address_room_label'),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                    if (displayAddress.trim().isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        displayAddress.trim(),
+                        maxLines: 8,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if (_job.latitude != null && _job.longitude != null) ...[
+                      const SizedBox(height: 8),
+                      if (!addressHasGps)
+                        Text(
+                          'GPS: ${_job.latitude!.toStringAsFixed(6)}, ${_job.longitude!.toStringAsFixed(6)}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          TextButton(
+                            onPressed: () async {
+                              final gps =
+                                  '${_job.latitude!.toStringAsFixed(6)},${_job.longitude!.toStringAsFixed(6)}';
+                              await Clipboard.setData(ClipboardData(text: gps));
+
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(l10n.t('copied'))),
+                                );
+                              }
+                            },
+                            child: Text(l10n.t('copy')),
+                          ),
+                          TextButton.icon(
+                            onPressed: () async {
+                              final uri = Uri.parse(
+                                'https://www.google.com/maps/search/?api=1&query=${_job.latitude},${_job.longitude}',
+                              );
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            },
+                            icon: const Icon(Icons.map_outlined),
+                            label: Text(l10n.t('open_in_maps')),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _jobLocationMap(
+                        latitude: _job.latitude!,
+                        longitude: _job.longitude!,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _photosBlock(context, ref, l10n, _job.id),
 
           if (editJobAction != null) ...[
             const SizedBox(height: 24),
