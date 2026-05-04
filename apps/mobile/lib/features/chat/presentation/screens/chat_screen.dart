@@ -163,6 +163,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final canSend =
         state.input.trim().isNotEmpty && !state.isLoading && !state.isSending;
 
+    ref.listen(chatControllerProvider, (previous, next) {
+      final previousCount = previous?.messages.length ?? 0;
+      final nextCount = next.messages.length;
+
+      if (nextCount > previousCount) {
+        _scrollToBottom();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('chat')),
