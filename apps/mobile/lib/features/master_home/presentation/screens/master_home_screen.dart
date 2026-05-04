@@ -432,7 +432,27 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(displayTitle),
+                                  Text(
+                                    displayTitle.trim().isNotEmpty
+                                        ? displayTitle.trim()
+                                        : title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (hasRealTranslation(
+                                    original: title,
+                                    translated: displayTitle,
+                                  )) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
