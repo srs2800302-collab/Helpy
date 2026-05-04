@@ -164,6 +164,11 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                           itemBuilder: (context, index) {
                             final item = state.items[index];
                             final originalTitle = (item.titleOriginal ?? item.title).trim();
+                            final displayTitle = translatedOrOriginal(
+                              original: originalTitle,
+                              translationsJson: item.titleTranslationsJson,
+                              locale: locale,
+                            );
                             final displayAddress = translatedOrOriginal(
                               original: item.addressText,
                               translationsJson: item.addressTranslationsJson,
@@ -183,7 +188,35 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                               child: ListTile(
                                 title: Row(
                                   children: [
-                                    Expanded(child: Text(originalTitle)),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            displayTitle.trim().isNotEmpty
+                                                ? displayTitle.trim()
+                                                : originalTitle,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          if (hasRealTranslation(
+                                            original: originalTitle,
+                                            translated: displayTitle,
+                                          )) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              originalTitle,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
                                     if (hasUnreadMessage)
                                       const Icon(Icons.mark_chat_unread, size: 18),
                                   ],
