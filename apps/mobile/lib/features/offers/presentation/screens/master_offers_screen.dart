@@ -191,7 +191,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                         children: [
                                           Text(
                                             displayTitle.trim().isNotEmpty
-                                                ? displayTitle
+                                                ? displayTitle.trim()
                                                 : title,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
@@ -224,8 +224,18 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB'),
-                                    if (comment.isNotEmpty) Text(comment),
-                                    if (message.isNotEmpty) Text(message),
+                                    if (comment.isNotEmpty)
+                                      Text(
+                                        comment,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    if (message.isNotEmpty)
+                                      Text(
+                                        message,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     if (lastMessage.isNotEmpty)
                                       Text(
                                         '💬 $lastMessage',
