@@ -212,46 +212,74 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         translationsJson: m.textTranslationsJson,
                         locale: Localizations.localeOf(context).languageCode,
                       );
-                      return Card(
-                        child: ListTile(
-                          title: Text(displayText),
-                          subtitle: Text(senderLabel),
-                        ),
-                      );
+                        final isMe = m.senderUserId == (session?.userId ?? '');
+
+                        return Align(
+                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 280),
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isMe ? Colors.blue.shade100 : Colors.grey.shade200,
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(12),
+                                topRight: const Radius.circular(12),
+                                bottomLeft: Radius.circular(isMe ? 12 : 0),
+                                bottomRight: Radius.circular(isMe ? 0 : 12),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                              children: [
+                                Text(displayText),
+                                const SizedBox(height: 4),
+                                Text(
+                                  senderLabel,
+                                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
                     },
                   ),
             ),
           ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      onChanged: controller.setInput,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) {
-                        if (canSend) {
-                          _sendMessage();
-                        }
-                      },
-                      decoration: InputDecoration(
-                        hintText: l10n.t('message_hint'),
-                        border: const OutlineInputBorder(),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _textController,
+                          onChanged: controller.setInput,
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.newline,
+                          minLines: 1,
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            hintText: l10n.t('message_hint'),
+                            border: InputBorder.none,
+                          ),
+                        ),
                       ),
-                    ),
+                      IconButton(
+                        onPressed: canSend ? _sendMessage : null,
+                        icon: const Icon(Icons.send),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: canSend ? _sendMessage : null,
-                    icon: const Icon(Icons.send),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
