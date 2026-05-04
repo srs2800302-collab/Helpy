@@ -82,8 +82,8 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     return fail('Invalid JSON body', 400);
   }
 
-  if (!body.master_name || typeof body.price !== 'number' || body.price <= 0) {
-    return fail('master_name and positive price are required', 400);
+  if (typeof body.price !== 'number' || body.price <= 0) {
+    return fail('positive price is required', 400);
   }
 
   const job = await env.DB.prepare(
@@ -115,6 +115,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const sourceLanguage = body.source_language?.trim() || profile.user_language || 'ru';
+    const publicMasterName = `Master #${masterUserId.slice(0, 4).toUpperCase()}`;
     const commentText = body.comment?.toString().trim() || '';
     const messageText = body.message?.toString().trim() || '';
 
@@ -158,7 +159,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
         id,
         jobId,
         masterUserId,
-        body.master_name,
+        publicMasterName,
         body.price,
         commentText || null,
         messageText || null,
@@ -186,7 +187,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
           id,
           job_id: jobId,
           master_user_id: masterUserId,
-          master_name: body.master_name,
+          master_name: publicMasterName,
           price: body.price,
           comment: createdOffer?.comment ?? null,
           message: createdOffer?.message ?? null,
