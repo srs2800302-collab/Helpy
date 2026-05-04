@@ -503,6 +503,11 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     final title = item.jobTitle.trim().isNotEmpty
                         ? item.jobTitle.trim()
                         : 'Job ${item.jobId}';
+                    final displayTitle = translatedOrOriginal(
+                      original: title,
+                      translationsJson: item.jobTitleTranslationsJson,
+                      locale: locale,
+                    );
                     final completedAt = item.updatedAt ?? item.createdAt;
 
                     return Card(
@@ -525,7 +530,32 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             ),
                           );
                         },
-                        title: Text(title),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayTitle.trim().isNotEmpty
+                                  ? displayTitle.trim()
+                                  : title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (hasRealTranslation(
+                              original: title,
+                              translated: displayTitle,
+                            )) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
                         subtitle: Text(
                           '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
                           '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
