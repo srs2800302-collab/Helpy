@@ -347,15 +347,23 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
           future: _jobFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
+              return ListView(
+                children: const [
+                  SizedBox(height: 240),
+                  Center(child: CircularProgressIndicator()),
+                ],
+              );
             }
 
             if (snapshot.hasError || !snapshot.hasData) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(snapshot.error?.toString() ?? 'Failed to load job'),
-                ),
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  const SizedBox(height: 240),
+                  Center(
+                    child: Text(snapshot.error?.toString() ?? 'Failed to load job'),
+                  ),
+                ],
               );
             }
 
