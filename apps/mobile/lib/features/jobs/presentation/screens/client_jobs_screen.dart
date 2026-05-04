@@ -221,8 +221,25 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                       const Icon(Icons.mark_chat_unread, size: 18),
                                   ],
                                 ),
-                                subtitle: Text(
-                                  '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${displayAddress.trim()}${lastMessage.isNotEmpty ? '\n💬 $lastMessage' : ''}',
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                                    ),
+                                    if (displayAddress.trim().isNotEmpty)
+                                      Text(
+                                        displayAddress.trim(),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    if (lastMessage.isNotEmpty)
+                                      Text(
+                                        '💬 $lastMessage',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                  ],
                                 ),
                                 isThreeLine: true,
                                 trailing: const Icon(Icons.chevron_right),
