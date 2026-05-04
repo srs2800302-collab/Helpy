@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -114,7 +115,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
 
     return Stack(
       children: [
-        child,
+        if (kDebugMode)
+          Scaffold(
+            appBar: AppBar(
+              title: const Text('DEBUG'),
+              actions: [
+                PopupMenuButton<UserRole>(
+                  icon: const Icon(Icons.swap_horiz),
+                  onSelected: (role) async {
+                    await ref.read(authControllerProvider.notifier).selectRole(role);
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: UserRole.client, child: Text('Client')),
+                    PopupMenuItem(value: UserRole.master, child: Text('Master')),
+                    PopupMenuItem(value: UserRole.admin, child: Text('Admin')),
+                  ],
+                ),
+              ],
+            ),
+            body: child,
+          )
+        else
+          child,
         if (_showResumeSplash) const Positioned.fill(child: AppSplashView()),
       ],
     );
