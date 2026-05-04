@@ -199,12 +199,6 @@ export async function getAvailableJobs(request: Request, env: any) {
             ) as has_applied
      FROM jobs j
      WHERE j.status = ?1
-       AND NOT EXISTS(
-         SELECT 1
-         FROM offers o
-         WHERE o.job_id = j.id
-           AND o.master_user_id = ?2
-       )
      ORDER BY j.created_at DESC`
   )
     .bind(JOB_STATUS.open, auth.userId)
