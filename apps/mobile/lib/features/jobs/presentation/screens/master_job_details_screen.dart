@@ -413,7 +413,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
               translationsJson: job.addressTranslationsJson,
               locale: locale,
             );
-            final addressHasGps = (job.addressText ?? '').toLowerCase().contains('gps:');
 
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -514,31 +513,31 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                         ],
                         if (job.latitude != null && job.longitude != null) ...[
                           const SizedBox(height: 8),
-                          if (!addressHasGps)
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
+                                  style: const TextStyle(fontSize: 13),
                                 ),
-                                TextButton(
-                                  onPressed: () async {
-                                    final gps =
-                                        '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
-                                    await Clipboard.setData(ClipboardData(text: gps));
+                              ),
+                              IconButton(
+                                onPressed: () async {
+                                  final gps =
+                                      '${job.latitude!.toStringAsFixed(6)},${job.longitude!.toStringAsFixed(6)}';
+                                  await Clipboard.setData(ClipboardData(text: gps));
 
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(l10n.t('copied'))),
-                                      );
-                                    }
-                                  },
-                                  child: Text(l10n.t('copy')),
-                                ),
-                              ],
-                            ),
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(l10n.t('copied'))),
+                                    );
+                                  }
+                                },
+                                icon: const Icon(Icons.copy, size: 18),
+                                tooltip: l10n.t('copy'),
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 8),
                           Center(
                             child: TextButton.icon(

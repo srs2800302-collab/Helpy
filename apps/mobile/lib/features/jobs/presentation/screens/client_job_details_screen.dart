@@ -361,8 +361,6 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
       translationsJson: _job.addressTranslationsJson,
       locale: locale,
     );
-    final addressHasGps =
-        (_job.addressText ?? '').toLowerCase().contains('gps:');
 
     Widget? primaryAction;
 
@@ -639,31 +637,31 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                     ],
                     if (_job.latitude != null && _job.longitude != null) ...[
                       const SizedBox(height: 8),
-                      if (!addressHasGps)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'GPS: ${_job.latitude!.toStringAsFixed(6)}, ${_job.longitude!.toStringAsFixed(6)}',
-                                style: const TextStyle(fontSize: 13),
-                              ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'GPS: ${_job.latitude!.toStringAsFixed(6)}, ${_job.longitude!.toStringAsFixed(6)}',
+                              style: const TextStyle(fontSize: 13),
                             ),
-                            TextButton(
-                              onPressed: () async {
-                                final gps =
-                                    '${_job.latitude!.toStringAsFixed(6)},${_job.longitude!.toStringAsFixed(6)}';
-                                await Clipboard.setData(ClipboardData(text: gps));
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              final gps =
+                                  '${_job.latitude!.toStringAsFixed(6)},${_job.longitude!.toStringAsFixed(6)}';
+                              await Clipboard.setData(ClipboardData(text: gps));
 
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(l10n.t('copied'))),
-                                  );
-                                }
-                              },
-                              child: Text(l10n.t('copy')),
-                            ),
-                          ],
-                        ),
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(l10n.t('copied'))),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.copy, size: 18),
+                            tooltip: l10n.t('copy'),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       Center(
                         child: TextButton.icon(
