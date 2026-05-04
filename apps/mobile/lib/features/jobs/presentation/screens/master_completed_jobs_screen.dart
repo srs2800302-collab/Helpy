@@ -72,6 +72,11 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
     }
   }
 
+  Future<void> _refresh() async {
+    await ref.read(offersControllerProvider.notifier).loadMyOffers();
+    await _loadHiddenCompletedJobIds();
+  }
+
   String _statusLabel(AppLocalizations l10n, String status) {
     switch (status) {
       case 'completed':
@@ -115,13 +120,18 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
           AppLanguageMenuButton(),
         ],
       ),
-      body: offersState.isLoading && offersState.items.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : completedOffers.isEmpty
-              ? Center(child: Text(l10n.t('empty_offers')))
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: completedOffers.map((item) {
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (offersState.isLoading && offersState.items.isEmpty) ...[
+              const SizedBox(height: 240),
+              const Center(child: CircularProgressIndicator()),
+            ] else if (completedOffers.isEmpty) ...[
+              const SizedBox(height: 240),
+              Center(child: Text(l10n.t('empty_offers'))),
+            ] else ...completedOffers.map((item) {
                     final title = item.jobTitle.trim().isNotEmpty
                         ? item.jobTitle.trim()
                         : 'Job ${item.jobId}';
@@ -155,8 +165,10 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                         trailing: const Icon(Icons.chevron_right),
                       ),
                     );
-                  }).toList(),
-                ),
+                  }),
+          ],
+        ),
+      ),
     );
   }
 }
