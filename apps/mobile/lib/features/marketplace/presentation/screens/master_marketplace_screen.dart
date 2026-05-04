@@ -159,7 +159,7 @@ class _MasterMarketplaceScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          originalTitle,
+                                          displayTitle.trim().isNotEmpty ? displayTitle : originalTitle,
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
@@ -175,7 +175,7 @@ class _MasterMarketplaceScreenState
                                         )) ...[
                                           const SizedBox(height: 4),
                                           Text(
-                                            displayTitle,
+                                            originalTitle,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: Theme.of(context)
