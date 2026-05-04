@@ -284,7 +284,27 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(displayTitle),
+                                Text(
+                                  displayTitle.trim().isNotEmpty
+                                      ? displayTitle.trim()
+                                      : title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (hasRealTranslation(
+                                  original: title,
+                                  translated: displayTitle,
+                                )) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                                 Text(l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())),
                               ],
                             ),
@@ -337,7 +357,27 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(displayTitle),
+                              Text(
+                                displayTitle.trim().isNotEmpty
+                                    ? displayTitle.trim()
+                                    : title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (hasRealTranslation(
+                                original: title,
+                                translated: displayTitle,
+                              )) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                               Text('💬 $displayMessage'),
                             ],
                           ),
