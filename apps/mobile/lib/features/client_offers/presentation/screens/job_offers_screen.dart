@@ -188,7 +188,11 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                             style: const TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           const SizedBox(height: 4),
-                                          Text(displayMessage.trim()),
+                                          Text(
+                                            displayMessage.trim(),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ],
                                         if (displayPriceComment.trim().isNotEmpty) ...[
                                           const SizedBox(height: 10),
@@ -197,7 +201,11 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                             style: const TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           const SizedBox(height: 4),
-                                          Text(displayPriceComment.trim()),
+                                          Text(
+                                            displayPriceComment.trim(),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ],
                                         const SizedBox(height: 14),
                                         SizedBox(
