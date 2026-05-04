@@ -159,7 +159,7 @@ class _MasterMarketplaceScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          displayTitle.trim().isNotEmpty ? displayTitle : originalTitle,
+                                          displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
