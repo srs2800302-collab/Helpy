@@ -152,7 +152,8 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                     !_readMessageTimestamps.contains(readKey));
 
                             return Card(
-                              child: ListTile(
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
                                 onTap: () async {
                                   const allowedStatuses = {
                                     'master_selected',
@@ -183,75 +184,97 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                     ),
                                   );
                                 },
-                                title: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            title,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        title,
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow.ellipsis,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .titleMedium
+                                                            ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight.w600,
+                                                            ),
+                                                      ),
+                                                      if (hasRealTranslation(
+                                                        original: title,
+                                                        translated: displayTitle,
+                                                      )) ...[
+                                                        const SizedBox(height: 4),
+                                                        Text(
+                                                          displayTitle,
+                                                          maxLines: 2,
+                                                          overflow:
+                                                              TextOverflow.ellipsis,
+                                                        ),
+                                                      ],
+                                                    ],
+                                                  ),
                                                 ),
-                                          ),
-                                          if (hasRealTranslation(
-                                            original: title,
-                                            translated: displayTitle,
-                                          )) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              displayTitle,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
+                                                if (hasUnreadMessage)
+                                                  const Icon(
+                                                    Icons.mark_chat_unread,
+                                                    size: 18,
+                                                  ),
+                                              ],
                                             ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB',
+                                            ),
+                                            if (comment.isNotEmpty)
+                                              Text(
+                                                comment,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            if (message.isNotEmpty)
+                                              Text(
+                                                message,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            if (lastMessage.isNotEmpty)
+                                              Text(
+                                                '💬 $lastMessage',
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                           ],
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                    if (hasUnreadMessage)
-                                      const Icon(Icons.mark_chat_unread, size: 18),
-                                  ],
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB'),
-                                    if (comment.isNotEmpty)
-                                      Text(
-                                        comment,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                      const SizedBox(width: 12),
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(l10n.t('status_${item.status}')),
+                                            const SizedBox(width: 4),
+                                            const Icon(Icons.chevron_right),
+                                          ],
+                                        ),
                                       ),
-                                    if (message.isNotEmpty)
-                                      Text(
-                                        message,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    if (lastMessage.isNotEmpty)
-                                      Text(
-                                        '💬 $lastMessage',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                  ],
-                                ),
-                                isThreeLine: comment.isNotEmpty || message.isNotEmpty,
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      l10n.t('status_${item.status}'),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.chevron_right),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
