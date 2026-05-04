@@ -617,39 +617,42 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                     if (_job.latitude != null && _job.longitude != null) ...[
                       const SizedBox(height: 8),
                       if (!addressHasGps)
-                        Text(
-                          'GPS: ${_job.latitude!.toStringAsFixed(6)}, ${_job.longitude!.toStringAsFixed(6)}',
-                          style: const TextStyle(fontSize: 13),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'GPS: ${_job.latitude!.toStringAsFixed(6)}, ${_job.longitude!.toStringAsFixed(6)}',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                final gps =
+                                    '${_job.latitude!.toStringAsFixed(6)},${_job.longitude!.toStringAsFixed(6)}';
+                                await Clipboard.setData(ClipboardData(text: gps));
+
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(l10n.t('copied'))),
+                                  );
+                                }
+                              },
+                              child: Text(l10n.t('copy')),
+                            ),
+                          ],
                         ),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          TextButton(
-                            onPressed: () async {
-                              final gps =
-                                  '${_job.latitude!.toStringAsFixed(6)},${_job.longitude!.toStringAsFixed(6)}';
-                              await Clipboard.setData(ClipboardData(text: gps));
-
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(l10n.t('copied'))),
-                                );
-                              }
-                            },
-                            child: Text(l10n.t('copy')),
-                          ),
-                          TextButton.icon(
-                            onPressed: () async {
-                              final uri = Uri.parse(
-                                'https://www.google.com/maps/search/?api=1&query=${_job.latitude},${_job.longitude}',
-                              );
-                              await launchUrl(uri, mode: LaunchMode.externalApplication);
-                            },
-                            icon: const Icon(Icons.map_outlined),
-                            label: Text(l10n.t('open_in_maps')),
-                          ),
-                        ],
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            final uri = Uri.parse(
+                              'https://www.google.com/maps/search/?api=1&query=${_job.latitude},${_job.longitude}',
+                            );
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                          },
+                          icon: const Icon(Icons.map_outlined),
+                          label: Text(l10n.t('open_in_maps')),
+                        ),
                       ),
                       const SizedBox(height: 12),
                       _jobLocationMap(
