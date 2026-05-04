@@ -39,6 +39,7 @@ function sanitizeOffer(row: any) {
     category: row.category ?? '',
     status: row.status ?? '',
     address_text: row.address_text ?? '',
+    address_translations_json: row.address_translations_json ?? null,
     updated_at: row.updated_at ?? null,
     last_message: row.last_message ?? null,
     last_message_sender_user_id: row.last_message_sender_user_id ?? null,
@@ -134,6 +135,7 @@ export async function getOffersByMaster(
        j.category AS category,
        j.status AS status,
        j.address_text AS address_text,
+       j.address_translations_json AS address_translations_json,
        (
          SELECT cm.text
          FROM chat_messages cm
