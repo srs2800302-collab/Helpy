@@ -134,52 +134,120 @@ class _MasterMarketplaceScreenState
                         );
 
                         return Card(
-                          child: ListTile(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
                             onTap: () async {
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => MasterJobDetailsScreen(
                                     jobId: item.id,
                                     jobTitle: originalTitle,
-                                    jobTitleTranslationsJson: item.titleTranslationsJson,
+                                    jobTitleTranslationsJson:
+                                        item.titleTranslationsJson,
                                   ),
                                 ),
                               );
                             },
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(displayTitle),
-                              ],
-                            ),
-                            subtitle: Text(
-                              '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${displayDescription.trim()}\n${displayAddress.trim()}',
-                            ),
-                            isThreeLine: true,
-                            trailing: item.hasApplied
-                                ? OutlinedButton.icon(
-                                    onPressed: null,
-                                    icon: const Icon(Icons.check_circle_outline),
-                                    label: Text(l10n.t('offer_sent')),
-                                  )
-                                : ElevatedButton(
-                                    onPressed: () async {
-                                      await Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => CreateOfferScreen(
-                                            jobId: item.id,
-                                            jobTitle: originalTitle,
-                                            jobTitleTranslationsJson:
-                                                item.titleTranslationsJson,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          originalTitle,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        if (hasRealTranslation(
+                                          original: originalTitle,
+                                          translated: displayTitle,
+                                        )) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            displayTitle,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium,
+                                          ),
+                                        ],
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                        ),
+                                        if (displayDescription
+                                            .trim()
+                                            .isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            displayDescription.trim(),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                        if (displayAddress.trim().isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            displayAddress.trim(),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  item.hasApplied
+                                      ? Align(
+                                          alignment: Alignment.topRight,
+                                          child: OutlinedButton.icon(
+                                            onPressed: null,
+                                            icon: const Icon(
+                                              Icons.check_circle_outline,
+                                            ),
+                                            label: Text(l10n.t('offer_sent')),
+                                          ),
+                                        )
+                                      : Align(
+                                          alignment: Alignment.topRight,
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              await Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      CreateOfferScreen(
+                                                    jobId: item.id,
+                                                    jobTitle: originalTitle,
+                                                    jobTitleTranslationsJson:
+                                                        item.titleTranslationsJson,
+                                                  ),
+                                                ),
+                                              );
+                                              if (context.mounted) {
+                                                await _refresh();
+                                              }
+                                            },
+                                            child: Text(l10n.t('send_offer')),
                                           ),
                                         ),
-                                      );
-                                      if (context.mounted) {
-                                        await _refresh();
-                                      }
-                                    },
-                                    child: Text(l10n.t('send_offer')),
-                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         );
                       },
