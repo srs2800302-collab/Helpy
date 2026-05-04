@@ -55,7 +55,7 @@ export async function buildTranslationsJson({
   fieldName: string;
 }) {
   const originalText = text.trim();
-  const useAutoDetect = entityType === 'chat_message';
+  const useAutoDetect = entityType === 'chat_message' || entityType === 'offer';
   const source = useAutoDetect ? 'auto' : normalizeLanguage(sourceLanguage);
 
   await ensureTranslationTasksSchema(env);
