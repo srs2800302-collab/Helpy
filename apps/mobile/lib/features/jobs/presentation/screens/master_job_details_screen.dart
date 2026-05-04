@@ -388,6 +388,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
               translationsJson: job.addressTranslationsJson,
               locale: locale,
             );
+            final addressHasGps = displayAddress.toLowerCase().contains('gps:');
 
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -482,7 +483,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                           const SizedBox(height: 8),
                           Text(displayAddress.trim()),
                         ],
-                        if (job.latitude != null && job.longitude != null) ...[
+                        if (!addressHasGps && job.latitude != null && job.longitude != null) ...[
                           const SizedBox(height: 8),
                           Text(
                             'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
