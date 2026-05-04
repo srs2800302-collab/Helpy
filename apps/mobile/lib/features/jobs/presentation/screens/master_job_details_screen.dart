@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -143,6 +144,24 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     );
   }
 
+
+  Future<void> _markLastMessageRead(DateTime? createdAt) async {
+    if (createdAt == null) return;
+
+    final value = createdAt.toIso8601String();
+    final prefs = await SharedPreferences.getInstance();
+
+    const keys = [
+      'readMasterMessageTimestampsKey',
+      'readMasterOffersMessageTimestampsKey',
+    ];
+
+    for (final key in keys) {
+      final current = prefs.getStringList(key) ?? const <String>[];
+      final next = {...current, value}.toList();
+      await prefs.setStringList(key, next);
+    }
+  }
 
   Widget _jobLocationMap({
     required double latitude,
@@ -556,6 +575,10 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () async {
+                        await _markLastMessageRead(job.lastMessageCreatedAt);
+
+                        if (!context.mounted) return;
+
                         await Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => ChatScreen(
