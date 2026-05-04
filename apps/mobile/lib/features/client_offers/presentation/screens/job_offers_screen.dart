@@ -139,22 +139,16 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     }
                                   }
 
-                                  final originalMessage =
-                                      (item.message ?? '').trim();
                                   final displayMessage = translatedOrOriginal(
-                                    original: originalMessage,
+                                    original: item.message,
                                     translationsJson: item.messageTranslationsJson,
                                     locale: locale,
-                                  ).trim();
-                                  final originalPriceComment =
-                                      (item.priceComment ?? '').trim();
-                                  final displayPriceComment =
-                                      translatedOrOriginal(
-                                    original: originalPriceComment,
-                                    translationsJson:
-                                        item.priceCommentTranslationsJson,
+                                  );
+                                  final displayPriceComment = translatedOrOriginal(
+                                    original: item.priceComment,
+                                    translationsJson: item.priceCommentTranslationsJson,
                                     locale: locale,
-                                  ).trim();
+                                  );
 
                                   return Padding(
                                     padding: const EdgeInsets.all(16),
@@ -187,57 +181,23 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                           ratingLine,
                                           style: Theme.of(context).textTheme.bodyMedium,
                                         ),
-                                        if (originalMessage.isNotEmpty) ...[
+                                        if (displayMessage.trim().isNotEmpty) ...[
                                           const SizedBox(height: 10),
                                           Text(
                                             l10n.t('offer_message'),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: const TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           const SizedBox(height: 4),
-                                          Text(
-                                            originalMessage,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          if (hasRealTranslation(
-                                            original: originalMessage,
-                                            translated: displayMessage,
-                                          )) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              displayMessage,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
+                                          Text(displayMessage.trim()),
                                         ],
-                                        if (originalPriceComment.isNotEmpty) ...[
+                                        if (displayPriceComment.trim().isNotEmpty) ...[
                                           const SizedBox(height: 10),
                                           Text(
                                             l10n.t('comment_label'),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: const TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           const SizedBox(height: 4),
-                                          Text(
-                                            originalPriceComment,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          if (hasRealTranslation(
-                                            original: originalPriceComment,
-                                            translated: displayPriceComment,
-                                          )) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              displayPriceComment,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
+                                          Text(displayPriceComment.trim()),
                                         ],
                                         const SizedBox(height: 14),
                                         SizedBox(
