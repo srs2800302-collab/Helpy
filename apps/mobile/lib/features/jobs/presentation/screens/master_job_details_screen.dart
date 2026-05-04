@@ -271,7 +271,11 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(body.trim()),
+                  Text(
+                    body.trim(),
+                    maxLines: 16,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
@@ -306,11 +310,13 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.t('client_photos_label'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+            Center(
+              child: Text(
+                l10n.t('client_photos_label'),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -388,7 +394,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
               translationsJson: job.addressTranslationsJson,
               locale: locale,
             );
-            final addressHasGps = displayAddress.toLowerCase().contains('gps:');
+            final addressHasGps = (job.addressText ?? '').toLowerCase().contains('gps:');
 
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -481,14 +487,19 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                         ),
                         if (displayAddress.trim().isNotEmpty) ...[
                           const SizedBox(height: 8),
-                          Text(displayAddress.trim()),
-                        ],
-                        if (!addressHasGps && job.latitude != null && job.longitude != null) ...[
-                          const SizedBox(height: 8),
                           Text(
-                            'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
-                            style: const TextStyle(fontSize: 13),
+                            displayAddress.trim(),
+                            maxLines: 8,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                        ],
+                        if (job.latitude != null && job.longitude != null) ...[
+                          const SizedBox(height: 8),
+                          if (!addressHasGps)
+                            Text(
+                              'GPS: ${job.latitude!.toStringAsFixed(6)}, ${job.longitude!.toStringAsFixed(6)}',
+                              style: const TextStyle(fontSize: 13),
+                            ),
                           const SizedBox(height: 8),
                           Wrap(
                             spacing: 8,
