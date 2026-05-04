@@ -126,7 +126,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      originalTitle,
+                      displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -135,10 +135,11 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                     if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
                       const SizedBox(height: 6),
                       Text(
-                        displayTitle,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                        originalTitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                          height: 1.25,
                         ),
                       ),
                     ],
