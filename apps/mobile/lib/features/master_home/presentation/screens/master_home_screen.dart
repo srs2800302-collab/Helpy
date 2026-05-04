@@ -436,13 +436,18 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
                           ],
                         ),
-                        subtitle: Text(
-                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'
-                          '${rawAddress.isNotEmpty ? '\n$address' : ''}'
-                          '${rawMessage.isNotEmpty ? '\n$message' : ''}'
-                          '${rawComment.isNotEmpty ? '\n${l10n.t('comment_label')}: $comment' : ''}',
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'),
+                              if (rawAddress.isNotEmpty) Text(address),
+                              if (rawMessage.isNotEmpty) Text(message),
+                              if (rawComment.isNotEmpty) Text('${l10n.t('comment_label')}: $comment'),
+                            ],
+                          ),
                         ),
-                        isThreeLine: true,
                         trailing: const Icon(Icons.chevron_right),
                       ),
                     );
