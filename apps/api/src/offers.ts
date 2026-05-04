@@ -173,7 +173,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
       env,
       entityType: 'offer',
       entityId: id,
-      limit: 4,
+      limit: 10,
     });
 
     const createdOffer = await env.DB.prepare(
