@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
-import '../../../auth/presentation/screens/role_selection_screen.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
@@ -227,22 +226,6 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 color: Colors.lightBlue,
               ),
             ),
-          ),
-          IconButton(
-            onPressed: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const RoleSelectionScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: l10n.t('choose_role'),
-          ),
-          IconButton(
-            onPressed: jobsState.isLoading ? null : _refreshAll,
-            icon: const Icon(Icons.refresh),
-            tooltip: l10n.t('refresh'),
           ),
         ],
       ),

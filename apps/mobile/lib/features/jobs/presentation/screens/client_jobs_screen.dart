@@ -111,13 +111,8 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('my_jobs')),
-        actions: [
-          const AppLanguageMenuButton(),
-          IconButton(
-            onPressed: state.isLoading ? null : _refresh,
-            icon: const Icon(Icons.refresh),
-            tooltip: l10n.t('refresh'),
-          ),
+        actions: const [
+          AppLanguageMenuButton(),
         ],
       ),
       body: RefreshIndicator(

@@ -86,13 +86,8 @@ class _MasterMarketplaceScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('marketplace')),
-        actions: [
-          const AppLanguageMenuButton(),
-          IconButton(
-            onPressed: state.isLoading ? null : _refresh,
-            icon: const Icon(Icons.refresh),
-            tooltip: l10n.t('refresh'),
-          ),
+        actions: const [
+          AppLanguageMenuButton(),
         ],
       ),
       body: RefreshIndicator(
