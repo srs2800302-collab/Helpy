@@ -189,28 +189,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            title,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                          if (hasRealTranslation(
-                                            original: title,
-                                            translated: displayTitle,
-                                          )) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              displayTitle,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
+                                          Text(displayTitle),
                                         ],
                                       ),
                                     ),
@@ -222,33 +201,17 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB'),
-                                    if (comment.isNotEmpty)
-                                      Text(
-                                        comment,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    if (message.isNotEmpty)
-                                      Text(
-                                        message,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    if (lastMessage.isNotEmpty)
-                                      Text(
-                                        '💬 $lastMessage',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                    Text('ID: ${item.jobId}'),
+                                    if (comment.isNotEmpty) Text(comment),
+                                    if (message.isNotEmpty) Text(message),
+                                    if (lastMessage.isNotEmpty) Text('💬 $lastMessage'),
                                   ],
                                 ),
                                 isThreeLine: comment.isNotEmpty || message.isNotEmpty,
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      l10n.t('status_${item.status}'),
-                                    ),
+                                    Text(item.status),
                                     const SizedBox(width: 4),
                                     const Icon(Icons.chevron_right),
                                   ],
