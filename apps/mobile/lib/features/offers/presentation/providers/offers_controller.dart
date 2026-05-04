@@ -91,7 +91,7 @@ class OffersController extends StateNotifier<OffersState> {
       final created = await ref.read(offersApiProvider).createOffer(
             jobId: jobId,
             masterUserId: session.userId,
-            masterName: session.phone,
+            masterName: '',
             price: parsedPrice,
             message: state.message.trim().isEmpty ? null : state.message.trim(),
             priceComment: state.priceComment.trim().isEmpty
