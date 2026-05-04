@@ -32,8 +32,39 @@ class JobPaymentScreen extends ConsumerStatefulWidget {
 }
 
 class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
+  late JobItem _job;
   bool _isPaying = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _job = widget.job;
+  }
+
+  Future<void> _refreshJob({bool silent = false}) async {
+    try {
+      final updatedJob =
+          await ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
+      if (!mounted) return;
+
+      setState(() {
+        _job = updatedJob;
+        if (!silent) _errorMessage = null;
+      });
+
+      if (updatedJob.status != 'draft' &&
+          updatedJob.status != 'awaiting_payment') {
+        Navigator.of(context).pop(true);
+      }
+    } catch (e) {
+      if (!mounted || silent) return;
+      final appError = ApiErrorMapper.map(e);
+      setState(() {
+        _errorMessage = appError.message;
+      });
+    }
+  }
 
   Future<void> _payDeposit() async {
     final session = ref.read(authControllerProvider).session;
@@ -87,11 +118,11 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
-    final price = widget.price;
-    final originalTitle = (widget.job.titleOriginal ?? widget.jobTitle).trim();
+    final price = _job.price;
+    final originalTitle = (_job.titleOriginal ?? widget.jobTitle).trim();
     final displayTitle = translatedOrOriginal(
       original: originalTitle,
-      translationsJson: widget.jobTitleTranslationsJson,
+      translationsJson: _job.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
       locale: Localizations.localeOf(context).languageCode,
     );
 
@@ -102,10 +133,10 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
           AppLanguageMenuButton(),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(
+        onRefresh: _refreshJob,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
             Card(
               child: InkWell(
@@ -113,7 +144,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                 onTap: () async {
                   final changed = await Navigator.of(context).push<bool>(
                     MaterialPageRoute(
-                      builder: (_) => ClientJobDetailsScreen(job: widget.job),
+                      builder: (_) => ClientJobDetailsScreen(job: _job),
                     ),
                   );
                   if (changed == true && context.mounted) {
