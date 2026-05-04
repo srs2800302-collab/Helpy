@@ -438,15 +438,19 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(originalTitle),
+                                Text(displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle),
                                 if (hasRealTranslation(
                                   original: originalTitle,
                                   translated: displayTitle,
                                 )) ...[
                                   const SizedBox(height: 4),
                                   Text(
-                                    displayTitle,
-                                    style: const TextStyle(fontSize: 14),
+                                    originalTitle,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade600,
+                                      height: 1.25,
+                                    ),
                                   ),
                                 ],
                               ],
