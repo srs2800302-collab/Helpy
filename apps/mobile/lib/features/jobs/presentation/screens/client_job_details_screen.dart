@@ -14,7 +14,7 @@ import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../../reviews/presentation/screens/create_review_screen.dart';
 import 'create_job_screen.dart';
 
-class ClientJobDetailsScreen extends ConsumerWidget {
+class ClientJobDetailsScreen extends ConsumerStatefulWidget {
   Future<List<String>> _loadPhotos(WidgetRef ref, String jobId) async {
     final res = await ref.read(apiClientProvider).dio.get('/jobs/$jobId/photos');
     final data = res.data['data'] as List<dynamic>;
@@ -29,6 +29,30 @@ class ClientJobDetailsScreen extends ConsumerWidget {
     super.key,
     required this.job,
   });
+
+  @override
+  ConsumerState<ClientJobDetailsScreen> createState() => _ClientJobDetailsScreenState();
+}
+
+class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen> {
+  late JobItem _job;
+
+  @override
+  void initState() {
+    super.initState();
+    _job = widget.job;
+  }
+
+  Future<void> _refresh() async {
+    final updatedJob = await ref.read(jobsApiProvider).getJobById(jobId: _job.id);
+
+    if (!mounted) return;
+
+    setState(() {
+      _job = updatedJob;
+    });
+  }
+
 
   String _categoryLabel(AppLocalizations l10n, String slug) {
     switch (slug) {
@@ -113,7 +137,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
 
   Widget _photosBlock(BuildContext context, WidgetRef ref, AppLocalizations l10n, String jobId) {
     return FutureBuilder<List<String>>(
-      future: _loadPhotos(ref, jobId),
+      future: widget._loadPhotos(ref, jobId),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(child: CircularProgressIndicator());
@@ -153,40 +177,40 @@ class ClientJobDetailsScreen extends ConsumerWidget {
 
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).languageCode;
-    final originalTitle = (job.titleOriginal ?? job.title).trim();
+    final originalTitle = (_job.titleOriginal ?? _job.title).trim();
     final displayTitle = translatedOrOriginal(
       original: originalTitle,
-      translationsJson: job.titleTranslationsJson,
+      translationsJson: _job.titleTranslationsJson,
       locale: locale,
     );
     final displayDescription = translatedOrOriginal(
-      original: job.descriptionOriginal ?? job.description,
-      translationsJson: job.descriptionTranslationsJson,
+      original: _job.descriptionOriginal ?? _job.description,
+      translationsJson: _job.descriptionTranslationsJson,
       locale: locale,
     );
     final displayAddress = translatedOrOriginal(
-      original: job.addressText,
-      translationsJson: job.addressTranslationsJson,
+      original: _job.addressText,
+      translationsJson: _job.addressTranslationsJson,
       locale: locale,
     );
 
     Widget? primaryAction;
 
-    if (job.status == 'draft' || job.status == 'awaiting_payment') {
+    if (_job.status == 'draft' || _job.status == 'awaiting_payment') {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final paid = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
               builder: (_) => JobPaymentScreen(
-                jobId: job.id,
+                jobId: _job.id,
                 jobTitle: originalTitle,
-                jobTitleTranslationsJson: job.titleTranslationsJson,
-                depositAmount: job.depositAmount ?? 0,
-                price: job.price,
-                job: job,
+                jobTitleTranslationsJson: _job.titleTranslationsJson,
+                depositAmount: _job.depositAmount ?? 0,
+                price: _job.price,
+                job: _job,
               ),
             ),
           );
@@ -197,8 +221,8 @@ class ClientJobDetailsScreen extends ConsumerWidget {
         },
         child: Text(l10n.t('pay_deposit')),
       );
-    } else if (job.status == 'open') {
-      final hasOffers = job.offersCount > 0;
+    } else if (_job.status == 'open') {
+      final hasOffers = _job.offersCount > 0;
 
       primaryAction = hasOffers
           ? ElevatedButton(
@@ -206,9 +230,9 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                 final changed = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
                     builder: (_) => JobOffersScreen(
-                      jobId: job.id,
+                      jobId: _job.id,
                       jobTitle: originalTitle,
-                jobTitleTranslationsJson: job.titleTranslationsJson,
+                jobTitleTranslationsJson: _job.titleTranslationsJson,
                     ),
                   ),
                 );
@@ -224,9 +248,9 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                 final changed = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
                     builder: (_) => JobOffersScreen(
-                      jobId: job.id,
+                      jobId: _job.id,
                       jobTitle: originalTitle,
-                jobTitleTranslationsJson: job.titleTranslationsJson,
+                jobTitleTranslationsJson: _job.titleTranslationsJson,
                     ),
                   ),
                 );
@@ -237,30 +261,30 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               },
               child: Text(l10n.t('job_offers')),
             );
-    } else if (job.status == 'master_selected' || job.status == 'in_progress') {
+    } else if (_job.status == 'master_selected' || _job.status == 'in_progress') {
       primaryAction = ElevatedButton(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => ChatScreen(
-                jobId: job.id,
-                jobStatus: job.status,
+                jobId: _job.id,
+                jobStatus: _job.status,
               ),
             ),
           );
         },
         child: Text(l10n.t('chat')),
       );
-    } else if (job.status == 'completed' &&
-        (job.selectedMasterUserId ?? '').isNotEmpty &&
-        job.hasReview != true) {
+    } else if (_job.status == 'completed' &&
+        (_job.selectedMasterUserId ?? '').isNotEmpty &&
+        _job.hasReview != true) {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final reviewed = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
               builder: (_) => CreateReviewScreen(
-                jobId: job.id,
-                masterUserId: job.selectedMasterUserId!,
+                jobId: _job.id,
+                masterUserId: _job.selectedMasterUserId!,
               ),
             ),
           );
@@ -274,14 +298,14 @@ class ClientJobDetailsScreen extends ConsumerWidget {
     }
 
     final bool canDeleteDraft =
-        job.status == 'draft' || job.status == 'awaiting_payment';
+        _job.status == 'draft' || _job.status == 'awaiting_payment';
 
     final Widget? editJobAction = canDeleteDraft
       ? OutlinedButton(
           onPressed: () async {
             final changed = await Navigator.of(context).push<bool>(
               MaterialPageRoute(
-                builder: (_) => CreateJobScreen(editJob: job),
+                builder: (_) => CreateJobScreen(editJob: _job),
               ),
             );
 
@@ -322,7 +346,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
 
               final ok = await ref
                   .read(jobsControllerProvider.notifier)
-                  .deleteDraftJob(jobId: job.id);
+                  .deleteDraftJob(jobId: _job.id);
 
               if (ok && context.mounted) {
                 Navigator.of(context).pop(true);
@@ -339,9 +363,11 @@ class ClientJobDetailsScreen extends ConsumerWidget {
           AppLanguageMenuButton(),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -385,30 +411,30 @@ class ClientJobDetailsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${l10n.t('categories')}: ${_categoryLabel(l10n, job.categorySlug)}'),
+                        Text('${l10n.t('categories')}: ${_categoryLabel(l10n, _job.categorySlug)}'),
                         const SizedBox(height: 6),
-                        Text('${l10n.t('status_label')}: ${_statusLabel(l10n, job.status)}'),
+                        Text('${l10n.t('status_label')}: ${_statusLabel(l10n, _job.status)}'),
                         const SizedBox(height: 6),
-                        Text('${l10n.t('created_label')}: ${job.createdAt.toLocal()}'),
-                        if (job.price != null) ...[
+                        Text('${l10n.t('created_label')}: ${_job.createdAt.toLocal()}'),
+                        if (_job.price != null) ...[
                           const SizedBox(height: 6),
-                          Text('${l10n.t('price_label')}: ${job.price!.toStringAsFixed(0)} THB'),
+                          Text('${l10n.t('price_label')}: ${_job.price!.toStringAsFixed(0)} THB'),
                         ],
-                        if (job.depositAmount != null) ...[
+                        if (_job.depositAmount != null) ...[
                           const SizedBox(height: 6),
-                          Text('${l10n.t('deposit_label')}: ${job.depositAmount!.toStringAsFixed(0)} THB'),
+                          Text('${l10n.t('deposit_label')}: ${_job.depositAmount!.toStringAsFixed(0)} THB'),
                         ],
-                        if ((job.selectedMasterName ?? '').trim().isNotEmpty) ...[
+                        if ((_job.selectedMasterName ?? '').trim().isNotEmpty) ...[
                           const SizedBox(height: 6),
-                          Text('${l10n.t('master_label')}: ${job.selectedMasterName}'),
+                          Text('${l10n.t('master_label')}: ${_job.selectedMasterName}'),
                         ],
-                        if (job.hasReview == true) ...[
+                        if (_job.hasReview == true) ...[
                           const SizedBox(height: 6),
                           Text(l10n.t('review_submitted')),
                         ],
-                        if (job.selectedOfferPrice != null) ...[
+                        if (_job.selectedOfferPrice != null) ...[
                           const SizedBox(height: 6),
-                          Text('${l10n.t('price_label')}: ${job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
+                          Text('${l10n.t('price_label')}: ${_job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
                         ],
                       ],
                     ),
@@ -418,7 +444,7 @@ class ClientJobDetailsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          _photosBlock(context, ref, l10n, job.id),
+          _photosBlock(context, ref, l10n, _job.id),
 
           if (editJobAction != null) ...[
             const SizedBox(height: 24),
@@ -441,7 +467,8 @@ class ClientJobDetailsScreen extends ConsumerWidget {
               child: primaryAction,
             ),
           ],
-        ],
+          ],
+        ),
       ),
     );
   }
