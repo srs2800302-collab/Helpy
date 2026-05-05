@@ -1,12 +1,19 @@
 import { fail } from './response';
 
 export async function requireAuth(request: Request, env: any) {
-  const userId = request.headers.get('x-user-id');
+  let userId = request.headers.get('x-user-id');
+
+  if (!userId) {
+    const auth = request.headers.get('Authorization') ?? '';
+    if (auth.startsWith('Bearer ')) {
+      userId = auth.slice(7).trim();
+    }
+  }
 
   if (!userId) {
     return {
       ok: false,
-      response: fail('Missing x-user-id header', 401),
+      response: fail('Missing auth header', 401),
     };
   }
 
