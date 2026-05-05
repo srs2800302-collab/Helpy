@@ -128,9 +128,9 @@ export async function refresh(request: Request, env: any) {
 
 export async function selectMyRole(request: Request, env: any) {
   const auth = request.headers.get('Authorization') ?? '';
-  const userId = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+  const currentUserId = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
 
-  if (!userId) return jsonError('Missing Authorization header', 401);
+  if (!currentUserId) return jsonError('Missing Authorization header', 401);
 
   let body: any;
   try {
@@ -144,19 +144,59 @@ export async function selectMyRole(request: Request, env: any) {
     return jsonError('Invalid role', 400);
   }
 
-  await env.DB.prepare(
-    'UPDATE users SET role = ?1 WHERE id = ?2'
-  ).bind(role, userId).run();
-
-  const user = await env.DB.prepare(
+  const currentUser = await env.DB.prepare(
     'SELECT id, role, phone, language, created_at FROM users WHERE id = ?1 LIMIT 1'
-  ).bind(userId).first();
+  ).bind(currentUserId).first();
+
+  if (!currentUser) return jsonError('User not found', 404);
+
+  let user = await env.DB.prepare(
+    'SELECT id, role, phone, language, created_at FROM users WHERE phone = ?1 AND role = ?2 LIMIT 1'
+  ).bind(currentUser.phone, role).first();
+
+  if (!user) {
+    const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+
+    await env.DB.prepare(
+      'INSERT INTO users (id, role, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)'
+    ).bind(id, role, currentUser.phone, currentUser.language ?? 'ru', createdAt).run();
+
+    user = {
+      id,
+      role,
+      phone: currentUser.phone,
+      language: currentUser.language ?? 'ru',
+      created_at: createdAt,
+    };
+  }
+
+  if (role === 'master') {
+    const profile = await env.DB.prepare(
+      'SELECT user_id FROM master_profiles WHERE user_id = ?1 LIMIT 1'
+    ).bind(user.id).first();
+
+    if (!profile) {
+      await env.DB.prepare(
+        'INSERT INTO master_profiles (id, user_id, name, category, bio, is_verified, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
+      ).bind(
+        crypto.randomUUID(),
+        user.id,
+        'Test Master',
+        'cleaning',
+        'Test master profile',
+        0,
+        new Date().toISOString(),
+      ).run();
+    }
+  }
 
   return Response.json({
     success: true,
     data: {
       user: sanitizeUser(user),
-      tokens: makeTokens(userId),
+      tokens: makeTokens(user.id),
     },
   });
 }
+
