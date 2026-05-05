@@ -501,7 +501,26 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                   : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
                             ),
                             isThreeLine: isCompleted,
-                            trailing: const Icon(Icons.chevron_right),
+                            trailing: item.status == 'master_selected' || item.status == 'in_progress'
+                                ? IconButton(
+                                    tooltip: l10n.t('chat'),
+                                    icon: const Icon(Icons.chat_bubble_outline),
+                                    onPressed: () async {
+                                      await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => ChatScreen(
+                                            jobId: item.id,
+                                            jobStatus: item.status,
+                                          ),
+                                        ),
+                                      );
+
+                                      if (mounted) {
+                                        await _refreshAll();
+                                      }
+                                    },
+                                  )
+                                : const Icon(Icons.chevron_right),
                           ),
                         );
                       },
