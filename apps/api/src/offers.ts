@@ -111,6 +111,18 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     return fail('Master already has an offer for this job', 409);
   }
 
+  const activeOffersCountRow = await env.DB.prepare(
+    `SELECT COUNT(*) as count
+     FROM offers
+     WHERE job_id = ?1
+       AND status = 'active'`
+  ).bind(jobId).first();
+
+  const activeOffersCount = Number(activeOffersCountRow?.count ?? 0);
+  if (activeOffersCount >= 3) {
+    return fail('This job already has enough offers', 409);
+  }
+
   try {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
