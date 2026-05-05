@@ -149,12 +149,42 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     translationsJson: item.priceCommentTranslationsJson,
                                     locale: locale,
                                   );
+                                  final displayJobTitle = translatedOrOriginal(
+                                    original: widget.jobTitle,
+                                    translationsJson: widget.jobTitleTranslationsJson,
+                                    locale: locale,
+                                  );
 
                                   return Padding(
                                     padding: const EdgeInsets.all(16),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
+                                        Text(
+                                          displayJobTitle.trim().isNotEmpty
+                                              ? displayJobTitle.trim()
+                                              : widget.jobTitle,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                            height: 1.15,
+                                          ),
+                                        ),
+                                        if (hasRealTranslation(
+                                          original: widget.jobTitle,
+                                          translated: displayJobTitle,
+                                        )) ...[
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            widget.jobTitle,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey.shade600,
+                                              height: 1.25,
+                                            ),
+                                          ),
+                                        ],
+                                        const SizedBox(height: 12),
                                         Row(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
