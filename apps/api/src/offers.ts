@@ -25,6 +25,7 @@ export async function ensureOffersSchema(env: any) {
       message TEXT,
       comment_translations_json TEXT,
       message_translations_json TEXT,
+      status TEXT NOT NULL DEFAULT 'active',
       created_at TEXT NOT NULL
     )`
   ).run();
@@ -44,6 +45,7 @@ export async function ensureOffersSchema(env: any) {
     ['message', 'ALTER TABLE offers ADD COLUMN message TEXT'],
     ['comment_translations_json', 'ALTER TABLE offers ADD COLUMN comment_translations_json TEXT'],
     ['message_translations_json', 'ALTER TABLE offers ADD COLUMN message_translations_json TEXT'],
+    ['status', "ALTER TABLE offers ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"],
   ] as const;
 
   for (const [column, sql] of alterStatements) {
@@ -115,7 +117,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     `SELECT COUNT(*) as count
      FROM offers
      WHERE job_id = ?1
-       AND status = 'active'`
+       AND COALESCE(status, 'active') = 'active'`
   ).bind(jobId).first();
 
   const activeOffersCount = Number(activeOffersCountRow?.count ?? 0);

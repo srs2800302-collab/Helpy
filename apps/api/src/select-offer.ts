@@ -79,6 +79,10 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     return fail('Offer not found for this job', 404);
   }
 
+  if ((offer.status ?? 'active') !== 'active') {
+    return fail('Offer is no longer active', 400);
+  }
+
   if (job.payment_method === 'card') {
     const deposit = await env.DB.prepare(
       `SELECT * FROM payments
@@ -212,6 +216,15 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       now,
       jobId
     )
+    .run();
+
+  await env.DB.prepare(
+    `UPDATE offers
+     SET status = CASE WHEN id = ?1 THEN 'accepted' ELSE 'rejected' END
+     WHERE job_id = ?2
+       AND COALESCE(status, 'active') = 'active'`
+  )
+    .bind(offer.id, jobId)
     .run();
 
   return Response.json({
