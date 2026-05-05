@@ -8,6 +8,7 @@ import { deleteJob } from './delete-job';
 import { createDispute, getDispute, resolveDispute } from './disputes';
 import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
+import { getMe, refresh, requestOtp, selectMyRole, verifyOtp } from './auth';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
 import { getJobActions } from './job-actions';
@@ -268,6 +269,26 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
 
   if (path === '/api/v1/admin/dashboard' && method === 'GET') {
     return getAdminDashboard(request, env);
+  }
+
+  if (path === '/api/v1/auth/request-otp' && method === 'POST') {
+    return requestOtp(request, env);
+  }
+
+  if (path === '/api/v1/auth/verify-otp' && method === 'POST') {
+    return verifyOtp(request, env);
+  }
+
+  if (path === '/api/v1/auth/select-my-role' && method === 'POST') {
+    return selectMyRole(request, env);
+  }
+
+  if (path === '/api/v1/auth/me' && method === 'GET') {
+    return getMe(request, env);
+  }
+
+  if (path === '/api/v1/auth/refresh' && method === 'POST') {
+    return refresh(request, env);
   }
 
   if (path === '/api/v1/categories' && method === 'GET') {
