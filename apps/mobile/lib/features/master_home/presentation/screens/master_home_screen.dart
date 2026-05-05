@@ -471,7 +471,26 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             ],
                           ),
                         ),
-                        trailing: const Icon(Icons.chevron_right),
+                        trailing: item.status == 'master_selected' || item.status == 'in_progress'
+                            ? IconButton(
+                                tooltip: l10n.t('chat'),
+                                icon: const Icon(Icons.chat_bubble_outline),
+                                onPressed: () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatScreen(
+                                        jobId: item.jobId,
+                                        jobStatus: item.status,
+                                      ),
+                                    ),
+                                  );
+
+                                  if (mounted) {
+                                    await _refreshAll();
+                                  }
+                                },
+                              )
+                            : const Icon(Icons.chevron_right),
                       ),
                     );
                   }),
