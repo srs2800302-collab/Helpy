@@ -29,8 +29,12 @@ GoRouter createRouter(ValueNotifier<AuthState> authNotifier) {
         return location == '/login' || location == '/verify-otp' ? null : '/login';
       }
 
-      if (isAuthRoute || isRoleRoute) {
-        return '/home';
+      if (isRoleRoute) {
+        return null;
+      }
+
+      if (isAuthRoute) {
+        return '/select-role';
       }
 
       return null;
