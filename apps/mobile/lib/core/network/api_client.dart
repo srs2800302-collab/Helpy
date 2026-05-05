@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 import '../config/app_config.dart';
 import '../storage/token_storage.dart';
@@ -41,8 +40,7 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await _tokenStorage.getAccessToken();
-          final isDebugToken =
-              kDebugMode && (token?.startsWith('debug_') ?? false);
+          final isDebugToken = token?.startsWith('debug_') ?? false;
 
           if (isDebugToken) {
             options.headers.remove('Authorization');
@@ -77,8 +75,7 @@ class ApiClient {
           final alreadyRetried = requestOptions.extra['retried'] == true;
           final isRefreshCall = requestOptions.path.contains('/auth/refresh');
           final currentToken = await _tokenStorage.getAccessToken();
-          final isDebugToken =
-              kDebugMode && (currentToken?.startsWith('debug_') ?? false);
+          final isDebugToken = currentToken?.startsWith('debug_') ?? false;
 
           if (isDebugToken && (statusCode == 401 || statusCode == 403)) {
             handler.next(error);
