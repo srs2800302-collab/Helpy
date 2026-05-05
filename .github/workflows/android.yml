@@ -39,11 +39,11 @@ jobs:
         run: |
           echo "API_BASE_URL=https://fixi-edge-api.srs2800302.workers.dev/api/v1" > .env
 
-      - name: Build debug APK
-        run: flutter build apk --debug
+      - name: Build release APK
+        run: flutter build apk --release
 
-      - name: Upload debug APK
+      - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: helpy-debug-apk
-          path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+          name: helpy-release-apk
+          path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
