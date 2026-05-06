@@ -184,9 +184,12 @@ class _MasterMarketplaceScreenState
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -246,20 +249,6 @@ class _MasterMarketplaceScreenState
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ],
-                                        const SizedBox(height: 8),
-                                        OutlinedButton.icon(
-                                          onPressed: () => _openDetails(
-                                            context: context,
-                                            jobId: item.id,
-                                            originalTitle: originalTitle,
-                                            titleTranslationsJson:
-                                                item.titleTranslationsJson,
-                                          ),
-                                          icon: const Icon(
-                                            Icons.visibility_outlined,
-                                          ),
-                                          label: Text(l10n.t('view_details')),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -288,6 +277,23 @@ class _MasterMarketplaceScreenState
                                             child: Text(l10n.t('send_offer')),
                                           ),
                                         ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => _openDetails(
+                                        context: context,
+                                        jobId: item.id,
+                                        originalTitle: originalTitle,
+                                        titleTranslationsJson:
+                                            item.titleTranslationsJson,
+                                      ),
+                                      icon: const Icon(Icons.visibility_outlined),
+                                      label: Text(l10n.t('view_details')),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
