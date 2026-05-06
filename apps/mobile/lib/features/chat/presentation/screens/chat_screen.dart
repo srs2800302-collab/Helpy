@@ -300,7 +300,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ),
                       IconButton(
                         onPressed: canSend ? _sendMessage : null,
-                        icon: const Icon(Icons.send),
+                        color: Colors.blue,
+                        disabledColor: Colors.blue.shade100,
+                        icon: state.isSending
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.send),
                       ),
                     ],
                   ),
