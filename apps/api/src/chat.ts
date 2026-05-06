@@ -131,7 +131,22 @@ export async function getMessages(jobId: string, request: Request, env: any) {
     .bind(jobId, limit, offset)
     .all();
 
-  const messages = (result.results ?? []).slice().reverse();
+  await processPendingTranslationTasks({
+    env,
+    entityType: 'chat_message',
+    limit: 20,
+  });
+
+  const refreshedResult = await env.DB.prepare(
+    `SELECT * FROM chat_messages
+     WHERE job_id = ?1
+     ORDER BY created_at DESC
+     LIMIT ?2 OFFSET ?3`
+  )
+    .bind(jobId, limit, offset)
+    .all();
+
+  const messages = (refreshedResult.results ?? []).slice().reverse();
 
   return Response.json({
     success: true,
@@ -263,7 +278,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     env,
     entityType: 'chat_message',
     entityId: id,
-    limit: 3,
+    limit: 10,
   });
 
   const created = await env.DB.prepare(
