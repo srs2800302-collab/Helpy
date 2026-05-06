@@ -49,7 +49,7 @@ class ChatController extends StateNotifier<ChatState> {
   Future<void> init(String jobId) async {
     await load(jobId);
     _polling?.cancel();
-    _polling = Timer.periodic(const Duration(seconds: 3), (_) {
+    _polling = Timer.periodic(const Duration(seconds: 30), (_) {
       load(jobId, silent: true);
     });
   }
@@ -95,6 +95,11 @@ class ChatController extends StateNotifier<ChatState> {
         clearError: true,
       );
     } catch (e) {
+      if (silent && state.messages.isNotEmpty) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
         isLoading: false,
