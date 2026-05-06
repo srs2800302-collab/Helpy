@@ -429,7 +429,7 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'GET') {
-      return getOffers(jobId, request, env);
+      return getOffers(jobId, request, env, ctx);
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'POST') {

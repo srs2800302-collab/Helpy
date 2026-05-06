@@ -215,7 +215,7 @@ export async function createOffer(jobId: string, request: Request, env: any) {
   }
 }
 
-export async function getOffers(jobId: string, request: Request, env: any) {
+export async function getOffers(jobId: string, request: Request, env: any, ctx?: any) {
   await ensureOffersSchema(env);
 
   const auth = await requireAuth(request, env);
@@ -236,22 +236,20 @@ export async function getOffers(jobId: string, request: Request, env: any) {
     return fail('Only job client or admin can view offers', 403);
   }
 
-  const initialResult = await env.DB.prepare(
-    'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
-  ).bind(jobId).all();
-
-  for (const offer of initialResult.results ?? []) {
-    await processPendingTranslationTasks({
-      env,
-      entityType: 'offer',
-      entityId: String(offer.id),
-      limit: 6,
-    });
-  }
-
   const result = await env.DB.prepare(
     'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
   ).bind(jobId).all();
+
+  for (const offer of result.results ?? []) {
+    ctx?.waitUntil(
+      processPendingTranslationTasks({
+        env,
+        entityType: 'offer',
+        entityId: String(offer.id),
+        limit: 6,
+      }),
+    );
+  }
 
   return Response.json({
     success: true,
