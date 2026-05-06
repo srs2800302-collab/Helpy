@@ -278,6 +278,13 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     .run();
 
 
+  await processPendingTranslationTasks({
+    env,
+    entityType: 'chat_message',
+    entityId: id,
+    limit: 3,
+  });
+
   const created = await env.DB.prepare(
     'SELECT * FROM chat_messages WHERE id = ?1'
   )
