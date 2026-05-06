@@ -135,6 +135,12 @@ class ChatController extends StateNotifier<ChatState> {
 
       state = state.copyWith(input: '', isSending: false);
       await load(jobId, silent: true);
+
+      Future.delayed(const Duration(seconds: 2), () {
+        if (_currentJobId == jobId) {
+          load(jobId, silent: true);
+        }
+      });
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
