@@ -77,8 +77,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _currentStatus = 'in_progress';
       });
 
-      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
