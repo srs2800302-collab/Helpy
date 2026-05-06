@@ -423,15 +423,12 @@ export async function createJob(request: Request, env: any, ctx?: any) {
     )
     .run();
 
-  // process translations in background without blocking job creation
-  ctx?.waitUntil(
-    processPendingTranslationTasks({
-      env,
-      entityType: 'job',
-      entityId: id,
-      limit: 6,
-    }),
-  );
+  await processPendingTranslationTasks({
+    env,
+    entityType: 'job',
+    entityId: id,
+    limit: 6,
+  });
 
   const created = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
