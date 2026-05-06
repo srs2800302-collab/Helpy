@@ -241,18 +241,20 @@ export async function getOffers(jobId: string, request: Request, env: any, ctx?:
   ).bind(jobId).all();
 
   for (const offer of result.results ?? []) {
-    ctx?.waitUntil(
-      processPendingTranslationTasks({
-        env,
-        entityType: 'offer',
-        entityId: String(offer.id),
-        limit: 6,
-      }),
-    );
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'offer',
+      entityId: String(offer.id),
+      limit: 6,
+    });
   }
+
+  const refreshedResult = await env.DB.prepare(
+    'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
+  ).bind(jobId).all();
 
   return Response.json({
     success: true,
-    data: result.results ?? [],
+    data: refreshedResult.results ?? [],
   });
 }
