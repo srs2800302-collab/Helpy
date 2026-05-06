@@ -605,6 +605,13 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               ),
             ),
           ),
+          if (primaryAction != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: primaryAction,
+            ),
+          ],
           const SizedBox(height: 12),
             _infoBlock(
               title: l10n.t('client_note_label'),
@@ -701,13 +708,6 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
             SizedBox(
               width: double.infinity,
               child: deleteJobAction,
-            ),
-          ],
-          if (primaryAction != null) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: primaryAction,
             ),
           ],
           ],
