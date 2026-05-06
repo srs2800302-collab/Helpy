@@ -43,6 +43,7 @@ class ChatController extends StateNotifier<ChatState> {
   String? _currentJobId;
   final Ref ref;
   Timer? _polling;
+  bool _isLoadingMessages = false;
 
   ChatController(this.ref) : super(const ChatState());
 
@@ -60,6 +61,12 @@ class ChatController extends StateNotifier<ChatState> {
   }
 
   Future<void> load(String jobId, {bool silent = false}) async {
+    if (_isLoadingMessages) {
+      return;
+    }
+
+    _isLoadingMessages = true;
+
     if (_currentJobId != jobId) {
       _currentJobId = jobId;
       state = const ChatState(isLoading: true);
@@ -73,6 +80,7 @@ class ChatController extends StateNotifier<ChatState> {
         isLoading: false,
         errorMessage: 'no_session',
       );
+      _isLoadingMessages = false;
       return;
     }
 
@@ -94,9 +102,11 @@ class ChatController extends StateNotifier<ChatState> {
         messages: messages,
         clearError: true,
       );
+      _isLoadingMessages = false;
     } catch (e) {
       if (silent && state.messages.isNotEmpty) {
         state = state.copyWith(isLoading: false);
+        _isLoadingMessages = false;
         return;
       }
 
@@ -105,6 +115,7 @@ class ChatController extends StateNotifier<ChatState> {
         isLoading: false,
         errorMessage: appError.message,
       );
+      _isLoadingMessages = false;
     }
   }
 
