@@ -408,11 +408,12 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
               translationsJson: job.descriptionTranslationsJson,
               locale: locale,
             );
-            final displayAddress = translatedOrOriginal(
+            final rawDisplayAddress = translatedOrOriginal(
               original: job.addressText,
               translationsJson: job.addressTranslationsJson,
               locale: locale,
             );
+            final displayAddress = addressWithoutGpsLine(rawDisplayAddress);
 
             return ListView(
               padding: const EdgeInsets.all(16),

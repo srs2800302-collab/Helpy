@@ -356,11 +356,12 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
       translationsJson: _job.descriptionTranslationsJson,
       locale: locale,
     );
-    final displayAddress = translatedOrOriginal(
+    final rawDisplayAddress = translatedOrOriginal(
       original: _job.addressText,
       translationsJson: _job.addressTranslationsJson,
       locale: locale,
     );
+    final displayAddress = addressWithoutGpsLine(rawDisplayAddress);
 
     Widget? primaryAction;
 

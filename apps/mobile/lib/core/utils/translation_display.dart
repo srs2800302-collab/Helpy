@@ -33,3 +33,22 @@ bool hasRealTranslation({
   final rawTranslated = (translated ?? '').trim();
   return rawTranslated.isNotEmpty && rawTranslated != rawOriginal;
 }
+
+String addressWithoutGpsLine(String? value) {
+  final raw = (value ?? '').trim();
+  if (raw.isEmpty) return '';
+
+  return raw
+      .split('\n')
+      .where((line) {
+        final normalized = line.trim().toLowerCase();
+        return normalized.isNotEmpty &&
+            !normalized.startsWith('gps:') &&
+            !normalized.startsWith('gps ') &&
+            !normalized.startsWith('гпс:') &&
+            !normalized.startsWith('จีพีเอส:') &&
+            !normalized.startsWith('จีพีเอส ');
+      })
+      .join('\n')
+      .trim();
+}
