@@ -144,6 +144,35 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     );
   }
 
+  void _openPhotoPreview(String url) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => Dialog.fullscreen(
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: InteractiveViewer(
+                minScale: 1,
+                maxScale: 5,
+                child: Center(child: _photoWidget(url)),
+              ),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Future<void> _markLastMessageRead(DateTime? createdAt) async {
     if (createdAt == null) return;
@@ -342,9 +371,12 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
             ...photos.map(
               (url) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: _photoWidget(url),
+                child: GestureDetector(
+                  onTap: () => _openPhotoPreview(url),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: _photoWidget(url),
+                  ),
                 ),
               ),
             ),
