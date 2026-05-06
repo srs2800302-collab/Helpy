@@ -513,6 +513,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                             child: Text(l10n.t('send_offer')),
                           ),
                   ),
+                  const SizedBox(height: 12),
                 ],
 
                 _infoBlock(
