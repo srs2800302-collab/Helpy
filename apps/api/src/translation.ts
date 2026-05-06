@@ -167,7 +167,7 @@ export async function processPendingTranslationTasks({
     FROM translation_tasks
     ${where}
     ORDER BY created_at ASC
-    LIMIT ${Math.max(1, Math.min(limit, 20))}
+    LIMIT ${Math.max(1, Math.min(limit, 100))}
   `;
 
   const tasksResult = entityType && entityId
