@@ -5,8 +5,8 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
-import '../../../offers/presentation/screens/create_offer_screen.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
+import '../../../offers/presentation/screens/create_offer_screen.dart';
 
 class MasterMarketplaceScreen extends ConsumerStatefulWidget {
   const MasterMarketplaceScreen({super.key});
@@ -18,7 +18,6 @@ class MasterMarketplaceScreen extends ConsumerStatefulWidget {
 
 class _MasterMarketplaceScreenState
     extends ConsumerState<MasterMarketplaceScreen> {
-
   String _categoryLabel(AppLocalizations l10n, String slug) {
     switch (slug) {
       case 'cleaning':
@@ -75,6 +74,44 @@ class _MasterMarketplaceScreenState
     await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
   }
 
+  Future<void> _openDetails({
+    required BuildContext context,
+    required String jobId,
+    required String originalTitle,
+    required String? titleTranslationsJson,
+  }) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => MasterJobDetailsScreen(
+          jobId: jobId,
+          jobTitle: originalTitle,
+          jobTitleTranslationsJson: titleTranslationsJson,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openCreateOffer({
+    required BuildContext context,
+    required String jobId,
+    required String originalTitle,
+    required String? titleTranslationsJson,
+  }) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CreateOfferScreen(
+          jobId: jobId,
+          jobTitle: originalTitle,
+          jobTitleTranslationsJson: titleTranslationsJson,
+        ),
+      ),
+    );
+
+    if (context.mounted) {
+      await _refresh();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -116,14 +153,16 @@ class _MasterMarketplaceScreenState
                       itemCount: state.items.length,
                       itemBuilder: (context, index) {
                         final item = state.items[index];
-                        final originalTitle = (item.titleOriginal ?? item.title).trim();
+                        final originalTitle =
+                            (item.titleOriginal ?? item.title).trim();
                         final displayTitle = translatedOrOriginal(
                           original: originalTitle,
                           translationsJson: item.titleTranslationsJson,
                           locale: locale,
                         );
                         final displayDescription = translatedOrOriginal(
-                          original: item.descriptionOriginal ?? item.description,
+                          original:
+                              item.descriptionOriginal ?? item.description,
                           translationsJson: item.descriptionTranslationsJson,
                           locale: locale,
                         );
@@ -136,18 +175,13 @@ class _MasterMarketplaceScreenState
                         return Card(
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
-                            onTap: () async {
-                              await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => MasterJobDetailsScreen(
-                                    jobId: item.id,
-                                    jobTitle: originalTitle,
-                                    jobTitleTranslationsJson:
-                                        item.titleTranslationsJson,
-                                  ),
-                                ),
-                              );
-                            },
+                            onTap: () => _openDetails(
+                              context: context,
+                              jobId: item.id,
+                              originalTitle: originalTitle,
+                              titleTranslationsJson:
+                                  item.titleTranslationsJson,
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Row(
@@ -159,7 +193,9 @@ class _MasterMarketplaceScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
+                                          displayTitle.trim().isNotEmpty
+                                              ? displayTitle.trim()
+                                              : originalTitle,
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
@@ -200,7 +236,9 @@ class _MasterMarketplaceScreenState
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ],
-                                        if (displayAddress.trim().isNotEmpty) ...[
+                                        if (displayAddress
+                                            .trim()
+                                            .isNotEmpty) ...[
                                           const SizedBox(height: 4),
                                           Text(
                                             displayAddress.trim(),
@@ -208,6 +246,20 @@ class _MasterMarketplaceScreenState
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ],
+                                        const SizedBox(height: 8),
+                                        OutlinedButton.icon(
+                                          onPressed: () => _openDetails(
+                                            context: context,
+                                            jobId: item.id,
+                                            originalTitle: originalTitle,
+                                            titleTranslationsJson:
+                                                item.titleTranslationsJson,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.visibility_outlined,
+                                          ),
+                                          label: Text(l10n.t('view_details')),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -226,22 +278,13 @@ class _MasterMarketplaceScreenState
                                       : Align(
                                           alignment: Alignment.topRight,
                                           child: ElevatedButton(
-                                            onPressed: () async {
-                                              await Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      CreateOfferScreen(
-                                                    jobId: item.id,
-                                                    jobTitle: originalTitle,
-                                                    jobTitleTranslationsJson:
-                                                        item.titleTranslationsJson,
-                                                  ),
-                                                ),
-                                              );
-                                              if (context.mounted) {
-                                                await _refresh();
-                                              }
-                                            },
+                                            onPressed: () => _openCreateOffer(
+                                              context: context,
+                                              jobId: item.id,
+                                              originalTitle: originalTitle,
+                                              titleTranslationsJson:
+                                                  item.titleTranslationsJson,
+                                            ),
                                             child: Text(l10n.t('send_offer')),
                                           ),
                                         ),
