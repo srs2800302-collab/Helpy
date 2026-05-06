@@ -236,11 +236,18 @@ export async function getOffers(jobId: string, request: Request, env: any) {
     return fail('Only job client or admin can view offers', 403);
   }
 
-  await processPendingTranslationTasks({
-    env,
-    entityType: 'offer',
-    limit: 20,
-  });
+  const initialResult = await env.DB.prepare(
+    'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
+  ).bind(jobId).all();
+
+  for (const offer of initialResult.results ?? []) {
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'offer',
+      entityId: String(offer.id),
+      limit: 6,
+    });
+  }
 
   const result = await env.DB.prepare(
     'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
