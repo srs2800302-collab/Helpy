@@ -106,8 +106,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
       if (!mounted) return;
 
-      await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
