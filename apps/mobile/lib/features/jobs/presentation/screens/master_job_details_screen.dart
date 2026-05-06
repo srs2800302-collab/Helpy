@@ -482,6 +482,39 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
+                if (job.status == 'open') ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: job.hasApplied
+                        ? OutlinedButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.check_circle_outline),
+                            label: Text(l10n.t('offer_sent')),
+                          )
+                        : ElevatedButton(
+                            onPressed: canSendOffer
+                                ? () async {
+                                    final changed =
+                                        await Navigator.of(context).push<bool>(
+                                      MaterialPageRoute(
+                                        builder: (_) => CreateOfferScreen(
+                                          jobId: job.id,
+                                          jobTitle: originalTitle,
+                                          jobTitleTranslationsJson:
+                                              job.titleTranslationsJson,
+                                        ),
+                                      ),
+                                    );
+                                    if (changed == true && context.mounted) {
+                                      Navigator.of(context).pop(true);
+                                    }
+                                  }
+                                : null,
+                            child: Text(l10n.t('send_offer')),
+                          ),
+                  ),
+                ],
+
                 _infoBlock(
                   title: l10n.t('client_note_label'),
                   body: displayDescription,
@@ -597,39 +630,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   ),
                 ],
 
-                if (job.status == 'open') ...[
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: job.hasApplied
-                        ? OutlinedButton.icon(
-                            onPressed: null,
-                            icon: const Icon(Icons.check_circle_outline),
-                            label: Text(l10n.t('offer_sent')),
-                          )
-                        : ElevatedButton(
-                            onPressed: canSendOffer
-                                ? () async {
-                                    final changed =
-                                        await Navigator.of(context).push<bool>(
-                                      MaterialPageRoute(
-                                        builder: (_) => CreateOfferScreen(
-                                          jobId: job.id,
-                                          jobTitle: originalTitle,
-                                          jobTitleTranslationsJson:
-                                              job.titleTranslationsJson,
-                                        ),
-                                      ),
-                                    );
-                                    if (changed == true && context.mounted) {
-                                      Navigator.of(context).pop(true);
-                                    }
-                                  }
-                                : null,
-                            child: Text(l10n.t('send_offer')),
-                          ),
-                  ),
-                ],
               ],
             );
           },
