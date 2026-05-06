@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -105,10 +106,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
       if (!mounted) return;
 
-      setState(() {
-        _currentStatus = 'completed';
-      });
-
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();
 
       if (!mounted) return;
@@ -118,6 +115,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           content: Text(AppLocalizations.of(context).t('job_completed')),
         ),
       );
+
+      context.go('/home');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
