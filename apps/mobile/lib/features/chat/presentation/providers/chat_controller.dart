@@ -116,6 +116,10 @@ class ChatController extends StateNotifier<ChatState> {
   }
 
   Future<void> send(String jobId) async {
+    if (state.isSending) {
+      return;
+    }
+
     final session = ref.read(authControllerProvider).session;
     final text = state.input.trim();
 
