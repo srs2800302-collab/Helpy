@@ -159,6 +159,7 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                               builder: (_) => MasterJobDetailsScreen(
                                 jobId: item.jobId,
                                 jobTitle: title,
+                                  jobTitleTranslationsJson: item.jobTitleTranslationsJson,
                               ),
                             ),
                           );
