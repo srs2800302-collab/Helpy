@@ -29,6 +29,10 @@ class ChatApi {
         senderUserId: m['sender_user_id'] as String,
         text: m['text'] as String? ?? '',
         textTranslationsJson: m['text_translations_json'] as String?,
+        replyToMessageId: m['reply_to_message_id'] as String?,
+        replyText: m['reply_text'] as String?,
+        replySenderUserId: m['reply_sender_user_id'] as String?,
+        replyTextTranslationsJson: m['reply_text_translations_json'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
       );
     }).toList();
@@ -38,6 +42,7 @@ class ChatApi {
     required String jobId,
     required String userId,
     required String text,
+    String? replyToMessageId,
   }) async {
     await apiClient.dio.post(
       '/jobs/$jobId/messages',
@@ -48,6 +53,7 @@ class ChatApi {
       ),
       data: {
         'text': text,
+        if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
       },
     );
   }

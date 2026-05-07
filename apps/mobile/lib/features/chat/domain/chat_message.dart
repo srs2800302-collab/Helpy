@@ -4,6 +4,10 @@ class ChatMessage {
   final String senderUserId;
   final String text;
   final String? textTranslationsJson;
+  final String? replyToMessageId;
+  final String? replyText;
+  final String? replySenderUserId;
+  final String? replyTextTranslationsJson;
   final DateTime createdAt;
 
   const ChatMessage({
@@ -12,6 +16,10 @@ class ChatMessage {
     required this.senderUserId,
     required this.text,
     required this.textTranslationsJson,
+    required this.replyToMessageId,
+    required this.replyText,
+    required this.replySenderUserId,
+    required this.replyTextTranslationsJson,
     required this.createdAt,
   });
 }
