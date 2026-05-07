@@ -254,6 +254,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           locale: Localizations.localeOf(context).languageCode,
                         );
                         final isMe = m.senderUserId == (session?.userId ?? '');
+                        final replySenderLabel = m.replySenderUserId == null
+                            ? ''
+                            : _senderLabel(
+                                senderUserId: m.replySenderUserId!,
+                                currentUserId: session?.userId ?? '',
+                                isMaster: isMaster,
+                                l10n: l10n,
+                              );
 
                         return GestureDetector(
                           onLongPress: () => _selectReply(m),
@@ -296,21 +304,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                               .withValues(alpha: 0.08),
                                         ),
                                       ),
-                                      child: Text(
-                                        translatedOrOriginal(
-                                          original: m.replyText!,
-                                          translationsJson:
-                                              m.replyTextTranslationsJson,
-                                          locale:
-                                              Localizations.localeOf(context)
-                                                  .languageCode,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black54,
-                                        ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (replySenderLabel.isNotEmpty)
+                                            Text(
+                                              replySenderLabel,
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black54,
+                                              ),
+                                            ),
+                                          Text(
+                                            translatedOrOriginal(
+                                              original: m.replyText!,
+                                              translationsJson:
+                                                  m.replyTextTranslationsJson,
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).languageCode,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   Text(displayText),
