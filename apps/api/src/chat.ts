@@ -16,6 +16,10 @@ export async function ensureChatSchema(env: any) {
       sender_user_id TEXT NOT NULL,
       text TEXT NOT NULL,
       text_translations_json TEXT,
+      reply_to_message_id TEXT,
+      reply_text TEXT,
+      reply_sender_user_id TEXT,
+      reply_text_translations_json TEXT,
       created_at TEXT NOT NULL
     )`
   ).run();
@@ -25,12 +29,22 @@ export async function ensureChatSchema(env: any) {
      ON chat_messages(job_id, created_at)`
   ).run();
 
-  try {
-    await env.DB.prepare('ALTER TABLE chat_messages ADD COLUMN text_translations_json TEXT').run();
-  } catch (error: any) {
-    const message = String(error?.message ?? '').toLowerCase();
-    if (!message.includes('duplicate column') && !message.includes('already exists')) {
-      throw error;
+  const columns = [
+    'text_translations_json',
+    'reply_to_message_id',
+    'reply_text',
+    'reply_sender_user_id',
+    'reply_text_translations_json',
+  ];
+
+  for (const column of columns) {
+    try {
+      await env.DB.prepare(`ALTER TABLE chat_messages ADD COLUMN ${column} TEXT`).run();
+    } catch (error: any) {
+      const message = String(error?.message ?? '').toLowerCase();
+      if (!message.includes('duplicate column') && !message.includes('already exists')) {
+        throw error;
+      }
     }
   }
 }
@@ -183,6 +197,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
   const senderUserId = auth.userId as string;
   const text = body?.text?.toString().trim();
   const sourceLanguage = body?.source_language?.toString().trim() || 'ru';
+  const replyToMessageId = body?.reply_to_message_id?.toString().trim() || null;
 
   if (!text) {
     return Response.json(
@@ -253,6 +268,25 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     }
   }
 
+  let replyMessage: any = null;
+
+  if (replyToMessageId) {
+    replyMessage = await env.DB.prepare(
+      `SELECT *
+       FROM chat_messages
+       WHERE id = ?1 AND job_id = ?2`
+    )
+      .bind(replyToMessageId, jobId)
+      .first();
+
+    if (!replyMessage) {
+      return Response.json(
+        { success: false, error: 'Reply message not found in this chat' },
+        { status: 400 }
+      );
+    }
+  }
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const textTranslationsJson = await buildTranslationsJson({
@@ -271,12 +305,26 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
       sender_user_id,
       text,
       text_translations_json,
+      reply_to_message_id,
+      reply_text,
+      reply_sender_user_id,
+      reply_text_translations_json,
       created_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
   )
-    .bind(id, jobId, senderUserId, text, textTranslationsJson, now)
+    .bind(
+      id,
+      jobId,
+      senderUserId,
+      text,
+      textTranslationsJson,
+      replyToMessageId,
+      replyMessage?.text ?? null,
+      replyMessage?.sender_user_id ?? null,
+      replyMessage?.text_translations_json ?? null,
+      now,
+    )
     .run();
-
 
   await processPendingTranslationTasks({
     env,
