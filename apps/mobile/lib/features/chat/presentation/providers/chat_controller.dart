@@ -126,7 +126,10 @@ class ChatController extends StateNotifier<ChatState> {
     );
   }
 
-  Future<void> send(String jobId) async {
+  Future<void> send(
+    String jobId, {
+    String? replyToMessageId,
+  }) async {
     if (state.isSending) {
       return;
     }
@@ -142,11 +145,11 @@ class ChatController extends StateNotifier<ChatState> {
 
     try {
       await ref.read(chatApiProvider).sendMessage(
-
-            jobId: jobId,
-            userId: session.userId,
-            text: text,
-          );
+        jobId: jobId,
+        userId: session.userId,
+        text: text,
+        replyToMessageId: replyToMessageId,
+      );
 
       state = state.copyWith(input: '', isSending: false);
       await load(jobId, silent: true);
