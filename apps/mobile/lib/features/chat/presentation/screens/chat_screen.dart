@@ -264,6 +264,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               );
 
                         return GestureDetector(
+                          onHorizontalDragEnd: (details) {
+                            final velocity = details.primaryVelocity ?? 0.0;
+                            if (velocity > 250) {
+                              _selectReply(m);
+                            }
+                          },
                           onLongPress: () => _selectReply(m),
                           child: Align(
                             alignment: isMe
