@@ -377,7 +377,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _replyToMessage!.text,
+                        translatedOrOriginal(
+                          original: _replyToMessage!.text,
+                          translationsJson:
+                              _replyToMessage!.textTranslationsJson,
+                          locale: Localizations.localeOf(context).languageCode,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
