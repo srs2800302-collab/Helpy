@@ -429,12 +429,14 @@ export async function createJob(request: Request, env: any, ctx?: any) {
     )
     .run();
 
-  await processPendingTranslationTasks({
-    env,
-    entityType: 'job',
-    entityId: id,
-    limit: 6,
-  });
+  ctx?.waitUntil?.(
+    processPendingTranslationTasks({
+      env,
+      entityType: 'job',
+      entityId: id,
+      limit: 6,
+    })
+  );
 
   const created = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'
@@ -450,7 +452,7 @@ export async function createJob(request: Request, env: any, ctx?: any) {
 }
 
 
-export async function updateJob(id: string, request: Request, env: any) {
+export async function updateJob(id: string, request: Request, env: any, ctx?: any) {
   await ensureJobsSchema(env);
 
   const userId = request.headers.get('x-user-id') ?? '';
@@ -552,12 +554,14 @@ export async function updateJob(id: string, request: Request, env: any) {
     )
     .run();
 
-  await processPendingTranslationTasks({
-    env,
-    entityType: 'job',
-    entityId: id,
-    limit: 6,
-  });
+  ctx?.waitUntil?.(
+    processPendingTranslationTasks({
+      env,
+      entityType: 'job',
+      entityId: id,
+      limit: 6,
+    })
+  );
 
   const updated = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
     .bind(id)

@@ -421,7 +421,7 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     }
 
     if (parts.length === 4 && method === 'PATCH') {
-      return updateJob(jobId, request, env);
+      return updateJob(jobId, request, env, ctx);
     }
 
     if (parts.length === 5 && parts[4] === 'status' && method === 'PATCH') {
