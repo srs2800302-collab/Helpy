@@ -18,7 +18,8 @@ class MasterHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
-  static const _readMasterMessageTimestampsKey = 'readMasterMessageTimestampsKey';
+  static const _readMasterMessageTimestampsKey =
+      'readMasterMessageTimestampsKey';
   static const _hiddenCompletedJobsKey = 'master_hidden_completed_job_ids';
   Set<String> _hiddenCompletedJobIds = <String>{};
   Set<String> _readMessageTimestamps = <String>{};
@@ -36,7 +37,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
   Future<void> _loadReadMessageTimestamps() async {
     final prefs = await SharedPreferences.getInstance();
-    final items = prefs.getStringList(_readMasterMessageTimestampsKey) ?? const <String>[];
+    final items = prefs.getStringList(_readMasterMessageTimestampsKey) ??
+        const <String>[];
     if (!mounted) return;
     setState(() {
       _readMessageTimestamps = items.toSet();
@@ -57,7 +59,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
   Future<void> _loadHiddenCompletedJobIds() async {
     final prefs = await SharedPreferences.getInstance();
-    final items = prefs.getStringList(_hiddenCompletedJobsKey) ?? const <String>[];
+    final items =
+        prefs.getStringList(_hiddenCompletedJobsKey) ?? const <String>[];
     if (!mounted) return;
     setState(() {
       _hiddenCompletedJobIds = items.toSet();
@@ -164,18 +167,15 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
     final offersError = _visibleError(offersState.errorMessage);
     final marketplaceState = ref.watch(marketplaceControllerProvider);
-    final activeOffers = offersState.items
-        .where((item) => item.status != 'completed')
-        .toList();
-    final incomingMessageOffers = activeOffers
-        .where((item) {
-          final readKey = item.lastMessageCreatedAt?.toIso8601String();
-          return (item.lastMessage ?? '').trim().isNotEmpty &&
-              item.lastMessageSenderUserId != null &&
-              item.lastMessageSenderUserId != session?.userId &&
-              (readKey == null || !_readMessageTimestamps.contains(readKey));
-        })
-        .toList();
+    final activeOffers =
+        offersState.items.where((item) => item.status != 'completed').toList();
+    final incomingMessageOffers = activeOffers.where((item) {
+      final readKey = item.lastMessageCreatedAt?.toIso8601String();
+      return (item.lastMessage ?? '').trim().isNotEmpty &&
+          item.lastMessageSenderUserId != null &&
+          item.lastMessageSenderUserId != session?.userId &&
+          (readKey == null || !_readMessageTimestamps.contains(readKey));
+    }).toList();
     final completedOffers = offersState.items
         .where((item) => item.status == 'completed')
         .where((item) => !_hiddenCompletedJobIds.contains(item.jobId))
@@ -243,9 +243,9 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                   title: Text(l10n.t('new_jobs_available_title')),
                   subtitle: Text(
                     l10n.t('open_jobs_count').replaceAll(
-                      '{count}',
-                      marketplaceState.items.length.toString(),
-                    ),
+                          '{count}',
+                          marketplaceState.items.length.toString(),
+                        ),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
@@ -262,77 +262,74 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ),
               const SizedBox(height: 12),
             ],
-
             if (incomingMessageOffers.isNotEmpty) ...[
               Card(
                 color: Colors.lightBlue.shade50,
                 child: Column(
-                  children: incomingMessageOffers
-                      .map((item) {
-                        final title = item.jobTitle.trim().isNotEmpty
-                            ? item.jobTitle.trim()
-                            : 'Job ${item.jobId}';
-                        final displayTitle = translatedOrOriginal(
-                          original: title,
-                          translationsJson: item.jobTitleTranslationsJson,
-                          locale: locale,
-                        );
-                        final displayMessage = translatedOrOriginal(
-                          original: item.lastMessage,
-                          translationsJson: item.lastMessageTranslationsJson,
-                          locale: locale,
-                        );
+                  children: incomingMessageOffers.map((item) {
+                    final title = item.jobTitle.trim().isNotEmpty
+                        ? item.jobTitle.trim()
+                        : 'Job ${item.jobId}';
+                    final displayTitle = translatedOrOriginal(
+                      original: title,
+                      translationsJson: item.jobTitleTranslationsJson,
+                      locale: locale,
+                    );
+                    final displayMessage = translatedOrOriginal(
+                      original: item.lastMessage,
+                      translationsJson: item.lastMessageTranslationsJson,
+                      locale: locale,
+                    );
 
-                        return ListTile(
-                          leading: const Icon(Icons.mark_chat_unread),
-                          title: Text(l10n.t('new_message')),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                displayTitle.trim().isNotEmpty
-                                    ? displayTitle.trim()
-                                    : title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              if (hasRealTranslation(
-                                original: title,
-                                translated: displayTitle,
-                              )) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                              Text('💬 $displayMessage'),
-                            ],
+                    return ListTile(
+                      leading: const Icon(Icons.mark_chat_unread),
+                      title: Text(l10n.t('new_message')),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayTitle.trim().isNotEmpty
+                                ? displayTitle.trim()
+                                : title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          isThreeLine: true,
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () async {
-                            await _markMessageRead(item.lastMessageCreatedAt);
-                            if (!context.mounted) return;
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ChatScreen(
-                                  jobId: item.jobId,
-                                  jobStatus: item.status,
-                                ),
-                              ),
-                            );
-                            if (mounted) {
-                              await _refreshAll();
-                            }
-                          },
+                          if (hasRealTranslation(
+                            original: title,
+                            translated: displayTitle,
+                          )) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                          Text('💬 $displayMessage'),
+                        ],
+                      ),
+                      isThreeLine: true,
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        await _markMessageRead(item.lastMessageCreatedAt);
+                        if (!context.mounted) return;
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              jobId: item.jobId,
+                              jobStatus: item.status,
+                            ),
+                          ),
                         );
-                      })
-                      .toList(),
+                        if (mounted) {
+                          await _refreshAll();
+                        }
+                      },
+                    );
+                  }).toList(),
                 ),
               ),
               const SizedBox(height: 12),
@@ -363,251 +360,255 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
               ),
             ),
             const SizedBox(height: 12),
-              if (offersState.isLoading && offersState.items.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              else if (offersState.items.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(l10n.t('empty_offers')),
-                  ),
-                )
-              else ...[
-                if (activeOffers.isNotEmpty)
-                  ...activeOffers.take(10).map((item) {
-                    final title = item.jobTitle.trim().isNotEmpty
-                        ? item.jobTitle.trim()
-                        : 'Job ${item.jobId}';
-                    final displayTitle = translatedOrOriginal(
-                      original: title,
-                      translationsJson: item.jobTitleTranslationsJson,
-                      locale: locale,
-                    );
+            if (offersState.isLoading && offersState.items.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (offersState.items.isEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(l10n.t('empty_offers')),
+                ),
+              )
+            else ...[
+              if (activeOffers.isNotEmpty)
+                ...activeOffers.take(10).map((item) {
+                  final title = item.jobTitle.trim().isNotEmpty
+                      ? item.jobTitle.trim()
+                      : 'Job ${item.jobId}';
+                  final displayTitle = translatedOrOriginal(
+                    original: title,
+                    translationsJson: item.jobTitleTranslationsJson,
+                    locale: locale,
+                  );
 
-                    final rawAddress = (item.addressText ?? '').trim();
-                    final address = translatedOrOriginal(
-                      original: item.addressText,
-                      translationsJson: item.addressTranslationsJson,
-                      locale: locale,
-                    ).trim();
-                    final rawMessage = (item.message ?? '').trim();
-                    final message = translatedOrOriginal(
-                      original: item.message,
-                      translationsJson: item.messageTranslationsJson,
-                      locale: locale,
-                    ).trim();
+                  final rawAddress = (item.addressText ?? '').trim();
+                  final address = translatedOrOriginal(
+                    original: item.addressText,
+                    translationsJson: item.addressTranslationsJson,
+                    locale: locale,
+                  ).trim();
+                  final rawMessage = (item.message ?? '').trim();
+                  final message = translatedOrOriginal(
+                    original: item.message,
+                    translationsJson: item.messageTranslationsJson,
+                    locale: locale,
+                  ).trim();
 
-                    final rawComment = (item.priceComment ?? '').trim();
-                    final comment = translatedOrOriginal(
-                      original: item.priceComment,
-                      translationsJson: item.priceCommentTranslationsJson,
-                      locale: locale,
-                    ).trim();
+                  final rawComment = (item.priceComment ?? '').trim();
+                  final comment = translatedOrOriginal(
+                    original: item.priceComment,
+                    translationsJson: item.priceCommentTranslationsJson,
+                    locale: locale,
+                  ).trim();
 
-                    return Card(
-                      color: _offerCardColor(item.status),
-                      child: ListTile(
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => MasterJobDetailsScreen(
-                                jobId: item.jobId,
-                                jobTitle: title,
-                                jobTitleTranslationsJson: item.jobTitleTranslationsJson,
-                              ),
-                            ),
-                          );
-                          if (mounted) {
-                            await _refreshAll();
-                          }
-                        },
-                        title: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    displayTitle.trim().isNotEmpty
-                                        ? displayTitle.trim()
-                                        : title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  if (hasRealTranslation(
-                                    original: title,
-                                    translated: displayTitle,
-                                  )) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      title,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-
-                          ],
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'),
-                              if (rawAddress.isNotEmpty) Text(address),
-                              if (rawMessage.isNotEmpty) Text(message),
-                              if (rawComment.isNotEmpty) Text('${l10n.t('comment_label')}: $comment'),
-                            ],
-                          ),
-                        ),
-                        trailing: item.status == 'master_selected' || item.status == 'in_progress'
-                            ? IconButton(
-                                tooltip: l10n.t('chat'),
-                                icon: const Icon(Icons.chat_bubble_outline),
-                                onPressed: () async {
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => ChatScreen(
-                                        jobId: item.jobId,
-                                        jobStatus: item.status,
-                                      ),
-                                    ),
-                                  );
-
-                                  if (mounted) {
-                                    await _refreshAll();
-                                  }
-                                },
-                              )
-                            : const Icon(Icons.chevron_right),
-                      ),
-                    );
-                  }),
-                if (visibleCompletedOffers.isNotEmpty) ...[
-                  const SizedBox(height: 20),
-                  Center(
-                    child: InkWell(
+                  return Card(
+                    color: _offerCardColor(item.status),
+                    child: ListTile(
                       onTap: () async {
                         await Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const MasterCompletedJobsScreen(),
+                            builder: (_) => MasterJobDetailsScreen(
+                              jobId: item.jobId,
+                              jobTitle: title,
+                              jobTitleTranslationsJson:
+                                  item.jobTitleTranslationsJson,
+                            ),
                           ),
                         );
                         if (mounted) {
-                          await _loadHiddenCompletedJobIds();
+                          await _refreshAll();
                         }
                       },
-                      child: Text(
-                        l10n.t('completed_jobs'),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ...visibleCompletedOffers.map((item) {
-                    final title = item.jobTitle.trim().isNotEmpty
-                        ? item.jobTitle.trim()
-                        : 'Job ${item.jobId}';
-                    final displayTitle = translatedOrOriginal(
-                      original: title,
-                      translationsJson: item.jobTitleTranslationsJson,
-                      locale: locale,
-                    );
-                    final completedAt = item.updatedAt ?? item.createdAt;
-
-                    return Card(
-                      color: _offerCardColor(item.status),
-                      child: ListTile(
-                        onLongPress: () async {
-                          await _confirmHideCompletedJob(
-                            jobId: item.jobId,
-                            title: title,
-                          );
-                        },
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => MasterJobDetailsScreen(
-                                jobId: item.jobId,
-                                jobTitle: title,
-                                jobTitleTranslationsJson: item.jobTitleTranslationsJson,
-                              ),
+                      title: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  displayTitle.trim().isNotEmpty
+                                      ? displayTitle.trim()
+                                      : title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (hasRealTranslation(
+                                  original: title,
+                                  translated: displayTitle,
+                                )) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
                             ),
-                          );
-                        },
-                        title: Column(
+                          ),
+                        ],
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              displayTitle.trim().isNotEmpty
-                                  ? displayTitle.trim()
-                                  : title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            if (hasRealTranslation(
-                              original: title,
-                              translated: displayTitle,
-                            )) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                                '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'),
+                            if (rawAddress.isNotEmpty) Text(address),
+                            if (rawMessage.isNotEmpty) Text(message),
+                            if (rawComment.isNotEmpty)
+                              Text('${l10n.t('comment_label')}: $comment'),
                           ],
                         ),
-                        subtitle: Text(
-                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
-                          '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
-                        ),
-                        isThreeLine: true,
-                        trailing: const Icon(Icons.chevron_right),
                       ),
-                    );
-                  }),
-                  if (completedOffers.length > 5)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Center(
-                        child: TextButton(
-                          onPressed: () async {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const MasterCompletedJobsScreen(),
-                              ),
-                            );
-                            if (mounted) {
-                              await _loadHiddenCompletedJobIds();
-                            }
-                          },
-                          child: Text(l10n.t('view_remaining_completed_jobs')),
+                      trailing: item.status == 'master_selected' ||
+                              item.status == 'in_progress'
+                          ? IconButton(
+                              tooltip: l10n.t('chat'),
+                              icon: const Icon(Icons.chat_bubble_outline),
+                              onPressed: () async {
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => ChatScreen(
+                                      jobId: item.jobId,
+                                      jobStatus: item.status,
+                                    ),
+                                  ),
+                                );
+
+                                if (mounted) {
+                                  await _refreshAll();
+                                }
+                              },
+                            )
+                          : const Icon(Icons.chevron_right),
+                    ),
+                  );
+                }),
+              if (visibleCompletedOffers.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Center(
+                  child: InkWell(
+                    onTap: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const MasterCompletedJobsScreen(),
                         ),
+                      );
+                      if (mounted) {
+                        await _loadHiddenCompletedJobIds();
+                      }
+                    },
+                    child: Text(
+                      l10n.t('completed_jobs'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...visibleCompletedOffers.map((item) {
+                  final title = item.jobTitle.trim().isNotEmpty
+                      ? item.jobTitle.trim()
+                      : 'Job ${item.jobId}';
+                  final displayTitle = translatedOrOriginal(
+                    original: title,
+                    translationsJson: item.jobTitleTranslationsJson,
+                    locale: locale,
+                  );
+                  final completedAt = item.updatedAt ?? item.createdAt;
+
+                  return Card(
+                    color: _offerCardColor(item.status),
+                    child: ListTile(
+                      onLongPress: () async {
+                        await _confirmHideCompletedJob(
+                          jobId: item.jobId,
+                          title: title,
+                        );
+                      },
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => MasterJobDetailsScreen(
+                              jobId: item.jobId,
+                              jobTitle: title,
+                              jobTitleTranslationsJson:
+                                  item.jobTitleTranslationsJson,
+                            ),
+                          ),
+                        );
+                      },
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayTitle.trim().isNotEmpty
+                                ? displayTitle.trim()
+                                : title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          if (hasRealTranslation(
+                            original: title,
+                            translated: displayTitle,
+                          )) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                      subtitle: Text(
+                        '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
+                        '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
+                      ),
+                      isThreeLine: true,
+                      trailing: const Icon(Icons.chevron_right),
+                    ),
+                  );
+                }),
+                if (completedOffers.length > 5)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const MasterCompletedJobsScreen(),
+                            ),
+                          );
+                          if (mounted) {
+                            await _loadHiddenCompletedJobIds();
+                          }
+                        },
+                        child: Text(l10n.t('view_remaining_completed_jobs')),
+                      ),
+                    ),
+                  ),
               ],
             ],
+          ],
         ),
-        ),
-      );
-    }
+      ),
+    );
   }
+}

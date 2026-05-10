@@ -179,8 +179,7 @@ class _MasterMarketplaceScreenState
                               context: context,
                               jobId: item.id,
                               originalTitle: originalTitle,
-                              titleTranslationsJson:
-                                  item.titleTranslationsJson,
+                              titleTranslationsJson: item.titleTranslationsJson,
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -188,95 +187,99 @@ class _MasterMarketplaceScreenState
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          displayTitle.trim().isNotEmpty
-                                              ? displayTitle.trim()
-                                              : originalTitle,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              displayTitle.trim().isNotEmpty
+                                                  ? displayTitle.trim()
+                                                  : originalTitle,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                            ),
+                                            if (hasRealTranslation(
+                                              original: originalTitle,
+                                              translated: displayTitle,
+                                            )) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                originalTitle,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium,
                                               ),
-                                        ),
-                                        if (hasRealTranslation(
-                                          original: originalTitle,
-                                          translated: displayTitle,
-                                        )) ...[
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            originalTitle,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium,
-                                          ),
-                                        ],
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                        if (displayDescription
-                                            .trim()
-                                            .isNotEmpty) ...[
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            displayDescription.trim(),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                        if (displayAddress
-                                            .trim()
-                                            .isNotEmpty) ...[
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            displayAddress.trim(),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  item.hasApplied
-                                      ? Align(
-                                          alignment: Alignment.topRight,
-                                          child: OutlinedButton.icon(
-                                            onPressed: null,
-                                            icon: const Icon(
-                                              Icons.check_circle_outline,
+                                            ],
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium,
                                             ),
-                                            label: Text(l10n.t('offer_sent')),
-                                          ),
-                                        )
-                                      : Align(
-                                          alignment: Alignment.topRight,
-                                          child: ElevatedButton(
-                                            onPressed: () => _openCreateOffer(
-                                              context: context,
-                                              jobId: item.id,
-                                              originalTitle: originalTitle,
-                                              titleTranslationsJson:
-                                                  item.titleTranslationsJson,
-                                            ),
-                                            child: Text(l10n.t('send_offer')),
-                                          ),
+                                            if (displayDescription
+                                                .trim()
+                                                .isNotEmpty) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                displayDescription.trim(),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                            if (displayAddress
+                                                .trim()
+                                                .isNotEmpty) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                displayAddress.trim(),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ],
                                         ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      item.hasApplied
+                                          ? Align(
+                                              alignment: Alignment.topRight,
+                                              child: OutlinedButton.icon(
+                                                onPressed: null,
+                                                icon: const Icon(
+                                                  Icons.check_circle_outline,
+                                                ),
+                                                label:
+                                                    Text(l10n.t('offer_sent')),
+                                              ),
+                                            )
+                                          : Align(
+                                              alignment: Alignment.topRight,
+                                              child: ElevatedButton(
+                                                onPressed: () =>
+                                                    _openCreateOffer(
+                                                  context: context,
+                                                  jobId: item.id,
+                                                  originalTitle: originalTitle,
+                                                  titleTranslationsJson: item
+                                                      .titleTranslationsJson,
+                                                ),
+                                                child:
+                                                    Text(l10n.t('send_offer')),
+                                              ),
+                                            ),
                                     ],
                                   ),
                                   const SizedBox(height: 12),
@@ -290,8 +293,9 @@ class _MasterMarketplaceScreenState
                                         titleTranslationsJson:
                                             item.titleTranslationsJson,
                                       ),
-                                      icon: const Icon(Icons.visibility_outlined),
-                                      label: Text(l10n.t('view_details')),
+                                      icon:
+                                          const Icon(Icons.visibility_outlined),
+                                      label: Text(l10n.t('offer_sent')),
                                     ),
                                   ),
                                 ],
