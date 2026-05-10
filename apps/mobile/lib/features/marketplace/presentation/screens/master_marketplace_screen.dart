@@ -248,8 +248,7 @@ class _MasterMarketplaceScreenState
                                       const SizedBox(height: 12),
                                       Row(
                                         children: [
-                                          const Icon(Icons.info_outline,
-                                              size: 18),
+                                          const Icon(Icons.touch_app, size: 18),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
@@ -258,7 +257,6 @@ class _MasterMarketplaceScreenState
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          const Icon(Icons.chevron_right),
                                         ],
                                       ),
                                     ],
