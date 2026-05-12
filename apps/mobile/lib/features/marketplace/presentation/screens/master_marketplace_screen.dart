@@ -219,6 +219,21 @@ class _MasterMarketplaceScreenState
                                               .bodyMedium,
                                         ),
                                       ],
+                                      if (displayDescription.trim().isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '${l10n.t('comment_label')}:',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          displayDescription.trim(),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                       const SizedBox(height: 8),
                                       Text(
                                         '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
@@ -228,16 +243,6 @@ class _MasterMarketplaceScreenState
                                             .textTheme
                                             .bodyMedium,
                                       ),
-                                      if (displayDescription
-                                          .trim()
-                                          .isNotEmpty) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          displayDescription.trim(),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
                                       if (displayAddress.trim().isNotEmpty)
                                         JobLocationSummary(
                                           addressText: displayAddress,

@@ -674,35 +674,10 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                         latitude: _job.latitude,
                         longitude: _job.longitude,
                         maxAddressLines: 8,
+                        showCopyForGps: true,
                       ),
                     if (_job.latitude != null && _job.longitude != null) ...[
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'GPS: ${_job.latitude!.toStringAsFixed(6)}, ${_job.longitude!.toStringAsFixed(6)}',
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () async {
-                              final gps =
-                                  '${_job.latitude!.toStringAsFixed(6)},${_job.longitude!.toStringAsFixed(6)}';
-                              await Clipboard.setData(ClipboardData(text: gps));
-
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(l10n.t('copied'))),
-                                );
-                              }
-                            },
-                            icon: const Icon(Icons.copy, size: 18),
-                            tooltip: l10n.t('copy'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Center(
                         child: TextButton.icon(
                           onPressed: () async {
@@ -715,7 +690,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                           label: Text(l10n.t('open_in_maps')),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       _jobLocationMap(
                         latitude: _job.latitude!,
                         longitude: _job.longitude!,

@@ -134,5 +134,6 @@
   "offers": "Отклики",
   "open_in_maps": "Открыть в Google Карте",
   "phone_contact_not_allowed": "Нельзя отправлять номер телефона в чате",
-  "client_review": "Отзыв клиента"
+  "client_review": "Отзыв клиента",
+  "room_unit_label": "Комната / Unit"
 }

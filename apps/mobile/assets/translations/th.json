@@ -134,5 +134,6 @@
   "offers": "ข้อเสนอ",
   "open_in_maps": "เปิดใน Google Maps",
   "phone_contact_not_allowed": "ไม่สามารถส่งหมายเลขโทรศัพท์ในแชตได้",
-  "client_review": "รีวิวจากลูกค้า"
+  "client_review": "รีวิวจากลูกค้า",
+  "room_unit_label": "ห้อง / Unit"
 }
