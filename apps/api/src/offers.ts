@@ -236,26 +236,22 @@ export async function getOffers(jobId: string, request: Request, env: any, ctx?:
     return fail('Only job client or admin can view offers', 403);
   }
 
+  const idsResult = await env.DB.prepare(
+    'SELECT id FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
+  ).bind(jobId).all();
+
+  for (const offer of idsResult.results ?? []) {
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'offer',
+      entityId: String((offer as any).id),
+      limit: 6,
+    }).catch(() => undefined);
+  }
+
   const result = await env.DB.prepare(
     'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
   ).bind(jobId).all();
-
-  const translationWork = Promise.all(
-    (result.results ?? []).map((offer: any) =>
-      processPendingTranslationTasks({
-        env,
-        entityType: 'offer',
-        entityId: String(offer.id),
-        limit: 6,
-      })
-    )
-  ).catch(() => undefined);
-
-  if (ctx?.waitUntil) {
-    ctx.waitUntil(translationWork);
-  } else {
-    void translationWork;
-  }
 
   return Response.json({
     success: true,

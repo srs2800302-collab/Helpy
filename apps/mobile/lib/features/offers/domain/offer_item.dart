@@ -14,6 +14,8 @@ class OfferItem {
   final String categorySlug;
   final String? addressText;
   final String? addressTranslationsJson;
+  final double? latitude;
+  final double? longitude;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? lastMessage;
@@ -40,6 +42,8 @@ class OfferItem {
     required this.categorySlug,
     required this.addressText,
     required this.addressTranslationsJson,
+    required this.latitude,
+    required this.longitude,
     required this.createdAt,
     required this.updatedAt,
     required this.lastMessage,

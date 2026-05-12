@@ -466,10 +466,37 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             Text(
                                 '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'),
                             if (rawAddress.isNotEmpty)
-                              JobLocationSummary(addressText: address),
-                            if (rawMessage.isNotEmpty) Text(message),
-                            if (rawComment.isNotEmpty)
-                              Text('${l10n.t('comment_label')}: $comment'),
+                              JobLocationSummary(
+                                addressText: address,
+                                latitude: item.latitude,
+                                longitude: item.longitude,
+                              ),
+                            if (rawMessage.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Text(
+                                l10n.t('offer_message'),
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                message,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                            if (rawComment.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Text(
+                                l10n.t('comment_label'),
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                comment,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ],
                         ),
                       ),

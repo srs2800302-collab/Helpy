@@ -84,6 +84,8 @@ class OffersApi {
       categorySlug: '',
       addressText: null,
       addressTranslationsJson: null,
+      latitude: null,
+      longitude: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.tryParse(data['updated_at'] as String? ?? ''),
       lastMessage: null,
@@ -116,6 +118,8 @@ class OffersApi {
       categorySlug: json['category'] as String? ?? '',
       addressText: json['address_text'] as String?,
       addressTranslationsJson: json['address_translations_json'] as String?,
+      latitude: double.tryParse(json['latitude']?.toString() ?? ''),
+      longitude: double.tryParse(json['longitude']?.toString() ?? ''),
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),

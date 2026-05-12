@@ -30,6 +30,8 @@ class MarketplaceApi {
       titleTranslationsJson: json['title_translations_json'] as String?,
       descriptionTranslationsJson: json['description_translations_json'] as String?,
       addressTranslationsJson: json['address_translations_json'] as String?,
+      latitude: double.tryParse(json['latitude']?.toString() ?? ''),
+      longitude: double.tryParse(json['longitude']?.toString() ?? ''),
       status: json['status'] as String? ?? '',
       categoryId: json['category'] as String? ?? '',
       categorySlug: json['category'] as String? ?? '',

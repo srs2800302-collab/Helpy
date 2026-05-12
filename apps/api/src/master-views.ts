@@ -1,6 +1,7 @@
 import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { ensureChatSchema } from './chat';
+import { processPendingTranslationTasks } from './translation';
 
 type MasterAccessResult =
   | { ok: true; userId: string }
@@ -40,6 +41,8 @@ function sanitizeOffer(row: any) {
     status: row.status ?? '',
     address_text: row.address_text ?? '',
     address_translations_json: row.address_translations_json ?? null,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
     updated_at: row.updated_at ?? null,
     last_message: row.last_message ?? null,
     last_message_sender_user_id: row.last_message_sender_user_id ?? null,
@@ -62,6 +65,8 @@ function sanitizeAvailableJob(row: any) {
     status: row.status,
     created_at: row.created_at,
     address_text: row.address_text,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
     title_original: row.title_original ?? row.title,
     description_original: row.description_original ?? row.description,
     source_language: row.source_language ?? 'ru',
@@ -121,6 +126,12 @@ export async function getOffersByMaster(
     return access.response;
   }
 
+  await processPendingTranslationTasks({
+    env,
+    entityType: 'offer',
+    limit: 100,
+  }).catch(() => undefined);
+
   const result = await env.DB.prepare(
     `SELECT
        o.id,
@@ -139,6 +150,8 @@ export async function getOffersByMaster(
        j.status AS status,
        j.address_text AS address_text,
        j.address_translations_json AS address_translations_json,
+       j.latitude AS latitude,
+       j.longitude AS longitude,
        (
          SELECT cm.text
          FROM chat_messages cm
@@ -220,6 +233,8 @@ export async function getAvailableJobsForMaster(
        status,
        created_at,
        address_text,
+       latitude,
+       longitude,
        title_original,
        description_original,
        source_language,

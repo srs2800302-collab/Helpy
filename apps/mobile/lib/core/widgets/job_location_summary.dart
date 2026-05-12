@@ -19,6 +19,11 @@ class JobLocationSummary extends StatelessWidget {
     this.showCopyForGps = false,
   });
 
+  bool get _hasGps => latitude != null && longitude != null;
+
+  String get _gpsText =>
+      '${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}';
+
   List<_LocationLine> _lines() {
     final raw = (addressText ?? '').trim();
     final result = <_LocationLine>[];
@@ -28,31 +33,57 @@ class JobLocationSummary extends StatelessWidget {
       if (line.isEmpty) continue;
 
       final lower = line.toLowerCase();
-      if (lower.startsWith('address:')) {
-        final value = line.substring(line.indexOf(':') + 1).trim();
-        if (value.isNotEmpty) {
-          result.add(_LocationLine(Icons.location_on_outlined, value));
+      final separatorIndex = line.indexOf(':');
+
+      if (lower.startsWith('gps:') ||
+          lower.startsWith('gps ') ||
+          lower.startsWith('гпс:') ||
+          lower.startsWith('จีพีเอส:')) {
+        if (!_hasGps && separatorIndex >= 0) {
+          final value = line.substring(separatorIndex + 1).trim();
+          if (value.isNotEmpty) {
+            result.add(
+              _LocationLine(
+                Icons.my_location_outlined,
+                value,
+                isGps: true,
+              ),
+            );
+          }
         }
-      } else if (lower.startsWith('room/unit:')) {
-        final value = line.substring(line.indexOf(':') + 1).trim();
-        if (value.isNotEmpty) {
-          result.add(_LocationLine(Icons.meeting_room_outlined, value, isRoom: true));
-        }
-      } else if (lower.startsWith('gps:')) {
-        final value = line.substring(line.indexOf(':') + 1).trim();
-        if (value.isNotEmpty) {
-          result.add(_LocationLine(Icons.my_location_outlined, value, isGps: true));
-        }
-      } else {
-        result.add(_LocationLine(Icons.location_on_outlined, line));
+        continue;
       }
+
+      if (lower.startsWith('address:') && separatorIndex >= 0) {
+        final value = line.substring(separatorIndex + 1).trim();
+        if (value.isNotEmpty) {
+          result.add(
+            _LocationLine(Icons.location_on_outlined, value, isAddress: true),
+          );
+        }
+        continue;
+      }
+
+      if (lower.startsWith('room/unit:') && separatorIndex >= 0) {
+        final value = line.substring(separatorIndex + 1).trim();
+        if (value.isNotEmpty) {
+          result.add(
+            _LocationLine(Icons.apartment_outlined, value, isRoom: true),
+          );
+        }
+        continue;
+      }
+
+      result.add(
+        _LocationLine(Icons.location_on_outlined, line, isAddress: true),
+      );
     }
 
-    if (!result.any((line) => line.isGps) && latitude != null && longitude != null) {
+    if (_hasGps) {
       result.add(
         _LocationLine(
           Icons.my_location_outlined,
-          '${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}',
+          _gpsText,
           isGps: true,
         ),
       );
@@ -82,8 +113,10 @@ class JobLocationSummary extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      line.isRoom ? '${l10n.t('room_unit_label')}: ${line.text}' : line.text,
-                      maxLines: line.icon == Icons.location_on_outlined ? maxAddressLines : 1,
+                      line.isRoom
+                          ? '${l10n.t('room_unit_label')}: ${line.text}'
+                          : line.text,
+                      maxLines: line.isAddress ? maxAddressLines : 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -117,12 +150,14 @@ class JobLocationSummary extends StatelessWidget {
 class _LocationLine {
   final IconData icon;
   final String text;
+  final bool isAddress;
   final bool isRoom;
   final bool isGps;
 
   const _LocationLine(
     this.icon,
     this.text, {
+    this.isAddress = false,
     this.isRoom = false,
     this.isGps = false,
   });

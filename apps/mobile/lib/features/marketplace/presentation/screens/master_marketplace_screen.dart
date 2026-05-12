@@ -246,6 +246,8 @@ class _MasterMarketplaceScreenState
                                       if (displayAddress.trim().isNotEmpty)
                                         JobLocationSummary(
                                           addressText: displayAddress,
+                                          latitude: item.latitude,
+                                          longitude: item.longitude,
                                         ),
                                       const SizedBox(height: 12),
                                       Row(

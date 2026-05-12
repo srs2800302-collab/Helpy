@@ -8,6 +8,8 @@ class MarketplaceJobItem {
   final String? titleTranslationsJson;
   final String? descriptionTranslationsJson;
   final String? addressTranslationsJson;
+  final double? latitude;
+  final double? longitude;
   final String status;
   final String categoryId;
   final String categorySlug;
@@ -24,6 +26,8 @@ class MarketplaceJobItem {
     required this.titleTranslationsJson,
     required this.descriptionTranslationsJson,
     required this.addressTranslationsJson,
+    required this.latitude,
+    required this.longitude,
     required this.status,
     required this.categoryId,
     required this.categorySlug,
