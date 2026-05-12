@@ -55,3 +55,7 @@ apps/api/prisma/dev.db-journal
 tmp/
 temp/
 helpy-debug-apk/
+
+# Build artifacts
+apps/api/dist/
+*.tsbuildinfo
