@@ -45,6 +45,9 @@ function sanitizeOffer(row: any) {
     last_message_sender_user_id: row.last_message_sender_user_id ?? null,
     last_message_created_at: row.last_message_created_at ?? null,
     last_message_translations_json: row.last_message_translations_json ?? null,
+    review_rating: row.review_rating ?? null,
+    review_comment: row.review_comment ?? null,
+    review_created_at: row.review_created_at ?? null,
   };
 }
 
@@ -163,7 +166,25 @@ export async function getOffersByMaster(
          WHERE cm.job_id = j.id
          ORDER BY cm.created_at DESC
          LIMIT 1
-       ) AS last_message_translations_json
+       ) AS last_message_translations_json,
+       (
+         SELECT r.rating
+         FROM reviews r
+         WHERE r.job_id = j.id
+         LIMIT 1
+       ) AS review_rating,
+       (
+         SELECT r.comment
+         FROM reviews r
+         WHERE r.job_id = j.id
+         LIMIT 1
+       ) AS review_comment,
+       (
+         SELECT r.created_at
+         FROM reviews r
+         WHERE r.job_id = j.id
+         LIMIT 1
+       ) AS review_created_at
      FROM offers o
      JOIN jobs j ON j.id = o.job_id
      WHERE o.master_user_id = ?1

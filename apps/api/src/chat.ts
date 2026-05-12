@@ -8,6 +8,11 @@ const MAX_MESSAGES_LIMIT = 100;
 const DEFAULT_MESSAGES_OFFSET = 0;
 const MIN_MESSAGE_INTERVAL_MS = 1000;
 
+function containsPhoneNumber(value: string) {
+  const compact = value.replace(/[\s().-]/g, '');
+  return /(?:\+?\d{8,}|0\d{8,})/.test(compact);
+}
+
 export async function ensureChatSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS chat_messages (
@@ -209,6 +214,13 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
   if (text.length > MAX_MESSAGE_LENGTH) {
     return Response.json(
       { success: false, error: `text must be at most ${MAX_MESSAGE_LENGTH} characters` },
+      { status: 400 }
+    );
+  }
+
+  if (containsPhoneNumber(text)) {
+    return Response.json(
+      { success: false, error: 'phone_contact_not_allowed' },
       { status: 400 }
     );
   }

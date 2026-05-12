@@ -133,6 +133,9 @@ class JobsApi {
         json['selected_offer_price']?.toString() ?? '',
       ),
       hasReview: json['has_review'] as bool?,
+      reviewRating: int.tryParse(json['review_rating']?.toString() ?? ''),
+      reviewComment: json['review_comment'] as String?,
+      reviewCreatedAt: DateTime.tryParse(json['review_created_at'] as String? ?? ''),
       offersCount: int.tryParse(json['offers_count']?.toString() ?? '') ?? 0,
       hasApplied: json['has_applied'] == true ||
           json['has_applied'] == 1 ||

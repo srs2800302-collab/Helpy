@@ -28,6 +28,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   late final TextEditingController _textController;
   late final ScrollController _scrollController;
   ChatMessage? _replyToMessage;
+  bool _isCompleting = false;
+
+  bool _containsPhoneNumber(String value) {
+    final compact = value.replaceAll(RegExp(r'[\s().-]'), '');
+    return RegExp(r'(?:\+?\d{8,}|0\d{8,})').hasMatch(compact);
+  }
 
   String _senderLabel({
     required String senderUserId,
@@ -107,16 +113,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> _completeJob() async {
+    if (_isCompleting) return;
+
     final session = ref.read(authControllerProvider).session;
     if (session == null) return;
+
+    setState(() {
+      _isCompleting = true;
+    });
 
     try {
       await ref.read(chatApiProvider).completeJob(
             jobId: widget.jobId,
             userId: session.userId,
           );
-
-      if (!mounted) return;
 
       if (!mounted) return;
 
@@ -129,6 +139,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       context.go('/home');
     } catch (e) {
       if (!mounted) return;
+      setState(() {
+        _isCompleting = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
       );
@@ -149,6 +162,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _sendMessage() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
+
+    if (_containsPhoneNumber(text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).t('phone_contact_not_allowed')),
+        ),
+      );
+      return;
+    }
 
     await ref.read(chatControllerProvider.notifier).send(
           widget.jobId,
@@ -212,8 +234,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: state.isLoading ? null : _completeJob,
-                  child: Text(l10n.t('complete_job')),
+                  onPressed: (state.isLoading || _isCompleting) ? null : _completeJob,
+                  child: _isCompleting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(l10n.t('complete_job')),
                 ),
               ),
             ),

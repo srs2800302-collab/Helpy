@@ -23,6 +23,9 @@ class JobItem {
   final double? selectedOfferPrice;
 
   final bool? hasReview;
+  final int? reviewRating;
+  final String? reviewComment;
+  final DateTime? reviewCreatedAt;
   final int offersCount;
   final bool hasApplied;
   final double? latitude;
@@ -54,6 +57,9 @@ class JobItem {
     required this.selectedOfferId,
     required this.selectedOfferPrice,
     required this.hasReview,
+    required this.reviewRating,
+    required this.reviewComment,
+    required this.reviewCreatedAt,
     required this.offersCount,
     required this.hasApplied,
     required this.latitude,

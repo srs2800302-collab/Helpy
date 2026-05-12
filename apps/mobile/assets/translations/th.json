@@ -132,5 +132,7 @@
   "view_details": "ดูรายละเอียด",
   "job_details": "รายละเอียดงาน",
   "offers": "ข้อเสนอ",
-  "open_in_maps": "เปิดใน Google Maps"
-}
+  "open_in_maps": "เปิดใน Google Maps",
+  "phone_contact_not_allowed": "ไม่สามารถส่งหมายเลขโทรศัพท์ในแชตได้",
+  "client_review": "รีวิวจากลูกค้า"
+}\n

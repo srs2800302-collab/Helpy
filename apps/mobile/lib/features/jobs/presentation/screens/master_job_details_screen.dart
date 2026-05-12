@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
@@ -570,14 +571,13 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                             ),
                           ],
                         ),
-                        if (displayAddress.trim().isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            displayAddress.trim(),
-                            maxLines: 8,
-                            overflow: TextOverflow.ellipsis,
+                        if (displayAddress.trim().isNotEmpty)
+                          JobLocationSummary(
+                            addressText: displayAddress,
+                            latitude: job.latitude,
+                            longitude: job.longitude,
+                            maxAddressLines: 8,
                           ),
-                        ],
                         if (job.latitude != null && job.longitude != null) ...[
                           const SizedBox(height: 8),
                           Row(

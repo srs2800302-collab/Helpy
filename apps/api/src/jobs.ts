@@ -30,7 +30,10 @@ async function withHasReview(row: any, env: any) {
   if (!row) return row;
 
   const review = await env.DB.prepare(
-    'SELECT id FROM reviews WHERE job_id = ?1 LIMIT 1'
+    `SELECT id, rating, comment, created_at
+     FROM reviews
+     WHERE job_id = ?1
+     LIMIT 1`
   )
     .bind(row.id)
     .first();
@@ -38,6 +41,9 @@ async function withHasReview(row: any, env: any) {
   return {
     ...row,
     has_review: !!review,
+    review_rating: review?.rating ?? null,
+    review_comment: review?.comment ?? null,
+    review_created_at: review?.created_at ?? null,
   };
 }
 

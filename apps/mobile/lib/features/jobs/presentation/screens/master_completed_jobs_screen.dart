@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../offers/domain/offer_item.dart';
 import 'master_job_details_screen.dart';
@@ -190,10 +191,20 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                             ],
                           ],
                         ),
-                        subtitle: Text(
-                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
-                          '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
-                        ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
+                            '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
+                          ),
+                          if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
+                            JobReviewSummary(
+                              rating: item.reviewRating,
+                              comment: item.reviewComment,
+                            ),
+                        ],
+                      ),
                         isThreeLine: true,
                         trailing: const Icon(Icons.chevron_right),
                       ),

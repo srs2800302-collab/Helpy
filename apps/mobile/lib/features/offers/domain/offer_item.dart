@@ -20,6 +20,9 @@ class OfferItem {
   final String? lastMessageSenderUserId;
   final DateTime? lastMessageCreatedAt;
   final String? lastMessageTranslationsJson;
+  final int? reviewRating;
+  final String? reviewComment;
+  final DateTime? reviewCreatedAt;
 
   const OfferItem({
     required this.id,
@@ -43,5 +46,8 @@ class OfferItem {
     required this.lastMessageSenderUserId,
     required this.lastMessageCreatedAt,
     required this.lastMessageTranslationsJson,
+    required this.reviewRating,
+    required this.reviewComment,
+    required this.reviewCreatedAt,
   });
 }

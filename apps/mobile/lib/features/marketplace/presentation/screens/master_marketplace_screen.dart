@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
@@ -237,14 +238,10 @@ class _MasterMarketplaceScreenState
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ],
-                                      if (displayAddress.trim().isNotEmpty) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          displayAddress.trim(),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                      if (displayAddress.trim().isNotEmpty)
+                                        JobLocationSummary(
+                                          addressText: displayAddress,
                                         ),
-                                      ],
                                       const SizedBox(height: 12),
                                       Row(
                                         children: [

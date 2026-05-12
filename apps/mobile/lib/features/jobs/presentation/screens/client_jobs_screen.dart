@@ -6,6 +6,9 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../../core/widgets/job_review_summary.dart';
+import '../../../../core/widgets/job_location_summary.dart';
+import '../../../reviews/presentation/screens/create_review_screen.dart';
 import 'client_job_details_screen.dart';
 
 class ClientJobsScreen extends ConsumerStatefulWidget {
@@ -228,16 +231,38 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                       '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
                                     ),
                                     if (displayAddress.trim().isNotEmpty)
-                                      Text(
-                                        displayAddress.trim(),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                      JobLocationSummary(
+                                        addressText: displayAddress,
+                                        latitude: item.latitude,
+                                        longitude: item.longitude,
                                       ),
                                     if (lastMessage.isNotEmpty)
                                       Text(
                                         '💬 $lastMessage',
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
+                                      ),
+                                    if (item.status == 'completed' && item.hasReview == true)
+                                      JobReviewSummary(
+                                        rating: item.reviewRating,
+                                        comment: item.reviewComment,
+                                        submitted: true,
+                                      )
+                                    else if (item.status == 'completed' && (item.selectedMasterUserId ?? '').trim().isNotEmpty)
+                                      LeaveReviewButton(
+                                        onPressed: () async {
+                                          final reviewed = await Navigator.of(context).push<bool>(
+                                            MaterialPageRoute(
+                                              builder: (_) => CreateReviewScreen(
+                                                jobId: item.id,
+                                                masterUserId: item.selectedMasterUserId!,
+                                              ),
+                                            ),
+                                          );
+                                          if (reviewed == true && mounted) {
+                                            await _refresh();
+                                          }
+                                        },
                                       ),
                                   ],
                                 ),

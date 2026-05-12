@@ -132,5 +132,7 @@
   "view_details": "Посмотреть детали",
   "job_details": "Детали заказа",
   "offers": "Отклики",
-  "open_in_maps": "Открыть в Google Карте"
-}
+  "open_in_maps": "Открыть в Google Карте",
+  "phone_contact_not_allowed": "Нельзя отправлять номер телефона в чате",
+  "client_review": "Отзыв клиента"
+}\n

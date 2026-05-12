@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
@@ -667,14 +668,13 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                         ),
                       ],
                     ),
-                    if (displayAddress.trim().isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        displayAddress.trim(),
-                        maxLines: 8,
-                        overflow: TextOverflow.ellipsis,
+                    if (displayAddress.trim().isNotEmpty)
+                      JobLocationSummary(
+                        addressText: displayAddress,
+                        latitude: _job.latitude,
+                        longitude: _job.longitude,
+                        maxAddressLines: 8,
                       ),
-                    ],
                     if (_job.latitude != null && _job.longitude != null) ...[
                       const SizedBox(height: 8),
                       Row(

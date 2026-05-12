@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/widgets/job_review_summary.dart';
+import '../../../../core/widgets/job_location_summary.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
@@ -463,7 +465,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                           children: [
                             Text(
                                 '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'),
-                            if (rawAddress.isNotEmpty) Text(address),
+                            if (rawAddress.isNotEmpty)
+                              JobLocationSummary(addressText: address),
                             if (rawMessage.isNotEmpty) Text(message),
                             if (rawComment.isNotEmpty)
                               Text('${l10n.t('comment_label')}: $comment'),
@@ -576,9 +579,19 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                           ],
                         ],
                       ),
-                      subtitle: Text(
-                        '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
-                        '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
+                            '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
+                          ),
+                          if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
+                            JobReviewSummary(
+                              rating: item.reviewRating,
+                              comment: item.reviewComment,
+                            ),
+                        ],
                       ),
                       isThreeLine: true,
                       trailing: const Icon(Icons.chevron_right),

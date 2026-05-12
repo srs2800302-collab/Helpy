@@ -5,9 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/widgets/job_review_summary.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
+import '../../../reviews/presentation/screens/create_review_screen.dart';
 import '../../../client_offers/presentation/screens/job_offers_screen.dart';
 
 class ClientHomeScreen extends ConsumerStatefulWidget {
@@ -495,12 +497,39 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                 ],
                               ],
                             ),
-                            subtitle: Text(
-                              isCompleted
-                                  ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}'
-                                  : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isCompleted
+                                      ? '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}'
+                                      : '${_categoryLabel(l10n, item.categorySlug)} • ${_statusLabel(l10n, item.status)}',
+                                ),
+                                if (isCompleted && item.hasReview == true)
+                                  JobReviewSummary(
+                                    rating: item.reviewRating,
+                                    comment: item.reviewComment,
+                                    submitted: true,
+                                  )
+                                else if (isCompleted && (item.selectedMasterUserId ?? '').trim().isNotEmpty)
+                                  LeaveReviewButton(
+                                    onPressed: () async {
+                                      final reviewed = await Navigator.of(context).push<bool>(
+                                        MaterialPageRoute(
+                                          builder: (_) => CreateReviewScreen(
+                                            jobId: item.id,
+                                            masterUserId: item.selectedMasterUserId!,
+                                          ),
+                                        ),
+                                      );
+                                      if (reviewed == true && mounted) {
+                                        await _refreshAll();
+                                      }
+                                    },
+                                  ),
+                              ],
                             ),
-                            isThreeLine: isCompleted,
+                            isThreeLine: true,
                             trailing: item.status == 'master_selected' || item.status == 'in_progress'
                                 ? IconButton(
                                     tooltip: l10n.t('chat'),

@@ -90,6 +90,9 @@ class OffersApi {
       lastMessageSenderUserId: null,
       lastMessageCreatedAt: null,
       lastMessageTranslationsJson: null,
+      reviewRating: null,
+      reviewComment: null,
+      reviewCreatedAt: null,
     );
   }
 
@@ -120,6 +123,9 @@ class OffersApi {
       lastMessageSenderUserId: json['last_message_sender_user_id'] as String?,
       lastMessageCreatedAt: DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
       lastMessageTranslationsJson: json['last_message_translations_json'] as String?,
+      reviewRating: int.tryParse(json['review_rating']?.toString() ?? ''),
+      reviewComment: json['review_comment'] as String?,
+      reviewCreatedAt: DateTime.tryParse(json['review_created_at'] as String? ?? ''),
     );
   }
 }
