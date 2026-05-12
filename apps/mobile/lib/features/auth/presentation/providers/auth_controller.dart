@@ -50,7 +50,12 @@ class AuthController extends StateNotifier<AuthState> {
         return;
       }
 
-      if (kDebugMode && accessToken.startsWith('debug_')) {
+      if (accessToken.startsWith('debug_')) {
+        if (!kDebugMode) {
+          await _clearSessionState();
+          return;
+        }
+
         final debugUserId = accessToken.replaceFirst('debug_', '');
         final debugRole = debugUserId == _debugMasterUserId
             ? UserRole.master
@@ -73,7 +78,10 @@ class AuthController extends StateNotifier<AuthState> {
         return;
       }
 
-      final current = await ref.read(authApiProvider).getCurrentUser();
+      final current = await ref
+          .read(authApiProvider)
+          .getCurrentUser()
+          .timeout(const Duration(seconds: 5));
       state = state.copyWith(
         isLoading: false,
         initialized: true,
