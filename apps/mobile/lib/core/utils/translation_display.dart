@@ -58,22 +58,16 @@ String localizedAddressForDisplay({
   required String? translationsJson,
   required String locale,
 }) {
-  final source = locale == 'th'
-      ? translatedOrOriginal(
-          original: original,
-          translationsJson: translationsJson,
-          locale: locale,
-        )
-      : (original ?? '').trim();
-
-  return compactAddressForDisplay(addressWithoutGpsLine(source), locale: locale);
+  final source = (original ?? '').trim();
+  return compactAddressWithRoomForDisplay(source, locale: locale);
 }
 
-String compactAddressForDisplay(String? value, {String locale = 'en'}) {
+String compactAddressWithRoomForDisplay(String? value, {String locale = 'en'}) {
   final raw = (value ?? '').trim();
   if (raw.isEmpty) return '';
 
-  final addressParts = <String>[];
+  String room = '';
+  final addressLines = <String>[];
 
   for (final sourceLine in raw.split('\n')) {
     final line = sourceLine.trim();
@@ -91,11 +85,39 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
         key == 'ห้อง/ยูนิต' ||
         key == 'ห้อง / ยูนิต';
 
-    if (isGps || isRoom || body.isEmpty) continue;
+    if (isGps || body.isEmpty) continue;
+
+    if (isRoom) {
+      room = body;
+      continue;
+    }
+
     if (key.isEmpty || key == 'address' || key == 'адрес' || key == 'ที่อยู่') {
-      addressParts.addAll(body.split(',').map((part) => part.trim()).where((part) => part.isNotEmpty));
+      addressLines.add(body);
     }
   }
+
+  final compactAddress = compactAddressForDisplay(addressLines.join(', '), locale: locale);
+  return [
+    if (compactAddress.isNotEmpty) compactAddress,
+    if (room.isNotEmpty) 'Room/unit: $room',
+  ].join('\n');
+}
+
+String compactAddressForDisplay(String? value, {String locale = 'en'}) {
+  final raw = (value ?? '').trim();
+  if (raw.isEmpty) return '';
+
+  final normalizedRaw = raw
+      .replaceAll('ประเทศไทย', 'ประเทศไทย,')
+      .replaceAll('พัทยา', 'พัทยา,')
+      .replaceAll('ชลบุรี', 'ชลบุรี,');
+
+  final addressParts = normalizedRaw
+      .split(',')
+      .map((part) => part.trim())
+      .where((part) => part.isNotEmpty)
+      .toList();
 
   if (addressParts.isEmpty) return '';
 
@@ -130,9 +152,9 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
     orElse: () => '',
   );
 
-  final country = hasThailand ? (locale == 'th' ? 'ประเทศไทย' : 'Thailand') : '';
-  final city = hasPattaya ? (locale == 'th' ? 'พัทยา' : 'Pattaya') : '';
-  final province = hasChonBuri ? (locale == 'th' ? 'ชลบุรี' : 'Chon Buri') : '';
+  final country = hasThailand ? 'Thailand' : '';
+  final city = hasPattaya ? 'Pattaya' : '';
+  final province = hasChonBuri ? 'Chon Buri' : '';
 
   final compact = [
     country,
