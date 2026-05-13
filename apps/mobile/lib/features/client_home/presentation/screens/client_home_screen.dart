@@ -509,6 +509,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                   JobReviewSummary(
                                     rating: item.reviewRating,
                                     comment: item.reviewComment,
+                                    commentTranslationsJson: item.reviewCommentTranslationsJson,
                                     submitted: true,
                                   )
                                 else if (isCompleted && (item.selectedMasterUserId ?? '').trim().isNotEmpty)

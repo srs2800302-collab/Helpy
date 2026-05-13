@@ -617,6 +617,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             JobReviewSummary(
                               rating: item.reviewRating,
                               comment: item.reviewComment,
+                              commentTranslationsJson: item.reviewCommentTranslationsJson,
                             ),
                         ],
                       ),

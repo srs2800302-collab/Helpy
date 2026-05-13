@@ -43,6 +43,7 @@ async function withHasReview(row: any, env: any) {
     has_review: !!review,
     review_rating: review?.rating ?? null,
     review_comment: review?.comment ?? null,
+    review_comment_translations_json: review?.comment_translations_json ?? null,
     review_created_at: review?.created_at ?? null,
   };
 }

@@ -72,6 +72,7 @@ function sanitizeReview(row: any) {
     master_user_id: row.master_user_id,
     rating: row.rating,
     comment: row.comment,
+    comment_translations_json: row.comment_translations_json ?? null,
     created_at: row.created_at,
   };
 }
@@ -189,6 +190,7 @@ export async function getUserJobDetails(
        master_user_id,
        rating,
        comment,
+       comment_translations_json,
        created_at
      FROM reviews
      WHERE job_id = ?1

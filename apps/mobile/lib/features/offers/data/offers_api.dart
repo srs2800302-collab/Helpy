@@ -94,6 +94,7 @@ class OffersApi {
       lastMessageTranslationsJson: null,
       reviewRating: null,
       reviewComment: null,
+      reviewCommentTranslationsJson: null,
       reviewCreatedAt: null,
     );
   }
@@ -129,6 +130,7 @@ class OffersApi {
       lastMessageTranslationsJson: json['last_message_translations_json'] as String?,
       reviewRating: int.tryParse(json['review_rating']?.toString() ?? ''),
       reviewComment: json['review_comment'] as String?,
+      reviewCommentTranslationsJson: json['review_comment_translations_json'] as String?,
       reviewCreatedAt: DateTime.tryParse(json['review_created_at'] as String? ?? ''),
     );
   }

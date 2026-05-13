@@ -50,6 +50,7 @@ function sanitizeOffer(row: any) {
     last_message_translations_json: row.last_message_translations_json ?? null,
     review_rating: row.review_rating ?? null,
     review_comment: row.review_comment ?? null,
+    review_comment_translations_json: row.review_comment_translations_json ?? null,
     review_created_at: row.review_created_at ?? null,
   };
 }
@@ -192,6 +193,12 @@ export async function getOffersByMaster(
          WHERE r.job_id = j.id
          LIMIT 1
        ) AS review_comment,
+       (
+         SELECT r.comment_translations_json
+         FROM reviews r
+         WHERE r.job_id = j.id
+         LIMIT 1
+       ) AS review_comment_translations_json,
        (
          SELECT r.created_at
          FROM reviews r

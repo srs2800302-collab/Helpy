@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../localization/app_localizations.dart';
+import '../utils/translation_display.dart';
 
 class JobReviewSummary extends StatelessWidget {
   final int? rating;
   final String? comment;
+  final String? commentTranslationsJson;
   final bool submitted;
 
   const JobReviewSummary({
     super.key,
     required this.rating,
     required this.comment,
+    this.commentTranslationsJson,
     this.submitted = false,
   });
 
@@ -18,7 +21,11 @@ class JobReviewSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final safeRating = (rating ?? 0).clamp(0, 5);
-    final text = (comment ?? '').trim();
+    final text = translatedOrOriginal(
+      original: comment,
+      translationsJson: commentTranslationsJson,
+      locale: l10n.locale.languageCode,
+    ).trim();
 
     if (safeRating <= 0 && text.isEmpty && !submitted) {
       return const SizedBox.shrink();

@@ -25,6 +25,7 @@ class JobItem {
   final bool? hasReview;
   final int? reviewRating;
   final String? reviewComment;
+  final String? reviewCommentTranslationsJson;
   final DateTime? reviewCreatedAt;
   final int offersCount;
   final bool hasApplied;
@@ -59,6 +60,7 @@ class JobItem {
     required this.hasReview,
     required this.reviewRating,
     required this.reviewComment,
+    required this.reviewCommentTranslationsJson,
     required this.reviewCreatedAt,
     required this.offersCount,
     required this.hasApplied,

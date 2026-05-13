@@ -246,6 +246,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                       JobReviewSummary(
                                         rating: item.reviewRating,
                                         comment: item.reviewComment,
+                                        commentTranslationsJson: item.reviewCommentTranslationsJson,
                                         submitted: true,
                                       )
                                     else if (item.status == 'completed' && (item.selectedMasterUserId ?? '').trim().isNotEmpty)

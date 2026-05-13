@@ -24,6 +24,7 @@ class OfferItem {
   final String? lastMessageTranslationsJson;
   final int? reviewRating;
   final String? reviewComment;
+  final String? reviewCommentTranslationsJson;
   final DateTime? reviewCreatedAt;
 
   const OfferItem({
@@ -52,6 +53,7 @@ class OfferItem {
     required this.lastMessageTranslationsJson,
     required this.reviewRating,
     required this.reviewComment,
+    required this.reviewCommentTranslationsJson,
     required this.reviewCreatedAt,
   });
 }

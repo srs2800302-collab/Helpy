@@ -202,6 +202,7 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                             JobReviewSummary(
                               rating: item.reviewRating,
                               comment: item.reviewComment,
+                              commentTranslationsJson: item.reviewCommentTranslationsJson,
                             ),
                         ],
                       ),
