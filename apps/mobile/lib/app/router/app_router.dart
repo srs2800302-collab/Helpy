@@ -24,17 +24,18 @@ GoRouter createRouter(ValueNotifier<AuthState> authNotifier) {
       final isAuthRoute =
           location == '/login' || location == '/verify-otp' || location == '/splash';
       final isRoleRoute = location == '/select-role';
+      final needsRoleSelection = auth.session?.needsRoleSelection == true;
 
       if (!isAuthenticated) {
         return location == '/login' || location == '/verify-otp' ? null : '/login';
       }
 
       if (isRoleRoute) {
-        return null;
+        return needsRoleSelection ? null : '/home';
       }
 
       if (isAuthRoute) {
-        return '/select-role';
+        return needsRoleSelection ? '/select-role' : '/home';
       }
 
       return null;

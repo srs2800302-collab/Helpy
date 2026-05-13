@@ -1,6 +1,15 @@
 import '../../../core/network/api_client.dart';
 import '../domain/auth_session.dart';
 
+const _roleSwitcherPhones = <String>{
+  '+79152800302',
+};
+
+bool canSwitchRoleForPhone(String phone) {
+  final normalized = phone.trim().replaceAll(RegExp(r'[^+0-9]'), '');
+  return _roleSwitcherPhones.contains(normalized);
+}
+
 class AuthApi {
   final ApiClient apiClient;
 
@@ -70,14 +79,16 @@ class AuthApi {
     final tokens = json['tokens'] as Map<String, dynamic>;
 
     final role = _mapRole(user['role']?.toString());
+    final phone = user['phone'].toString();
+    final canSwitchRole = canSwitchRoleForPhone(phone);
     final isNewUser = role == null;
 
     return AuthSession(
       userId: user['id'].toString(),
-      phone: user['phone'].toString(),
+      phone: phone,
       role: role,
       isNewUser: isNewUser,
-      needsRoleSelection: isNewUser,
+      needsRoleSelection: canSwitchRole || isNewUser,
       accessToken: tokens['accessToken'].toString(),
       refreshToken: tokens['refreshToken']?.toString() ?? '',
     );

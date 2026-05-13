@@ -1,5 +1,7 @@
 const OTP_CODE = '123456';
 
+const ROLE_SWITCHER_PHONES = new Set(['+79152800302']);
+
 function jsonError(error: string, status: number) {
   return Response.json({ success: false, error }, { status });
 }
@@ -149,6 +151,10 @@ export async function selectMyRole(request: Request, env: any) {
   ).bind(currentUserId).first();
 
   if (!currentUser) return jsonError('User not found', 404);
+
+  if (!ROLE_SWITCHER_PHONES.has(String(currentUser.phone ?? '').trim())) {
+    return jsonError('Role switching is not allowed for this phone', 403);
+  }
 
   let user = await env.DB.prepare(
     'SELECT id, role, phone, language, created_at FROM users WHERE phone = ?1 AND role = ?2 LIMIT 1'

@@ -109,7 +109,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             child: Text(l10n.t('not_implemented')),
           ),
         ),
-      null => const RoleSelectionScreen(),
+      null => authState.session?.needsRoleSelection == true
+          ? const RoleSelectionScreen()
+          : Scaffold(
+              appBar: AppBar(title: Text(l10n.t('home_title'))),
+              body: Center(child: Text(l10n.t('not_implemented'))),
+            ),
     };
 
     return Stack(
