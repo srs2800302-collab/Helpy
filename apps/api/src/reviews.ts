@@ -7,7 +7,7 @@ type CreateReviewBody = {
   comment?: string;
 };
 
-async function ensureReviewsSchema(env: any) {
+export async function ensureReviewsSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS reviews (
       id TEXT PRIMARY KEY,
