@@ -389,7 +389,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                   );
 
                   final rawAddress = (item.addressText ?? '').trim();
-                  final address = translatedOrOriginal(
+                  final address = localizedAddressForDisplay(
                     original: item.addressText,
                     translationsJson: item.addressTranslationsJson,
                     locale: locale,

@@ -52,3 +52,96 @@ String addressWithoutGpsLine(String? value) {
       .join('\n')
       .trim();
 }
+
+String localizedAddressForDisplay({
+  required String? original,
+  required String? translationsJson,
+  required String locale,
+}) {
+  final source = locale == 'th'
+      ? translatedOrOriginal(
+          original: original,
+          translationsJson: translationsJson,
+          locale: locale,
+        )
+      : (original ?? '').trim();
+
+  return compactAddressForDisplay(addressWithoutGpsLine(source), locale: locale);
+}
+
+String compactAddressForDisplay(String? value, {String locale = 'en'}) {
+  final raw = (value ?? '').trim();
+  if (raw.isEmpty) return '';
+
+  final addressParts = <String>[];
+
+  for (final sourceLine in raw.split('\n')) {
+    final line = sourceLine.trim();
+    if (line.isEmpty) continue;
+
+    final index = line.indexOf(':');
+    final key = index >= 0 ? line.substring(0, index).trim().toLowerCase() : '';
+    final body = index >= 0 ? line.substring(index + 1).trim() : line;
+
+    final isGps = key == 'gps' || key == 'гпс' || key == 'จีพีเอส';
+    final isRoom = key == 'room/unit' ||
+        key == 'room / unit' ||
+        key == 'комната' ||
+        key == 'комната / юнит' ||
+        key == 'ห้อง/ยูนิต' ||
+        key == 'ห้อง / ยูนิต';
+
+    if (isGps || isRoom || body.isEmpty) continue;
+    if (key.isEmpty || key == 'address' || key == 'адрес' || key == 'ที่อยู่') {
+      addressParts.addAll(body.split(',').map((part) => part.trim()).where((part) => part.isNotEmpty));
+    }
+  }
+
+  if (addressParts.isEmpty) return '';
+
+  final hasThailand = addressParts.any(
+    (part) => part.toLowerCase() == 'thailand' || part == 'ประเทศไทย',
+  );
+  final hasPattaya = addressParts.any(
+    (part) => part.toLowerCase().contains('pattaya') || part.contains('พัทยา'),
+  );
+  final hasChonBuri = addressParts.any((part) {
+    final lower = part.toLowerCase();
+    return lower.contains('chon buri') || lower.contains('chonburi') || part.contains('ชลบุรี');
+  });
+
+  final street = addressParts.firstWhere(
+    (part) {
+      final lower = part.toLowerCase();
+      return !lower.contains('thailand') &&
+          !lower.contains('pattaya') &&
+          !lower.contains('chon buri') &&
+          !lower.contains('chonburi') &&
+          part != 'ประเทศไทย' &&
+          !part.contains('พัทยา') &&
+          !part.contains('ชลบุรี') &&
+          !RegExp(r'^\d{5}$').hasMatch(part);
+    },
+    orElse: () => '',
+  );
+
+  final postcode = addressParts.firstWhere(
+    (part) => RegExp(r'^\d{5}$').hasMatch(part),
+    orElse: () => '',
+  );
+
+  final country = hasThailand ? (locale == 'th' ? 'ประเทศไทย' : 'Thailand') : '';
+  final city = hasPattaya ? (locale == 'th' ? 'พัทยา' : 'Pattaya') : '';
+  final province = hasChonBuri ? (locale == 'th' ? 'ชลบุรี' : 'Chon Buri') : '';
+
+  final compact = [
+    country,
+    city,
+    province,
+    if (street.isNotEmpty && postcode.isNotEmpty) '$street / $postcode'
+    else if (street.isNotEmpty) street
+    else postcode,
+  ].where((part) => part.trim().isNotEmpty).join(', ');
+
+  return compact.isNotEmpty ? compact : addressParts.join(', ');
+}

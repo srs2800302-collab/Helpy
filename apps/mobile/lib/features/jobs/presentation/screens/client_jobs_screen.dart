@@ -172,7 +172,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                               translationsJson: item.titleTranslationsJson,
                               locale: locale,
                             );
-                            final displayAddress = translatedOrOriginal(
+                            final displayAddress = localizedAddressForDisplay(
                               original: item.addressText,
                               translationsJson: item.addressTranslationsJson,
                               locale: locale,

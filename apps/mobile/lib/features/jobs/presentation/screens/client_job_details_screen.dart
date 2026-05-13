@@ -389,12 +389,11 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
       translationsJson: _job.descriptionTranslationsJson,
       locale: locale,
     );
-    final rawDisplayAddress = translatedOrOriginal(
+    final displayAddress = localizedAddressForDisplay(
       original: _job.addressText,
       translationsJson: _job.addressTranslationsJson,
       locale: locale,
     );
-    final displayAddress = addressWithoutGpsLine(rawDisplayAddress);
 
     Widget? primaryAction;
 

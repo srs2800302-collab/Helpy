@@ -176,7 +176,7 @@ class _MasterMarketplaceScreenState
                           translationsJson: item.descriptionTranslationsJson,
                           locale: locale,
                         );
-                        final displayAddress = translatedOrOriginal(
+                        final displayAddress = localizedAddressForDisplay(
                           original: item.addressText,
                           translationsJson: item.addressTranslationsJson,
                           locale: locale,
