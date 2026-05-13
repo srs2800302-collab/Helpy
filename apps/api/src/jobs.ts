@@ -30,7 +30,7 @@ async function withHasReview(row: any, env: any) {
   if (!row) return row;
 
   const review = await env.DB.prepare(
-    `SELECT id, rating, comment, created_at
+    `SELECT id, rating, comment, comment_translations_json, created_at
      FROM reviews
      WHERE job_id = ?1
      LIMIT 1`
