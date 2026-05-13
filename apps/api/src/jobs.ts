@@ -111,6 +111,7 @@ export async function ensureJobsSchema(env: any) {
       master_user_id TEXT,
       rating INTEGER,
       comment TEXT,
+      comment_translations_json TEXT,
       created_at TEXT
     )
   `).run();
@@ -126,6 +127,12 @@ export async function ensureJobsSchema(env: any) {
       created_at TEXT NOT NULL
     )
   `).run();
+
+  const reviewColumns = await env.DB.prepare('PRAGMA table_info(reviews)').all();
+  const existingReviewColumns = new Set((reviewColumns.results ?? []).map((row: any) => row.name));
+  if (!existingReviewColumns.has('comment_translations_json')) {
+    await env.DB.prepare('ALTER TABLE reviews ADD COLUMN comment_translations_json TEXT').run();
+  }
 
   const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
   const existing = new Set((columns.results ?? []).map((row: any) => row.name));
