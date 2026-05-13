@@ -7,6 +7,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/job_location_summary.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../marketplace/presentation/screens/master_marketplace_screen.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
@@ -328,27 +329,13 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            displayTitle.trim().isNotEmpty
-                                ? displayTitle.trim()
-                                : title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                          LocalizedJobTitle(
+                            originalTitle: title,
+                            displayTitle: displayTitle,
+                            primaryStyle: const TextStyle(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          if (hasRealTranslation(
-                            original: title,
-                            translated: displayTitle,
-                          )) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
                           Text('💬 $displayMessage'),
                         ],
                       ),
@@ -471,27 +458,13 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  displayTitle.trim().isNotEmpty
-                                      ? displayTitle.trim()
-                                      : title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                LocalizedJobTitle(
+                                  originalTitle: title,
+                                  displayTitle: displayTitle,
+                                  primaryStyle: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                if (hasRealTranslation(
-                                  original: title,
-                                  translated: displayTitle,
-                                )) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
                               ],
                             ),
                           ),
@@ -641,27 +614,13 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            displayTitle.trim().isNotEmpty
-                                ? displayTitle.trim()
-                                : title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                          LocalizedJobTitle(
+                            originalTitle: title,
+                            displayTitle: displayTitle,
+                            primaryStyle: const TextStyle(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          if (hasRealTranslation(
-                            original: title,
-                            translated: displayTitle,
-                          )) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
                         ],
                       ),
                       subtitle: Column(
