@@ -67,7 +67,11 @@ class JobLocationSummary extends StatelessWidget {
         final value = line.substring(separatorIndex + 1).trim();
         if (value.isNotEmpty) {
           result.add(
-            _LocationLine(Icons.location_on_outlined, value, isAddress: true),
+            _LocationLine(
+              Icons.location_on_outlined,
+              value,
+              isAddress: true,
+            ),
           );
         }
         continue;
@@ -77,14 +81,22 @@ class JobLocationSummary extends StatelessWidget {
         final value = line.substring(separatorIndex + 1).trim();
         if (value.isNotEmpty) {
           result.add(
-            _LocationLine(Icons.apartment_outlined, value, isRoom: true),
+            _LocationLine(
+              Icons.apartment_outlined,
+              value,
+              isRoom: true,
+            ),
           );
         }
         continue;
       }
 
       result.add(
-        _LocationLine(Icons.location_on_outlined, line, isAddress: true),
+        _LocationLine(
+          Icons.location_on_outlined,
+          line,
+          isAddress: true,
+        ),
       );
     }
 
@@ -127,13 +139,19 @@ class JobLocationSummary extends StatelessWidget {
                           : line.text,
                       maxLines: line.isAddress ? maxAddressLines : 1,
                       overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        height: 1.25,
+                      ),
                     ),
                   ),
                   if (showCopyForGps && line.isGps) ...[
                     const SizedBox(width: 8),
                     InkWell(
                       onTap: () async {
-                        await Clipboard.setData(ClipboardData(text: line.text));
+                        await Clipboard.setData(
+                          ClipboardData(text: line.text),
+                        );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(l10n.t('copied'))),
