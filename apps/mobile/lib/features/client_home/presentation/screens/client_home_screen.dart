@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
@@ -286,27 +287,13 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  displayTitle.trim().isNotEmpty
-                                      ? displayTitle.trim()
-                                      : title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                LocalizedJobTitle(
+                                  originalTitle: title,
+                                  displayTitle: displayTitle,
+                                  primaryStyle: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                if (hasRealTranslation(
-                                  original: title,
-                                  translated: displayTitle,
-                                )) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
                                 Text(l10n.t('offers_count').replaceAll('{count}', job.offersCount.toString())),
                               ],
                             ),
@@ -359,27 +346,13 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                displayTitle.trim().isNotEmpty
-                                    ? displayTitle.trim()
-                                    : title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                              LocalizedJobTitle(
+                                originalTitle: title,
+                                displayTitle: displayTitle,
+                                primaryStyle: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (hasRealTranslation(
-                                original: title,
-                                translated: displayTitle,
-                              )) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
                               Text('💬 $displayMessage'),
                             ],
                           ),
@@ -480,21 +453,15 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle),
-                                if (hasRealTranslation(
-                                  original: originalTitle,
-                                  translated: displayTitle,
-                                )) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    originalTitle,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade600,
-                                      height: 1.25,
-                                    ),
+                                LocalizedJobTitle(
+                                  originalTitle: originalTitle,
+                                  displayTitle: displayTitle,
+                                  secondaryStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.shade600,
+                                    height: 1.25,
                                   ),
-                                ],
+                                ),
                               ],
                             ),
                             subtitle: Column(
