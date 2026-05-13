@@ -244,7 +244,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                       ),
                                   ],
                                 ),
-                                isThreeLine: comment.isNotEmpty || message.isNotEmpty,
+                                isThreeLine: comment.isNotEmpty || message.isNotEmpty || lastMessage.isNotEmpty,
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
