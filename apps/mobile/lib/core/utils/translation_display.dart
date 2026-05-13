@@ -152,7 +152,8 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
     orElse: () => '',
   );
 
-  final country = hasThailand ? 'Thailand' : '';
+  final shouldAssumeThailand = hasThailand || hasPattaya || hasChonBuri;
+  final country = shouldAssumeThailand ? 'Thailand' : '';
   final city = hasPattaya ? 'Pattaya' : '';
   final province = hasChonBuri ? 'Chon Buri' : '';
 
