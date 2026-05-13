@@ -24,6 +24,15 @@ class JobLocationSummary extends StatelessWidget {
   String get _gpsText =>
       '${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}';
 
+  bool _isRoomLine(String lower) {
+    return lower.startsWith('room/unit:') ||
+        lower.startsWith('room / unit:') ||
+        lower.startsWith('комната:') ||
+        lower.startsWith('комната / юнит:') ||
+        lower.startsWith('ห้อง/ยูนิต:') ||
+        lower.startsWith('ห้อง / ยูนิต:');
+  }
+
   List<_LocationLine> _lines() {
     final raw = (addressText ?? '').trim();
     final result = <_LocationLine>[];
@@ -64,7 +73,7 @@ class JobLocationSummary extends StatelessWidget {
         continue;
       }
 
-      if (lower.startsWith('room/unit:') && separatorIndex >= 0) {
+      if (_isRoomLine(lower) && separatorIndex >= 0) {
         final value = line.substring(separatorIndex + 1).trim();
         if (value.isNotEmpty) {
           result.add(
