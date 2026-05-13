@@ -8,6 +8,7 @@ import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/job_location_summary.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../reviews/presentation/screens/create_review_screen.dart';
 import 'client_job_details_screen.dart';
 
@@ -200,27 +201,13 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            displayTitle.trim().isNotEmpty
-                                                ? displayTitle.trim()
-                                                : originalTitle,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
+                                          LocalizedJobTitle(
+                                            originalTitle: originalTitle,
+                                            displayTitle: displayTitle,
+                                            primaryStyle: const TextStyle(
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          if (hasRealTranslation(
-                                            original: originalTitle,
-                                            translated: displayTitle,
-                                          )) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              originalTitle,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
                                         ],
                                       ),
                                     ),
