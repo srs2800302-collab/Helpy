@@ -103,6 +103,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           content: Text(AppLocalizations.of(context).t('job_started')),
         ),
       );
+
+      Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

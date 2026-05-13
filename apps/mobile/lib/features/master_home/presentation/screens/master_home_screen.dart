@@ -25,6 +25,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   static const _hiddenCompletedJobsKey = 'master_hidden_completed_job_ids';
   Set<String> _hiddenCompletedJobIds = <String>{};
   Set<String> _readMessageTimestamps = <String>{};
+  Set<String> _completingJobIds = <String>{};
 
   @override
   void initState() {
@@ -110,6 +111,44 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   Future<void> _refreshAll() async {
     await ref.read(offersControllerProvider.notifier).loadMyOffers();
     await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
+  }
+
+  Future<void> _completeOfferJob(String jobId) async {
+    if (_completingJobIds.contains(jobId)) return;
+
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) return;
+
+    setState(() {
+      _completingJobIds = {..._completingJobIds, jobId};
+    });
+
+    try {
+      await ref.read(chatApiProvider).completeJob(
+            jobId: jobId,
+            userId: session.userId,
+          );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).t('job_completed'))),
+      );
+
+      await _refreshAll();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _completingJobIds = {..._completingJobIds}..remove(jobId);
+        });
+      }
+    }
   }
 
   String _statusLabel(AppLocalizations l10n, String status) {
@@ -495,6 +534,25 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                                 comment,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                            if (item.status == 'in_progress') ...[
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: _completingJobIds.contains(item.jobId)
+                                      ? null
+                                      : () => _completeOfferJob(item.jobId),
+                                  icon: _completingJobIds.contains(item.jobId)
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      : const Icon(Icons.check_circle_outline),
+                                  label: Text(l10n.t('complete_job')),
+                                ),
                               ),
                             ],
                           ],
