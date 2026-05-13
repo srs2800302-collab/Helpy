@@ -231,7 +231,7 @@ class _MasterMarketplaceScreenState
                                       if (displayDescription.trim().isNotEmpty) ...[
                                         const SizedBox(height: 8),
                                         Text(
-                                          '${l10n.t('comment_label')}:',
+                                          '${l10n.t('client_note_label')}:',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w600,
                                           ),
