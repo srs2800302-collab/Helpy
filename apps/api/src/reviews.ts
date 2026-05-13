@@ -1,4 +1,5 @@
 import { requireAuth } from './auth-context';
+import { buildTranslationsJson, processPendingTranslationTasks } from './translation';
 
 type CreateReviewBody = {
   master_user_id?: string;
@@ -15,6 +16,7 @@ async function ensureReviewsSchema(env: any) {
       master_user_id TEXT NOT NULL,
       rating INTEGER NOT NULL,
       comment TEXT,
+      comment_translations_json TEXT,
       created_at TEXT NOT NULL
     )`
   ).run();
@@ -27,6 +29,7 @@ async function ensureReviewsSchema(env: any) {
     ['master_user_id', 'ALTER TABLE reviews ADD COLUMN master_user_id TEXT'],
     ['rating', 'ALTER TABLE reviews ADD COLUMN rating INTEGER'],
     ['comment', 'ALTER TABLE reviews ADD COLUMN comment TEXT'],
+    ['comment_translations_json', 'ALTER TABLE reviews ADD COLUMN comment_translations_json TEXT'],
     ['created_at', 'ALTER TABLE reviews ADD COLUMN created_at TEXT'],
   ];
 
@@ -169,6 +172,17 @@ export async function createReview(jobId: string, request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const comment = typeof body.comment === 'string' ? body.comment.trim() : '';
+  const commentTranslationsJson = comment
+    ? await buildTranslationsJson({
+        text: comment,
+        sourceLanguage: null,
+        env,
+        entityType: 'review',
+        entityId: id,
+        fieldName: 'comment',
+      })
+    : null;
 
   try {
     await env.DB.prepare(
@@ -179,8 +193,9 @@ export async function createReview(jobId: string, request: Request, env: any) {
         master_user_id,
         rating,
         comment,
+        comment_translations_json,
         created_at
-      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
     )
       .bind(
         id,
@@ -188,7 +203,8 @@ export async function createReview(jobId: string, request: Request, env: any) {
         clientUserId,
         body.master_user_id,
         body.rating,
-        body.comment ?? null,
+        comment || null,
+        commentTranslationsJson,
         now
       )
       .run();
@@ -211,6 +227,15 @@ export async function createReview(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (commentTranslationsJson) {
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'review',
+      entityId: id,
+      limit: 3,
+    });
+  }
+
   return Response.json({
     success: true,
     data: {
@@ -219,7 +244,8 @@ export async function createReview(jobId: string, request: Request, env: any) {
       client_user_id: clientUserId,
       master_user_id: body.master_user_id,
       rating: body.rating,
-      comment: body.comment ?? null,
+      comment: comment || null,
+      comment_translations_json: commentTranslationsJson,
       created_at: now,
     },
   });

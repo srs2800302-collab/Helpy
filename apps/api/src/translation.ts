@@ -55,7 +55,8 @@ export async function buildTranslationsJson({
   fieldName: string;
 }) {
   const originalText = text.trim();
-  const useAutoDetect = entityType === 'chat_message' || entityType === 'offer';
+  const useAutoDetect =
+    entityType === 'chat_message' || entityType === 'offer' || entityType === 'review';
   const source = useAutoDetect ? 'auto' : normalizeLanguage(sourceLanguage);
 
   await ensureTranslationTasksSchema(env);
@@ -201,7 +202,9 @@ export async function processPendingTranslationTasks({
             ? 'offers'
             : entityTypeValue === 'chat_message'
               ? 'chat_messages'
-              : null;
+              : entityTypeValue === 'review'
+                ? 'reviews'
+                : null;
 
       const column =
         entityTypeValue === 'job' && fieldName === 'title'
@@ -216,7 +219,9 @@ export async function processPendingTranslationTasks({
                   ? 'message_translations_json'
                   : entityTypeValue === 'chat_message' && fieldName === 'text'
                     ? 'text_translations_json'
-                    : null;
+                    : entityTypeValue === 'review' && fieldName === 'comment'
+                      ? 'comment_translations_json'
+                      : null;
 
       if (!table || !column) {
         failed.push({ id: task.id, error: 'Unsupported translation target' });
