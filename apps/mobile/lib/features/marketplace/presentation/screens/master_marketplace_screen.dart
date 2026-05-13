@@ -81,7 +81,7 @@ class _MasterMarketplaceScreenState
     required String originalTitle,
     required String? titleTranslationsJson,
   }) async {
-    await Navigator.of(context).push(
+    final changed = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => MasterJobDetailsScreen(
           jobId: jobId,
@@ -90,6 +90,10 @@ class _MasterMarketplaceScreenState
         ),
       ),
     );
+
+    if (changed == true && context.mounted) {
+      Navigator.of(context).pop(true);
+    }
   }
 
   Future<void> _openCreateOffer({
@@ -98,7 +102,7 @@ class _MasterMarketplaceScreenState
     required String originalTitle,
     required String? titleTranslationsJson,
   }) async {
-    await Navigator.of(context).push(
+    final changed = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => CreateOfferScreen(
           jobId: jobId,
@@ -108,9 +112,14 @@ class _MasterMarketplaceScreenState
       ),
     );
 
-    if (context.mounted) {
-      await _refresh();
+    if (!context.mounted) return;
+
+    if (changed == true) {
+      Navigator.of(context).pop(true);
+      return;
     }
+
+    await _refresh();
   }
 
   @override
