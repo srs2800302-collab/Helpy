@@ -178,7 +178,11 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                               locale: locale,
                             );
 
-                            final lastMessage = (item.lastMessage ?? '').trim();
+                            final lastMessage = translatedOrOriginal(
+                              original: item.lastMessage,
+                              translationsJson: item.lastMessageTranslationsJson,
+                              locale: locale,
+                            ).trim();
                             final readKey =
                                 item.lastMessageCreatedAt?.toIso8601String();
                             final hasUnreadMessage = lastMessage.isNotEmpty &&
