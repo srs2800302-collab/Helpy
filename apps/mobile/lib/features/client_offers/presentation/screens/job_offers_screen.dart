@@ -5,6 +5,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../reviews/domain/review_summary.dart';
 
 class JobOffersScreen extends ConsumerStatefulWidget {
@@ -160,30 +161,21 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          displayJobTitle.trim().isNotEmpty
-                                              ? displayJobTitle.trim()
-                                              : widget.jobTitle,
-                                          style: const TextStyle(
+                                        LocalizedJobTitle(
+                                          originalTitle: widget.jobTitle,
+                                          displayTitle: displayJobTitle,
+                                          primaryStyle: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w800,
                                             height: 1.15,
                                           ),
-                                        ),
-                                        if (hasRealTranslation(
-                                          original: widget.jobTitle,
-                                          translated: displayJobTitle,
-                                        )) ...[
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            widget.jobTitle,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey.shade600,
-                                              height: 1.25,
-                                            ),
+                                          secondaryStyle: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade600,
+                                            height: 1.25,
                                           ),
-                                        ],
+                                          spacing: 6,
+                                        ),
                                         const SizedBox(height: 12),
                                         Row(
                                           crossAxisAlignment: CrossAxisAlignment.start,

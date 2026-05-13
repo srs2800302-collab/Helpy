@@ -6,6 +6,7 @@ import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../jobs/domain/job_item.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 
@@ -156,24 +157,20 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
-                      style: const TextStyle(
+                    LocalizedJobTitle(
+                      originalTitle: originalTitle,
+                      displayTitle: displayTitle,
+                      primaryStyle: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
-                    ),
-                    if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        originalTitle,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                          height: 1.25,
-                        ),
+                      secondaryStyle: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        height: 1.25,
                       ),
-                    ],
+                      spacing: 6,
+                    ),
                     if (price != null) ...[
                       const SizedBox(height: 12),
                       Text(
