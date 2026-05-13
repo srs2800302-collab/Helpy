@@ -11,6 +11,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/job_location_summary.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
@@ -576,25 +577,21 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    displayTitle.trim().isNotEmpty ? displayTitle.trim() : originalTitle,
-                    style: const TextStyle(
+                  LocalizedJobTitle(
+                    originalTitle: originalTitle,
+                    displayTitle: displayTitle,
+                    primaryStyle: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       height: 1.15,
                     ),
-                  ),
-                  if (hasRealTranslation(original: originalTitle, translated: displayTitle)) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      originalTitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                        height: 1.25,
-                      ),
+                    secondaryStyle: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                      height: 1.25,
                     ),
-                  ],
+                    spacing: 6,
+                  ),
                   const SizedBox(height: 18),
                   DefaultTextStyle(
                     style: TextStyle(
