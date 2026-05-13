@@ -6,6 +6,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 
 class MasterOffersScreen extends ConsumerStatefulWidget {
@@ -189,30 +190,16 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            displayTitle.trim().isNotEmpty
-                                                ? displayTitle.trim()
-                                                : title,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
+                                          LocalizedJobTitle(
+                                            originalTitle: title,
+                                            displayTitle: displayTitle,
+                                            primaryStyle: Theme.of(context)
                                                 .textTheme
                                                 .titleMedium
                                                 ?.copyWith(
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                           ),
-                                          if (hasRealTranslation(
-                                            original: title,
-                                            translated: displayTitle,
-                                          )) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              title,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
                                         ],
                                       ),
                                     ),

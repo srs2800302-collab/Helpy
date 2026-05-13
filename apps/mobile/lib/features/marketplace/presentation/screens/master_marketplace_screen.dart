@@ -5,6 +5,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/job_location_summary.dart';
+import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../jobs/presentation/screens/master_job_details_screen.dart';
 import '../../../offers/presentation/screens/create_offer_screen.dart';
@@ -201,33 +202,19 @@ class _MasterMarketplaceScreenState
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
-                                      Text(
-                                        displayTitle.trim().isNotEmpty
-                                            ? displayTitle.trim()
-                                            : originalTitle,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
+                                      LocalizedJobTitle(
+                                        originalTitle: originalTitle,
+                                        displayTitle: displayTitle,
+                                        primaryStyle: Theme.of(context)
                                             .textTheme
                                             .titleMedium
                                             ?.copyWith(
                                               fontWeight: FontWeight.w600,
                                             ),
+                                        secondaryStyle: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium,
                                       ),
-                                      if (hasRealTranslation(
-                                        original: originalTitle,
-                                        translated: displayTitle,
-                                      )) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          originalTitle,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                      ],
                                       if (displayDescription.trim().isNotEmpty) ...[
                                         const SizedBox(height: 8),
                                         Text(
