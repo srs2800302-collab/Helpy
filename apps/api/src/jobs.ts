@@ -443,12 +443,18 @@ export async function createJob(request: Request, env: any, ctx?: any) {
     )
     .run();
 
-  await processPendingTranslationTasks({
+  const translationWork = processPendingTranslationTasks({
     env,
     entityType: 'job',
     entityId: id,
     limit: 6,
   }).catch(() => undefined);
+
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(translationWork);
+  } else {
+    await translationWork;
+  }
 
   const created = await env.DB.prepare(
     'SELECT * FROM jobs WHERE id = ?1'

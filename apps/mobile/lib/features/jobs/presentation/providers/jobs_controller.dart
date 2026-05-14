@@ -31,24 +31,6 @@ String _buildAddressDetails({
 
 
 
-bool _hasTranslationForLocale({
-  required String? translationsJson,
-  required String locale,
-}) {
-  final raw = translationsJson?.trim();
-  if (raw == null || raw.isEmpty) return false;
-
-  try {
-    final decoded = jsonDecode(raw);
-    if (decoded is! Map) return false;
-
-    final value = (decoded[locale] ?? '').toString().trim();
-    return value.isNotEmpty;
-  } catch (_) {
-    return false;
-  }
-}
-
 class JobsController extends StateNotifier<JobsState> {
   final Ref ref;
 
@@ -296,27 +278,7 @@ Future<JobItem?> createDraft() async {
             longitude: state.longitude,
           );
 
-      final locale = ref.read(currentLocaleProvider).languageCode;
-      var createdForUi = created;
-
-      for (var attempt = 0; attempt < 5; attempt += 1) {
-        if (_hasTranslationForLocale(
-          translationsJson: createdForUi.titleTranslationsJson,
-          locale: locale,
-        )) {
-          break;
-        }
-
-        await Future<void>.delayed(const Duration(milliseconds: 700));
-
-        try {
-          createdForUi = await ref.read(jobsApiProvider).getJobById(
-                jobId: created.id,
-              );
-        } catch (_) {
-          break;
-        }
-      }
+      final createdForUi = created;
 
       // Upload photos in background so job creation is not blocked.
       Future(() async {
