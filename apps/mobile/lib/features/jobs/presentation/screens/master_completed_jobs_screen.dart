@@ -6,6 +6,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
+import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../../core/widgets/localized_job_title.dart';
@@ -79,12 +80,6 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
   Future<void> _refresh() async {
     await ref.read(offersControllerProvider.notifier).loadMyOffers();
     await _loadHiddenCompletedJobIds();
-  }
-
-  String _formatCompletedAt(DateTime value) {
-    final local = value.toLocal();
-    String two(int x) => x.toString().padLeft(2, '0');
-    return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
   }
 
   List<OfferItem> _sortedCompleted(List<OfferItem> items) {
@@ -175,7 +170,7 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                         children: [
                           Text(
                             '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • $statusLabel\n'
-                            '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
+                            '${l10n.t('completed_at_label')}: ${formatShortDateTime(completedAt)}',
                           ),
                           if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
                             JobReviewSummary(
