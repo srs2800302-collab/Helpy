@@ -1,19 +1,19 @@
-String mapCategory(String slug) {
+String mapCategoryKey(String slug) {
   switch (slug) {
     case 'cleaning':
-      return 'Cleaning';
+      return 'category_cleaning';
     case 'handyman':
-      return 'Handyman';
+      return 'category_handyman';
     case 'plumbing':
-      return 'Plumbing';
+      return 'category_plumbing';
     case 'electrical':
-      return 'Electrical';
+      return 'category_electrical';
     case 'locks':
-      return 'Locks';
+      return 'category_locks';
     case 'aircon':
-      return 'Air Conditioning';
+      return 'category_aircon';
     case 'furniture_assembly':
-      return 'Furniture Assembly';
+      return 'category_furniture_assembly';
     default:
       return slug;
   }
