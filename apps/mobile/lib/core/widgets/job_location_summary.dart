@@ -119,55 +119,60 @@ class JobLocationSummary extends StatelessWidget {
     final lines = _lines();
     if (lines.isEmpty) return const SizedBox.shrink();
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
+    return Container(
+      margin: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final line in lines)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(line.icon, size: 17, color: Colors.blue),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      line.isRoom
-                          ? '${l10n.t('room_unit_label')}: ${line.text}'
-                          : line.text,
-                      maxLines: line.isAddress ? maxAddressLines : 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        height: 1.25,
-                      ),
+          for (var i = 0; i < lines.length; i++) ...[
+            if (i > 0) const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(lines[i].icon, size: 18, color: Colors.blue),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    lines[i].isRoom
+                        ? '${l10n.t('room_unit_label')}: ${lines[i].text}'
+                        : lines[i].text,
+                    maxLines: lines[i].isAddress ? maxAddressLines : 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      height: 1.25,
                     ),
                   ),
-                  if (showCopyForGps && line.isGps) ...[
-                    const SizedBox(width: 8),
-                    InkWell(
-                      onTap: () async {
-                        await Clipboard.setData(
-                          ClipboardData(text: line.text),
+                ),
+                if (showCopyForGps && lines[i].isGps) ...[
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () async {
+                      await Clipboard.setData(
+                        ClipboardData(text: lines[i].text),
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.t('copied'))),
                         );
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.t('copied'))),
-                          );
-                        }
-                      },
-                      child: Icon(
-                        Icons.copy,
-                        size: 18,
-                        color: Theme.of(context).iconTheme.color,
-                      ),
+                      }
+                    },
+                    child: Icon(
+                      Icons.copy,
+                      size: 18,
+                      color: Theme.of(context).iconTheme.color,
                     ),
-                  ],
+                  ),
                 ],
-              ),
+              ],
             ),
+          ],
         ],
       ),
     );
