@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -13,6 +11,7 @@ import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/widgets/job_location_summary.dart';
+import '../../../../core/widgets/job_photo_widget.dart';
 import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
@@ -62,42 +61,6 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
   }
 
 
-  Widget _photoWidget(BuildContext context, String url) {
-    if (url.startsWith('data:image/')) {
-      final commaIndex = url.indexOf(',');
-      if (commaIndex > 0 && commaIndex + 1 < url.length) {
-        try {
-          final bytes = base64Decode(url.substring(commaIndex + 1));
-          return Image.memory(
-            Uint8List.fromList(bytes),
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.black12,
-              child: Text(AppLocalizations.of(context).t('failed_load_photo')),
-            ),
-          );
-        } catch (_) {
-          return Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.black12,
-            child: Text(AppLocalizations.of(context).t('failed_load_photo')),
-          );
-        }
-      }
-    }
-
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        padding: const EdgeInsets.all(16),
-        color: Colors.black12,
-        child: Text(AppLocalizations.of(context).t('failed_load_photo')),
-      ),
-    );
-  }
-
   void _openPhotoPreview(BuildContext context, String url) {
     showDialog<void>(
       context: context,
@@ -109,7 +72,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               child: InteractiveViewer(
                 minScale: 1,
                 maxScale: 5,
-                child: Center(child: _photoWidget(context, url)),
+                child: Center(child: JobPhotoWidget(url: url)),
               ),
             ),
             SafeArea(
@@ -321,7 +284,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                   onTap: () => _openPhotoPreview(context, url),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: _photoWidget(context, url),
+                    child: JobPhotoWidget(url: url),
                   ),
                 ),
               ),
