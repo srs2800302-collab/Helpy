@@ -12,6 +12,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
+import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
@@ -65,12 +66,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
       _jobFuture,
       _photosFuture,
     ]);
-  }
-
-  String _formatDateTime(DateTime value) {
-    final local = value.toLocal();
-    String two(int x) => x.toString().padLeft(2, '0');
-    return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
   }
 
 
@@ -446,10 +441,10 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                               const SizedBox(height: 6),
                               Text('${l10n.t('status_label')}: $statusLabel'),
                               const SizedBox(height: 6),
-                              Text('${l10n.t('created_label')}: ${_formatDateTime(job.createdAt)}'),
+                              Text('${l10n.t('created_label')}: ${formatShortDateTime(job.createdAt)}'),
                               if (job.status == 'completed') ...[
                                 const SizedBox(height: 6),
-                                Text('${l10n.t('completed_at_label')}: ${_formatDateTime(completedAt)}'),
+                                Text('${l10n.t('completed_at_label')}: ${formatShortDateTime(completedAt)}'),
                               ],
                               if (job.price != null) ...[
                                 const SizedBox(height: 6),
