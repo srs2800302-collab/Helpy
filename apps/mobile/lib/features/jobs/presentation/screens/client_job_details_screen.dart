@@ -12,6 +12,7 @@ import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/job_photo_widget.dart';
+import '../../../../core/widgets/job_photo_preview_dialog.dart';
 import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
@@ -62,31 +63,9 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
 
 
   void _openPhotoPreview(BuildContext context, String url) {
-    showDialog<void>(
+    showJobPhotoPreviewDialog(
       context: context,
-      builder: (context) => Dialog.fullscreen(
-        backgroundColor: Colors.black,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: InteractiveViewer(
-                minScale: 1,
-                maxScale: 5,
-                child: Center(child: JobPhotoWidget(url: url)),
-              ),
-            ),
-            SafeArea(
-              child: Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      url: url,
     );
   }
 
