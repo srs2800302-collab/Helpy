@@ -356,12 +356,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             DropdownButtonFormField<String>(
               value: jobsState.selectedCategoryId,
               items: categoriesState.items
-                  .map(
-                    (item) => DropdownMenuItem<String>(
+                  .map((item) {
+                    final categoryLabel = l10n.t(mapCategoryKey(item.slug));
+                    return DropdownMenuItem<String>(
                       value: item.slug,
-                      child: Text(l10n.t(mapCategoryKey(item.slug))),
-                    ),
-                  )
+                      child: Text(categoryLabel),
+                    );
+                  })
                   .toList(),
               onChanged: isBusy ? null : jobsController.setSelectedCategoryId,
               decoration: InputDecoration(
