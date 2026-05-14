@@ -135,6 +135,8 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                       locale: locale,
                     );
                     final completedAt = item.updatedAt ?? item.createdAt;
+                    final statusLabel =
+                        l10n.t(mapJobStatusKey(item.status));
 
                     return Card(
                       color: Colors.grey.shade200,
@@ -172,7 +174,7 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${l10n.t(mapJobStatusKey(item.status))}\n'
+                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • $statusLabel\n'
                             '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
                           ),
                           if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
