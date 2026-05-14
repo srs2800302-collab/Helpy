@@ -9,6 +9,7 @@ class JobLocationSummary extends StatelessWidget {
   final double? longitude;
   final int maxAddressLines;
   final bool showCopyForGps;
+  final bool showContainer;
 
   const JobLocationSummary({
     super.key,
@@ -17,6 +18,7 @@ class JobLocationSummary extends StatelessWidget {
     this.longitude,
     this.maxAddressLines = 2,
     this.showCopyForGps = false,
+    this.showContainer = true,
   });
 
   bool get _hasGps => latitude != null && longitude != null;
@@ -119,6 +121,62 @@ class JobLocationSummary extends StatelessWidget {
     final lines = _lines();
     if (lines.isEmpty) return const SizedBox.shrink();
 
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < lines.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(lines[i].icon, size: 18, color: Colors.blue),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  lines[i].isRoom
+                      ? '${l10n.t('room_unit_label')}: ${lines[i].text}'
+                      : lines[i].text,
+                  maxLines: lines[i].isAddress ? maxAddressLines : 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.25,
+                  ),
+                ),
+              ),
+              if (showCopyForGps && lines[i].isGps) ...[
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: () async {
+                    await Clipboard.setData(
+                      ClipboardData(text: lines[i].text),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.t('copied'))),
+                      );
+                    }
+                  },
+                  child: Icon(
+                    Icons.copy,
+                    size: 18,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ],
+    );
+
+    if (!showContainer) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: content,
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.only(top: 6),
       padding: const EdgeInsets.all(12),
@@ -127,54 +185,7 @@ class JobLocationSummary extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var i = 0; i < lines.length; i++) ...[
-            if (i > 0) const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(lines[i].icon, size: 18, color: Colors.blue),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    lines[i].isRoom
-                        ? '${l10n.t('room_unit_label')}: ${lines[i].text}'
-                        : lines[i].text,
-                    maxLines: lines[i].isAddress ? maxAddressLines : 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 1.25,
-                    ),
-                  ),
-                ),
-                if (showCopyForGps && lines[i].isGps) ...[
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: () async {
-                      await Clipboard.setData(
-                        ClipboardData(text: lines[i].text),
-                      );
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.t('copied'))),
-                        );
-                      }
-                    },
-                    child: Icon(
-                      Icons.copy,
-                      size: 18,
-                      color: Theme.of(context).iconTheme.color,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ],
-      ),
+      child: content,
     );
   }
 }

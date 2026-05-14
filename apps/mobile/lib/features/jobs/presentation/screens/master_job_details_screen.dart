@@ -329,6 +329,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                             longitude: job.longitude,
                             maxAddressLines: 8,
                             showCopyForGps: true,
+                            showContainer: false,
                           ),
                         if (job.latitude != null && job.longitude != null) ...[
                           const SizedBox(height: 6),

@@ -427,6 +427,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                         longitude: _job.longitude,
                         maxAddressLines: 8,
                         showCopyForGps: true,
+                        showContainer: false,
                       ),
                     if (_job.latitude != null && _job.longitude != null) ...[
                       const SizedBox(height: 6),
