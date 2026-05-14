@@ -96,12 +96,12 @@ class JobLocationMapCard extends StatelessWidget {
                 bottom: 8,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.black54,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    child: Icon(Icons.open_in_full, size: 18, color: Colors.white),
+                    child: Icon(Icons.open_in_full, size: 18),
                   ),
                 ),
               ),
