@@ -11,6 +11,7 @@ import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/utils/job_status_color.dart';
 import '../../../../core/widgets/localized_job_title.dart';
+import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
@@ -85,26 +86,12 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     required String jobId,
     required String title,
   }) async {
-    final l10n = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(title),
-        content: Text(l10n.t('delete_confirm_short')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.t('cancel_action')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.t('delete_action')),
-          ),
-        ],
-      ),
+      title: title,
     );
 
-    if (confirmed == true) {
+    if (confirmed) {
       await _hideCompletedJob(jobId);
     }
   }
