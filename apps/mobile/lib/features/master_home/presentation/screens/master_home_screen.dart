@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/read_message_timestamps.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -45,22 +46,24 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   }
 
   Future<void> _loadReadMessageTimestamps() async {
-    final prefs = await SharedPreferences.getInstance();
-    final items = prefs.getStringList(_readMasterMessageTimestampsKey) ??
-        const <String>[];
+    final items = await loadReadMessageTimestamps(_readMasterMessageTimestampsKey);
+
     if (!mounted) return;
+
     setState(() {
-      _readMessageTimestamps = items.toSet();
+      _readMessageTimestamps = items;
     });
   }
 
   Future<void> _markMessageRead(DateTime? createdAt) async {
-    if (createdAt == null) return;
-    final value = createdAt.toIso8601String();
-    final prefs = await SharedPreferences.getInstance();
-    final next = {..._readMessageTimestamps, value};
-    await prefs.setStringList(_readMasterMessageTimestampsKey, next.toList());
+    final next = await markReadMessageTimestamp(
+      keys: const [_readMasterMessageTimestampsKey],
+      current: _readMessageTimestamps,
+      createdAt: createdAt,
+    );
+
     if (!mounted) return;
+
     setState(() {
       _readMessageTimestamps = next;
     });
