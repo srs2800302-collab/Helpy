@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/date_time_format.dart';
+import '../../../../core/utils/hidden_completed_jobs.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
@@ -32,19 +32,24 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
   }
 
   Future<void> _loadHiddenCompletedJobIds() async {
-    final prefs = await SharedPreferences.getInstance();
-    final items = prefs.getStringList(_hiddenCompletedJobsKey) ?? const <String>[];
+    final items = await loadHiddenCompletedJobIds(_hiddenCompletedJobsKey);
+
     if (!mounted) return;
+
     setState(() {
-      _hiddenCompletedJobIds = items.toSet();
+      _hiddenCompletedJobIds = items;
     });
   }
 
   Future<void> _hideCompletedJob(String jobId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final next = {..._hiddenCompletedJobIds, jobId};
-    await prefs.setStringList(_hiddenCompletedJobsKey, next.toList());
+    final next = await hideCompletedJobId(
+      key: _hiddenCompletedJobsKey,
+      current: _hiddenCompletedJobIds,
+      jobId: jobId,
+    );
+
     if (!mounted) return;
+
     setState(() {
       _hiddenCompletedJobIds = next;
     });
