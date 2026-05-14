@@ -58,8 +58,12 @@ String localizedAddressForDisplay({
   required String? translationsJson,
   required String locale,
 }) {
-  final source = (original ?? '').trim();
-  return compactAddressWithRoomForDisplay(source, locale: locale);
+  final source = translatedOrOriginal(
+    original: original,
+    translationsJson: translationsJson,
+    locale: 'en',
+  );
+  return compactAddressWithRoomForDisplay(source, locale: 'en');
 }
 
 String compactAddressWithRoomForDisplay(String? value, {String locale = 'en'}) {
