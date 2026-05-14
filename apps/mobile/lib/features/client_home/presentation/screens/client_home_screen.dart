@@ -9,6 +9,7 @@ import '../../../../core/utils/error_visibility.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/utils/date_time_format.dart';
+import '../../../../core/utils/job_status_color.dart';
 import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
@@ -110,17 +111,6 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
 
   Future<void> _refreshAll() async {
     await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-  }
-
-  Color? _jobCardColor(String status) {
-    switch (status) {
-      case 'completed':
-        return Colors.grey.shade200;
-      case 'cancelled':
-        return Colors.red.shade50;
-      default:
-        return null;
-    }
   }
 
   @override
@@ -385,7 +375,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                         final statusLabel =
                             l10n.t(mapJobStatusKey(item.status));
                         return Card(
-                          color: _jobCardColor(item.status),
+                          color: jobStatusCardColor(item.status),
                           child: ListTile(
                             onLongPress: isCompleted
                                 ? () async {

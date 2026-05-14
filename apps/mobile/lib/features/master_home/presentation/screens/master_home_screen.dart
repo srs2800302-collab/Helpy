@@ -8,6 +8,7 @@ import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/error_visibility.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/date_time_format.dart';
+import '../../../../core/utils/job_status_color.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/localized_job_title.dart';
@@ -152,17 +153,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
           _completingJobIds = {..._completingJobIds}..remove(jobId);
         });
       }
-    }
-  }
-
-  Color? _offerCardColor(String status) {
-    switch (status) {
-      case 'completed':
-        return Colors.grey.shade200;
-      case 'cancelled':
-        return Colors.red.shade50;
-      default:
-        return null;
     }
   }
 
@@ -405,7 +395,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                   ).trim();
 
                   return Card(
-                    color: _offerCardColor(item.status),
+                    color: jobStatusCardColor(item.status),
                     child: ListTile(
                       onTap: () async {
                         await Navigator.of(context).push(
@@ -563,7 +553,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       l10n.t(mapJobStatusKey(item.status));
 
                   return Card(
-                    color: _offerCardColor(item.status),
+                    color: jobStatusCardColor(item.status),
                     child: ListTile(
                       onLongPress: () async {
                         await _confirmHideCompletedJob(
