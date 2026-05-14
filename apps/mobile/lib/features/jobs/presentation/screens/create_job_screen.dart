@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../domain/job_item.dart';
@@ -112,27 +113,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     }
 
     return result;
-  }
-
-  String _categoryLabel(AppLocalizations l10n, String slug) {
-    switch (slug) {
-      case 'cleaning':
-        return l10n.t('category_cleaning');
-      case 'handyman':
-        return l10n.t('category_handyman');
-      case 'plumbing':
-        return l10n.t('category_plumbing');
-      case 'electrical':
-        return l10n.t('category_electrical');
-      case 'locks':
-        return l10n.t('category_locks');
-      case 'aircon':
-        return l10n.t('category_aircon');
-      case 'furniture_assembly':
-        return l10n.t('category_furniture_assembly');
-      default:
-        return slug;
-    }
   }
 
   Future<void> _pickLocation() async {
@@ -379,7 +359,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   .map(
                     (item) => DropdownMenuItem<String>(
                       value: item.slug,
-                      child: Text(_categoryLabel(l10n, item.slug)),
+                      child: Text(l10n.t(mapCategoryKey(item.slug))),
                     ),
                   )
                   .toList(),
