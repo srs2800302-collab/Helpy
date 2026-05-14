@@ -184,6 +184,13 @@ export async function createOffer(jobId: string, request: Request, env: any) {
       .run();
 
 
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'offer',
+      entityId: id,
+      limit: 6,
+    }).catch(() => undefined);
+
     const createdOffer = await env.DB.prepare(
       'SELECT * FROM offers WHERE id = ?1'
     ).bind(id).first();
