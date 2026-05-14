@@ -14,6 +14,7 @@ import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/job_photo_widget.dart';
 import '../../../../core/widgets/job_photo_preview_dialog.dart';
+import '../../../../core/widgets/job_info_block.dart';
 import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../domain/job_item.dart';
@@ -190,42 +191,12 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     required String body,
     IconData icon = Icons.info_outline,
   }) {
-    if (body.trim().isEmpty) return const SizedBox.shrink();
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    body.trim(),
-                    maxLines: 16,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+    return JobInfoBlock(
+      title: title,
+      body: body,
+      icon: icon,
     );
   }
-
 
   Widget _photosBlock(AppLocalizations l10n) {
     return FutureBuilder<List<String>>(
