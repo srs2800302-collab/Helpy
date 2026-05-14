@@ -159,6 +159,15 @@ export async function processPendingTranslationTasks({
 }) {
   await ensureTranslationTasksSchema(env);
 
+  const staleProcessingBefore = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  await env.DB.prepare(`
+    UPDATE translation_tasks
+    SET status = 'pending',
+        updated_at = ?1
+    WHERE status = 'processing'
+      AND updated_at < ?2
+  `).bind(new Date().toISOString(), staleProcessingBefore).run();
+
   const where = entityType && entityId
     ? "WHERE status = 'pending' AND entity_type = ?1 AND entity_id = ?2"
     : "WHERE status = 'pending'";
@@ -178,20 +187,24 @@ export async function processPendingTranslationTasks({
   const tasks = tasksResult.results ?? [];
   const processed = [];
   const failed = [];
+  const claimedTasks = [];
 
   for (const task of tasks) {
-    try {
-      const translatedText = await translateWithGooglePublic({
-        text: String(task.original_text ?? ''),
-        sourceLanguage: String(task.source_language),
-        targetLanguage: String(task.target_language),
-      });
+    const claim = await env.DB.prepare(`
+      UPDATE translation_tasks
+      SET status = 'processing',
+          updated_at = ?1
+      WHERE id = ?2
+        AND status = 'pending'
+    `).bind(new Date().toISOString(), task.id).run();
 
-      if (!translatedText) {
-        failed.push({ id: task.id, error: 'Empty translation result' });
-        continue;
-      }
+    if ((claim?.meta?.changes ?? 0) > 0) {
+      claimedTasks.push(task);
+    }
+  }
 
+  const translationResults = await Promise.all(
+    claimedTasks.map(async (task: any) => {
       const entityTypeValue = String(task.entity_type);
       const fieldName = String(task.field_name);
 
@@ -224,27 +237,83 @@ export async function processPendingTranslationTasks({
                       : null;
 
       if (!table || !column) {
-        failed.push({ id: task.id, error: 'Unsupported translation target' });
+        return {
+          task,
+          translatedText: '',
+          table,
+          column,
+          error: 'Unsupported translation target',
+        };
+      }
+
+      try {
+        const translatedText = await translateWithGooglePublic({
+          text: String(task.original_text ?? ''),
+          sourceLanguage: String(task.source_language),
+          targetLanguage: String(task.target_language),
+        });
+
+        return {
+          task,
+          translatedText,
+          table,
+          column,
+          error: translatedText ? null : 'Empty translation result',
+        };
+      } catch (error: any) {
+        return {
+          task,
+          translatedText: '',
+          table,
+          column,
+          error: error?.message ?? 'Unknown translation error',
+        };
+      }
+    }),
+  );
+
+  for (const result of translationResults) {
+    const task = result.task;
+
+    try {
+      if (result.error || !result.translatedText || !result.table || !result.column) {
+        await env.DB.prepare(`
+          UPDATE translation_tasks
+          SET status = 'pending',
+              updated_at = ?1
+          WHERE id = ?2
+            AND status = 'processing'
+        `).bind(new Date().toISOString(), task.id).run();
+
+        failed.push({ id: task.id, error: result.error ?? 'Unknown translation error' });
         continue;
       }
 
-      const entity = await env.DB.prepare(`SELECT ${column} FROM ${table} WHERE id = ?1`)
+      const entity = await env.DB.prepare(`SELECT ${result.column} FROM ${result.table} WHERE id = ?1`)
         .bind(task.entity_id)
         .first();
 
       if (!entity) {
+        await env.DB.prepare(`
+          UPDATE translation_tasks
+          SET status = 'pending',
+              updated_at = ?1
+          WHERE id = ?2
+            AND status = 'processing'
+        `).bind(new Date().toISOString(), task.id).run();
+
         failed.push({ id: task.id, error: 'Translation entity not found' });
         continue;
       }
 
       let translations: any = {};
       try {
-        translations = JSON.parse(entity[column] ?? '{}');
+        translations = JSON.parse(entity[result.column] ?? '{}');
       } catch (_) {
         translations = {};
       }
 
-      translations[String(task.target_language)] = translatedText;
+      translations[String(task.target_language)] = result.translatedText;
 
       await env.DB.prepare(`
         UPDATE translation_tasks
@@ -252,9 +321,9 @@ export async function processPendingTranslationTasks({
             status = 'completed',
             updated_at = ?2
         WHERE id = ?3
-      `).bind(translatedText, new Date().toISOString(), task.id).run();
+      `).bind(result.translatedText, new Date().toISOString(), task.id).run();
 
-      await env.DB.prepare(`UPDATE ${table} SET ${column} = ?1 WHERE id = ?2`)
+      await env.DB.prepare(`UPDATE ${result.table} SET ${result.column} = ?1 WHERE id = ?2`)
         .bind(JSON.stringify(translations), task.entity_id)
         .run();
 
@@ -265,6 +334,14 @@ export async function processPendingTranslationTasks({
         target_language: task.target_language,
       });
     } catch (error: any) {
+      await env.DB.prepare(`
+        UPDATE translation_tasks
+        SET status = 'pending',
+            updated_at = ?1
+        WHERE id = ?2
+          AND status = 'processing'
+      `).bind(new Date().toISOString(), task.id).run();
+
       failed.push({ id: task.id, error: error?.message ?? 'Unknown translation error' });
     }
   }
