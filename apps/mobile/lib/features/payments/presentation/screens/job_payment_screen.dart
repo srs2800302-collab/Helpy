@@ -41,6 +41,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   void initState() {
     super.initState();
     _job = widget.job;
+    Future.microtask(() => _refreshJob(silent: true));
   }
 
   Future<void> _refreshJob({bool silent = false}) async {
