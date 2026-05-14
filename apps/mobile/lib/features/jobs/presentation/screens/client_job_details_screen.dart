@@ -83,16 +83,6 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
     );
   }
 
-  Widget _jobLocationMap({
-    required double latitude,
-    required double longitude,
-  }) {
-    return JobLocationMapCard(
-      latitude: latitude,
-      longitude: longitude,
-    );
-  }
-
   Widget _photosBlock(BuildContext context, WidgetRef ref, AppLocalizations l10n, String jobId) {
     return FutureBuilder<List<String>>(
       future: widget._loadPhotos(ref, jobId),
@@ -453,7 +443,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      _jobLocationMap(
+                      JobLocationMapCard(
                         latitude: _job.latitude!,
                         longitude: _job.longitude!,
                       ),

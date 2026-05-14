@@ -77,16 +77,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     );
   }
 
-  Widget _jobLocationMap({
-    required double latitude,
-    required double longitude,
-  }) {
-    return JobLocationMapCard(
-      latitude: latitude,
-      longitude: longitude,
-    );
-  }
-
   Widget _infoBlock({
     required String title,
     required String body,
@@ -358,7 +348,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                             ),
                           ),
                           const SizedBox(height: 8),
-                          _jobLocationMap(
+                          JobLocationMapCard(
                             latitude: job.latitude!,
                             longitude: job.longitude!,
                           ),
