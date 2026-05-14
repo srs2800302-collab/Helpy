@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 
 Future<List<String>> loadJobPhotoUrls({
-  required Ref ref,
+  required WidgetRef ref,
   required String jobId,
 }) async {
   final response = await ref.read(apiClientProvider).dio.get('/jobs/$jobId/photos');

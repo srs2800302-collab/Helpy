@@ -8,6 +8,7 @@ import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/utils/read_message_timestamps.dart';
+import '../../../../core/utils/job_photo_loader.dart';
 import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/job_location_map_card.dart';
 import '../../../../core/widgets/job_photo_widget.dart';
@@ -23,13 +24,11 @@ import '../../../reviews/presentation/screens/create_review_screen.dart';
 import 'create_job_screen.dart';
 
 class ClientJobDetailsScreen extends ConsumerStatefulWidget {
-  Future<List<String>> _loadPhotos(WidgetRef ref, String jobId) async {
-    final res = await ref.read(apiClientProvider).dio.get('/jobs/$jobId/photos');
-    final data = res.data['data'] as List<dynamic>;
-    return data
-        .map((item) => (item as Map<String, dynamic>)['url']?.toString() ?? '')
-        .where((url) => url.trim().isNotEmpty)
-        .toList();
+  Future<List<String>> _loadPhotos(WidgetRef ref, String jobId) {
+    return loadJobPhotoUrls(
+      ref: ref,
+      jobId: jobId,
+    );
   }
   final JobItem job;
 
