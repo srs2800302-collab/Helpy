@@ -7,6 +7,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
+import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
@@ -125,12 +126,6 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
       default:
         return null;
     }
-  }
-
-  String _formatCompletedAt(DateTime value) {
-    final local = value.toLocal();
-    String two(int x) => x.toString().padLeft(2, '0');
-    return '${two(local.day)}.${two(local.month)}.${local.year} ${two(local.hour)}:${two(local.minute)}';
   }
 
   @override
@@ -431,7 +426,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                               children: [
                                 Text(
                                   isCompleted
-                                      ? '$categoryLabel • $statusLabel\n${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}'
+                                      ? '$categoryLabel • $statusLabel\n${l10n.t('completed_at_label')}: ${formatShortDateTime(completedAt)}'
                                       : '$categoryLabel • $statusLabel',
                                 ),
                                 if (isCompleted && item.hasReview == true)
