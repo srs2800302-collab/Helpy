@@ -69,13 +69,6 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
   }
 
 
-  void _openPhotoPreview(String url) {
-    showJobPhotoPreviewDialog(
-      context: context,
-      url: url,
-    );
-  }
-
 
   Future<void> _markLastMessageRead(DateTime? createdAt) async {
     await markReadMessageTimestamp(
@@ -145,7 +138,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
               (url) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: GestureDetector(
-                  onTap: () => _openPhotoPreview(url),
+                  onTap: () => showJobPhotoPreviewDialog(context: context, url: url),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: JobPhotoWidget(url: url),
