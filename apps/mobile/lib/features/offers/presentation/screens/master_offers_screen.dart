@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../../core/widgets/localized_job_title.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
@@ -236,7 +237,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      l10n.t('status_${item.status}'),
+                                      l10n.t(mapJobStatusKey(item.status)),
                                     ),
                                     const SizedBox(width: 4),
                                     const Icon(Icons.chevron_right),
