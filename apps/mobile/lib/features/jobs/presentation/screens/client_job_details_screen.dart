@@ -3,13 +3,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
+import '../../../../core/utils/read_message_timestamps.dart';
 import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/job_photo_widget.dart';
 import '../../../../core/widgets/job_photo_preview_dialog.dart';
@@ -71,21 +71,11 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
 
 
   Future<void> _markLastMessageRead(DateTime? createdAt) async {
-    if (createdAt == null) return;
-
-    final value = createdAt.toIso8601String();
-    final prefs = await SharedPreferences.getInstance();
-
-    const keys = [
-      'readClientMessageTimestampsKey',
-      'readClientJobsMessageTimestampsKey',
-    ];
-
-    for (final key in keys) {
-      final current = prefs.getStringList(key) ?? const <String>[];
-      final next = {...current, value}.toList();
-      await prefs.setStringList(key, next);
-    }
+    await markReadMessageTimestamp(
+      keys: const ['readClientMessageTimestampsKey', 'readClientJobsMessageTimestampsKey'],
+      current: const <String>{},
+      createdAt: createdAt,
+    );
   }
 
   Widget _infoBlock({
