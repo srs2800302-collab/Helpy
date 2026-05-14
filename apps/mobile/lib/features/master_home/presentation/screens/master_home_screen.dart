@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/utils/error_visibility.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/widgets/job_review_summary.dart';
@@ -154,12 +155,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     }
   }
 
-  String? _visibleError(String? message) {
-    if (message == null || message.trim().isEmpty) return null;
-    if (message.toLowerCase().contains('session expired')) return null;
-    return message;
-  }
-
   Color? _offerCardColor(String status) {
     switch (status) {
       case 'completed':
@@ -180,7 +175,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final locale = currentLocale.languageCode;
     final session = ref.watch(authControllerProvider).session;
 
-    final offersError = _visibleError(offersState.errorMessage);
+    final offersError = visibleErrorMessage(offersState.errorMessage);
     final marketplaceState = ref.watch(marketplaceControllerProvider);
     final activeOffers =
         offersState.items.where((item) => item.status != 'completed').toList();

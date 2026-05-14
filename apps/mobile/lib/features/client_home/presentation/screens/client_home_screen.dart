@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/utils/error_visibility.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/utils/date_time_format.dart';
@@ -111,12 +112,6 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     await ref.read(jobsControllerProvider.notifier).loadClientJobs();
   }
 
-  String? _visibleError(String? message) {
-    if (message == null || message.trim().isEmpty) return null;
-    if (message.toLowerCase().contains('session expired')) return null;
-    return message;
-  }
-
   Color? _jobCardColor(String status) {
     switch (status) {
       case 'completed':
@@ -137,7 +132,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     final locale = currentLocale.languageCode;
     final session = ref.watch(authControllerProvider).session;
 
-    final jobsError = _visibleError(jobsState.errorMessage);
+    final jobsError = visibleErrorMessage(jobsState.errorMessage);
     final visibleJobs = jobsState.items
         .where((item) => !(item.status == 'completed' && _hiddenCompletedJobIds.contains(item.id)))
         .toList();
