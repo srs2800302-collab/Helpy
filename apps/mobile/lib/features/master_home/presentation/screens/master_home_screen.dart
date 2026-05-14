@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/job_location_summary.dart';
 import '../../../../core/widgets/localized_job_title.dart';
@@ -149,29 +150,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
           _completingJobIds = {..._completingJobIds}..remove(jobId);
         });
       }
-    }
-  }
-
-  String _statusLabel(AppLocalizations l10n, String status) {
-    switch (status) {
-      case 'draft':
-        return l10n.t('status_draft');
-      case 'awaiting_payment':
-        return l10n.t('status_awaiting_payment');
-      case 'open':
-        return l10n.t('status_open');
-      case 'master_selected':
-        return l10n.t('status_master_selected');
-      case 'in_progress':
-        return l10n.t('status_in_progress');
-      case 'completed':
-        return l10n.t('status_completed');
-      case 'cancelled':
-        return l10n.t('status_cancelled');
-      case 'disputed':
-        return l10n.t('status_disputed');
-      default:
-        return status;
     }
   }
 
@@ -420,6 +398,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     translationsJson: item.addressTranslationsJson,
                     locale: locale,
                   ).trim();
+                  final statusLabel =
+                      l10n.t(mapJobStatusKey(item.status));
                   final rawMessage = (item.message ?? '').trim();
                   final message = translatedOrOriginal(
                     original: item.message,
@@ -476,7 +456,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}'),
+                                '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • $statusLabel'),
                             if (rawAddress.isNotEmpty)
                               JobLocationSummary(
                                 addressText: address,
@@ -589,6 +569,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     locale: locale,
                   );
                   final completedAt = item.updatedAt ?? item.createdAt;
+                  final statusLabel =
+                      l10n.t(mapJobStatusKey(item.status));
 
                   return Card(
                     color: _offerCardColor(item.status),
@@ -627,7 +609,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
+                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • $statusLabel\n'
                             '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
                           ),
                           if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
