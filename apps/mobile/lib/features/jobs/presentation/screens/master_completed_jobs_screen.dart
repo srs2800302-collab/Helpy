@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../../core/widgets/localized_job_title.dart';
@@ -78,17 +79,6 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
   Future<void> _refresh() async {
     await ref.read(offersControllerProvider.notifier).loadMyOffers();
     await _loadHiddenCompletedJobIds();
-  }
-
-  String _statusLabel(AppLocalizations l10n, String status) {
-    switch (status) {
-      case 'completed':
-        return l10n.t('status_completed');
-      case 'cancelled':
-        return l10n.t('status_cancelled');
-      default:
-        return status;
-    }
   }
 
   String _formatCompletedAt(DateTime value) {
@@ -182,7 +172,7 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${_statusLabel(l10n, item.status)}\n'
+                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • ${l10n.t(mapJobStatusKey(item.status))}\n'
                             '${l10n.t('completed_at_label')}: ${_formatCompletedAt(completedAt)}',
                           ),
                           if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
