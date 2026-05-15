@@ -111,6 +111,45 @@ export async function buildTranslationsJson({
   return JSON.stringify(translations);
 }
 
+export function deferTranslations({
+  env,
+  entityType,
+  entityId,
+  sourceLanguage,
+  fields,
+  limit = 10,
+}: {
+  env: any;
+  entityType: string;
+  entityId: string;
+  sourceLanguage: string | null | undefined;
+  fields: Array<{ fieldName: string; text: string | null | undefined }>;
+  limit?: number;
+}) {
+  return (async () => {
+    for (const field of fields) {
+      const text = field.text?.trim();
+      if (!text) continue;
+
+      await buildTranslationsJson({
+        text,
+        sourceLanguage,
+        env,
+        entityType,
+        entityId,
+        fieldName: field.fieldName,
+      });
+    }
+
+    await processPendingTranslationTasks({
+      env,
+      entityType,
+      entityId,
+      limit,
+    });
+  })().catch(() => undefined);
+}
+
 export async function cleanupTranslationTasksForEntity({
   env,
   entityType,

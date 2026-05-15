@@ -433,7 +433,7 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'POST') {
-      return createOffer(jobId, request, env);
+      return createOffer(jobId, request, env, ctx);
     }
 
     if (parts.length === 5 && parts[4] === 'select-offer' && method === 'POST') {

@@ -1,5 +1,5 @@
 import { requireAuth } from './auth-context';
-import { buildTranslationsJson, processPendingTranslationTasks } from './translation';
+import { deferTranslations, processPendingTranslationTasks } from './translation';
 
 type CreateOfferBody = {
   master_name?: string;
@@ -60,7 +60,7 @@ export async function ensureOffersSchema(env: any) {
   }
 }
 
-export async function createOffer(jobId: string, request: Request, env: any) {
+export async function createOffer(jobId: string, request: Request, env: any, ctx?: any) {
   await ensureOffersSchema(env);
 
   const auth = await requireAuth(request, env);
@@ -133,27 +133,8 @@ export async function createOffer(jobId: string, request: Request, env: any) {
     const commentText = body.comment?.toString().trim() || '';
     const messageText = body.message?.toString().trim() || '';
 
-    const commentTranslationsJson = commentText
-      ? await buildTranslationsJson({
-          text: commentText,
-          sourceLanguage,
-          env,
-          entityType: 'offer',
-          entityId: id,
-          fieldName: 'comment',
-        })
-      : null;
-
-    const messageTranslationsJson = messageText
-      ? await buildTranslationsJson({
-          text: messageText,
-          sourceLanguage,
-          env,
-          entityType: 'offer',
-          entityId: id,
-          fieldName: 'message',
-        })
-      : null;
+    const commentTranslationsJson = null;
+    const messageTranslationsJson = null;
 
     await env.DB.prepare(
       `INSERT INTO offers (
@@ -184,12 +165,23 @@ export async function createOffer(jobId: string, request: Request, env: any) {
       .run();
 
 
-    await processPendingTranslationTasks({
+    const translationWork = deferTranslations({
       env,
       entityType: 'offer',
       entityId: id,
+      sourceLanguage,
+      fields: [
+        { fieldName: 'comment', text: commentText },
+        { fieldName: 'message', text: messageText },
+      ],
       limit: 6,
-    }).catch(() => undefined);
+    });
+
+    if (ctx?.waitUntil) {
+      ctx.waitUntil(translationWork);
+    } else {
+      await translationWork;
+    }
 
     const createdOffer = await env.DB.prepare(
       'SELECT * FROM offers WHERE id = ?1'
