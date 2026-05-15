@@ -214,24 +214,43 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB'),
-                                    if (comment.isNotEmpty)
+
+                                    if (message.isNotEmpty) ...[
+                                      const SizedBox(height: 10),
                                       Text(
-                                        comment,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                        l10n.t('offer_message'),
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
                                       ),
-                                    if (message.isNotEmpty)
+                                      const SizedBox(height: 4),
                                       Text(
                                         message,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                    if (lastMessage.isNotEmpty)
+                                    ],
+
+                                    if (comment.isNotEmpty) ...[
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        l10n.t('comment_label'),
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        comment,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+
+                                    if (lastMessage.isNotEmpty) ...[
+                                      const SizedBox(height: 10),
                                       Text(
                                         '💬 $lastMessage',
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
+                                    ],
                                   ],
                                 ),
                                 isThreeLine: comment.isNotEmpty || message.isNotEmpty || lastMessage.isNotEmpty,
