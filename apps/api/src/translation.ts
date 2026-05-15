@@ -39,6 +39,18 @@ function buildEmptyTranslations(originalText: string, sourceLanguage: SupportedL
   return entries;
 }
 
+export function buildInitialTranslationsJson({
+  text,
+  sourceLanguage,
+}: {
+  text: string;
+  sourceLanguage: string | null | undefined;
+}) {
+  const originalText = text.trim();
+  const source = normalizeLanguage(sourceLanguage);
+  return JSON.stringify(buildEmptyTranslations(originalText, source));
+}
+
 export async function buildTranslationsJson({
   text,
   sourceLanguage,

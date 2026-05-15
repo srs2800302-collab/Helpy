@@ -1,7 +1,7 @@
 import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
-import { buildTranslationsJson, processPendingTranslationTasks } from './translation';
+import { buildInitialTranslationsJson, buildTranslationsJson, processPendingTranslationTasks } from './translation';
 import { ensureChatSchema } from './chat';
 
 type CreateJobBody = {
@@ -354,29 +354,17 @@ export async function createJob(request: Request, env: any, ctx?: any) {
   const sourceLanguage = body.source_language?.trim() || 'ru';
 
   // === translations ===
-  const titleTranslationsJson = await buildTranslationsJson({
+  const titleTranslationsJson = buildInitialTranslationsJson({
     text: body.title,
     sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'title',
   });
-  const descriptionTranslationsJson = await buildTranslationsJson({
+  const descriptionTranslationsJson = buildInitialTranslationsJson({
     text: body.description,
     sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'description',
   });
-  const addressTranslationsJson = await buildTranslationsJson({
+  const addressTranslationsJson = buildInitialTranslationsJson({
     text: body.address_text,
     sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'address_text',
   });
 
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
@@ -443,12 +431,43 @@ export async function createJob(request: Request, env: any, ctx?: any) {
     )
     .run();
 
-  const translationWork = processPendingTranslationTasks({
-    env,
-    entityType: 'job',
-    entityId: id,
-    limit: 6,
-  }).catch(() => undefined);
+  const titleText = body.title.trim();
+  const descriptionText = body.description.trim();
+  const addressText = body.address_text.trim();
+
+  const translationWork = (async () => {
+    await buildTranslationsJson({
+      text: titleText,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'title',
+    });
+    await buildTranslationsJson({
+      text: descriptionText,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'description',
+    });
+    await buildTranslationsJson({
+      text: addressText,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'address_text',
+    });
+
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'job',
+      entityId: id,
+      limit: 6,
+    });
+  })().catch(() => undefined);
 
   if (ctx?.waitUntil) {
     ctx.waitUntil(translationWork);
