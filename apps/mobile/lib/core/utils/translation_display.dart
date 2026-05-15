@@ -165,9 +165,8 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
     country,
     city,
     province,
-    if (street.isNotEmpty && postcode.isNotEmpty) '$street / $postcode'
-    else if (street.isNotEmpty) street
-    else postcode,
+    street,
+    postcode,
   ].where((part) => part.trim().isNotEmpty).join(', ');
 
   return compact.isNotEmpty ? compact : addressParts.join(', ');

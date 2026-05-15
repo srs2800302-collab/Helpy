@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/category_mapper.dart';
+import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../domain/job_item.dart';
@@ -72,18 +73,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     super.dispose();
   }
 
-  String _geocodingLocale(BuildContext context) {
-    final code = Localizations.localeOf(context).languageCode;
-    switch (code) {
-      case 'ru':
-        return 'ru_RU';
-      case 'th':
-        return 'th_TH';
-      case 'en':
-      default:
-        return 'en_US';
-    }
-  }
 
   bool _isReadableAddressPart(String value) {
     final text = value.trim();
@@ -137,7 +126,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         '${result.latitude.toStringAsFixed(6)}, ${result.longitude.toStringAsFixed(6)}';
 
     try {
-      await setLocaleIdentifier(_geocodingLocale(context));
+      await setLocaleIdentifier('en_US');
       final placemarks = await placemarkFromCoordinates(
         result.latitude,
         result.longitude,
@@ -159,7 +148,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         ]);
 
         if (parts.isNotEmpty) {
-          nextAddress = parts.join(', ');
+          nextAddress = compactAddressForDisplay(parts.join(', '), locale: 'en');
         }
       }
     } catch (_) {}
