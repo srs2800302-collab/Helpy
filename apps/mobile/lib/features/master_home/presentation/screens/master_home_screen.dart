@@ -243,12 +243,12 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
-                    await Navigator.of(context).push(
+                    final changed = await Navigator.of(context).push<bool>(
                       MaterialPageRoute(
                         builder: (_) => const MasterMarketplaceScreen(),
                       ),
                     );
-                    if (mounted) {
+                    if (changed == true && mounted) {
                       await _refreshAll();
                     }
                   },
@@ -392,7 +392,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     color: jobStatusCardColor(item.status),
                     child: ListTile(
                       onTap: () async {
-                        await Navigator.of(context).push(
+                        final changed = await Navigator.of(context).push<bool>(
                           MaterialPageRoute(
                             builder: (_) => MasterJobDetailsScreen(
                               jobId: item.jobId,
@@ -402,7 +402,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             ),
                           ),
                         );
-                        if (mounted) {
+                        if (changed == true && mounted) {
                           await _refreshAll();
                         }
                       },
