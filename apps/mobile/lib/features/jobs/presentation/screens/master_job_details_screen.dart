@@ -39,6 +39,7 @@ class MasterJobDetailsScreen extends ConsumerStatefulWidget {
 
 class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen> {
   late Future<JobItem> _jobFuture;
+  JobItem? _job;
   late Future<List<String>> _photosFuture;
 
   @override
@@ -56,17 +57,17 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
   }
 
   Future<void> _refresh() async {
+    final updatedJob = await ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
+    final photosFuture = _loadPhotos();
+
     if (!mounted) return;
 
     setState(() {
-      _jobFuture = ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
-      _photosFuture = _loadPhotos();
+      _job = updatedJob;
+      _photosFuture = photosFuture;
     });
 
-    await Future.wait([
-      _jobFuture,
-      _photosFuture,
-    ]);
+    await photosFuture;
   }
 
 
@@ -185,7 +186,8 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
               );
             }
 
-            final job = snapshot.data!;
+            final job = _job ?? snapshot.data!;
+            _job ??= job;
             final completedAt = job.updatedAt ?? job.createdAt;
             final canSendOffer = job.status == 'open' && !job.hasApplied;
             final canOpenChat = job.status == 'master_selected' || job.status == 'in_progress';
