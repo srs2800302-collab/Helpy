@@ -131,6 +131,10 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(currentLocaleProvider, (previous, next) {
+      if (previous?.languageCode == next.languageCode) return;
+      _refresh();
+    });
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final originalTitle = (_job.titleOriginal ?? _job.title).trim();

@@ -56,6 +56,8 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
   }
 
   Future<void> _refresh() async {
+    if (!mounted) return;
+
     setState(() {
       _jobFuture = ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
       _photosFuture = _loadPhotos();
@@ -144,6 +146,10 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(currentLocaleProvider, (previous, next) {
+      if (previous?.languageCode == next.languageCode) return;
+      _refresh();
+    });
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
