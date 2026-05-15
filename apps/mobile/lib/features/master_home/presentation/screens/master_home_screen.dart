@@ -436,6 +436,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                                 addressText: address,
                                 latitude: item.latitude,
                                 longitude: item.longitude,
+                                showContainer: false,
                               ),
                             if (rawMessage.isNotEmpty) ...[
                               const SizedBox(height: 10),
