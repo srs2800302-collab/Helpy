@@ -39,6 +39,17 @@ class ChatState {
   }
 }
 
+String _messagesFingerprint(List<ChatMessage> messages) {
+  return messages
+      .map((m) => [
+            m.id,
+            m.createdAt.toIso8601String(),
+            m.textTranslationsJson ?? '',
+            m.replyTextTranslationsJson ?? '',
+          ].join('|'))
+      .join('\n');
+}
+
 class ChatController extends StateNotifier<ChatState> {
   String? _currentJobId;
   final Ref ref;
@@ -97,11 +108,17 @@ class ChatController extends StateNotifier<ChatState> {
             userId: session.userId,
           );
 
-      state = state.copyWith(
-        isLoading: false,
-        messages: messages,
-        clearError: true,
-      );
+      final hasSameMessages = silent &&
+          _messagesFingerprint(messages) ==
+              _messagesFingerprint(state.messages);
+
+      if (!hasSameMessages) {
+        state = state.copyWith(
+          isLoading: false,
+          messages: messages,
+          clearError: true,
+        );
+      }
       _isLoadingMessages = false;
     } catch (e) {
       if (silent && state.messages.isNotEmpty) {
@@ -153,7 +170,6 @@ class ChatController extends StateNotifier<ChatState> {
 
       state = state.copyWith(input: '', isSending: false);
       await load(jobId, silent: true);
-
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
