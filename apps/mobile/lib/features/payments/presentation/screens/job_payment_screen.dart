@@ -44,7 +44,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
 
     Future.microtask(() => _refreshJob(silent: true));
 
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         _refreshJob(silent: true);
       }
