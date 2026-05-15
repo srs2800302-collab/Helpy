@@ -296,7 +296,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       onTap: () async {
                         await _markMessageRead(item.lastMessageCreatedAt);
                         if (!context.mounted) return;
-                        await Navigator.of(context).push(
+                        final changed = await Navigator.of(context).push<bool>(
                           MaterialPageRoute(
                             builder: (_) => ChatScreen(
                               jobId: item.jobId,
@@ -304,7 +304,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             ),
                           ),
                         );
-                        if (mounted) {
+                        if (changed == true && mounted) {
                           await _refreshAll();
                         }
                       },
@@ -492,7 +492,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               tooltip: l10n.t('chat'),
                               icon: const Icon(Icons.chat_bubble_outline),
                               onPressed: () async {
-                                await Navigator.of(context).push(
+                                final changed = await Navigator.of(context).push<bool>(
                                   MaterialPageRoute(
                                     builder: (_) => ChatScreen(
                                       jobId: item.jobId,
@@ -501,7 +501,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                                   ),
                                 );
 
-                                if (mounted) {
+                                if (changed == true && mounted) {
                                   await _refreshAll();
                                 }
                               },

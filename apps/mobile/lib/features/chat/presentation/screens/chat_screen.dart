@@ -28,6 +28,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   late final ScrollController _scrollController;
   ChatMessage? _replyToMessage;
   bool _isCompleting = false;
+  bool _hasChanges = false;
 
   bool _containsPhoneNumber(String value) {
     final compact = value.replaceAll(RegExp(r'[\s().-]'), '');
@@ -183,6 +184,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final error = ref.read(chatControllerProvider).errorMessage;
 
     if (error == null) {
+      _hasChanges = true;
       _textController.clear();
       _clearReply();
       _scrollToBottom();
@@ -211,6 +213,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(onPressed: () => Navigator.of(context).pop(_hasChanges)),
         title: Text(l10n.t('chat')),
         actions: const [
           AppLanguageMenuButton(),
