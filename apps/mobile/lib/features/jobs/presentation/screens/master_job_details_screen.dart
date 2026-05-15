@@ -38,15 +38,15 @@ class MasterJobDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen> {
-  late Future<JobItem> _jobFuture;
   JobItem? _job;
+  String? _errorMessage;
   late Future<List<String>> _photosFuture;
 
   @override
   void initState() {
     super.initState();
-    _jobFuture = ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
     _photosFuture = _loadPhotos();
+    Future.microtask(_refresh);
   }
 
   Future<List<String>> _loadPhotos() {
@@ -57,17 +57,25 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
   }
 
   Future<void> _refresh() async {
-    final updatedJob = await ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
-    final photosFuture = _loadPhotos();
+    try {
+      final updatedJob = await ref.read(jobsApiProvider).getJobById(jobId: widget.jobId);
+      final photosFuture = _loadPhotos();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _job = updatedJob;
-      _photosFuture = photosFuture;
-    });
+      setState(() {
+        _job = updatedJob;
+        _errorMessage = null;
+        _photosFuture = photosFuture;
+      });
 
-    await photosFuture;
+      await photosFuture;
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    }
   }
 
 
@@ -162,32 +170,21 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
-        child: FutureBuilder<JobItem>(
-          future: _jobFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return ListView(
-                children: const [
-                  SizedBox(height: 240),
-                  Center(child: CircularProgressIndicator()),
-                ],
-              );
-            }
-
-            if (snapshot.hasError || !snapshot.hasData) {
-              return ListView(
+        child: _job == null
+            ? ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
                   const SizedBox(height: 240),
                   Center(
-                    child: Text(snapshot.error?.toString() ?? 'Failed to load job'),
+                    child: _errorMessage == null
+                        ? const CircularProgressIndicator()
+                        : Text(_errorMessage!),
                   ),
                 ],
-              );
-            }
-
-            final job = _job ?? snapshot.data!;
-            _job ??= job;
+              )
+            : Builder(
+                builder: (context) {
+                  final job = _job!;
             final completedAt = job.updatedAt ?? job.createdAt;
             final canSendOffer = job.status == 'open' && !job.hasApplied;
             final canOpenChat = job.status == 'master_selected' || job.status == 'in_progress';
@@ -400,8 +397,8 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
               ],
             );
-          },
-        ),
+                },
+              ),
       ),
     );
   }
