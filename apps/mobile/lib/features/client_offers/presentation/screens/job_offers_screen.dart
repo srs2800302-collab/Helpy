@@ -25,6 +25,7 @@ class JobOffersScreen extends ConsumerStatefulWidget {
 }
 
 class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
+  final Map<String, Future<ReviewSummary>> _reviewSummaryFutures = {};
   @override
   void initState() {
     super.initState();
@@ -34,6 +35,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
   }
 
   Future<void> _refresh() async {
+    _reviewSummaryFutures.clear();
     await ref.read(jobOffersControllerProvider.notifier).loadJobOffers(widget.jobId);
   }
 
@@ -125,9 +127,10 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
 
                             return Card(
                               child: FutureBuilder<ReviewSummary>(
-                                future: ref
-                                    .read(reviewsApiProvider)
-                                    .getMasterSummary(item.masterUserId),
+                                future: _reviewSummaryFutures.putIfAbsent(
+                                  item.masterUserId,
+                                  () => ref.read(reviewsApiProvider).getMasterSummary(item.masterUserId),
+                                ),
                                 builder: (context, snapshot) {
                                   String ratingLine = l10n.t('no_reviews');
 
