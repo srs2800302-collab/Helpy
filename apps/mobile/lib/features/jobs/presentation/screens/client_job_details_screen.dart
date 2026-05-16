@@ -43,11 +43,13 @@ class ClientJobDetailsScreen extends ConsumerStatefulWidget {
 
 class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen> {
   late JobItem _job;
+  late Future<List<String>> _photosFuture;
 
   @override
   void initState() {
     super.initState();
     _job = widget.job;
+    _photosFuture = widget._loadPhotos(ref, _job.id);
   }
 
   Future<void> _refresh() async {
@@ -83,9 +85,9 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
     );
   }
 
-  Widget _photosBlock(BuildContext context, WidgetRef ref, AppLocalizations l10n, String jobId) {
+  Widget _photosBlock(AppLocalizations l10n) {
     return FutureBuilder<List<String>>(
-      future: widget._loadPhotos(ref, jobId),
+      future: _photosFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(child: CircularProgressIndicator());
@@ -458,7 +460,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               ),
             ),
             const SizedBox(height: 12),
-            _photosBlock(context, ref, l10n, _job.id),
+            _photosBlock(l10n),
 
           if (editJobAction != null) ...[
             const SizedBox(height: 24),
