@@ -2,7 +2,6 @@ import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { ensureReviewsSchema } from './reviews';
 import { ensureChatSchema } from './chat';
-import { processPendingTranslationTasks } from './translation';
 
 type MasterAccessResult =
   | { ok: true; userId: string }
@@ -128,12 +127,6 @@ export async function getOffersByMaster(
   if (!access.ok) {
     return access.response;
   }
-
-  await processPendingTranslationTasks({
-    env,
-    entityType: 'offer',
-    limit: 100,
-  }).catch(() => undefined);
 
   const result = await env.DB.prepare(
     `SELECT
