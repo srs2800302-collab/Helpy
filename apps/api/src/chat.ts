@@ -34,6 +34,11 @@ export async function ensureChatSchema(env: any) {
      ON chat_messages(job_id, created_at)`
   ).run();
 
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created_desc
+     ON chat_messages(job_id, created_at DESC)`
+  ).run();
+
   const columns = [
     'text_translations_json',
     'reply_to_message_id',
@@ -73,6 +78,11 @@ export async function ensureChatLookupSchema(env: any) {
   await env.DB.prepare(
     `CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created
      ON chat_messages(job_id, created_at)`
+  ).run();
+
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created_desc
+     ON chat_messages(job_id, created_at DESC)`
   ).run();
 }
 
