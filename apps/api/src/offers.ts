@@ -40,6 +40,11 @@ export async function ensureOffersSchema(env: any) {
       ON offers(job_id, master_user_id)`
   ).run();
 
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_offers_master_created_at
+      ON offers(master_user_id, created_at DESC)`
+  ).run();
+
   const alterStatements = [
     ['comment', 'ALTER TABLE offers ADD COLUMN comment TEXT'],
     ['message', 'ALTER TABLE offers ADD COLUMN message TEXT'],
