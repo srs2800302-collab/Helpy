@@ -120,7 +120,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   Widget build(BuildContext context) {
     ref.listen(currentLocaleProvider, (previous, next) {
       if (previous?.languageCode == next.languageCode) return;
-      _refreshJob(silent: true);
+      setState(() {});
     });
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
