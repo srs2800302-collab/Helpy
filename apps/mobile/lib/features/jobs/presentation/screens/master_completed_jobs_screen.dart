@@ -134,8 +134,8 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                             title: title,
                           );
                         },
-                        onTap: () {
-                          Navigator.of(context).push(
+                        onTap: () async {
+                          final changed = await Navigator.of(context).push<bool>(
                             MaterialPageRoute(
                               builder: (_) => MasterJobDetailsScreen(
                                 jobId: item.jobId,
@@ -144,6 +144,9 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
                               ),
                             ),
                           );
+                          if (changed == true && mounted) {
+                            await _refresh();
+                          }
                         },
                         title: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
