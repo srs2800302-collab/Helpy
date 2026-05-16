@@ -49,10 +49,11 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
     });
   }
 
-  Future<void> _markMessageRead(DateTime? createdAt) async {
+  Future<void> _markMessageRead(String jobId, DateTime? createdAt) async {
     final next = await markReadMessageTimestamp(
       keys: const [_readClientJobsMessageTimestampsKey],
       current: _readMessageTimestamps,
+      jobId: jobId,
       createdAt: createdAt,
     );
 
@@ -148,13 +149,14 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                               translationsJson: item.lastMessageTranslationsJson,
                               locale: locale,
                             ).trim();
-                            final readKey =
-                                item.lastMessageCreatedAt?.toIso8601String();
                             final hasUnreadMessage = lastMessage.isNotEmpty &&
                                 item.lastMessageSenderUserId != null &&
                                 item.lastMessageSenderUserId != session?.userId &&
-                                (readKey == null ||
-                                    !_readMessageTimestamps.contains(readKey));
+                                !hasReadMessageTimestamp(
+                                  readKeys: _readMessageTimestamps,
+                                  jobId: item.id,
+                                  createdAt: item.lastMessageCreatedAt,
+                                );
 
                             return Card(
                               child: ListTile(
@@ -225,7 +227,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                                 isThreeLine: true,
                                 trailing: const Icon(Icons.chevron_right),
                                 onTap: () async {
-                                  await _markMessageRead(item.lastMessageCreatedAt);
+                                  await _markMessageRead(item.id, item.lastMessageCreatedAt);
                                   if (!context.mounted) return;
                                   final changed = await Navigator.of(context).push<bool>(
                                     MaterialPageRoute(

@@ -80,10 +80,11 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
 
 
-  Future<void> _markLastMessageRead(DateTime? createdAt) async {
+  Future<void> _markLastMessageRead(String jobId, DateTime? createdAt) async {
     await markReadMessageTimestamp(
       keys: const ['readMasterMessageTimestampsKey', 'readMasterOffersMessageTimestampsKey'],
       current: const <String>{},
+      jobId: jobId,
       createdAt: createdAt,
     );
   }
@@ -373,7 +374,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        await _markLastMessageRead(job.lastMessageCreatedAt);
+                        await _markLastMessageRead(job.id, job.lastMessageCreatedAt);
 
                         if (!context.mounted) return;
 

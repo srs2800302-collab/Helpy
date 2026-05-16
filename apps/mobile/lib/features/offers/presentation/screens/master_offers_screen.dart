@@ -45,10 +45,11 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
     });
   }
 
-  Future<void> _markMessageRead(DateTime? createdAt) async {
+  Future<void> _markMessageRead(String jobId, DateTime? createdAt) async {
     final next = await markReadMessageTimestamp(
       keys: const [_readMasterOffersMessageTimestampsKey],
       current: _readMessageTimestamps,
+      jobId: jobId,
       createdAt: createdAt,
     );
 
@@ -147,13 +148,14 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                               translationsJson: item.lastMessageTranslationsJson,
                               locale: Localizations.localeOf(context).languageCode,
                             ).trim();
-                            final readKey =
-                                item.lastMessageCreatedAt?.toIso8601String();
                             final hasUnreadMessage = lastMessage.isNotEmpty &&
                                 item.lastMessageSenderUserId != null &&
                                 item.lastMessageSenderUserId != session?.userId &&
-                                (readKey == null ||
-                                    !_readMessageTimestamps.contains(readKey));
+                                !hasReadMessageTimestamp(
+                                  readKeys: _readMessageTimestamps,
+                                  jobId: item.jobId,
+                                  createdAt: item.lastMessageCreatedAt,
+                                );
 
                             return Card(
                               child: ListTile(
@@ -175,7 +177,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                     return;
                                   }
 
-                                  await _markMessageRead(item.lastMessageCreatedAt);
+                                  await _markMessageRead(item.jobId, item.lastMessageCreatedAt);
                                   if (!context.mounted) return;
 
                                   final changed = await Navigator.of(context).push<bool>(

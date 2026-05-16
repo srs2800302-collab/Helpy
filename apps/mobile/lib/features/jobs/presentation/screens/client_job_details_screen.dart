@@ -64,10 +64,11 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
 
 
 
-  Future<void> _markLastMessageRead(DateTime? createdAt) async {
+  Future<void> _markLastMessageRead(String jobId, DateTime? createdAt) async {
     await markReadMessageTimestamp(
       keys: const ['readClientMessageTimestampsKey', 'readClientJobsMessageTimestampsKey'],
       current: const <String>{},
+      jobId: jobId,
       createdAt: createdAt,
     );
   }
@@ -225,7 +226,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
     } else if (_job.status == 'master_selected' || _job.status == 'in_progress') {
       primaryAction = ElevatedButton(
         onPressed: () async {
-          await _markLastMessageRead(_job.lastMessageCreatedAt);
+          await _markLastMessageRead(_job.id, _job.lastMessageCreatedAt);
 
           if (!context.mounted) return;
 

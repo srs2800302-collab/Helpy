@@ -55,10 +55,11 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     });
   }
 
-  Future<void> _markMessageRead(DateTime? createdAt) async {
+  Future<void> _markMessageRead(String jobId, DateTime? createdAt) async {
     final next = await markReadMessageTimestamp(
       keys: const [_readMasterMessageTimestampsKey],
       current: _readMessageTimestamps,
+      jobId: jobId,
       createdAt: createdAt,
     );
 
@@ -164,11 +165,14 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final activeOffers =
         offersState.items.where((item) => item.status != 'completed').toList();
     final incomingMessageOffers = activeOffers.where((item) {
-      final readKey = item.lastMessageCreatedAt?.toIso8601String();
       return (item.lastMessage ?? '').trim().isNotEmpty &&
           item.lastMessageSenderUserId != null &&
           item.lastMessageSenderUserId != session?.userId &&
-          (readKey == null || !_readMessageTimestamps.contains(readKey));
+          !hasReadMessageTimestamp(
+            readKeys: _readMessageTimestamps,
+            jobId: item.jobId,
+            createdAt: item.lastMessageCreatedAt,
+          );
     }).toList();
     final completedOffers = offersState.items
         .where((item) => item.status == 'completed')
@@ -294,7 +298,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       isThreeLine: true,
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
-                        await _markMessageRead(item.lastMessageCreatedAt);
+                        await _markMessageRead(item.jobId, item.lastMessageCreatedAt);
                         if (!context.mounted) return;
                         final changed = await Navigator.of(context).push<bool>(
                           MaterialPageRoute(

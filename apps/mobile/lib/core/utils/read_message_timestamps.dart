@@ -7,14 +7,36 @@ Future<Set<String>> loadReadMessageTimestamps(String key) async {
   return items.toSet();
 }
 
+String buildReadMessageKey({
+  required String jobId,
+  required DateTime? createdAt,
+}) {
+  final timestamp = createdAt?.toIso8601String();
+  if (timestamp == null || timestamp.isEmpty) return '';
+
+  return '$jobId:$timestamp';
+}
+
+bool hasReadMessageTimestamp({
+  required Set<String> readKeys,
+  required String jobId,
+  required DateTime? createdAt,
+}) {
+  final timestamp = createdAt?.toIso8601String();
+  if (timestamp == null || timestamp.isEmpty) return false;
+
+  return readKeys.contains('$jobId:$timestamp') || readKeys.contains(timestamp);
+}
+
 Future<Set<String>> markReadMessageTimestamp({
   required Iterable<String> keys,
   required Set<String> current,
+  required String jobId,
   required DateTime? createdAt,
 }) async {
-  if (createdAt == null) return current;
+  final value = buildReadMessageKey(jobId: jobId, createdAt: createdAt);
+  if (value.isEmpty) return current;
 
-  final value = createdAt.toIso8601String();
   final next = {...current, value};
   final prefs = await SharedPreferences.getInstance();
 
