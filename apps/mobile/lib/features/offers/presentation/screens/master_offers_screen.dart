@@ -178,7 +178,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   await _markMessageRead(item.lastMessageCreatedAt);
                                   if (!context.mounted) return;
 
-                                  Navigator.of(context).push(
+                                  final changed = await Navigator.of(context).push<bool>(
                                     MaterialPageRoute(
                                       builder: (_) => ChatScreen(
                                         jobId: item.jobId,
@@ -186,6 +186,9 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                       ),
                                     ),
                                   );
+                                  if (changed == true && mounted) {
+                                    await _refresh();
+                                  }
                                 },
                                 title: Row(
                                   children: [
