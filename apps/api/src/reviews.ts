@@ -54,6 +54,26 @@ export async function ensureReviewsSchema(env: any) {
   ).run();
 }
 
+export async function ensureReviewsLookupSchema(env: any) {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS reviews (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      client_user_id TEXT,
+      master_user_id TEXT,
+      rating INTEGER,
+      comment TEXT,
+      comment_translations_json TEXT,
+      created_at TEXT
+    )`
+  ).run();
+
+  await env.DB.prepare(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
+     ON reviews(job_id)`
+  ).run();
+}
+
 export async function getReviews(jobId: string, request: Request, env: any) {
   await ensureReviewsSchema(env);
 
