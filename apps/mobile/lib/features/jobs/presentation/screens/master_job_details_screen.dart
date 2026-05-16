@@ -377,7 +377,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
                         if (!context.mounted) return;
 
-                        await Navigator.of(context).push(
+                        final changed = await Navigator.of(context).push<bool>(
                           MaterialPageRoute(
                             builder: (_) => ChatScreen(
                               jobId: job.id,
@@ -385,8 +385,8 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                             ),
                           ),
                         );
-                        if (mounted) {
-                          setState(() {});
+                        if (changed == true && mounted) {
+                          await _refresh();
                         }
                       },
                       icon: const Icon(Icons.chat_bubble_outline),

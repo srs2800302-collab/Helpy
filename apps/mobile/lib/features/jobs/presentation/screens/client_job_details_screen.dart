@@ -229,7 +229,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
 
           if (!context.mounted) return;
 
-          await Navigator.of(context).push(
+          final changed = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
               builder: (_) => ChatScreen(
                 jobId: _job.id,
@@ -237,6 +237,9 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               ),
             ),
           );
+          if (changed == true && mounted) {
+            await _refresh();
+          }
         },
         child: Text(l10n.t('chat')),
       );
