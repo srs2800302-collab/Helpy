@@ -381,12 +381,15 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                     );
                                   }
                                 : null,
-                            onTap: () {
-                              Navigator.of(context).push(
+                            onTap: () async {
+                              final changed = await Navigator.of(context).push<bool>(
                                 MaterialPageRoute(
                                   builder: (_) => ClientJobDetailsScreen(job: item),
                                 ),
                               );
+                              if (changed == true && mounted) {
+                                await _refreshAll();
+                              }
                             },
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
