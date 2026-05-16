@@ -88,7 +88,7 @@ class OffersController extends StateNotifier<OffersState> {
     );
 
     try {
-      final created = await ref.read(offersApiProvider).createOffer(
+      await ref.read(offersApiProvider).createOffer(
             jobId: jobId,
             masterUserId: session.userId,
             masterName: '',
@@ -100,10 +100,13 @@ class OffersController extends StateNotifier<OffersState> {
           );
 
       await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
+      final items = await ref
+          .read(offersApiProvider)
+          .listMasterOffers(masterUserId: session.userId);
 
       state = state.copyWith(
         isSubmitting: false,
-        items: [created, ...state.items],
+        items: items,
         message: '',
         price: '',
         priceComment: '',
