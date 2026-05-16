@@ -295,7 +295,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                           onTap: () async {
                             await _markMessageRead(job.lastMessageCreatedAt);
                             if (!context.mounted) return;
-                            await Navigator.of(context).push(
+                            final changed = await Navigator.of(context).push<bool>(
                               MaterialPageRoute(
                                 builder: (_) => ChatScreen(
                                   jobId: job.id,
@@ -303,7 +303,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                 ),
                               ),
                             );
-                            if (mounted) {
+                            if (changed == true && mounted) {
                               await _refreshAll();
                             }
                           },
@@ -441,7 +441,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                     tooltip: l10n.t('chat'),
                                     icon: const Icon(Icons.chat_bubble_outline),
                                     onPressed: () async {
-                                      await Navigator.of(context).push(
+                                      final changed = await Navigator.of(context).push<bool>(
                                         MaterialPageRoute(
                                           builder: (_) => ChatScreen(
                                             jobId: item.id,
@@ -450,7 +450,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                         ),
                                       );
 
-                                      if (mounted) {
+                                      if (changed == true && mounted) {
                                         await _refreshAll();
                                       }
                                     },
