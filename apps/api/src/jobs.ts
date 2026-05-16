@@ -435,7 +435,7 @@ export async function createJob(request: Request, env: any, ctx?: any) {
   const descriptionText = body.description.trim();
   const addressText = body.address_text.trim();
 
-  const translationWork = (async () => {
+  const runTranslationWork = () => (async () => {
     await buildTranslationsJson({
       text: titleText,
       sourceLanguage,
@@ -470,9 +470,9 @@ export async function createJob(request: Request, env: any, ctx?: any) {
   })().catch(() => undefined);
 
   if (ctx?.waitUntil) {
-    ctx.waitUntil(translationWork);
+    ctx.waitUntil(runTranslationWork());
   } else {
-    await translationWork;
+    await runTranslationWork();
   }
 
   const created = await env.DB.prepare(
