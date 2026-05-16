@@ -187,12 +187,12 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  await Navigator.of(context).push(
+                  final changed = await Navigator.of(context).push<bool>(
                     MaterialPageRoute(
                       builder: (_) => const CreateJobScreen(),
                     ),
                   );
-                  if (mounted) {
+                  if (changed == true && mounted) {
                     await ref.read(jobsControllerProvider.notifier).loadClientJobs();
                   }
                 },

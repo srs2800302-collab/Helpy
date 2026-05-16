@@ -537,7 +537,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                           );
 
                           if (paid == true && context.mounted) {
-                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(true);
                           }
                         }
                       }
