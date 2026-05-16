@@ -33,14 +33,13 @@ class JobPaymentScreen extends ConsumerStatefulWidget {
 }
 
 class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
-  late JobItem _job;
+  JobItem? _job;
   bool _isPaying = false;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _job = widget.job;
     Future.microtask(() => _refreshJob(silent: true));
   }
 
@@ -124,11 +123,12 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
     });
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
-    final price = _job.price;
-    final originalTitle = (_job.titleOriginal ?? widget.jobTitle).trim();
+    final job = _job;
+    final price = job?.price ?? widget.price;
+    final originalTitle = (job?.titleOriginal ?? widget.jobTitle).trim();
     final displayTitle = translatedOrOriginal(
       original: originalTitle,
-      translationsJson: _job.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
+      translationsJson: job?.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
       locale: Localizations.localeOf(context).languageCode,
     );
 
@@ -141,7 +141,15 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _refreshJob,
-        child: ListView(
+        child: job == null
+            ? ListView(
+                padding: const EdgeInsets.all(16),
+                children: const [
+                  SizedBox(height: 240),
+                  Center(child: CircularProgressIndicator()),
+                ],
+              )
+            : ListView(
           padding: const EdgeInsets.all(16),
           children: [
             Card(
@@ -150,7 +158,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                 onTap: () async {
                   final changed = await Navigator.of(context).push<bool>(
                     MaterialPageRoute(
-                      builder: (_) => ClientJobDetailsScreen(job: _job),
+                      builder: (_) => ClientJobDetailsScreen(job: job),
                     ),
                   );
                   if (changed == true && context.mounted) {
