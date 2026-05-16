@@ -176,32 +176,13 @@ export async function getOffersByMaster(
          ORDER BY cm.created_at DESC
          LIMIT 1
        ) AS last_message_translations_json,
-       (
-         SELECT r.rating
-         FROM reviews r
-         WHERE r.job_id = j.id
-         LIMIT 1
-       ) AS review_rating,
-       (
-         SELECT r.comment
-         FROM reviews r
-         WHERE r.job_id = j.id
-         LIMIT 1
-       ) AS review_comment,
-       (
-         SELECT r.comment_translations_json
-         FROM reviews r
-         WHERE r.job_id = j.id
-         LIMIT 1
-       ) AS review_comment_translations_json,
-       (
-         SELECT r.created_at
-         FROM reviews r
-         WHERE r.job_id = j.id
-         LIMIT 1
-       ) AS review_created_at
+       r.rating AS review_rating,
+       r.comment AS review_comment,
+       r.comment_translations_json AS review_comment_translations_json,
+       r.created_at AS review_created_at
      FROM offers o
      JOIN jobs j ON j.id = o.job_id
+     LEFT JOIN reviews r ON r.job_id = j.id
      WHERE o.master_user_id = ?1
      ORDER BY o.created_at DESC`
   )
