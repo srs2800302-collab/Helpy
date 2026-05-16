@@ -1,6 +1,6 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
-import { buildTranslationsJson, processPendingTranslationTasks } from './translation';
+import { deferTranslations, processPendingTranslationTasks } from './translation';
 
 const MAX_MESSAGE_LENGTH = 2000;
 const DEFAULT_MESSAGES_LIMIT = 50;
@@ -213,7 +213,7 @@ export async function getMessages(jobId: string, request: Request, env: any) {
   });
 }
 
-export async function sendMessage(jobId: string, request: Request, env: any) {
+export async function sendMessage(jobId: string, request: Request, env: any, ctx?: any) {
   await ensureChatSchema(env);
 
   let body: any;
@@ -333,14 +333,7 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const textTranslationsJson = await buildTranslationsJson({
-    text,
-    sourceLanguage,
-    env,
-    entityType: 'chat_message',
-    entityId: id,
-    fieldName: 'text',
-  });
+  const textTranslationsJson = null;
 
   await env.DB.prepare(
     `INSERT INTO chat_messages (
@@ -370,12 +363,20 @@ export async function sendMessage(jobId: string, request: Request, env: any) {
     )
     .run();
 
-  await processPendingTranslationTasks({
+  const translationWork = deferTranslations({
     env,
     entityType: 'chat_message',
     entityId: id,
+    sourceLanguage,
+    fields: [{ fieldName: 'text', text }],
     limit: 3,
   });
+
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(translationWork);
+  } else {
+    await translationWork;
+  }
 
   const created = await env.DB.prepare(
     'SELECT * FROM chat_messages WHERE id = ?1'

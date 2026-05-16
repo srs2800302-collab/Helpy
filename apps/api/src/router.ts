@@ -493,7 +493,7 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'messages' && method === 'POST') {
-      return sendMessage(jobId, request, env);
+      return sendMessage(jobId, request, env, ctx);
     }
 
     if (parts.length === 5 && parts[4] === 'actions' && method === 'GET') {
