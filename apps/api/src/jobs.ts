@@ -475,14 +475,46 @@ export async function createJob(request: Request, env: any, ctx?: any) {
     await runTranslationWork();
   }
 
-  const created = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  ).bind(id).first();
-
   return Response.json(
     {
       success: true,
-      data: await sanitizeJob(created, env),
+      data: {
+        id,
+        title: titleText,
+        price,
+        category: body.category,
+        status: initialStatus,
+        created_at: now,
+        updated_at: now,
+        client_user_id: clientUserId,
+        description: descriptionText,
+        address_text: addressText,
+        title_original: titleText,
+        description_original: descriptionText,
+        source_language: sourceLanguage,
+        title_translations_json: titleTranslationsJson,
+        description_translations_json: descriptionTranslationsJson,
+        address_translations_json: addressTranslationsJson,
+        budget_type: body.budget_type || 'fixed',
+        budget_from: budgetFrom,
+        budget_to: budgetTo,
+        currency: body.currency || 'THB',
+        selected_master_user_id: null,
+        selected_master_name: null,
+        selected_offer_id: null,
+        selected_offer_price: null,
+        deposit_amount: paymentTerms.depositAmount,
+        latitude: normalizeNumber(body.latitude),
+        longitude: normalizeNumber(body.longitude),
+        payment_method: paymentTerms.paymentMethod,
+        commission_payer: paymentTerms.commissionPayer,
+        deposit_percent: paymentTerms.depositPercent,
+        has_review: false,
+        review_rating: null,
+        review_comment: null,
+        review_comment_translations_json: null,
+        review_created_at: null,
+      },
     },
     { status: 201 }
   );
