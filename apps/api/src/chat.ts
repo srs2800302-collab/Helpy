@@ -54,6 +54,28 @@ export async function ensureChatSchema(env: any) {
   }
 }
 
+export async function ensureChatLookupSchema(env: any) {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS chat_messages (
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL,
+      sender_user_id TEXT NOT NULL,
+      text TEXT NOT NULL,
+      text_translations_json TEXT,
+      reply_to_message_id TEXT,
+      reply_text TEXT,
+      reply_sender_user_id TEXT,
+      reply_text_translations_json TEXT,
+      created_at TEXT NOT NULL
+    )`
+  ).run();
+
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created
+     ON chat_messages(job_id, created_at)`
+  ).run();
+}
+
 function canAccessJobChat(job: any, userId: string) {
   return (
     userId === job.client_user_id ||

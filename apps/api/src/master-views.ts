@@ -1,7 +1,7 @@
 import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { ensureReviewsLookupSchema } from './reviews';
-import { ensureChatSchema } from './chat';
+import { ensureChatLookupSchema } from './chat';
 
 type MasterAccessResult =
   | { ok: true; userId: string }
@@ -120,7 +120,7 @@ export async function getOffersByMaster(
   env: any,
 ) {
   await ensureJobsSchema(env);
-  await ensureChatSchema(env);
+  await ensureChatLookupSchema(env);
   await ensureReviewsLookupSchema(env);
 
   const access = await ensureMasterAccess(request, pathUserId, env);
