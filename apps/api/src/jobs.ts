@@ -634,6 +634,12 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
   const category = typeof body.category === 'string' ? body.category.trim() : current.category;
   const sourceLanguage = body.source_language?.trim() || current.source_language || 'ru';
 
+  const normalizedDescription = description || title;
+  const normalizedAddressText = addressText || 'Pattaya';
+  const titleChanged = title !== current.title;
+  const descriptionChanged = normalizedDescription !== current.description;
+  const addressChanged = normalizedAddressText !== current.address_text;
+
   if (!title || title.length < 3) {
     return Response.json({ success: false, error: 'title is required' }, { status: 400 });
   }
@@ -690,15 +696,15 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
   )
     .bind(
       title,
-      description || title,
-      addressText || 'Pattaya',
+      normalizedDescription,
+      normalizedAddressText,
       category,
       sourceLanguage,
       title,
-      description || title,
-      titleTranslationsJson,
-      descriptionTranslationsJson,
-      addressTranslationsJson,
+      normalizedDescription,
+      titleChanged ? titleTranslationsJson : current.title_translations_json ?? titleTranslationsJson,
+      descriptionChanged ? descriptionTranslationsJson : current.description_translations_json ?? descriptionTranslationsJson,
+      addressChanged ? addressTranslationsJson : current.address_translations_json ?? addressTranslationsJson,
       normalizeNumber(body.latitude),
       normalizeNumber(body.longitude),
       now,
