@@ -7,21 +7,6 @@ class ChatApi {
 
   ChatApi(this.apiClient);
 
-  ChatMessage _mapMessage(Map<String, dynamic> m) {
-    return ChatMessage(
-      id: m['id'] as String,
-      jobId: m['job_id'] as String,
-      senderUserId: m['sender_user_id'] as String,
-      text: m['text'] as String? ?? '',
-      textTranslationsJson: m['text_translations_json'] as String?,
-      replyToMessageId: m['reply_to_message_id'] as String?,
-      replyText: m['reply_text'] as String?,
-      replySenderUserId: m['reply_sender_user_id'] as String?,
-      replyTextTranslationsJson: m['reply_text_translations_json'] as String?,
-      createdAt: DateTime.parse(m['created_at'] as String),
-    );
-  }
-
   Future<List<ChatMessage>> getMessages({
     required String jobId,
     required String userId,
@@ -36,16 +21,30 @@ class ChatApi {
     );
 
     final data = res.data['data'] as List<dynamic>;
-    return data.map((e) => _mapMessage(e as Map<String, dynamic>)).toList();
+    return data.map((e) {
+      final m = e as Map<String, dynamic>;
+      return ChatMessage(
+        id: m['id'] as String,
+        jobId: m['job_id'] as String,
+        senderUserId: m['sender_user_id'] as String,
+        text: m['text'] as String? ?? '',
+        textTranslationsJson: m['text_translations_json'] as String?,
+        replyToMessageId: m['reply_to_message_id'] as String?,
+        replyText: m['reply_text'] as String?,
+        replySenderUserId: m['reply_sender_user_id'] as String?,
+        replyTextTranslationsJson: m['reply_text_translations_json'] as String?,
+        createdAt: DateTime.parse(m['created_at'] as String),
+      );
+    }).toList();
   }
 
-  Future<ChatMessage> sendMessage({
+  Future<void> sendMessage({
     required String jobId,
     required String userId,
     required String text,
     String? replyToMessageId,
   }) async {
-    final res = await apiClient.dio.post(
+    await apiClient.dio.post(
       '/jobs/$jobId/messages',
       options: Options(
         headers: {
@@ -57,8 +56,6 @@ class ChatApi {
         if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
       },
     );
-
-    return _mapMessage(res.data['data'] as Map<String, dynamic>);
   }
 
   Future<void> startWork({

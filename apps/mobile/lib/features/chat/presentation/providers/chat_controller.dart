@@ -161,21 +161,15 @@ class ChatController extends StateNotifier<ChatState> {
     state = state.copyWith(isSending: true);
 
     try {
-      final sent = await ref.read(chatApiProvider).sendMessage(
+      await ref.read(chatApiProvider).sendMessage(
         jobId: jobId,
         userId: session.userId,
         text: text,
         replyToMessageId: replyToMessageId,
       );
 
-      state = state.copyWith(
-        input: '',
-        isSending: false,
-        messages: [
-          ...state.messages.where((message) => message.id != sent.id),
-          sent,
-        ],
-      );
+      state = state.copyWith(input: '', isSending: false);
+      await load(jobId, silent: true);
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
