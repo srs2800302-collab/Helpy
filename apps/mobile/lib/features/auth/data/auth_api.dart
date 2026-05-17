@@ -88,7 +88,7 @@ class AuthApi {
       phone: phone,
       role: role,
       isNewUser: isNewUser,
-      needsRoleSelection: canSwitchRole && isNewUser,
+      needsRoleSelection: canSwitchRole || isNewUser,
       accessToken: tokens['accessToken'].toString(),
       refreshToken: tokens['refreshToken']?.toString() ?? '',
     );
