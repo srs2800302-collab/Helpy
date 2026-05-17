@@ -190,7 +190,7 @@ class AuthController extends StateNotifier<AuthState> {
             phone: normalizedPhone,
             role: null,
             isNewUser: false,
-            needsRoleSelection: true,
+            needsRoleSelection: false,
             accessToken: 'debug_$_debugClientUserId',
             refreshToken: 'debug_refresh_token',
           ),
