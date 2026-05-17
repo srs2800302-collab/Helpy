@@ -68,7 +68,10 @@ export async function buildTranslationsJson({
 }) {
   const originalText = text.trim();
   const useAutoDetect =
-    entityType === 'chat_message' || entityType === 'offer' || entityType === 'review';
+    entityType === 'job' ||
+    entityType === 'chat_message' ||
+    entityType === 'offer' ||
+    entityType === 'review';
   const source = useAutoDetect ? 'auto' : normalizeLanguage(sourceLanguage);
 
   await ensureTranslationTasksSchema(env);
