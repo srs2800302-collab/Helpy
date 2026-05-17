@@ -46,7 +46,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   }
 
   Future<void> _loadReadMessageTimestamps() async {
-    final items = await loadReadMessageTimestamps(_readMasterMessageTimestampsKey);
+    final items =
+        await loadReadMessageTimestamps(_readMasterMessageTimestampsKey);
 
     if (!mounted) return;
 
@@ -132,7 +133,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).t('job_completed'))),
+        SnackBar(
+            content: Text(AppLocalizations.of(context).t('job_completed'))),
       );
 
       await _refreshAll();
@@ -265,8 +267,10 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                 color: Colors.lightBlue.shade50,
                 child: Column(
                   children: incomingMessageOffers.map((item) {
-                    final title = item.jobTitle.trim().isNotEmpty
-                        ? item.jobTitle.trim()
+                    final title = (item.jobTitleOriginal ?? item.jobTitle)
+                            .trim()
+                            .isNotEmpty
+                        ? (item.jobTitleOriginal ?? item.jobTitle).trim()
                         : 'Job ${item.jobId}';
                     final displayTitle = translatedOrOriginal(
                       original: title,
@@ -298,7 +302,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                       isThreeLine: true,
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
-                        await _markMessageRead(item.jobId, item.lastMessageCreatedAt);
+                        await _markMessageRead(
+                            item.jobId, item.lastMessageCreatedAt);
                         if (!context.mounted) return;
                         final changed = await Navigator.of(context).push<bool>(
                           MaterialPageRoute(
@@ -361,9 +366,10 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
             else ...[
               if (activeOffers.isNotEmpty)
                 ...activeOffers.take(10).map((item) {
-                  final title = item.jobTitle.trim().isNotEmpty
-                      ? item.jobTitle.trim()
-                      : 'Job ${item.jobId}';
+                  final title =
+                      (item.jobTitleOriginal ?? item.jobTitle).trim().isNotEmpty
+                          ? (item.jobTitleOriginal ?? item.jobTitle).trim()
+                          : 'Job ${item.jobId}';
                   final displayTitle = translatedOrOriginal(
                     original: title,
                     translationsJson: item.jobTitleTranslationsJson,
@@ -376,8 +382,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     translationsJson: item.addressTranslationsJson,
                     locale: locale,
                   ).trim();
-                  final statusLabel =
-                      l10n.t(mapJobStatusKey(item.status));
+                  final statusLabel = l10n.t(mapJobStatusKey(item.status));
                   final rawMessage = (item.message ?? '').trim();
                   final message = translatedOrOriginal(
                     original: item.message,
@@ -446,7 +451,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               const SizedBox(height: 10),
                               Text(
                                 l10n.t('offer_message'),
-                                style: const TextStyle(fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -459,7 +465,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               const SizedBox(height: 10),
                               Text(
                                 l10n.t('comment_label'),
-                                style: const TextStyle(fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -473,14 +480,16 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
-                                  onPressed: _completingJobIds.contains(item.jobId)
-                                      ? null
-                                      : () => _completeOfferJob(item.jobId),
+                                  onPressed:
+                                      _completingJobIds.contains(item.jobId)
+                                          ? null
+                                          : () => _completeOfferJob(item.jobId),
                                   icon: _completingJobIds.contains(item.jobId)
                                       ? const SizedBox(
                                           width: 18,
                                           height: 18,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
                                         )
                                       : const Icon(Icons.check_circle_outline),
                                   label: Text(l10n.t('complete_job')),
@@ -496,7 +505,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               tooltip: l10n.t('chat'),
                               icon: const Icon(Icons.chat_bubble_outline),
                               onPressed: () async {
-                                final changed = await Navigator.of(context).push<bool>(
+                                final changed =
+                                    await Navigator.of(context).push<bool>(
                                   MaterialPageRoute(
                                     builder: (_) => ChatScreen(
                                       jobId: item.jobId,
@@ -539,17 +549,17 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 ...visibleCompletedOffers.map((item) {
-                  final title = item.jobTitle.trim().isNotEmpty
-                      ? item.jobTitle.trim()
-                      : 'Job ${item.jobId}';
+                  final title =
+                      (item.jobTitleOriginal ?? item.jobTitle).trim().isNotEmpty
+                          ? (item.jobTitleOriginal ?? item.jobTitle).trim()
+                          : 'Job ${item.jobId}';
                   final displayTitle = translatedOrOriginal(
                     original: title,
                     translationsJson: item.jobTitleTranslationsJson,
                     locale: locale,
                   );
                   final completedAt = item.updatedAt ?? item.createdAt;
-                  final statusLabel =
-                      l10n.t(mapJobStatusKey(item.status));
+                  final statusLabel = l10n.t(mapJobStatusKey(item.status));
 
                   return Card(
                     color: jobStatusCardColor(item.status),
@@ -591,11 +601,13 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • $statusLabel\n'
                             '${l10n.t('completed_at_label')}: ${formatShortDateTime(completedAt)}',
                           ),
-                          if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
+                          if (item.reviewRating != null ||
+                              (item.reviewComment ?? '').trim().isNotEmpty)
                             JobReviewSummary(
                               rating: item.reviewRating,
                               comment: item.reviewComment,
-                              commentTranslationsJson: item.reviewCommentTranslationsJson,
+                              commentTranslationsJson:
+                                  item.reviewCommentTranslationsJson,
                             ),
                         ],
                       ),

@@ -36,7 +36,8 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
   }
 
   Future<void> _loadReadMessageTimestamps() async {
-    final items = await loadReadMessageTimestamps(_readMasterOffersMessageTimestampsKey);
+    final items =
+        await loadReadMessageTimestamps(_readMasterOffersMessageTimestampsKey);
 
     if (!mounted) return;
 
@@ -124,33 +125,44 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                           itemBuilder: (context, index) {
                             final item = state.items[index];
 
-                            final title = item.jobTitle.trim().isNotEmpty
-                                ? item.jobTitle.trim()
-                                : 'Job ${item.jobId}';
+                            final title =
+                                (item.jobTitleOriginal ?? item.jobTitle)
+                                        .trim()
+                                        .isNotEmpty
+                                    ? (item.jobTitleOriginal ?? item.jobTitle)
+                                        .trim()
+                                    : 'Job ${item.jobId}';
                             final displayTitle = translatedOrOriginal(
                               original: title,
                               translationsJson: item.jobTitleTranslationsJson,
-                              locale: Localizations.localeOf(context).languageCode,
+                              locale:
+                                  Localizations.localeOf(context).languageCode,
                             );
 
                             final comment = translatedOrOriginal(
                               original: item.priceComment,
-                              translationsJson: item.priceCommentTranslationsJson,
-                              locale: Localizations.localeOf(context).languageCode,
+                              translationsJson:
+                                  item.priceCommentTranslationsJson,
+                              locale:
+                                  Localizations.localeOf(context).languageCode,
                             ).trim();
                             final message = translatedOrOriginal(
                               original: item.message,
                               translationsJson: item.messageTranslationsJson,
-                              locale: Localizations.localeOf(context).languageCode,
+                              locale:
+                                  Localizations.localeOf(context).languageCode,
                             ).trim();
                             final lastMessage = translatedOrOriginal(
                               original: item.lastMessage,
-                              translationsJson: item.lastMessageTranslationsJson,
-                              locale: Localizations.localeOf(context).languageCode,
+                              translationsJson:
+                                  item.lastMessageTranslationsJson,
+                              locale:
+                                  Localizations.localeOf(context).languageCode,
                             ).trim();
                             final hasUnreadMessage = lastMessage.isNotEmpty &&
                                 item.lastMessageSenderUserId != null &&
-                                item.lastMessageSenderUserId != session?.userId &&
+                                item.lastMessageSenderUserId !=
+                                    session?.userId &&
                                 !hasReadMessageTimestamp(
                                   readKeys: _readMessageTimestamps,
                                   jobId: item.jobId,
@@ -171,16 +183,19 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   if (!allowedStatuses.contains(item.status)) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(l10n.t('client_not_selected')),
+                                        content:
+                                            Text(l10n.t('client_not_selected')),
                                       ),
                                     );
                                     return;
                                   }
 
-                                  await _markMessageRead(item.jobId, item.lastMessageCreatedAt);
+                                  await _markMessageRead(
+                                      item.jobId, item.lastMessageCreatedAt);
                                   if (!context.mounted) return;
 
-                                  final changed = await Navigator.of(context).push<bool>(
+                                  final changed =
+                                      await Navigator.of(context).push<bool>(
                                     MaterialPageRoute(
                                       builder: (_) => ChatScreen(
                                         jobId: item.jobId,
@@ -196,7 +211,8 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           LocalizedJobTitle(
                                             originalTitle: title,
@@ -212,19 +228,21 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                       ),
                                     ),
                                     if (hasUnreadMessage)
-                                      const Icon(Icons.mark_chat_unread, size: 18),
+                                      const Icon(Icons.mark_chat_unread,
+                                          size: 18),
                                   ],
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB'),
-
+                                    Text(
+                                        '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB'),
                                     if (message.isNotEmpty) ...[
                                       const SizedBox(height: 10),
                                       Text(
                                         l10n.t('offer_message'),
-                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
@@ -233,12 +251,12 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
-
                                     if (comment.isNotEmpty) ...[
                                       const SizedBox(height: 10),
                                       Text(
                                         l10n.t('comment_label'),
-                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
@@ -247,7 +265,6 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
-
                                     if (lastMessage.isNotEmpty) ...[
                                       const SizedBox(height: 10),
                                       Text(
@@ -258,7 +275,9 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                     ],
                                   ],
                                 ),
-                                isThreeLine: comment.isNotEmpty || message.isNotEmpty || lastMessage.isNotEmpty,
+                                isThreeLine: comment.isNotEmpty ||
+                                    message.isNotEmpty ||
+                                    lastMessage.isNotEmpty,
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [

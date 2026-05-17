@@ -10,6 +10,7 @@ class OfferItem {
   final String? priceCommentTranslationsJson;
   final String status;
   final String jobTitle;
+  final String? jobTitleOriginal;
   final String? jobTitleTranslationsJson;
   final String categorySlug;
   final String? addressText;
@@ -39,6 +40,7 @@ class OfferItem {
     required this.priceCommentTranslationsJson,
     required this.status,
     required this.jobTitle,
+    required this.jobTitleOriginal,
     required this.jobTitleTranslationsJson,
     required this.categorySlug,
     required this.addressText,

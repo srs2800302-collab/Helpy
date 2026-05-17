@@ -18,10 +18,12 @@ class MasterCompletedJobsScreen extends ConsumerStatefulWidget {
   const MasterCompletedJobsScreen({super.key});
 
   @override
-  ConsumerState<MasterCompletedJobsScreen> createState() => _MasterCompletedJobsScreenState();
+  ConsumerState<MasterCompletedJobsScreen> createState() =>
+      _MasterCompletedJobsScreenState();
 }
 
-class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsScreen> {
+class _MasterCompletedJobsScreenState
+    extends ConsumerState<MasterCompletedJobsScreen> {
   static const _hiddenCompletedJobsKey = 'master_hidden_completed_job_ids';
   Set<String> _hiddenCompletedJobIds = <String>{};
 
@@ -112,74 +114,78 @@ class _MasterCompletedJobsScreenState extends ConsumerState<MasterCompletedJobsS
             ] else if (completedOffers.isEmpty) ...[
               const SizedBox(height: 240),
               Center(child: Text(l10n.t('empty_offers'))),
-            ] else ...completedOffers.map((item) {
-                    final title = item.jobTitle.trim().isNotEmpty
-                        ? item.jobTitle.trim()
+            ] else
+              ...completedOffers.map((item) {
+                final title =
+                    (item.jobTitleOriginal ?? item.jobTitle).trim().isNotEmpty
+                        ? (item.jobTitleOriginal ?? item.jobTitle).trim()
                         : 'Job ${item.jobId}';
-                    final displayTitle = translatedOrOriginal(
-                      original: title,
-                      translationsJson: item.jobTitleTranslationsJson,
-                      locale: locale,
-                    );
-                    final completedAt = item.updatedAt ?? item.createdAt;
-                    final statusLabel =
-                        l10n.t(mapJobStatusKey(item.status));
+                final displayTitle = translatedOrOriginal(
+                  original: title,
+                  translationsJson: item.jobTitleTranslationsJson,
+                  locale: locale,
+                );
+                final completedAt = item.updatedAt ?? item.createdAt;
+                final statusLabel = l10n.t(mapJobStatusKey(item.status));
 
-                    return Card(
-                      color: Colors.grey.shade200,
-                      child: ListTile(
-                        onLongPress: () async {
-                          await _confirmHideCompletedJob(
+                return Card(
+                  color: Colors.grey.shade200,
+                  child: ListTile(
+                    onLongPress: () async {
+                      await _confirmHideCompletedJob(
+                        jobId: item.jobId,
+                        title: title,
+                      );
+                    },
+                    onTap: () async {
+                      final changed = await Navigator.of(context).push<bool>(
+                        MaterialPageRoute(
+                          builder: (_) => MasterJobDetailsScreen(
                             jobId: item.jobId,
-                            title: title,
-                          );
-                        },
-                        onTap: () async {
-                          final changed = await Navigator.of(context).push<bool>(
-                            MaterialPageRoute(
-                              builder: (_) => MasterJobDetailsScreen(
-                                jobId: item.jobId,
-                                jobTitle: title,
-                                jobTitleTranslationsJson: item.jobTitleTranslationsJson,
-                              ),
-                            ),
-                          );
-                          if (changed == true && mounted) {
-                            await _refresh();
-                          }
-                        },
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            LocalizedJobTitle(
-                              originalTitle: title,
-                              displayTitle: displayTitle,
-                              primaryStyle: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • $statusLabel\n'
-                            '${l10n.t('completed_at_label')}: ${formatShortDateTime(completedAt)}',
+                            jobTitle: title,
+                            jobTitleTranslationsJson:
+                                item.jobTitleTranslationsJson,
                           ),
-                          if (item.reviewRating != null || (item.reviewComment ?? '').trim().isNotEmpty)
-                            JobReviewSummary(
-                              rating: item.reviewRating,
-                              comment: item.reviewComment,
-                              commentTranslationsJson: item.reviewCommentTranslationsJson,
-                            ),
-                        ],
-                      ),
-                        isThreeLine: true,
-                        trailing: const Icon(Icons.chevron_right),
-                      ),
-                    );
-                  }),
+                        ),
+                      );
+                      if (changed == true && mounted) {
+                        await _refresh();
+                      }
+                    },
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LocalizedJobTitle(
+                          originalTitle: title,
+                          displayTitle: displayTitle,
+                          primaryStyle: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${l10n.t('price_label')}: ${item.price.toStringAsFixed(0)} THB • $statusLabel\n'
+                          '${l10n.t('completed_at_label')}: ${formatShortDateTime(completedAt)}',
+                        ),
+                        if (item.reviewRating != null ||
+                            (item.reviewComment ?? '').trim().isNotEmpty)
+                          JobReviewSummary(
+                            rating: item.reviewRating,
+                            comment: item.reviewComment,
+                            commentTranslationsJson:
+                                item.reviewCommentTranslationsJson,
+                          ),
+                      ],
+                    ),
+                    isThreeLine: true,
+                    trailing: const Icon(Icons.chevron_right),
+                  ),
+                );
+              }),
           ],
         ),
       ),

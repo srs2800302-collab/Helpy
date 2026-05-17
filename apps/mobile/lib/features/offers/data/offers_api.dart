@@ -37,9 +37,7 @@ class OffersApi {
     final response = await apiClient.dio.get('/users/$masterUserId/offers');
     final data = response.data['data'] as List<dynamic>;
 
-    return data
-        .map((item) => _mapOffer(item as Map<String, dynamic>))
-        .toList();
+    return data.map((item) => _mapOffer(item as Map<String, dynamic>)).toList();
   }
 
   Future<List<OfferItem>> listJobOffers({
@@ -50,7 +48,8 @@ class OffersApi {
     final data = response.data['data'] as List<dynamic>;
 
     return data
-        .map((item) => _mapOffer(item as Map<String, dynamic>, fallbackJobId: jobId))
+        .map((item) =>
+            _mapOffer(item as Map<String, dynamic>, fallbackJobId: jobId))
         .toList();
   }
 
@@ -73,13 +72,15 @@ class OffersApi {
       jobId: data['job_id'] as String? ?? jobId,
       masterUserId: data['selected_master_user_id'] as String? ?? '',
       masterName: data['selected_master_name'] as String? ?? '',
-      price: double.tryParse(data['selected_offer_price']?.toString() ?? '') ?? 0,
+      price:
+          double.tryParse(data['selected_offer_price']?.toString() ?? '') ?? 0,
       message: null,
       messageTranslationsJson: null,
       priceComment: null,
       priceCommentTranslationsJson: null,
       status: 'accepted',
       jobTitle: '',
+      jobTitleOriginal: null,
       jobTitleTranslationsJson: null,
       categorySlug: '',
       addressText: null,
@@ -112,9 +113,11 @@ class OffersApi {
       message: json['message'] as String?,
       messageTranslationsJson: json['message_translations_json'] as String?,
       priceComment: (json['comment'] ?? json['price_comment']) as String?,
-      priceCommentTranslationsJson: json['comment_translations_json'] as String?,
+      priceCommentTranslationsJson:
+          json['comment_translations_json'] as String?,
       status: json['status'] as String? ?? 'active',
       jobTitle: json['job_title'] as String? ?? '',
+      jobTitleOriginal: json['job_title_original'] as String?,
       jobTitleTranslationsJson: json['job_title_translations_json'] as String?,
       categorySlug: json['category'] as String? ?? '',
       addressText: json['address_text'] as String?,
@@ -126,12 +129,16 @@ class OffersApi {
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
       lastMessage: json['last_message'] as String?,
       lastMessageSenderUserId: json['last_message_sender_user_id'] as String?,
-      lastMessageCreatedAt: DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
-      lastMessageTranslationsJson: json['last_message_translations_json'] as String?,
+      lastMessageCreatedAt:
+          DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
+      lastMessageTranslationsJson:
+          json['last_message_translations_json'] as String?,
       reviewRating: int.tryParse(json['review_rating']?.toString() ?? ''),
       reviewComment: json['review_comment'] as String?,
-      reviewCommentTranslationsJson: json['review_comment_translations_json'] as String?,
-      reviewCreatedAt: DateTime.tryParse(json['review_created_at'] as String? ?? ''),
+      reviewCommentTranslationsJson:
+          json['review_comment_translations_json'] as String?,
+      reviewCreatedAt:
+          DateTime.tryParse(json['review_created_at'] as String? ?? ''),
     );
   }
 }
