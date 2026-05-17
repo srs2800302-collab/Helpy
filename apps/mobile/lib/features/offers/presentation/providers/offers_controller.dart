@@ -99,14 +99,8 @@ class OffersController extends StateNotifier<OffersState> {
                 : state.priceComment.trim(),
           );
 
-      await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
-      final items = await ref
-          .read(offersApiProvider)
-          .listMasterOffers(masterUserId: session.userId);
-
       state = state.copyWith(
         isSubmitting: false,
-        items: items,
         message: '',
         price: '',
         priceComment: '',
