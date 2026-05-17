@@ -97,6 +97,8 @@ export async function getUserJobDetails(
     `SELECT
        id,
        title,
+       title_original,
+       title_translations_json,
        price,
        category,
        status,
@@ -111,6 +113,10 @@ export async function getUserJobDetails(
        budget_to,
        currency,
        description,
+       description_original,
+       description_translations_json,
+       address_translations_json,
+       source_language,
        updated_at,
        selected_offer_price,
        deposit_amount
