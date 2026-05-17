@@ -50,6 +50,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
     super.initState();
     _job = widget.job;
     _photosFuture = widget._loadPhotos(ref, _job.id);
+    Future.microtask(_refresh);
   }
 
   Future<void> _refresh() async {
