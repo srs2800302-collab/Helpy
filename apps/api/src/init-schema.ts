@@ -59,7 +59,10 @@ export async function ensureBaseSchema(env: any) {
       selected_master_user_id TEXT,
       selected_master_name TEXT,
       selected_offer_id TEXT,
-      selected_offer_price REAL
+      selected_offer_price REAL,
+      deposit_amount REAL,
+      latitude REAL,
+      longitude REAL
     )
   `).run();
 
@@ -85,6 +88,9 @@ export async function ensureBaseSchema(env: any) {
     ['selected_master_name', 'ALTER TABLE jobs ADD COLUMN selected_master_name TEXT'],
     ['selected_offer_id', 'ALTER TABLE jobs ADD COLUMN selected_offer_id TEXT'],
     ['selected_offer_price', 'ALTER TABLE jobs ADD COLUMN selected_offer_price REAL'],
+    ['deposit_amount', 'ALTER TABLE jobs ADD COLUMN deposit_amount REAL'],
+    ['latitude', 'ALTER TABLE jobs ADD COLUMN latitude REAL'],
+    ['longitude', 'ALTER TABLE jobs ADD COLUMN longitude REAL'],
   ];
 
   for (const [name, sql] of patches) {

@@ -32,6 +32,16 @@ import { handleStripeWebhook } from './stripe-webhook';
 import { processPendingPaymentEvents } from './payment-event-processor';
 
 
+async function tableExists(env: any, tableName: string) {
+  const row = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?1 LIMIT 1"
+  )
+    .bind(tableName)
+    .first();
+
+  return !!row;
+}
+
 async function resetJobsData(request: Request, env: any) {
   const userId = request.headers.get('x-user-id') ?? '';
   const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
@@ -56,7 +66,9 @@ async function resetJobsData(request: Request, env: any) {
   ];
 
   for (const table of tables) {
-    await env.DB.prepare(`DELETE FROM ${table}`).run();
+    if (await tableExists(env, table)) {
+      await env.DB.prepare(`DELETE FROM ${table}`).run();
+    }
   }
 
   await env.DB.prepare(`
