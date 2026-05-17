@@ -389,7 +389,23 @@ export async function processPendingTranslationTasks({
       try {
         translations = JSON.parse(entity[result.column] ?? '{}');
       } catch (_) {
-        translations = {};
+        failed.push({
+          id: task.id,
+          error: `Invalid translations JSON in ${result.table}.${result.column}`,
+        });
+
+        await env.DB.prepare(`
+          UPDATE translation_tasks
+          SET status = 'pending',
+              updated_at = ?1
+          WHERE id = ?2
+            AND status = 'processing'
+        `).bind(
+          new Date().toISOString(),
+          task.id,
+        ).run();
+
+        continue;
       }
 
       translations[String(task.target_language)] = result.translatedText;
