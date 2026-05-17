@@ -59,6 +59,22 @@ async function resetJobsData(request: Request, env: any) {
     await env.DB.prepare(`DELETE FROM ${table}`).run();
   }
 
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS translation_tasks (
+      id TEXT PRIMARY KEY,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      field_name TEXT NOT NULL,
+      source_language TEXT NOT NULL,
+      target_language TEXT NOT NULL,
+      original_text TEXT NOT NULL,
+      translated_text TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL,
+      updated_at TEXT
+    )
+  `).run();
+
   await env.DB.prepare('DELETE FROM translation_tasks').run();
 
   return Response.json({
