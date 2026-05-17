@@ -207,7 +207,10 @@ async function completeTranslationTask(request: Request, env: any) {
   try {
     translations = JSON.parse(job[column] ?? '{}');
   } catch (_) {
-    translations = {};
+    return Response.json(
+      { success: false, error: 'Invalid existing translations JSON' },
+      { status: 409 },
+    );
   }
 
   translations[targetLanguage] = translatedText;
