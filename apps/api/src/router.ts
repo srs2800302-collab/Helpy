@@ -56,8 +56,10 @@ async function resetJobsData(request: Request, env: any) {
   ];
 
   for (const table of tables) {
-    await env.DB.prepare(`DROP TABLE IF EXISTS ${table}`).run();
+    await env.DB.prepare(`DELETE FROM ${table}`).run();
   }
+
+  await env.DB.prepare('DELETE FROM translation_tasks').run();
 
   return Response.json({
     success: true,
