@@ -245,6 +245,40 @@ function applyTranslationFallbacks({
   return normalized.trim();
 }
 
+function looksLikeAddressText(text: string) {
+  const raw = text.trim();
+  return /Thailand|Pattaya|Chon Buri|Bang Lamung|Room\/unit|GPS/i.test(raw);
+}
+
+function localMvpTranslate({
+  text,
+  targetLanguage,
+}: {
+  text: string;
+  targetLanguage: string;
+}) {
+  const raw = text.trim();
+  const normalized = raw.toLowerCase();
+  if (!raw) return '';
+  if (looksLikeAddressText(raw)) return raw;
+
+  const dictionary: Record<string, Record<string, string>> = {
+    'убрать номер': { ru: 'убрать номер', en: 'clean room', th: 'ทำความสะอาดห้อง' },
+    'с балконом': { ru: 'с балконом', en: 'with balcony', th: 'มีระเบียง' },
+    'заменить розетки': { ru: 'заменить розетки', en: 'replace sockets', th: 'เปลี่ยนปลั๊กไฟ' },
+    'заменить кран': { ru: 'заменить кран', en: 'replace faucet', th: 'เปลี่ยนก๊อกน้ำ' },
+    'кондиционер не холодит': { ru: 'кондиционер не холодит', en: 'air conditioner is not cooling', th: 'แอร์ไม่เย็น' },
+    'собрать шкаф': { ru: 'собрать шкаф', en: 'assemble wardrobe', th: 'ประกอบตู้เสื้อผ้า' },
+    'починить замок': { ru: 'починить замок', en: 'fix lock', th: 'ซ่อมกุญแจ' },
+  };
+
+  const exact = dictionary[normalized]?.[targetLanguage];
+  if (exact) return exact;
+  if (targetLanguage === 'ru' && /[\u0400-\u04FF]/.test(raw)) return raw;
+
+  return '';
+}
+
 async function translateWithGooglePublic({
   text,
   sourceLanguage,
@@ -254,26 +288,30 @@ async function translateWithGooglePublic({
   sourceLanguage: string;
   targetLanguage: string;
 }) {
+  const local = localMvpTranslate({ text, targetLanguage });
+  if (local) return local;
+
   const url =
     `https://translate.googleapis.com/translate_a/single?client=gtx` +
     `&sl=${encodeURIComponent(sourceLanguage)}` +
     `&tl=${encodeURIComponent(targetLanguage)}` +
     `&dt=t&q=${encodeURIComponent(text)}`;
 
-  const response = await fetch(url, { method: 'GET' });
+  try {
+    const response = await fetch(url, { method: 'GET' });
+    if (!response.ok) return localMvpTranslate({ text, targetLanguage });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Google public translate failed: ${response.status} ${errorText}`);
+    const payload = (await response.json()) as any;
+    const segments = Array.isArray(payload?.[0]) ? payload[0] : [];
+    const translated = segments
+      .map((segment: any) => segment?.[0]?.toString() ?? '')
+      .join('')
+      .trim();
+
+    return translated || localMvpTranslate({ text, targetLanguage });
+  } catch (_) {
+    return localMvpTranslate({ text, targetLanguage });
   }
-
-  const payload = (await response.json()) as any;
-  const segments = Array.isArray(payload?.[0]) ? payload[0] : [];
-
-  return segments
-    .map((segment: any) => segment?.[0]?.toString() ?? '')
-    .join('')
-    .trim();
 }
 
 export async function processPendingTranslationTasks({

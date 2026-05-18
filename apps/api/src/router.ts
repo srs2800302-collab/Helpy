@@ -265,7 +265,7 @@ async function processTranslationTasks(request: Request, env: any) {
 
   const result = await processPendingTranslationTasks({
     env,
-    limit: 100,
+    limit: 50,
   });
 
   return Response.json({
