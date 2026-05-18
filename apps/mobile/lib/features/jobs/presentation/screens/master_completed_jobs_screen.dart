@@ -119,7 +119,7 @@ class _MasterCompletedJobsScreenState
                 final title =
                     (item.jobTitleOriginal ?? item.jobTitle).trim().isNotEmpty
                         ? (item.jobTitleOriginal ?? item.jobTitle).trim()
-                        : 'Job ${item.jobId}';
+                        : l10n.t('job_fallback_id').replaceAll('{id}', item.jobId);
                 final displayTitle = translatedOrOriginal(
                   original: title,
                   translationsJson: item.jobTitleTranslationsJson,

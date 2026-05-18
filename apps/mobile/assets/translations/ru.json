@@ -141,5 +141,6 @@
   "category_required": "Выберите категорию",
   "title_too_short": "Название слишком короткое",
   "price_greater_than_zero": "Цена должна быть больше 0",
-  "no_session": "Сессия не найдена"
+  "no_session": "Сессия не найдена",
+  "job_fallback_id": "Заказ {id}"
 }
