@@ -220,6 +220,31 @@ function isValidTranslationForTargetLanguage({
   }
 }
 
+function applyTranslationFallbacks({
+  text,
+  targetLanguage,
+}: {
+  text: string;
+  targetLanguage: string;
+}) {
+  let normalized = text.trim();
+
+  if (targetLanguage === 'th') {
+    const replacements: Array<[RegExp, string]> = [
+      [/\bfaucet\b/gi, 'ก๊อกน้ำ'],
+      [/\bsockets?\b/gi, 'เต้ารับ'],
+      [/\bplugs?\b/gi, 'ปลั๊ก'],
+      [/\boutlets?\b/gi, 'เต้ารับ'],
+    ];
+
+    for (const [pattern, replacement] of replacements) {
+      normalized = normalized.replace(pattern, replacement);
+    }
+  }
+
+  return normalized.trim();
+}
+
 async function translateWithGooglePublic({
   text,
   sourceLanguage,
@@ -352,9 +377,13 @@ export async function processPendingTranslationTasks({
       }
 
       try {
-        const translatedText = await translateWithGooglePublic({
+        const rawTranslatedText = await translateWithGooglePublic({
           text: String(task.original_text ?? ''),
           sourceLanguage: String(task.source_language),
+          targetLanguage: String(task.target_language),
+        });
+        const translatedText = applyTranslationFallbacks({
+          text: rawTranslatedText,
           targetLanguage: String(task.target_language),
         });
 
