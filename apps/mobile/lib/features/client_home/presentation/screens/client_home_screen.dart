@@ -153,7 +153,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                 'th' => const Locale('th'),
                 _ => const Locale('ru'),
               };
-              ref.read(currentLocaleProvider.notifier).state = locale;
+              setAppLocale(ref, locale);
             },
             itemBuilder: (_) => [
               PopupMenuItem(value: 'ru', child: Text(l10n.t('russian'))),

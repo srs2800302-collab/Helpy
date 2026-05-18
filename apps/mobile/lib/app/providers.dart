@@ -48,9 +48,28 @@ final sessionExpiredTickProvider = StateProvider<int>((ref) {
   return 0;
 });
 
+Locale _localeFromCode(String? code) {
+  return switch ((code ?? '').trim().toLowerCase()) {
+    'en' => const Locale('en'),
+    'th' => const Locale('th'),
+    _ => const Locale('ru'),
+  };
+}
+
 final currentLocaleProvider = StateProvider<Locale>((ref) {
   return const Locale('ru');
 });
+
+Future<void> setAppLocale(WidgetRef ref, Locale locale) async {
+  ref.read(currentLocaleProvider.notifier).state = locale;
+  await ref.read(tokenStorageProvider).saveLocaleCode(locale.languageCode);
+}
+
+Future<void> loadPersistedLocale(WidgetRef ref) async {
+  final code = await ref.read(tokenStorageProvider).getLocaleCode();
+  final locale = _localeFromCode(code);
+  ref.read(currentLocaleProvider.notifier).state = locale;
+}
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final client = ApiClient(

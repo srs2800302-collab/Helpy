@@ -27,6 +27,7 @@ class _FixiAppState extends ConsumerState<FixiApp> {
     super.initState();
     _routerNotifier = AuthRouterNotifier(const AuthState());
     router = createRouter(_routerNotifier);
+    Future.microtask(() => loadPersistedLocale(ref));
 
     _authListener = ref.listenManual<AuthState>(
       authControllerProvider,

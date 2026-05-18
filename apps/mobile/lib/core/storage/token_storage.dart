@@ -13,6 +13,9 @@ abstract class TokenStorage {
   Future<String?> getBackgroundedAt();
   Future<void> clearBackgroundedAt();
 
+  Future<void> saveLocaleCode(String code);
+  Future<String?> getLocaleCode();
+
   Future<void> clearAll();
 }
 
@@ -20,6 +23,7 @@ class SharedPrefsTokenStorage implements TokenStorage {
   static const _accessKey = 'fixi_access_token';
   static const _refreshKey = 'fixi_refresh_token';
   static const _backgroundedAtKey = 'fixi_backgrounded_at';
+  static const _localeKey = 'fixi_locale_code';
 
   Future<SharedPreferences> get _prefs async => SharedPreferences.getInstance();
 
@@ -66,9 +70,16 @@ class SharedPrefsTokenStorage implements TokenStorage {
   Future<void> clearBackgroundedAt() => _remove(_backgroundedAtKey);
 
   @override
+  Future<void> saveLocaleCode(String code) => _write(_localeKey, code);
+
+  @override
+  Future<String?> getLocaleCode() => _readTrimmed(_localeKey);
+
+  @override
   Future<void> clearAll() async {
     await _remove(_accessKey);
     await _remove(_refreshKey);
     await _remove(_backgroundedAtKey);
+    await _remove(_localeKey);
   }
 }
