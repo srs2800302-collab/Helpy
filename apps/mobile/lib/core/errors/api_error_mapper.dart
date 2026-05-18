@@ -3,6 +3,13 @@ import 'package:dio/dio.dart';
 import 'app_exception.dart';
 
 class ApiErrorMapper {
+  static String? _backendMessageKey(String? value) {
+    final raw = value?.trim();
+    if (raw == null || raw.isEmpty) return null;
+    final isKey = RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(raw);
+    return isKey ? raw : null;
+  }
+
   static AppException map(Object error) {
     if (error is AppException) {
       return error;
@@ -22,6 +29,8 @@ class ApiErrorMapper {
         }
       }
 
+      final backendKey = _backendMessageKey(backendMessage);
+
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.sendTimeout:
@@ -40,7 +49,7 @@ class ApiErrorMapper {
         case DioExceptionType.badResponse:
           if (statusCode == 401) {
             return AppException(
-              message: backendMessage ?? 'error_unauthorized',
+              message: backendKey ?? 'error_unauthorized',
               code: 'unauthorized',
               statusCode: statusCode,
             );
@@ -48,7 +57,7 @@ class ApiErrorMapper {
 
           if (statusCode == 403) {
             return AppException(
-              message: backendMessage ?? 'error_forbidden',
+              message: backendKey ?? 'error_forbidden',
               code: 'forbidden',
               statusCode: statusCode,
             );
@@ -56,7 +65,7 @@ class ApiErrorMapper {
 
           if (statusCode == 404) {
             return AppException(
-              message: backendMessage ?? 'error_not_found',
+              message: backendKey ?? 'error_not_found',
               code: 'not_found',
               statusCode: statusCode,
             );
@@ -64,7 +73,7 @@ class ApiErrorMapper {
 
           if (statusCode == 409) {
             return AppException(
-              message: backendMessage ?? 'error_conflict',
+              message: backendKey ?? 'error_conflict',
               code: 'conflict',
               statusCode: statusCode,
             );
@@ -72,14 +81,14 @@ class ApiErrorMapper {
 
           if (statusCode == 422 || statusCode == 400) {
             return AppException(
-              message: backendMessage ?? 'error_bad_request',
+              message: backendKey ?? 'error_bad_request',
               code: 'bad_request',
               statusCode: statusCode,
             );
           }
 
           return AppException(
-            message: backendMessage ?? 'server_error',
+            message: backendKey ?? 'server_error',
             code: 'server_error',
             statusCode: statusCode,
           );
@@ -92,7 +101,7 @@ class ApiErrorMapper {
 
         case DioExceptionType.unknown:
           return AppException(
-            message: backendMessage ?? 'error_unknown',
+            message: backendKey ?? 'error_unknown',
             code: 'unknown',
             statusCode: statusCode,
           );
