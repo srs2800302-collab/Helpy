@@ -44,7 +44,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
     final state = ref.watch(jobOffersControllerProvider);
     final controller = ref.read(jobOffersControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final isInitialLoading = state.isLoading && state.items.isEmpty;
 
     return Scaffold(

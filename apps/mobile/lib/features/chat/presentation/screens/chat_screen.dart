@@ -196,6 +196,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final state = ref.watch(chatControllerProvider);
     final controller = ref.read(chatControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final session = ref.watch(authControllerProvider).session;
     final isMaster = session?.role == UserRole.master;
 
@@ -283,7 +284,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         final displayText = translatedOrOriginal(
                           original: m.text,
                           translationsJson: m.textTranslationsJson,
-                          locale: Localizations.localeOf(context).languageCode,
+                          locale: locale,
                         );
                         final isMe = m.senderUserId == (session?.userId ?? '');
                         final replySenderLabel = m.replySenderUserId == null
@@ -360,9 +361,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                               original: m.replyText!,
                                               translationsJson:
                                                   m.replyTextTranslationsJson,
-                                              locale: Localizations.localeOf(
-                                                context,
-                                              ).languageCode,
+                                              locale: locale,
                                             ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
@@ -413,7 +412,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           original: _replyToMessage!.text,
                           translationsJson:
                               _replyToMessage!.textTranslationsJson,
-                          locale: Localizations.localeOf(context).languageCode,
+                          locale: locale,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

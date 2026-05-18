@@ -84,7 +84,7 @@ class _MasterMarketplaceScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final state = ref.watch(marketplaceControllerProvider);
 
     final isInitialLoading = state.isLoading && state.items.isEmpty;

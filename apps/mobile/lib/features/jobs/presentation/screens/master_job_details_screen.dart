@@ -189,7 +189,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
             final completedAt = job.updatedAt ?? job.createdAt;
             final canSendOffer = job.status == 'open' && !job.hasApplied;
             final canOpenChat = job.status == 'master_selected' || job.status == 'in_progress';
-            final locale = Localizations.localeOf(context).languageCode;
+            final locale = ref.watch(currentLocaleProvider).languageCode;
             final originalTitle = (job.titleOriginal ?? job.title).trim();
             final displayTitle = translatedOrOriginal(
               original: originalTitle,

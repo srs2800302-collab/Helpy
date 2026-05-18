@@ -64,6 +64,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final state = ref.watch(offersControllerProvider);
     final session = ref.watch(authControllerProvider).session;
 
@@ -135,29 +136,25 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                             final displayTitle = translatedOrOriginal(
                               original: title,
                               translationsJson: item.jobTitleTranslationsJson,
-                              locale:
-                                  Localizations.localeOf(context).languageCode,
+                              locale: locale,
                             );
 
                             final comment = translatedOrOriginal(
                               original: item.priceComment,
                               translationsJson:
                                   item.priceCommentTranslationsJson,
-                              locale:
-                                  Localizations.localeOf(context).languageCode,
+                              locale: locale,
                             ).trim();
                             final message = translatedOrOriginal(
                               original: item.message,
                               translationsJson: item.messageTranslationsJson,
-                              locale:
-                                  Localizations.localeOf(context).languageCode,
+                              locale: locale,
                             ).trim();
                             final lastMessage = translatedOrOriginal(
                               original: item.lastMessage,
                               translationsJson:
                                   item.lastMessageTranslationsJson,
-                              locale:
-                                  Localizations.localeOf(context).languageCode,
+                              locale: locale,
                             ).trim();
                             final hasUnreadMessage = lastMessage.isNotEmpty &&
                                 item.lastMessageSenderUserId != null &&

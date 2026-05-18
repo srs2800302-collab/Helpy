@@ -92,7 +92,7 @@ class _MasterCompletedJobsScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final offersState = ref.watch(offersControllerProvider);
     final completedOffers = _sortedCompleted(offersState.items);
 

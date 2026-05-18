@@ -140,7 +140,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
       setState(() {});
     });
     final l10n = AppLocalizations.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final originalTitle = (_job.titleOriginal ?? _job.title).trim();
     final displayTitle = translatedOrOriginal(
       original: originalTitle,
