@@ -194,6 +194,32 @@ export async function cleanupTranslationTasksForEntity({
   ).bind(entityType, entityId).run();
 }
 
+function isValidTranslationForTargetLanguage({
+  text,
+  targetLanguage,
+}: {
+  text: string;
+  targetLanguage: string;
+}) {
+  const raw = text.trim();
+  if (!raw) return false;
+
+  const hasThai = /[\u0E00-\u0E7F]/.test(raw);
+  const hasCyrillic = /[\u0400-\u04FF]/.test(raw);
+  const hasLatin = /[A-Za-z]/.test(raw);
+
+  switch (targetLanguage) {
+    case 'th':
+      return hasThai && !hasCyrillic && !hasLatin;
+    case 'en':
+      return hasLatin && !hasCyrillic && !hasThai;
+    case 'ru':
+      return hasCyrillic && !hasThai;
+    default:
+      return true;
+  }
+}
+
 async function translateWithGooglePublic({
   text,
   sourceLanguage,
@@ -405,6 +431,25 @@ export async function processPendingTranslationTasks({
           task.id,
         ).run();
 
+        continue;
+      }
+
+      if (!isValidTranslationForTargetLanguage({
+        text: result.translatedText,
+        targetLanguage: String(task.target_language),
+      })) {
+        await env.DB.prepare(`
+          UPDATE translation_tasks
+          SET status = 'pending',
+              updated_at = ?1
+          WHERE id = ?2
+            AND status = 'processing'
+        `).bind(new Date().toISOString(), task.id).run();
+
+        failed.push({
+          id: task.id,
+          error: `Invalid translation script for ${task.target_language}`,
+        });
         continue;
       }
 
