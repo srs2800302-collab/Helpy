@@ -1,5 +1,5 @@
 import { requireAuth } from './auth-context';
-import { buildTranslationsJson, processPendingTranslationTasks } from './translation';
+import { deferTranslations } from './translation';
 
 type CreateReviewBody = {
   master_user_id?: string;
@@ -119,7 +119,7 @@ export async function getReviews(jobId: string, request: Request, env: any) {
   });
 }
 
-export async function createReview(jobId: string, request: Request, env: any) {
+export async function createReview(jobId: string, request: Request, env: any, ctx?: any) {
   await ensureReviewsSchema(env);
 
   let body: CreateReviewBody;
@@ -193,16 +193,7 @@ export async function createReview(jobId: string, request: Request, env: any) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const comment = typeof body.comment === 'string' ? body.comment.trim() : '';
-  const commentTranslationsJson = comment
-    ? await buildTranslationsJson({
-        text: comment,
-        sourceLanguage: null,
-        env,
-        entityType: 'review',
-        entityId: id,
-        fieldName: 'comment',
-      })
-    : null;
+  const commentTranslationsJson = null;
 
   try {
     await env.DB.prepare(
@@ -247,13 +238,19 @@ export async function createReview(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (commentTranslationsJson) {
-    await processPendingTranslationTasks({
-      env,
-      entityType: 'review',
-      entityId: id,
-      limit: 3,
-    });
+  const translationWork = deferTranslations({
+    env,
+    entityType: 'review',
+    entityId: id,
+    sourceLanguage: null,
+    fields: [{ fieldName: 'comment', text: comment }],
+    limit: 3,
+  });
+
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(translationWork);
+  } else {
+    await translationWork;
   }
 
   return Response.json({

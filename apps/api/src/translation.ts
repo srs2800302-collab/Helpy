@@ -84,31 +84,56 @@ export async function buildTranslationsJson({
   for (const target of SUPPORTED_LANGUAGES) {
     if (!useAutoDetect && target === source) continue;
 
-    await env.DB.prepare(`
-      INSERT OR REPLACE INTO translation_tasks (
-        id,
-        entity_type,
-        entity_id,
-        field_name,
-        source_language,
-        target_language,
-        original_text,
-        translated_text,
-        status,
-        created_at,
-        updated_at
-      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, NULL, 'pending', ?8, ?9)
-    `).bind(
-      `${entityType}:${entityId}:${fieldName}:${source}:${target}`,
-      entityType,
-      entityId,
-      fieldName,
-      source,
-      target,
-      originalText,
-      now,
-      now,
-    ).run();
+    const taskId = `${entityType}:${entityId}:${fieldName}:${source}:${target}`;
+
+    const existingTask = await env.DB.prepare(
+      'SELECT original_text FROM translation_tasks WHERE id = ?1 LIMIT 1'
+    ).bind(taskId).first();
+
+    if (!existingTask) {
+      await env.DB.prepare(`
+        INSERT INTO translation_tasks (
+          id,
+          entity_type,
+          entity_id,
+          field_name,
+          source_language,
+          target_language,
+          original_text,
+          translated_text,
+          status,
+          created_at,
+          updated_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, NULL, 'pending', ?8, ?9)
+      `).bind(
+        taskId,
+        entityType,
+        entityId,
+        fieldName,
+        source,
+        target,
+        originalText,
+        now,
+        now,
+      ).run();
+
+      continue;
+    }
+
+    if (String(existingTask.original_text ?? '') !== originalText) {
+      await env.DB.prepare(`
+        UPDATE translation_tasks
+        SET original_text = ?1,
+            translated_text = NULL,
+            status = 'pending',
+            updated_at = ?2
+        WHERE id = ?3
+      `).bind(
+        originalText,
+        now,
+        taskId,
+      ).run();
+    }
   }
 
   return JSON.stringify(translations);
@@ -364,7 +389,23 @@ export async function processPendingTranslationTasks({
       try {
         translations = JSON.parse(entity[result.column] ?? '{}');
       } catch (_) {
-        translations = {};
+        failed.push({
+          id: task.id,
+          error: `Invalid translations JSON in ${result.table}.${result.column}`,
+        });
+
+        await env.DB.prepare(`
+          UPDATE translation_tasks
+          SET status = 'pending',
+              updated_at = ?1
+          WHERE id = ?2
+            AND status = 'processing'
+        `).bind(
+          new Date().toISOString(),
+          task.id,
+        ).run();
+
+        continue;
       }
 
       translations[String(task.target_language)] = result.translatedText;

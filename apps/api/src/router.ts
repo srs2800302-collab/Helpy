@@ -207,7 +207,21 @@ async function completeTranslationTask(request: Request, env: any) {
   try {
     translations = JSON.parse(job[column] ?? '{}');
   } catch (_) {
-    translations = {};
+    return Response.json(
+      { success: false, error: 'Invalid existing translations JSON' },
+      { status: 409 },
+    );
+  }
+
+  if (
+    translations === null ||
+    typeof translations !== 'object' ||
+    Array.isArray(translations)
+  ) {
+    return Response.json(
+      { success: false, error: 'Invalid existing translations JSON shape' },
+      { status: 409 },
+    );
   }
 
   translations[targetLanguage] = translatedText;
@@ -503,7 +517,7 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'reviews' && method === 'POST') {
-      return createReview(jobId, request, env);
+      return createReview(jobId, request, env, ctx);
     }
 
     if (parts.length === 5 && parts[4] === 'deposit' && method === 'POST') {

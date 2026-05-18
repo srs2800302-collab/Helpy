@@ -634,6 +634,12 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
   const category = typeof body.category === 'string' ? body.category.trim() : current.category;
   const sourceLanguage = body.source_language?.trim() || current.source_language || 'ru';
 
+  const normalizedDescription = description || title;
+  const normalizedAddressText = addressText || 'Pattaya';
+  const titleChanged = title !== current.title;
+  const descriptionChanged = normalizedDescription !== current.description;
+  const addressChanged = normalizedAddressText !== current.address_text;
+
   if (!title || title.length < 3) {
     return Response.json({ success: false, error: 'title is required' }, { status: 400 });
   }
@@ -642,32 +648,17 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
     return Response.json({ success: false, error: 'category is required' }, { status: 400 });
   }
 
-  const titleTranslationsJson = await buildTranslationsJson({
-    text: title,
-    sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'title',
-  });
-
-  const descriptionTranslationsJson = await buildTranslationsJson({
-    text: description || title,
-    sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'description',
-  });
-
-  const addressTranslationsJson = await buildTranslationsJson({
-    text: addressText || 'Pattaya',
-    sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'address_text',
-  });
+  const titleTranslationsJson = titleChanged
+    ? buildInitialTranslationsJson({ text: title, sourceLanguage })
+    : current.title_translations_json ?? buildInitialTranslationsJson({ text: title, sourceLanguage });
+  const descriptionTranslationsJson = descriptionChanged
+    ? buildInitialTranslationsJson({ text: normalizedDescription, sourceLanguage })
+    : current.description_translations_json ??
+      buildInitialTranslationsJson({ text: normalizedDescription, sourceLanguage });
+  const addressTranslationsJson = addressChanged
+    ? buildInitialTranslationsJson({ text: normalizedAddressText, sourceLanguage })
+    : current.address_translations_json ??
+      buildInitialTranslationsJson({ text: normalizedAddressText, sourceLanguage });
 
   const now = new Date().toISOString();
 
@@ -690,12 +681,12 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
   )
     .bind(
       title,
-      description || title,
-      addressText || 'Pattaya',
+      normalizedDescription,
+      normalizedAddressText,
       category,
       sourceLanguage,
       title,
-      description || title,
+      normalizedDescription,
       titleTranslationsJson,
       descriptionTranslationsJson,
       addressTranslationsJson,
@@ -706,12 +697,45 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
     )
     .run();
 
-  await processPendingTranslationTasks({
-    env,
-    entityType: 'job',
-    entityId: id,
-    limit: 6,
-  }).catch(() => undefined);
+  const runTranslationWork = () => (async () => {
+    await buildTranslationsJson({
+      text: title,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'title',
+    });
+    await buildTranslationsJson({
+      text: normalizedDescription,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'description',
+    });
+    await buildTranslationsJson({
+      text: normalizedAddressText,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'address_text',
+    });
+
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'job',
+      entityId: id,
+      limit: 6,
+    });
+  })().catch(() => undefined);
+
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(runTranslationWork());
+  } else {
+    await runTranslationWork();
+  }
 
   const updated = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
     .bind(id)
