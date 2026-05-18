@@ -77,7 +77,7 @@ class OffersController extends StateNotifier<OffersState> {
 
     final parsedPrice = double.tryParse(state.price.trim());
     if (parsedPrice == null || parsedPrice <= 0) {
-      state = state.copyWith(errorMessage: 'Price must be greater than 0');
+      state = state.copyWith(errorMessage: 'price_greater_than_zero');
       return false;
     }
 
@@ -104,7 +104,7 @@ class OffersController extends StateNotifier<OffersState> {
         message: '',
         price: '',
         priceComment: '',
-        successMessage: 'Offer created',
+        successMessage: 'offer_created',
       );
 
       return true;

@@ -102,7 +102,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            state.errorMessage!,
+                            l10n.t(state.errorMessage!),
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),

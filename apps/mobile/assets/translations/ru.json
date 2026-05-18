@@ -135,5 +135,11 @@
   "open_in_maps": "Открыть в Google Карте",
   "phone_contact_not_allowed": "Нельзя отправлять номер телефона в чате",
   "client_review": "Отзыв клиента",
-  "room_unit_label": "Комната / Unit"
+  "room_unit_label": "Комната / Unit",
+  "draft_deleted": "Черновик удалён",
+  "job_updated": "Заказ обновлён",
+  "category_required": "Выберите категорию",
+  "title_too_short": "Название слишком короткое",
+  "price_greater_than_zero": "Цена должна быть больше 0",
+  "no_session": "Сессия не найдена"
 }

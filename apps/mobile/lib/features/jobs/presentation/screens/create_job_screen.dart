@@ -286,6 +286,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final jobsState = ref.watch(jobsControllerProvider);
     final categoriesState = ref.watch(categoriesControllerProvider);
     final jobsController = ref.read(jobsControllerProvider.notifier);
@@ -361,7 +362,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-                key: ValueKey('job_title_${Localizations.localeOf(context).languageCode}'),
+                key: ValueKey('job_title_$locale'),
               onChanged: jobsController.setTitle,
               enabled: !isBusy,
               decoration: InputDecoration(
@@ -371,7 +372,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-                key: ValueKey('job_description_${Localizations.localeOf(context).languageCode}'),
+                key: ValueKey('job_description_$locale'),
               onChanged: jobsController.setDescription,
               enabled: !isBusy,
               maxLines: 4,
@@ -494,7 +495,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  jobsState.errorMessage!,
+                  l10n.t(jobsState.errorMessage!),
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
@@ -509,7 +510,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  jobsState.successMessage!,
+                  l10n.t(jobsState.successMessage!),
                   style: const TextStyle(color: Colors.green),
                 ),
               ),

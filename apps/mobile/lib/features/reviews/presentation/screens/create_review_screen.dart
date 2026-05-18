@@ -74,7 +74,7 @@ class CreateReviewScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  state.errorMessage!,
+                  l10n.t(state.errorMessage!),
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
@@ -89,7 +89,7 @@ class CreateReviewScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  state.successMessage!,
+                  l10n.t(state.successMessage!),
                   style: const TextStyle(color: Colors.green),
                 ),
               ),

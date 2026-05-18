@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/providers.dart';
 import '../utils/translation_display.dart';
 
-class LocalizedJobTitle extends StatelessWidget {
+class LocalizedJobTitle extends ConsumerWidget {
   final String originalTitle;
   final String displayTitle;
   final TextStyle? primaryStyle;
@@ -21,8 +23,8 @@ class LocalizedJobTitle extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final candidate = displayTitle.trim();
 
     final hasValidTranslation = hasRealTranslation(

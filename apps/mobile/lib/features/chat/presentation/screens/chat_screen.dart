@@ -254,7 +254,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
-                state.errorMessage!,
+                l10n.t(state.errorMessage!),
                 style: const TextStyle(color: Colors.red),
               ),
             ),

@@ -216,7 +216,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  _errorMessage!,
+                  l10n.t(_errorMessage!),
                   style: const TextStyle(color: Colors.red),
                 ),
               ),

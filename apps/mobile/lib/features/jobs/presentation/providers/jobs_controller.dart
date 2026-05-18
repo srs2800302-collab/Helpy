@@ -158,7 +158,7 @@ class JobsController extends StateNotifier<JobsState> {
 
       state = state.copyWith(
         isSubmitting: false,
-        successMessage: 'Draft deleted',
+        successMessage: 'draft_deleted',
       );
       return true;
     } catch (e) {
@@ -184,12 +184,12 @@ class JobsController extends StateNotifier<JobsState> {
     }
 
     if ((state.selectedCategoryId ?? '').isEmpty) {
-      state = state.copyWith(errorMessage: 'Category is required');
+      state = state.copyWith(errorMessage: 'category_required');
       return null;
     }
 
     if (state.title.trim().length < 3) {
-      state = state.copyWith(errorMessage: 'Title is too short');
+      state = state.copyWith(errorMessage: 'title_too_short');
       return null;
     }
 
@@ -220,7 +220,7 @@ class JobsController extends StateNotifier<JobsState> {
 
       state = state.copyWith(
         isSubmitting: false,
-        successMessage: 'Job updated',
+        successMessage: 'job_updated',
       );
 
       return updated;
@@ -244,12 +244,12 @@ Future<JobItem?> createDraft() async {
     }
 
     if ((state.selectedCategoryId ?? '').isEmpty) {
-      state = state.copyWith(errorMessage: 'Category is required');
+      state = state.copyWith(errorMessage: 'category_required');
       return null;
     }
 
     if (state.title.trim().length < 3) {
-      state = state.copyWith(errorMessage: 'Title is too short');
+      state = state.copyWith(errorMessage: 'title_too_short');
       return null;
     }
 
@@ -318,7 +318,7 @@ Future<JobItem?> createDraft() async {
         longitude: null,
         clearPhotos: true,
         clearSelectedCategory: true,
-        successMessage: 'Job created',
+        successMessage: 'job_created',
       );
 
       return createdForUi;

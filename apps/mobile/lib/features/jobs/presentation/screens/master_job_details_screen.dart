@@ -179,7 +179,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   Center(
                     child: _errorMessage == null
                         ? const CircularProgressIndicator()
-                        : Text(_errorMessage!),
+                        : Text(l10n.t(_errorMessage!)),
                   ),
                 ],
               )

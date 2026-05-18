@@ -96,7 +96,7 @@ class ReviewsController extends StateNotifier<ReviewsState> {
       state = state.copyWith(
         isSubmitting: false,
         comment: '',
-        successMessage: 'Review created',
+        successMessage: 'review_created',
       );
       return true;
     } catch (e) {

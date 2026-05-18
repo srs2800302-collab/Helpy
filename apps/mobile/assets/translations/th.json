@@ -135,5 +135,11 @@
   "open_in_maps": "เปิดใน Google Maps",
   "phone_contact_not_allowed": "ไม่สามารถส่งหมายเลขโทรศัพท์ในแชตได้",
   "client_review": "รีวิวจากลูกค้า",
-  "room_unit_label": "ห้อง / Unit"
+  "room_unit_label": "ห้อง / Unit",
+  "draft_deleted": "ลบฉบับร่างแล้ว",
+  "job_updated": "อัปเดตงานแล้ว",
+  "category_required": "กรุณาเลือกหมวดหมู่",
+  "title_too_short": "ชื่องานสั้นเกินไป",
+  "price_greater_than_zero": "ราคาต้องมากกว่า 0",
+  "no_session": "ไม่พบเซสชัน"
 }

@@ -65,7 +65,7 @@ class CreateOfferScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           if (state.errorMessage != null)
             Text(
-              state.errorMessage!,
+              l10n.t(state.errorMessage!),
               style: const TextStyle(color: Colors.red),
             ),
           const SizedBox(height: 16),
