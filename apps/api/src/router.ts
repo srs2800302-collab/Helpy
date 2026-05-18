@@ -213,6 +213,17 @@ async function completeTranslationTask(request: Request, env: any) {
     );
   }
 
+  if (
+    translations === null ||
+    typeof translations !== 'object' ||
+    Array.isArray(translations)
+  ) {
+    return Response.json(
+      { success: false, error: 'Invalid existing translations JSON shape' },
+      { status: 409 },
+    );
+  }
+
   translations[targetLanguage] = translatedText;
 
   await env.DB.prepare(`
