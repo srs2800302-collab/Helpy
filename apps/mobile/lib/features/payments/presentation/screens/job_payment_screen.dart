@@ -123,13 +123,14 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
     });
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
+    final locale = ref.watch(currentLocaleProvider).languageCode;
     final job = _job;
     final price = job?.price ?? widget.price;
     final originalTitle = (job?.titleOriginal ?? widget.jobTitle).trim();
     final displayTitle = translatedOrOriginal(
       original: originalTitle,
       translationsJson: job?.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
-      locale: Localizations.localeOf(context).languageCode,
+      locale: locale,
     );
 
     return Scaffold(
