@@ -40,7 +40,7 @@ class ApiErrorMapper {
         case DioExceptionType.badResponse:
           if (statusCode == 401) {
             return AppException(
-              message: backendMessage ?? 'Session expired. Please sign in again.',
+              message: backendMessage ?? 'error_unauthorized',
               code: 'unauthorized',
               statusCode: statusCode,
             );
@@ -48,7 +48,7 @@ class ApiErrorMapper {
 
           if (statusCode == 403) {
             return AppException(
-              message: backendMessage ?? 'You do not have access to this action.',
+              message: backendMessage ?? 'error_forbidden',
               code: 'forbidden',
               statusCode: statusCode,
             );
@@ -56,7 +56,7 @@ class ApiErrorMapper {
 
           if (statusCode == 404) {
             return AppException(
-              message: backendMessage ?? 'Requested resource was not found.',
+              message: backendMessage ?? 'error_not_found',
               code: 'not_found',
               statusCode: statusCode,
             );
@@ -64,7 +64,7 @@ class ApiErrorMapper {
 
           if (statusCode == 409) {
             return AppException(
-              message: backendMessage ?? 'This action has already been performed.',
+              message: backendMessage ?? 'error_conflict',
               code: 'conflict',
               statusCode: statusCode,
             );
@@ -72,7 +72,7 @@ class ApiErrorMapper {
 
           if (statusCode == 422 || statusCode == 400) {
             return AppException(
-              message: backendMessage ?? 'Invalid request data.',
+              message: backendMessage ?? 'error_bad_request',
               code: 'bad_request',
               statusCode: statusCode,
             );
@@ -92,7 +92,7 @@ class ApiErrorMapper {
 
         case DioExceptionType.unknown:
           return AppException(
-            message: backendMessage ?? 'Unexpected error occurred.',
+            message: backendMessage ?? 'error_unknown',
             code: 'unknown',
             statusCode: statusCode,
           );
@@ -105,8 +105,8 @@ class ApiErrorMapper {
       }
     }
 
-    return AppException(
-      message: error.toString(),
+    return const AppException(
+      message: 'error_unknown',
       code: 'unknown',
     );
   }

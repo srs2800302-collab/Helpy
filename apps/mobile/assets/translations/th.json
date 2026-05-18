@@ -146,5 +146,11 @@
   "error_timeout": "หมดเวลารอคำขอ กรุณาลองอีกครั้ง",
   "error_connection": "ไม่มีการเชื่อมต่ออินเทอร์เน็ต",
   "error_cancelled": "ยกเลิกคำขอแล้ว",
-  "error_bad_certificate": "การเชื่อมต่อปลอดภัยล้มเหลว"
+  "error_bad_certificate": "การเชื่อมต่อปลอดภัยล้มเหลว",
+  "error_unauthorized": "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
+  "error_forbidden": "คุณไม่มีสิทธิ์ทำรายการนี้",
+  "error_not_found": "ไม่พบข้อมูล",
+  "error_conflict": "ดำเนินการนี้ไปแล้ว",
+  "error_bad_request": "ข้อมูลคำขอไม่ถูกต้อง",
+  "error_unknown": "เกิดข้อผิดพลาดที่ไม่คาดคิด"
 }
