@@ -648,32 +648,17 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
     return Response.json({ success: false, error: 'category is required' }, { status: 400 });
   }
 
-  const titleTranslationsJson = await buildTranslationsJson({
-    text: title,
-    sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'title',
-  });
-
-  const descriptionTranslationsJson = await buildTranslationsJson({
-    text: description || title,
-    sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'description',
-  });
-
-  const addressTranslationsJson = await buildTranslationsJson({
-    text: addressText || 'Pattaya',
-    sourceLanguage,
-    env,
-    entityType: 'job',
-    entityId: id,
-    fieldName: 'address_text',
-  });
+  const titleTranslationsJson = titleChanged
+    ? buildInitialTranslationsJson({ text: title, sourceLanguage })
+    : current.title_translations_json ?? buildInitialTranslationsJson({ text: title, sourceLanguage });
+  const descriptionTranslationsJson = descriptionChanged
+    ? buildInitialTranslationsJson({ text: normalizedDescription, sourceLanguage })
+    : current.description_translations_json ??
+      buildInitialTranslationsJson({ text: normalizedDescription, sourceLanguage });
+  const addressTranslationsJson = addressChanged
+    ? buildInitialTranslationsJson({ text: normalizedAddressText, sourceLanguage })
+    : current.address_translations_json ??
+      buildInitialTranslationsJson({ text: normalizedAddressText, sourceLanguage });
 
   const now = new Date().toISOString();
 
@@ -702,9 +687,9 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
       sourceLanguage,
       title,
       normalizedDescription,
-      titleChanged ? titleTranslationsJson : current.title_translations_json ?? titleTranslationsJson,
-      descriptionChanged ? descriptionTranslationsJson : current.description_translations_json ?? descriptionTranslationsJson,
-      addressChanged ? addressTranslationsJson : current.address_translations_json ?? addressTranslationsJson,
+      titleTranslationsJson,
+      descriptionTranslationsJson,
+      addressTranslationsJson,
       normalizeNumber(body.latitude),
       normalizeNumber(body.longitude),
       now,
@@ -712,12 +697,45 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
     )
     .run();
 
-  await processPendingTranslationTasks({
-    env,
-    entityType: 'job',
-    entityId: id,
-    limit: 6,
-  }).catch(() => undefined);
+  const runTranslationWork = () => (async () => {
+    await buildTranslationsJson({
+      text: title,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'title',
+    });
+    await buildTranslationsJson({
+      text: normalizedDescription,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'description',
+    });
+    await buildTranslationsJson({
+      text: normalizedAddressText,
+      sourceLanguage,
+      env,
+      entityType: 'job',
+      entityId: id,
+      fieldName: 'address_text',
+    });
+
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'job',
+      entityId: id,
+      limit: 6,
+    });
+  })().catch(() => undefined);
+
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(runTranslationWork());
+  } else {
+    await runTranslationWork();
+  }
 
   const updated = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
     .bind(id)
