@@ -142,5 +142,9 @@
   "title_too_short": "ชื่องานสั้นเกินไป",
   "price_greater_than_zero": "ราคาต้องมากกว่า 0",
   "no_session": "ไม่พบเซสชัน",
-  "job_fallback_id": "งาน {id}"
+  "job_fallback_id": "งาน {id}",
+  "error_timeout": "หมดเวลารอคำขอ กรุณาลองอีกครั้ง",
+  "error_connection": "ไม่มีการเชื่อมต่ออินเทอร์เน็ต",
+  "error_cancelled": "ยกเลิกคำขอแล้ว",
+  "error_bad_certificate": "การเชื่อมต่อปลอดภัยล้มเหลว"
 }

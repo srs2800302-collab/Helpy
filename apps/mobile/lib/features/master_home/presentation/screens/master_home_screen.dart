@@ -5,6 +5,7 @@ import '../../../../core/utils/hidden_completed_jobs.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/error_visibility.dart';
 import '../../../../core/utils/job_status_mapper.dart';
@@ -142,7 +143,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        SnackBar(content: Text(AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
       );
     } finally {
       if (mounted) {

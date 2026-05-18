@@ -27,13 +27,13 @@ class ApiErrorMapper {
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
           return const AppException(
-            message: 'Request timeout. Please try again.',
+            message: 'error_timeout',
             code: 'timeout',
           );
 
         case DioExceptionType.connectionError:
           return const AppException(
-            message: 'No internet connection.',
+            message: 'error_connection',
             code: 'connection_error',
           );
 
@@ -86,7 +86,7 @@ class ApiErrorMapper {
 
         case DioExceptionType.cancel:
           return const AppException(
-            message: 'Request was cancelled.',
+            message: 'error_cancelled',
             code: 'cancelled',
           );
 
@@ -99,7 +99,7 @@ class ApiErrorMapper {
 
         case DioExceptionType.badCertificate:
           return const AppException(
-            message: 'Secure connection failed.',
+            message: 'error_bad_certificate',
             code: 'bad_certificate',
           );
       }

@@ -142,5 +142,9 @@
   "title_too_short": "Название слишком короткое",
   "price_greater_than_zero": "Цена должна быть больше 0",
   "no_session": "Сессия не найдена",
-  "job_fallback_id": "Заказ {id}"
+  "job_fallback_id": "Заказ {id}",
+  "error_timeout": "Превышено время ожидания. Попробуйте ещё раз.",
+  "error_connection": "Нет подключения к интернету.",
+  "error_cancelled": "Запрос отменён.",
+  "error_bad_certificate": "Ошибка безопасного соединения."
 }

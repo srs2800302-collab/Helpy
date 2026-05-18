@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../auth/domain/auth_session.dart';
@@ -109,7 +110,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        SnackBar(content: Text(AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
       );
     }
   }
@@ -145,7 +146,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _isCompleting = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        SnackBar(content: Text(AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
       );
     }
   }

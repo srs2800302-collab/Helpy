@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/job_status_mapper.dart';
 import '../../../../core/utils/category_mapper.dart';
@@ -73,7 +74,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = ApiErrorMapper.map(e).message;
       });
     }
   }
