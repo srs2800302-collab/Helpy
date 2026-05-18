@@ -381,7 +381,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
                                 ? () async {
                                     await _confirmHideCompletedJob(
                                       jobId: item.id,
-                                      title: item.title,
+                                      title: displayTitle,
                                     );
                                   }
                                 : null,
