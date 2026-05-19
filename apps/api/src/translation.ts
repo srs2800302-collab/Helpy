@@ -334,14 +334,21 @@ async function translateWithProvider({
       }),
     });
 
-    if (!response.ok) return localMvpTranslate({ text, targetLanguage });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Typhoon translate failed: ${response.status} ${errorText.slice(0, 500)}`);
+    }
 
     const payload = (await response.json()) as any;
     const translated = String(payload?.choices?.[0]?.message?.content ?? '').trim();
 
-    return translated || localMvpTranslate({ text, targetLanguage });
-  } catch (_) {
-    return localMvpTranslate({ text, targetLanguage });
+    if (!translated) {
+      throw new Error(`Typhoon empty translation: ${JSON.stringify(payload).slice(0, 500)}`);
+    }
+
+    return translated;
+  } catch (error: any) {
+    throw new Error(error?.message ?? 'Typhoon translate failed');
   }
 }
 
