@@ -501,10 +501,13 @@ export async function processPendingTranslationTasks({
         continue;
       }
 
-      if (!isValidTranslationForTargetLanguage({
-        text: result.translatedText,
-        targetLanguage: String(task.target_language),
-      })) {
+      if (
+        String(task.field_name) !== 'address_text' &&
+        !isValidTranslationForTargetLanguage({
+          text: result.translatedText,
+          targetLanguage: String(task.target_language),
+        })
+      ) {
         await env.DB.prepare(`
           UPDATE translation_tasks
           SET status = 'pending',
