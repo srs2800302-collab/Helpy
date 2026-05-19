@@ -6,3 +6,6 @@ compatibility_date = "2024-01-01"
 binding = "DB"
 database_name = "fixi-db"
 database_id = "d5e761bf-0072-4833-be57-7c9b1f6bfddb"
+
+[vars]
+TRANSLATION_SERVICE_URL = "https://libretranslate.com"
