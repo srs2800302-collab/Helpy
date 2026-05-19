@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
@@ -37,7 +38,7 @@ class CreateOfferScreen extends ConsumerWidget {
           TextField(
             onChanged: controller.setMessage,
             enabled: !isBusy,
-            maxLines: 3,
+            maxLines: 2,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelText: l10n.t('offer_message'),
@@ -57,8 +58,14 @@ class CreateOfferScreen extends ConsumerWidget {
           TextField(
             onChanged: controller.setPriceComment,
             enabled: !isBusy,
+            minLines: 6,
+            maxLines: 10,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(700),
+            ],
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
+              alignLabelWithHint: true,
               labelText: l10n.t('offer_price_comment'),
             ),
           ),

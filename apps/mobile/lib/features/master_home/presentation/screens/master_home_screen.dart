@@ -472,7 +472,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 comment,
-                                maxLines: 2,
+                                maxLines: 10,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],

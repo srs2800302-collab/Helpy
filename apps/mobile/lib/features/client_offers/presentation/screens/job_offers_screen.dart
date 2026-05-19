@@ -228,7 +228,7 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             displayPriceComment.trim(),
-                                            maxLines: 2,
+                                            maxLines: 10,
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ],

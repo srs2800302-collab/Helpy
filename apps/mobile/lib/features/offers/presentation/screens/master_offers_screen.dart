@@ -258,7 +258,7 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                       const SizedBox(height: 4),
                                       Text(
                                         comment,
-                                        maxLines: 2,
+                                        maxLines: 10,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
