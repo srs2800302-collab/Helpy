@@ -40,12 +40,29 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => _refreshJob(silent: true));
-    Future.delayed(const Duration(seconds: 5), () {
-      if (mounted) {
-        _refreshJob(silent: true);
+    _job = widget.job;
+    Future.microtask(_refreshUntilTranslationsReady);
+  }
+
+  Future<void> _refreshUntilTranslationsReady() async {
+    for (var attempt = 0; attempt < 8; attempt++) {
+      await _refreshJob(silent: true);
+      if (!mounted) return;
+
+      final locale = ref.read(currentLocaleProvider).languageCode;
+      final originalTitle = (_job?.titleOriginal ?? widget.jobTitle).trim();
+      final displayTitle = translatedOrOriginal(
+        original: originalTitle,
+        translationsJson: _job?.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
+        locale: locale,
+      );
+
+      if (hasRealTranslation(original: originalTitle, translated: displayTitle)) {
+        return;
       }
-    });
+
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+    }
   }
 
   Future<void> _refreshJob({bool silent = false}) async {
