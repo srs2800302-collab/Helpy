@@ -161,7 +161,7 @@ class ChatController extends StateNotifier<ChatState> {
     state = state.copyWith(isSending: true);
 
     try {
-      final createdMessage = await ref.read(chatApiProvider).sendMessage(
+      await ref.read(chatApiProvider).sendMessage(
         jobId: jobId,
         userId: session.userId,
         text: text,
@@ -171,12 +171,9 @@ class ChatController extends StateNotifier<ChatState> {
       state = state.copyWith(
         input: '',
         isSending: false,
-        messages: [...state.messages, createdMessage],
       );
 
-      Future.delayed(const Duration(milliseconds: 3500), () {
-        load(jobId, silent: true);
-      });
+      await load(jobId, silent: true);
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(
