@@ -279,17 +279,44 @@ function localMvpTranslate({
   return '';
 }
 
-async function translateWithGooglePublic({
+async function translateWithProvider({
   text,
   sourceLanguage,
   targetLanguage,
+  env,
 }: {
   text: string;
   sourceLanguage: string;
   targetLanguage: string;
+  env: any;
 }) {
   const local = localMvpTranslate({ text, targetLanguage });
   if (local) return local;
+
+  const serviceUrl = String(env?.TRANSLATION_SERVICE_URL ?? '').trim();
+
+  if (serviceUrl) {
+    try {
+      const response = await fetch(`${serviceUrl.replace(/\/$/, '')}/translate`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          q: text,
+          source: sourceLanguage === 'auto' ? 'auto' : sourceLanguage,
+          target: targetLanguage,
+          format: 'text',
+        }),
+      });
+
+      if (response.ok) {
+        const payload = (await response.json()) as any;
+        const translated = String(payload?.translatedText ?? '').trim();
+        if (translated) return translated;
+      }
+    } catch (_) {
+      // Keep translation best-effort. Fall through to public Google/local fallback.
+    }
+  }
 
   const url =
     `https://translate.googleapis.com/translate_a/single?client=gtx` +
@@ -415,10 +442,11 @@ export async function processPendingTranslationTasks({
       }
 
       try {
-        const rawTranslatedText = await translateWithGooglePublic({
+        const rawTranslatedText = await translateWithProvider({
           text: String(task.original_text ?? ''),
           sourceLanguage: String(task.source_language),
           targetLanguage: String(task.target_language),
+          env,
         });
         const translatedText = applyTranslationFallbacks({
           text: rawTranslatedText,

@@ -45,6 +45,18 @@ services:
     networks:
       - fixi-network
 
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: fixi-libretranslate
+    restart: unless-stopped
+    environment:
+      LT_LOAD_ONLY: ru,en,th
+      LT_DISABLE_WEB_UI: "true"
+    volumes:
+      - libretranslate_models:/home/libretranslate/.local
+    networks:
+      - fixi-network
+
   nginx:
     image: nginx:1.27-alpine
     container_name: fixi-nginx
