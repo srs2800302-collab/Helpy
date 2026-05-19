@@ -107,6 +107,14 @@ class OffersController extends StateNotifier<OffersState> {
         successMessage: 'offer_created',
       );
 
+      await loadMyOffers();
+      await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
+
+      Future.delayed(const Duration(seconds: 5), () {
+        loadMyOffers();
+        ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
+      });
+
       return true;
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
