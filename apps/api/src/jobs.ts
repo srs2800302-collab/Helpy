@@ -548,7 +548,7 @@ export async function createJob(request: Request, env: any, ctx?: any) {
       env,
       entityType: 'job',
       entityId: id,
-      limit: 6,
+      limit: 50,
     });
   })().catch(() => undefined);
 
@@ -727,7 +727,7 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
       env,
       entityType: 'job',
       entityId: id,
-      limit: 6,
+      limit: 50,
     });
   })().catch(() => undefined);
 
