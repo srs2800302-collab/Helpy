@@ -302,47 +302,42 @@ async function translateWithProvider({
   const local = localMvpTranslate({ text, targetLanguage });
   if (local) return local;
 
-  const serviceUrl = String(env?.TRANSLATION_SERVICE_URL ?? '').trim();
+  const apiKey = String(env?.TYPHOON_API_KEY ?? '').trim();
+  const baseUrl = String(env?.TYPHOON_API_BASE_URL ?? 'https://api.opentyphoon.ai/v1').trim();
+  const model = String(env?.TYPHOON_MODEL ?? 'typhoon2-7b-instruct').trim();
 
-  if (serviceUrl) {
-    try {
-      const response = await fetch(`${serviceUrl.replace(/\/$/, '')}/translate`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          q: text,
-          source: sourceLanguage === 'auto' ? 'auto' : sourceLanguage,
-          target: targetLanguage,
-          format: 'text',
-        }),
-      });
-
-      if (response.ok) {
-        const payload = (await response.json()) as any;
-        const translated = String(payload?.translatedText ?? '').trim();
-        if (translated) return translated;
-      }
-    } catch (_) {
-      // Keep translation best-effort. Fall through to public Google/local fallback.
-    }
-  }
-
-  const url =
-    `https://translate.googleapis.com/translate_a/single?client=gtx` +
-    `&sl=${encodeURIComponent(sourceLanguage)}` +
-    `&tl=${encodeURIComponent(targetLanguage)}` +
-    `&dt=t&q=${encodeURIComponent(text)}`;
+  if (!apiKey) return localMvpTranslate({ text, targetLanguage });
 
   try {
-    const response = await fetch(url, { method: 'GET' });
+    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'authorization': `Bearer ${apiKey}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0,
+        max_tokens: 80,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a translation engine for a home-services marketplace in Thailand. Translate only the user text. Return plain text only. No quotes, no explanations.',
+          },
+          {
+            role: 'user',
+            content:
+              `Translate from ${sourceLanguage === 'auto' ? 'auto-detected language' : sourceLanguage} to ${targetLanguage}: ${text}`,
+          },
+        ],
+      }),
+    });
+
     if (!response.ok) return localMvpTranslate({ text, targetLanguage });
 
     const payload = (await response.json()) as any;
-    const segments = Array.isArray(payload?.[0]) ? payload[0] : [];
-    const translated = segments
-      .map((segment: any) => segment?.[0]?.toString() ?? '')
-      .join('')
-      .trim();
+    const translated = String(payload?.choices?.[0]?.message?.content ?? '').trim();
 
     return translated || localMvpTranslate({ text, targetLanguage });
   } catch (_) {
