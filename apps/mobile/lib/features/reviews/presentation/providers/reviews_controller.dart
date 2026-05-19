@@ -93,6 +93,10 @@ class ReviewsController extends StateNotifier<ReviewsState> {
 
       await ref.read(jobsControllerProvider.notifier).loadClientJobs();
 
+      Future.delayed(const Duration(milliseconds: 3500), () {
+        ref.read(jobsControllerProvider.notifier).loadClientJobs();
+      });
+
       state = state.copyWith(
         isSubmitting: false,
         comment: '',
