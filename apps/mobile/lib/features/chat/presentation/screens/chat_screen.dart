@@ -5,6 +5,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/utils/translation_display.dart';
+import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../auth/domain/auth_session.dart';
 import '../../domain/chat_message.dart';
@@ -23,7 +24,7 @@ class ChatScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends ConsumerState<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObserver {
   late String _currentStatus;
   late final TextEditingController _textController;
   late final ScrollController _scrollController;
@@ -64,6 +65,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _currentStatus = widget.jobStatus;
     _textController = TextEditingController();
     _scrollController = ScrollController();
@@ -76,6 +78,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _textController.dispose();
     _scrollController.dispose();
     ref.read(chatControllerProvider.notifier).disposePolling();
@@ -162,6 +165,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(chatControllerProvider.notifier).load(widget.jobId, silent: true);
+    }
+  }
+
   Future<void> _sendMessage() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
@@ -200,6 +210,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final locale = ref.watch(currentLocaleProvider).languageCode;
     final session = ref.watch(authControllerProvider).session;
     final isMaster = session?.role == UserRole.master;
+
+    ref.listen(currentLocaleProvider, (previous, next) {
+      if (previous?.languageCode == next.languageCode) return;
+      controller.load(widget.jobId, silent: true);
+    });
 
     final canSend =
         state.input.trim().isNotEmpty && !state.isLoading && !state.isSending;
@@ -287,6 +302,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           translationsJson: m.textTranslationsJson,
                           locale: locale,
                         );
+                        final messageTime = formatShortDateTime(m.createdAt).split(' ').last;
                         final isMe = m.senderUserId == (session?.userId ?? '');
                         final replySenderLabel = m.replySenderUserId == null
                             ? ''
@@ -377,7 +393,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                   Text(displayText),
                                   const SizedBox(height: 4),
                                   Text(
-                                    senderLabel,
+                                    '$senderLabel • $messageTime',
                                     style: const TextStyle(
                                       fontSize: 11,
                                       color: Colors.grey,

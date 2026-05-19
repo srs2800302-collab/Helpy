@@ -38,13 +38,13 @@ class ChatApi {
     }).toList();
   }
 
-  Future<void> sendMessage({
+  Future<ChatMessage> sendMessage({
     required String jobId,
     required String userId,
     required String text,
     String? replyToMessageId,
   }) async {
-    await apiClient.dio.post(
+    final res = await apiClient.dio.post(
       '/jobs/$jobId/messages',
       options: Options(
         headers: {
@@ -55,6 +55,20 @@ class ChatApi {
         'text': text,
         if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
       },
+    );
+
+    final m = res.data['data'] as Map<String, dynamic>;
+    return ChatMessage(
+      id: m['id'] as String,
+      jobId: m['job_id'] as String,
+      senderUserId: m['sender_user_id'] as String,
+      text: m['text'] as String? ?? '',
+      textTranslationsJson: m['text_translations_json'] as String?,
+      replyToMessageId: m['reply_to_message_id'] as String?,
+      replyText: m['reply_text'] as String?,
+      replySenderUserId: m['reply_sender_user_id'] as String?,
+      replyTextTranslationsJson: m['reply_text_translations_json'] as String?,
+      createdAt: DateTime.parse(m['created_at'] as String),
     );
   }
 
