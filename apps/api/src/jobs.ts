@@ -1,7 +1,7 @@
 import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
-import { buildInitialTranslationsJson, buildTranslationsJson, processPendingTranslationTasks } from './translation';
+import { buildInitialTranslationsJson, buildTranslationsJson, detectLanguageFromText, processPendingTranslationTasks } from './translation';
 import { ensureChatLookupSchema, ensureChatSchema } from './chat';
 
 type CreateJobBody = {
@@ -434,7 +434,8 @@ export async function createJob(request: Request, env: any, ctx?: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const sourceLanguage = body.source_language?.trim() || 'ru';
+  const requestedSourceLanguage = body.source_language?.trim() || 'ru';
+  const sourceLanguage = detectLanguageFromText(body.title) ?? requestedSourceLanguage;
 
   // === translations ===
   const titleTranslationsJson = buildInitialTranslationsJson({
@@ -632,7 +633,8 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
   const description = typeof body.description === 'string' ? body.description.trim() : current.description;
   const addressText = typeof body.address_text === 'string' ? body.address_text.trim() : current.address_text;
   const category = typeof body.category === 'string' ? body.category.trim() : current.category;
-  const sourceLanguage = body.source_language?.trim() || current.source_language || 'ru';
+  const requestedSourceLanguage = body.source_language?.trim() || current.source_language || 'ru';
+  const sourceLanguage = detectLanguageFromText(title) ?? requestedSourceLanguage;
 
   const normalizedDescription = description || title;
   const normalizedAddressText = addressText || 'Pattaya';

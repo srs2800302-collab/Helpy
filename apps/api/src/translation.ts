@@ -39,7 +39,7 @@ function buildEmptyTranslations(originalText: string, sourceLanguage: SupportedL
   return entries;
 }
 
-function detectLanguageFromText(text: string): SupportedLanguage | null {
+export function detectLanguageFromText(text: string): SupportedLanguage | null {
   const raw = text.trim();
   if (!raw) return null;
   if (/[\u0E00-\u0E7F]/.test(raw)) return 'th';
