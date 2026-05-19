@@ -9,4 +9,4 @@ database_id = "d5e761bf-0072-4833-be57-7c9b1f6bfddb"
 
 [vars]
 TYPHOON_API_BASE_URL = "https://api.opentyphoon.ai/v1"
-TYPHOON_MODEL = "typhoon2-7b-instruct"
+TYPHOON_MODEL = "typhoon-v2.5-30b-a3b-instruct"
