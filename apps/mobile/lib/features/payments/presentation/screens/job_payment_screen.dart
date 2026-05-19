@@ -41,7 +41,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   void initState() {
     super.initState();
     Future.microtask(() => _refreshJob(silent: true));
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         _refreshJob(silent: true);
       }
@@ -124,7 +124,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   Widget build(BuildContext context) {
     ref.listen(currentLocaleProvider, (previous, next) {
       if (previous?.languageCode == next.languageCode) return;
-      setState(() {});
+      _refreshJob(silent: true);
     });
     final l10n = AppLocalizations.of(context);
     final amountLabel = widget.depositAmount.toStringAsFixed(0);
