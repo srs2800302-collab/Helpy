@@ -64,6 +64,7 @@ services:
     depends_on:
       - api
       - admin
+      - libretranslate
     ports:
       - "80:80"
     volumes:
@@ -73,6 +74,7 @@ services:
 
 volumes:
   postgres_data:
+  libretranslate_models:
 
 networks:
   fixi-network:
