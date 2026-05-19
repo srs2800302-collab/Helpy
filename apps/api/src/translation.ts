@@ -39,6 +39,15 @@ function buildEmptyTranslations(originalText: string, sourceLanguage: SupportedL
   return entries;
 }
 
+function detectLanguageFromText(text: string): SupportedLanguage | null {
+  const raw = text.trim();
+  if (!raw) return null;
+  if (/[\u0E00-\u0E7F]/.test(raw)) return 'th';
+  if (/[\u0400-\u04FF]/.test(raw)) return 'ru';
+  if (/[A-Za-z]/.test(raw)) return 'en';
+  return null;
+}
+
 export function buildInitialTranslationsJson({
   text,
   sourceLanguage,
@@ -47,7 +56,7 @@ export function buildInitialTranslationsJson({
   sourceLanguage: string | null | undefined;
 }) {
   const originalText = text.trim();
-  const source = normalizeLanguage(sourceLanguage);
+  const source = detectLanguageFromText(originalText) ?? normalizeLanguage(sourceLanguage);
   return JSON.stringify(buildEmptyTranslations(originalText, source));
 }
 
