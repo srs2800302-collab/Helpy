@@ -54,6 +54,7 @@ class ChatApi {
       ),
       data: {
         'text': text,
+        'source_language': sourceLanguage,
         if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
       },
     );
