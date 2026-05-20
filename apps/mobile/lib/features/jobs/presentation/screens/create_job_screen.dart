@@ -79,6 +79,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     if (text.isEmpty) return false;
     if (RegExp(r'^[A-Z0-9]{4,}\+[A-Z0-9]{2,}$').hasMatch(text)) return false;
     if (RegExp(r'^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$').hasMatch(text)) return false;
+    if (RegExp(r'[\u0E00-\u0E7F]').hasMatch(text)) return false;
     return true;
   }
 

@@ -136,23 +136,30 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
     return lower.contains('chon buri') || lower.contains('chonburi') || part.contains('ชลบุรี');
   });
 
-  final street = addressParts.firstWhere(
-    (part) {
-      final lower = part.toLowerCase();
-      return !lower.contains('thailand') &&
-          !lower.contains('pattaya') &&
-          !lower.contains('chon buri') &&
-          !lower.contains('chonburi') &&
-          part != 'ประเทศไทย' &&
-          !part.contains('พัทยา') &&
-          !part.contains('ชลบุรี') &&
-          !RegExp(r'^\d{5}$').hasMatch(part);
-    },
-    orElse: () => '',
-  );
+  bool isThaiPart(String part) => RegExp(r'[\u0E00-\u0E7F]').hasMatch(part);
+
+  bool isPostcodePart(String part) => RegExp(r'^\d{5}$').hasMatch(part);
+
+  bool isKnownGeoPart(String part) {
+    final lower = part.toLowerCase();
+    return lower.contains('thailand') ||
+        lower.contains('pattaya') ||
+        lower.contains('chon buri') ||
+        lower.contains('chonburi') ||
+        isPostcodePart(part) ||
+        isThaiPart(part);
+  }
+
+  final detailParts = addressParts.where((part) => !isKnownGeoPart(part)).toList();
+  final area = detailParts.length >= 2 ? detailParts[0] : '';
+  final street = detailParts.length >= 2
+      ? detailParts[1]
+      : detailParts.isNotEmpty
+          ? detailParts[0]
+          : '';
 
   final postcode = addressParts.firstWhere(
-    (part) => RegExp(r'^\d{5}$').hasMatch(part),
+    isPostcodePart,
     orElse: () => '',
   );
 
@@ -162,11 +169,12 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
   final province = hasChonBuri ? 'Chon Buri' : '';
 
   final compact = [
-    country,
+    area,
+    street,
     city,
     province,
-    street,
     postcode,
+    country,
   ].where((part) => part.trim().isNotEmpty).join(', ');
 
   return compact.isNotEmpty ? compact : addressParts.join(', ');
