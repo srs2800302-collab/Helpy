@@ -28,7 +28,7 @@ function sanitizeDispute(row: any) {
   };
 }
 
-async function ensureDisputesSchema(env: any) {
+export async function ensureDisputesSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS disputes (
       id TEXT PRIMARY KEY,
