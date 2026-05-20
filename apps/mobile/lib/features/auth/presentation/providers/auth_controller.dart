@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
@@ -7,10 +6,6 @@ import '../../../../core/storage/token_storage.dart';
 import '../../domain/auth_session.dart';
 import 'auth_state.dart';
 
-const _debugClientUserId = '6570ea80-6707-4c0d-87e8-6b5de0bac878';
-const _debugMasterUserId = '2cb75bef-d020-4b33-ad76-8573346f6f82';
-const _debugOtpCode = '123456';
-const _debugPhoneFallback = '+70000000000';
 
 class AuthController extends StateNotifier<AuthState> {
   static const _sessionTimeout = Duration(minutes: 5);
@@ -39,41 +34,12 @@ class AuthController extends StateNotifier<AuthState> {
       }
 
       final accessToken = await _storage.getAccessToken();
-      final refreshToken = await _storage.getRefreshToken();
 
       if (accessToken == null || accessToken.isEmpty) {
         state = state.copyWith(
           isLoading: false,
           initialized: true,
           clearSession: true,
-        );
-        return;
-      }
-
-      if (accessToken.startsWith('debug_')) {
-        if (!kDebugMode) {
-          await _clearSessionState();
-          return;
-        }
-
-        final debugUserId = accessToken.replaceFirst('debug_', '');
-        final debugRole = debugUserId == _debugMasterUserId
-            ? UserRole.master
-            : debugUserId == _debugClientUserId
-                ? UserRole.client
-                : null;
-
-        await _activateSession(
-          AuthSession(
-            userId: debugUserId,
-            phone: state.phone.isNotEmpty ? state.phone : _debugPhoneFallback,
-            role: debugRole,
-            isNewUser: false,
-            needsRoleSelection: debugRole == null,
-            accessToken: accessToken,
-            refreshToken: refreshToken ?? 'debug_refresh_token',
-          ),
-          persistTokens: true,
         );
         return;
       }
@@ -131,10 +97,6 @@ class AuthController extends StateNotifier<AuthState> {
     );
 
     try {
-      if (kDebugMode) {
-        state = state.copyWith(isLoading: false);
-        return true;
-      }
 
       await ref.read(authApiProvider).requestOtp(normalizedPhone);
       state = state.copyWith(isLoading: false);
@@ -175,29 +137,6 @@ class AuthController extends StateNotifier<AuthState> {
     );
 
     try {
-      if (kDebugMode) {
-        if (normalizedOtp != _debugOtpCode) {
-          state = state.copyWith(
-            isLoading: false,
-            errorMessage: 'Debug OTP: $_debugOtpCode',
-          );
-          return false;
-        }
-
-        await _activateSession(
-          AuthSession(
-            userId: _debugClientUserId,
-            phone: normalizedPhone,
-            role: null,
-            isNewUser: false,
-            needsRoleSelection: false,
-            accessToken: 'debug_$_debugClientUserId',
-            refreshToken: 'debug_refresh_token',
-          ),
-        );
-        return true;
-      }
-
       final session = await ref.read(authApiProvider).verifyOtp(
             normalizedPhone,
             normalizedOtp,
@@ -219,30 +158,6 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final currentSession = state.session;
-      final isDebugSession = kDebugMode &&
-          currentSession != null &&
-          currentSession.accessToken.startsWith('debug_');
-
-      if (isDebugSession) {
-        final userId =
-            role == UserRole.master ? _debugMasterUserId : _debugClientUserId;
-
-        await _activateSession(
-          AuthSession(
-            userId: userId,
-            phone: currentSession.phone,
-            role: role,
-            isNewUser: false,
-            needsRoleSelection: false,
-            accessToken: 'debug_$userId',
-            refreshToken: currentSession.refreshToken,
-          ),
-          persistTokens: true,
-        );
-        return;
-      }
-
       final updated = await ref.read(authApiProvider).selectRole(role);
       await _activateSession(updated);
     } catch (e) {
