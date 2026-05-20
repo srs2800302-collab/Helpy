@@ -42,6 +42,66 @@ async function tableExists(env: any, tableName: string) {
   return !!row;
 }
 
+
+async function resetTestDatabase(request: Request, env: any) {
+  const userId = request.headers.get('x-user-id') ?? '';
+  const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
+    .bind(userId)
+    .first();
+
+  if (!user || user.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Only admin can reset test database' },
+      { status: 403 },
+    );
+  }
+
+  const adminId = '11111111-1111-1111-1111-111111111111';
+  const tablesToClear = [
+    'translation_tasks',
+    'chat_messages',
+    'reviews',
+    'disputes',
+    'job_photos',
+    'offers',
+    'payments',
+    'payment_events',
+    'payment_methods',
+    'payment_customers',
+    'jobs',
+    'client_profiles',
+    'master_profiles',
+  ];
+
+  for (const table of tablesToClear) {
+    if (await tableExists(env, table)) {
+      await env.DB.prepare(`DELETE FROM ${table}`).run();
+    }
+  }
+
+  await env.DB.prepare('DELETE FROM users WHERE id <> ?1').bind(adminId).run();
+
+  const counts = await env.DB.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM users) AS users,
+      (SELECT COUNT(*) FROM client_profiles) AS client_profiles,
+      (SELECT COUNT(*) FROM master_profiles) AS master_profiles,
+      (SELECT COUNT(*) FROM jobs) AS jobs,
+      (SELECT COUNT(*) FROM offers) AS offers,
+      (SELECT COUNT(*) FROM chat_messages) AS chat_messages,
+      (SELECT COUNT(*) FROM payments) AS payments,
+      (SELECT COUNT(*) FROM translation_tasks) AS translation_tasks,
+      (SELECT COUNT(*) FROM payment_customers) AS payment_customers,
+      (SELECT COUNT(*) FROM payment_methods) AS payment_methods,
+      (SELECT COUNT(*) FROM payment_events) AS payment_events
+  `).first();
+
+  return Response.json({
+    success: true,
+    data: { reset: true, kept_admin_user_id: adminId, counts },
+  });
+}
+
 async function resetJobsData(request: Request, env: any) {
   const userId = request.headers.get('x-user-id') ?? '';
   const user = await env.DB.prepare('SELECT role FROM users WHERE id = ?1')
@@ -309,6 +369,10 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
 
   if (path === '/api/v1/admin/reset-jobs' && method === 'POST') {
     return resetJobsData(request, env);
+  }
+
+  if (path === '/api/v1/admin/reset-test-db' && method === 'POST') {
+    return resetTestDatabase(request, env);
   }
 
   if (path === '/api/v1/admin/dashboard' && method === 'GET') {
