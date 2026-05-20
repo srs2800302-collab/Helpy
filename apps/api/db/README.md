@@ -14,6 +14,24 @@ This schema defines:
 
 ---
 
+## Migration files
+
+Migrations live in:
+
+- `apps/api/db/migrations`
+
+Current baseline migration:
+
+- `apps/api/db/migrations/0001_initial_schema.sql`
+
+Rules:
+- `schema.sql` represents the current canonical end-state.
+- migrations represent the ordered history.
+- `0001_initial_schema.sql` must match the current live D1 baseline.
+- future schema changes must add a new migration file instead of editing old migrations after they are applied.
+
+---
+
 ## Current architecture state
 
 The project still contains runtime compatibility helpers:
