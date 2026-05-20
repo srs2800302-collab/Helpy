@@ -11,4 +11,5 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Inspect D1 migration plan
-        run: apps/api/scripts/d1-migration-plan.sh
+        working-directory: apps/api
+        run: npm run db:plan

@@ -11,7 +11,9 @@
     "test": "echo \"api test placeholder\"",
     "prisma:validate": "prisma validate",
     "prisma:format": "prisma format",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "db:check": "./scripts/check-db-migrations.sh",
+    "db:plan": "./scripts/d1-migration-plan.sh"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
