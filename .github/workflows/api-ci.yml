@@ -65,5 +65,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Check DB migrations
+        run: ./scripts/check-db-migrations.sh
+
       - name: Build
         run: npm run build
