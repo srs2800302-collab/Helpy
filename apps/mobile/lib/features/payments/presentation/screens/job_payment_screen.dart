@@ -76,10 +76,6 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
         if (!silent) _errorMessage = null;
       });
 
-      if (updatedJob.status != 'draft' &&
-          updatedJob.status != 'awaiting_payment') {
-        Navigator.of(context).pop(true);
-      }
     } catch (e) {
       if (!mounted || silent) return;
       final appError = ApiErrorMapper.map(e);
