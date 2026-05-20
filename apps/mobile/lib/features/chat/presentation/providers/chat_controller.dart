@@ -165,6 +165,7 @@ class ChatController extends StateNotifier<ChatState> {
         jobId: jobId,
         userId: session.userId,
         text: text,
+        sourceLanguage: ref.read(currentLocaleProvider).languageCode,
         replyToMessageId: replyToMessageId,
       );
 

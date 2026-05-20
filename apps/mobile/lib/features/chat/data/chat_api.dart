@@ -42,6 +42,7 @@ class ChatApi {
     required String jobId,
     required String userId,
     required String text,
+    required String sourceLanguage,
     String? replyToMessageId,
   }) async {
     final res = await apiClient.dio.post(

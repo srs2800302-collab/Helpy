@@ -572,8 +572,12 @@ export async function processPendingTranslationTasks({
         WHERE id = ?3
       `).bind(result.translatedText, new Date().toISOString(), task.id).run();
 
-      await env.DB.prepare(`UPDATE ${result.table} SET ${result.column} = ?1 WHERE id = ?2`)
-        .bind(JSON.stringify(translations), task.entity_id)
+      await env.DB.prepare(
+        `UPDATE ${result.table}
+         SET ${result.column} = json_set(COALESCE(NULLIF(${result.column}, ''), '{}'), ?1, ?2)
+         WHERE id = ?3`
+      )
+        .bind(`$.${String(task.target_language)}`, result.translatedText, task.entity_id)
         .run();
 
       processed.push({
