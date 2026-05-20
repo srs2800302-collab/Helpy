@@ -28,11 +28,59 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
     Future.microtask(() async {
       await _loadReadMessageTimestamps();
       await ref.read(offersControllerProvider.notifier).loadMyOffers();
+      await _refreshUntilOfferTranslationsReady();
     });
   }
 
   Future<void> _refresh() async {
     await ref.read(offersControllerProvider.notifier).loadMyOffers();
+  }
+
+  Future<void> _refreshUntilOfferTranslationsReady() async {
+    for (var attempt = 0; attempt < 8; attempt++) {
+      if (!mounted) return;
+
+      final locale = ref.read(currentLocaleProvider).languageCode;
+      final items = ref.read(offersControllerProvider).items;
+
+      final hasPendingTranslations = items.any((item) {
+        final message = (item.message ?? '').trim();
+        final comment = (item.priceComment ?? '').trim();
+
+        final translatedMessage = translatedOrOriginal(
+          original: message,
+          translationsJson: item.messageTranslationsJson,
+          locale: locale,
+        );
+
+        final translatedComment = translatedOrOriginal(
+          original: comment,
+          translationsJson: item.priceCommentTranslationsJson,
+          locale: locale,
+        );
+
+        return (message.isNotEmpty &&
+                !hasRealTranslation(
+                  original: message,
+                  translated: translatedMessage,
+                )) ||
+            (comment.isNotEmpty &&
+                !hasRealTranslation(
+                  original: comment,
+                  translated: translatedComment,
+                ));
+      });
+
+      if (!hasPendingTranslations) return;
+
+      await Future<void>.delayed(
+        const Duration(milliseconds: 900),
+      );
+
+      await ref
+          .read(offersControllerProvider.notifier)
+          .loadMyOffers();
+    }
   }
 
   Future<void> _loadReadMessageTimestamps() async {
