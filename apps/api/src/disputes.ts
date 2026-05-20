@@ -47,6 +47,7 @@ async function ensureDisputesSchema(env: any) {
   const existing = new Set((columns.results ?? []).map((row: any) => row.name));
 
   const patches: Array<[string, string]> = [
+    ['status', "ALTER TABLE disputes ADD COLUMN status TEXT NOT NULL DEFAULT 'open'"],
     ['resolution', 'ALTER TABLE disputes ADD COLUMN resolution TEXT'],
     ['resolved_by_user_id', 'ALTER TABLE disputes ADD COLUMN resolved_by_user_id TEXT'],
     ['resolved_at', 'ALTER TABLE disputes ADD COLUMN resolved_at TEXT'],
