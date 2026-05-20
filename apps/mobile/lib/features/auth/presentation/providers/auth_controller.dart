@@ -44,10 +44,7 @@ class AuthController extends StateNotifier<AuthState> {
         return;
       }
 
-      final current = await ref
-          .read(authApiProvider)
-          .getCurrentUser()
-          .timeout(const Duration(seconds: 5));
+      final current = await ref.read(authApiProvider).getCurrentUser();
       state = state.copyWith(
         isLoading: false,
         initialized: true,
