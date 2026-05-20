@@ -9,8 +9,14 @@ test -f "$DB_DIR/schema.sql"
 test -d "$MIGRATIONS_DIR"
 test -f "$MIGRATIONS_DIR/0000_migration_registry.sql"
 test -f "$MIGRATIONS_DIR/0001_initial_schema.sql"
+test -f "$MIGRATIONS_DIR/MANIFEST.sha256"
 
 cmp -s "$DB_DIR/schema.sql" "$MIGRATIONS_DIR/0001_initial_schema.sql"
+
+(
+  cd "$MIGRATIONS_DIR"
+  sha256sum -c MANIFEST.sha256
+)
 
 expected=0
 while IFS= read -r file; do

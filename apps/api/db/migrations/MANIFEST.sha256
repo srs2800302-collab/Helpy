@@ -1,0 +1,6 @@
+# sha256 migration manifest
+# format:
+# <sha256>  <filename>
+
+245f5e89d7504233d4867bae756e9b4d82df88267b595a62dca49fa0ab19db43  0000_migration_registry.sql
+8983b793c9f8a29a8fd2a0eb6a8e05d1f10316871b648d3b9cfd825e6c2f8115  0001_initial_schema.sql
