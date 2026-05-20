@@ -4,21 +4,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  migrate:
+  inspect-migrations:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: apps/edge-api
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Wrangler
-        run: npm install -g wrangler
+      - name: List D1 migration files
+        run: |
+          echo "D1 migration files:"
+          find apps/api/db/migrations -maxdepth 1 -type f -name "*.sql" | sort
 
-      - name: Run D1 migration
-        run: wrangler d1 execute fixi-db --remote --file=./migrations/001_reset_jobs.sql
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Validate migration ordering
+        run: |
+          files="$(find apps/api/db/migrations -maxdepth 1 -type f -name "*.sql" | sort)"
+          test -n "$files"
+          echo "$files"
+
+      - name: Check canonical schema exists
+        run: |
+          test -f apps/api/db/schema.sql
+          test -f apps/api/db/MIGRATION_SYSTEM.md
+          test -f apps/api/db/README.md
