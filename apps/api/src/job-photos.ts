@@ -9,7 +9,7 @@ type CreateJobPhotoBody = {
 const MAX_JOB_PHOTOS = 10;
 const MAX_URL_LENGTH = 2_000_000;
 
-async function ensureJobPhotosSchema(env: any) {
+export async function ensureJobPhotosSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS job_photos (
       id TEXT PRIMARY KEY,
