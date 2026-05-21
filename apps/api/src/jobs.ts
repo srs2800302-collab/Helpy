@@ -211,39 +211,6 @@ export async function ensureJobsSchema(env: any) {
     )
   `).run();
 
-  const reviewColumns = await env.DB.prepare('PRAGMA table_info(reviews)').all();
-  const existingReviewColumns = new Set((reviewColumns.results ?? []).map((row: any) => row.name));
-  if (!existingReviewColumns.has('comment_translations_json')) {
-    await env.DB.prepare('ALTER TABLE reviews ADD COLUMN comment_translations_json TEXT').run();
-  }
-
-  const columns = await env.DB.prepare('PRAGMA table_info(jobs)').all();
-  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
-
-  const patches: Array<[string, string]> = [
-    ['selected_master_user_id', 'ALTER TABLE jobs ADD COLUMN selected_master_user_id TEXT'],
-    ['selected_master_name', 'ALTER TABLE jobs ADD COLUMN selected_master_name TEXT'],
-    ['selected_offer_id', 'ALTER TABLE jobs ADD COLUMN selected_offer_id TEXT'],
-    ['selected_offer_price', 'ALTER TABLE jobs ADD COLUMN selected_offer_price REAL'],
-    ['deposit_amount', 'ALTER TABLE jobs ADD COLUMN deposit_amount REAL'],
-    ['latitude', 'ALTER TABLE jobs ADD COLUMN latitude REAL'],
-    ['longitude', 'ALTER TABLE jobs ADD COLUMN longitude REAL'],
-    ['payment_method', "ALTER TABLE jobs ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'card'"],
-    ['commission_payer', "ALTER TABLE jobs ADD COLUMN commission_payer TEXT NOT NULL DEFAULT 'client'"],
-    ['deposit_percent', 'ALTER TABLE jobs ADD COLUMN deposit_percent INTEGER NOT NULL DEFAULT 40'],
-    ['title_original', 'ALTER TABLE jobs ADD COLUMN title_original TEXT'],
-    ['description_original', 'ALTER TABLE jobs ADD COLUMN description_original TEXT'],
-    ['source_language', 'ALTER TABLE jobs ADD COLUMN source_language TEXT'],
-    ['title_translations_json', 'ALTER TABLE jobs ADD COLUMN title_translations_json TEXT'],
-    ['description_translations_json', 'ALTER TABLE jobs ADD COLUMN description_translations_json TEXT'],
-    ['address_translations_json', 'ALTER TABLE jobs ADD COLUMN address_translations_json TEXT'],
-  ];
-
-  for (const [name, sql] of patches) {
-    if (!existing.has(name)) {
-      await env.DB.prepare(sql).run();
-    }
-  }
 }
 
 export async function getJobs(request: Request, env: any) {
