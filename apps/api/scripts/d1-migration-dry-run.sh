@@ -6,9 +6,10 @@ MIGRATIONS_DIR="$ROOT_DIR/db/migrations"
 
 "$ROOT_DIR/scripts/check-db-migrations.sh" >/dev/null
 
-echo "=== D1 DRY RUN ==="
+echo "=== D1 LOCAL MIGRATION PLAN ==="
 
 expected=0
+count=0
 
 while IFS= read -r file; do
   name="$(basename "$file")"
@@ -21,10 +22,10 @@ while IFS= read -r file; do
     exit 1
   fi
 
-  echo "[DRY-RUN] would apply: $name"
+  echo "[LOCAL] $name"
 
   expected=$((expected + 1))
-
+  count=$((count + 1))
 done < <(
   find "$MIGRATIONS_DIR" \
     -maxdepth 1 \
@@ -34,4 +35,5 @@ done < <(
 )
 
 echo
-echo "Dry run completed successfully"
+echo "local_migration_count=$count"
+echo "Local migration plan inspection completed"
