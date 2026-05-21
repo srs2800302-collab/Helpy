@@ -112,43 +112,6 @@ async function sanitizeJobs(rows: any[], env: any) {
   return items.map((row) => sanitizeJobWithReview(row, reviewsByJobId.get(row.id)));
 }
 
-export async function ensureJobsReadSchema(env: any) {
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS jobs (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      price REAL NOT NULL DEFAULT 0,
-      category TEXT NOT NULL,
-      status TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT,
-      client_user_id TEXT NOT NULL,
-      description TEXT,
-      address_text TEXT,
-      title_original TEXT,
-      description_original TEXT,
-      source_language TEXT,
-      title_translations_json TEXT,
-      description_translations_json TEXT,
-      address_translations_json TEXT,
-      budget_type TEXT,
-      budget_from REAL,
-      budget_to REAL,
-      currency TEXT DEFAULT 'THB',
-      selected_master_user_id TEXT,
-      selected_master_name TEXT,
-      selected_offer_id TEXT,
-      selected_offer_price REAL,
-      deposit_amount REAL,
-      latitude REAL,
-      longitude REAL,
-      payment_method TEXT NOT NULL DEFAULT 'card',
-      commission_payer TEXT NOT NULL DEFAULT 'client',
-      deposit_percent INTEGER NOT NULL DEFAULT 40
-    )
-  `).run();
-}
-
 export async function ensureJobsSchema(env: any) {
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS jobs (
@@ -185,31 +148,6 @@ export async function ensureJobsSchema(env: any) {
     )
   `).run();
 
-
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS reviews (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      client_user_id TEXT,
-      master_user_id TEXT,
-      rating INTEGER,
-      comment TEXT,
-      comment_translations_json TEXT,
-      created_at TEXT
-    )
-  `).run();
-
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS offers (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      master_user_id TEXT NOT NULL,
-      master_name TEXT NOT NULL,
-      price REAL NOT NULL,
-      comment TEXT,
-      created_at TEXT NOT NULL
-    )
-  `).run();
 
 }
 
@@ -744,7 +682,7 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
 }
 
 export async function getJobsByUser(userId: string, request: Request, env: any) {
-  await ensureJobsReadSchema(env);
+  await ensureJobsSchema(env);
   await ensureChatLookupSchema(env);
 
   const auth = await requireAuth(request, env);
