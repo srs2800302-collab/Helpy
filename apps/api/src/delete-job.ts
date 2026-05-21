@@ -2,27 +2,18 @@ import { JOB_STATUS } from './job-status';
 import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 
+async function tableExists(env: any, tableName: string) {
+  const row = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?1 LIMIT 1"
+  )
+    .bind(tableName)
+    .first();
+
+  return !!row;
+}
+
 export async function deleteJob(jobId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
-
-  const cleanupSchema = [
-    `CREATE TABLE IF NOT EXISTS job_photos (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
-    `CREATE TABLE IF NOT EXISTS chat_messages (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
-    `CREATE TABLE IF NOT EXISTS payments (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
-    `CREATE TABLE IF NOT EXISTS reviews (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
-    `CREATE TABLE IF NOT EXISTS disputes (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
-    `CREATE TABLE IF NOT EXISTS offers (id TEXT PRIMARY KEY, job_id TEXT NOT NULL)`,
-    `CREATE TABLE IF NOT EXISTS translation_tasks (
-      id TEXT PRIMARY KEY,
-      entity_type TEXT NOT NULL,
-      entity_id TEXT NOT NULL
-    )`,
-  ];
-
-  for (const sql of cleanupSchema) {
-    await env.DB.prepare(sql).run();
-  }
-
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
@@ -57,13 +48,18 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
     job.status === JOB_STATUS.completed;
 
   if (!canDelete && job.status === JOB_STATUS.open) {
-    const offersCountRow = await env.DB.prepare(
-      'SELECT COUNT(*) as count FROM offers WHERE job_id = ?1'
-    )
-      .bind(jobId)
-      .first();
+    let offersCount = 0;
 
-    const offersCount = Number(offersCountRow?.count ?? 0);
+    if (await tableExists(env, 'offers')) {
+      const offersCountRow = await env.DB.prepare(
+        'SELECT COUNT(*) as count FROM offers WHERE job_id = ?1'
+      )
+        .bind(jobId)
+        .first();
+
+      offersCount = Number(offersCountRow?.count ?? 0);
+    }
+
     canDelete = offersCount === 0;
   }
 
@@ -77,18 +73,20 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
     );
   }
 
-  const relatedDeletes = [
-    'DELETE FROM job_photos WHERE job_id = ?1',
-    'DELETE FROM chat_messages WHERE job_id = ?1',
-    'DELETE FROM payments WHERE job_id = ?1',
-    'DELETE FROM reviews WHERE job_id = ?1',
-    'DELETE FROM disputes WHERE job_id = ?1',
-    'DELETE FROM offers WHERE job_id = ?1',
-    "DELETE FROM translation_tasks WHERE entity_type = 'job' AND entity_id = ?1",
+  const relatedDeletes: Array<[string, string]> = [
+    ['job_photos', 'DELETE FROM job_photos WHERE job_id = ?1'],
+    ['chat_messages', 'DELETE FROM chat_messages WHERE job_id = ?1'],
+    ['payments', 'DELETE FROM payments WHERE job_id = ?1'],
+    ['reviews', 'DELETE FROM reviews WHERE job_id = ?1'],
+    ['disputes', 'DELETE FROM disputes WHERE job_id = ?1'],
+    ['offers', 'DELETE FROM offers WHERE job_id = ?1'],
+    ['translation_tasks', "DELETE FROM translation_tasks WHERE entity_type = 'job' AND entity_id = ?1"],
   ];
 
-  for (const sql of relatedDeletes) {
-    await env.DB.prepare(sql).bind(jobId).run();
+  for (const [table, sql] of relatedDeletes) {
+    if (await tableExists(env, table)) {
+      await env.DB.prepare(sql).bind(jobId).run();
+    }
   }
 
   await env.DB.prepare('DELETE FROM jobs WHERE id = ?1')
