@@ -1,4 +1,6 @@
 import { requireAuth } from './auth-context';
+import { ensurePaymentMethodsSchema } from './payment-methods';
+import { ensurePaymentCustomersSchema } from './stripe-setup';
 
 type SyncStripePaymentMethodBody = {
   customer_id?: string;
@@ -29,54 +31,6 @@ async function requireSelfOrAdmin(userId: string, request: Request, env: any) {
   }
 
   return auth;
-}
-
-async function ensurePaymentCustomersSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS payment_customers (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL UNIQUE,
-      provider TEXT NOT NULL,
-      provider_customer_id TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_customers_user_provider
-     ON payment_customers(user_id, provider)`
-  ).run();
-}
-
-async function ensurePaymentMethodsSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS payment_methods (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      provider TEXT NOT NULL,
-      provider_payment_method_id TEXT NOT NULL,
-      type TEXT NOT NULL DEFAULT 'card',
-      brand TEXT,
-      last4 TEXT,
-      exp_month INTEGER,
-      exp_year INTEGER,
-      is_default INTEGER NOT NULL DEFAULT 0,
-      status TEXT NOT NULL DEFAULT 'active',
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE INDEX IF NOT EXISTS idx_payment_methods_user_status
-     ON payment_methods(user_id, status, is_default)`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_methods_provider_pm_unique
-     ON payment_methods(provider, provider_payment_method_id)`
-  ).run();
 }
 
 async function syncMasterBillingState(userId: string, env: any) {

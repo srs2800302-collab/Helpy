@@ -5,7 +5,7 @@ function fail(error: string, status = 400) {
   return Response.json({ success: false, error }, { status });
 }
 
-async function ensurePaymentCustomersSchema(env: any) {
+export async function ensurePaymentCustomersSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS payment_customers (
       id TEXT PRIMARY KEY,

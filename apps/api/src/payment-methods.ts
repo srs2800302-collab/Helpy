@@ -33,7 +33,7 @@ function mapPaymentMethod(row: any) {
   };
 }
 
-async function ensurePaymentMethodsSchema(env: any) {
+export async function ensurePaymentMethodsSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS payment_methods (
       id TEXT PRIMARY KEY,
