@@ -21,24 +21,6 @@ export async function ensureReviewsSchema(env: any) {
     )`
   ).run();
 
-  const columns = await env.DB.prepare('PRAGMA table_info(reviews)').all();
-  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
-
-  const patches: Array<[string, string]> = [
-    ['client_user_id', 'ALTER TABLE reviews ADD COLUMN client_user_id TEXT'],
-    ['master_user_id', 'ALTER TABLE reviews ADD COLUMN master_user_id TEXT'],
-    ['rating', 'ALTER TABLE reviews ADD COLUMN rating INTEGER'],
-    ['comment', 'ALTER TABLE reviews ADD COLUMN comment TEXT'],
-    ['comment_translations_json', 'ALTER TABLE reviews ADD COLUMN comment_translations_json TEXT'],
-    ['created_at', 'ALTER TABLE reviews ADD COLUMN created_at TEXT'],
-  ];
-
-  for (const [name, sql] of patches) {
-    if (!existing.has(name)) {
-      await env.DB.prepare(sql).run();
-    }
-  }
-
   await env.DB.prepare(
     `DELETE FROM reviews
      WHERE id NOT IN (
