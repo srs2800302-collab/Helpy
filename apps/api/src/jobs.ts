@@ -2,7 +2,7 @@ import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
 import { buildInitialTranslationsJson, buildTranslationsJson, detectLanguageFromText, processPendingTranslationTasks } from './translation';
-import { ensureChatLookupSchema, ensureChatSchema } from './chat';
+import { ensureChatSchema } from './chat';
 
 type CreateJobBody = {
   title?: string;
@@ -683,7 +683,7 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
 
 export async function getJobsByUser(userId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
-  await ensureChatLookupSchema(env);
+  await ensureChatSchema(env);
 
   const auth = await requireAuth(request, env);
 
