@@ -39,24 +39,6 @@ export async function ensureChatSchema(env: any) {
      ON chat_messages(job_id, created_at DESC)`
   ).run();
 
-  const columns = [
-    'text_translations_json',
-    'reply_to_message_id',
-    'reply_text',
-    'reply_sender_user_id',
-    'reply_text_translations_json',
-  ];
-
-  for (const column of columns) {
-    try {
-      await env.DB.prepare(`ALTER TABLE chat_messages ADD COLUMN ${column} TEXT`).run();
-    } catch (error: any) {
-      const message = String(error?.message ?? '').toLowerCase();
-      if (!message.includes('duplicate column') && !message.includes('already exists')) {
-        throw error;
-      }
-    }
-  }
 }
 
 export async function ensureChatLookupSchema(env: any) {
