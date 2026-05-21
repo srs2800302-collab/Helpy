@@ -11,6 +11,14 @@ on:
         options:
           - "false"
           - "true"
+      apply_migrations:
+        description: "Apply pending D1 migrations after read-only checks"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   inspect-migrations:
@@ -56,6 +64,14 @@ jobs:
       - name: Read remote applied migration ids
         working-directory: apps/api
         run: npm run db:remote-applied
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Apply pending D1 migrations
+        if: ${{ github.event.inputs.apply_migrations == 'true' }}
+        working-directory: apps/api
+        run: npm run db:migrate
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
