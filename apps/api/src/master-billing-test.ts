@@ -1,29 +1,10 @@
 import { requireAuth } from './auth-context';
 
-async function ensureMasterBillingSchema(env: any) {
-  const columns = await env.DB.prepare('PRAGMA table_info(master_profiles)').all();
-  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
-
-  const patches: Array<[string, string]> = [
-    ['has_billing_method', 'ALTER TABLE master_profiles ADD COLUMN has_billing_method INTEGER NOT NULL DEFAULT 0'],
-    ['billing_status', "ALTER TABLE master_profiles ADD COLUMN billing_status TEXT NOT NULL DEFAULT 'missing'"],
-    ['cash_jobs_enabled', 'ALTER TABLE master_profiles ADD COLUMN cash_jobs_enabled INTEGER NOT NULL DEFAULT 0'],
-  ];
-
-  for (const [name, sql] of patches) {
-    if (!existing.has(name)) {
-      await env.DB.prepare(sql).run();
-    }
-  }
-}
-
 export async function enableMasterBillingForTest(
   masterUserId: string,
   request: Request,
   env: any,
 ) {
-  await ensureMasterBillingSchema(env);
-
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
     return auth.response;
