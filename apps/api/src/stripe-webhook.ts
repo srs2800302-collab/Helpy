@@ -25,20 +25,6 @@ async function ensurePaymentEventsSchema(env: any) {
     )`
   ).run();
 
-  const columns = await env.DB.prepare('PRAGMA table_info(payment_events)').all();
-  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
-
-  const patches: Array<[string, string]> = [
-    ['customer_id', 'ALTER TABLE payment_events ADD COLUMN customer_id TEXT'],
-    ['payment_method_id', 'ALTER TABLE payment_events ADD COLUMN payment_method_id TEXT'],
-  ];
-
-  for (const [name, sql] of patches) {
-    if (!existing.has(name)) {
-      await env.DB.prepare(sql).run();
-    }
-  }
-
   await env.DB.prepare(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_events_provider_event_unique
      ON payment_events(provider, provider_event_id)`
