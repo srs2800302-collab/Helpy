@@ -45,24 +45,6 @@ export async function ensureOffersSchema(env: any) {
       ON offers(master_user_id, created_at DESC)`
   ).run();
 
-  const alterStatements = [
-    ['comment', 'ALTER TABLE offers ADD COLUMN comment TEXT'],
-    ['message', 'ALTER TABLE offers ADD COLUMN message TEXT'],
-    ['comment_translations_json', 'ALTER TABLE offers ADD COLUMN comment_translations_json TEXT'],
-    ['message_translations_json', 'ALTER TABLE offers ADD COLUMN message_translations_json TEXT'],
-    ['status', "ALTER TABLE offers ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"],
-  ] as const;
-
-  for (const [column, sql] of alterStatements) {
-    try {
-      await env.DB.prepare(sql).run();
-    } catch (error: any) {
-      const msg = String(error?.message ?? '').toLowerCase();
-      if (!msg.includes('duplicate column name')) {
-        throw error;
-      }
-    }
-  }
 }
 
 export async function createOffer(jobId: string, request: Request, env: any, ctx?: any) {
