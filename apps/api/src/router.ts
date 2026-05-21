@@ -23,7 +23,7 @@ import { listPaymentMethods, createMockCard, setDefaultPaymentMethod, deletePaym
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
 import { ensureBaseSchema } from './init-schema';
-import { processPendingTranslationTasks } from './translation';
+import { ensureTranslationTasksSchema, processPendingTranslationTasks } from './translation';
 import { getAdminDisputes } from './admin-disputes';
 import { getAdminDashboard } from './admin-dashboard';
 import { createStripeSetupIntent } from './stripe-setup';
@@ -131,21 +131,7 @@ async function resetJobsData(request: Request, env: any) {
     }
   }
 
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS translation_tasks (
-      id TEXT PRIMARY KEY,
-      entity_type TEXT NOT NULL,
-      entity_id TEXT NOT NULL,
-      field_name TEXT NOT NULL,
-      source_language TEXT NOT NULL,
-      target_language TEXT NOT NULL,
-      original_text TEXT NOT NULL,
-      translated_text TEXT,
-      status TEXT NOT NULL DEFAULT 'pending',
-      created_at TEXT NOT NULL,
-      updated_at TEXT
-    )
-  `).run();
+  await ensureTranslationTasksSchema(env);
 
   await env.DB.prepare('DELETE FROM translation_tasks').run();
 
@@ -169,21 +155,7 @@ async function getTranslationTasks(request: Request, env: any) {
     );
   }
 
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS translation_tasks (
-      id TEXT PRIMARY KEY,
-      entity_type TEXT NOT NULL,
-      entity_id TEXT NOT NULL,
-      field_name TEXT NOT NULL,
-      source_language TEXT NOT NULL,
-      target_language TEXT NOT NULL,
-      original_text TEXT NOT NULL,
-      translated_text TEXT,
-      status TEXT NOT NULL DEFAULT 'pending',
-      created_at TEXT NOT NULL,
-      updated_at TEXT
-    )
-  `).run();
+  await ensureTranslationTasksSchema(env);
 
   const result = await env.DB.prepare(`
     SELECT entity_type, entity_id, field_name, source_language, target_language, status, original_text, translated_text, created_at

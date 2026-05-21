@@ -10,7 +10,7 @@ function normalizeLanguage(value: unknown): SupportedLanguage {
   return 'ru';
 }
 
-async function ensureTranslationTasksSchema(env: any) {
+export async function ensureTranslationTasksSchema(env: any) {
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS translation_tasks (
       id TEXT PRIMARY KEY,
