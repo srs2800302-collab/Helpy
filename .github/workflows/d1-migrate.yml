@@ -25,6 +25,10 @@ jobs:
         working-directory: apps/api
         run: npm run db:dry-run
 
+      - name: Install Wrangler
+        working-directory: apps/api
+        run: npm install -g wrangler
+
       - name: Read remote D1 migration state
         working-directory: apps/api
         run: npm run db:remote-state
