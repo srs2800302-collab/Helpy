@@ -28,14 +28,19 @@ fi
 echo "=== D1 MIGRATION DIFF ==="
 
 unknown_remote=0
+applied_count=0
+pending_count=0
+unknown_remote_count=0
 
 while IFS= read -r file; do
   name="$(basename "$file")"
 
   if grep -Fxq "$name" "$APPLIED_FILE"; then
     echo "[APPLIED] $name"
+    applied_count=$((applied_count + 1))
   else
     echo "[PENDING] $name"
+    pending_count=$((pending_count + 1))
   fi
 done < <(find "$MIGRATIONS_DIR" -maxdepth 1 -type f -name "*.sql" | sort)
 
@@ -45,8 +50,14 @@ while IFS= read -r applied; do
   if [ ! -f "$MIGRATIONS_DIR/$applied" ]; then
     echo "[UNKNOWN_REMOTE] $applied"
     unknown_remote=1
+    unknown_remote_count=$((unknown_remote_count + 1))
   fi
 done < "$APPLIED_FILE"
+
+echo
+echo "applied_count=$applied_count"
+echo "pending_count=$pending_count"
+echo "unknown_remote_count=$unknown_remote_count"
 
 if [ "$unknown_remote" -ne 0 ]; then
   echo "Remote migration drift detected"
