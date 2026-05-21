@@ -15,7 +15,8 @@
     "db:check": "./scripts/check-db-migrations.sh",
     "db:plan": "./scripts/d1-migration-plan.sh",
     "db:dry-run": "./scripts/d1-migration-dry-run.sh",
-    "db:remote-state": "./scripts/d1-remote-state-readonly.sh"
+    "db:remote-state": "./scripts/d1-remote-state-readonly.sh",
+    "db:diff": "./scripts/d1-migration-diff.sh"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
