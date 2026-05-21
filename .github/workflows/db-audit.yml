@@ -1,0 +1,82 @@
+name: DB Audit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Repo DB audit
+        run: |
+          echo "=== GIT ==="
+          git status -sb
+          git log -1 --oneline
+
+          echo
+          echo "=== PRISMA SCHEMA ==="
+          test -f apps/api/prisma/schema.prisma && sed -n '1,260p' apps/api/prisma/schema.prisma || true
+
+          echo
+          echo "=== PRISMA MIGRATIONS ==="
+          find apps/api/prisma -maxdepth 3 -type f | sort || true
+
+          echo
+          echo "=== BACKEND TABLE/SQL REFERENCES ==="
+          grep -RInE "CREATE TABLE|ALTER TABLE|DROP TABLE|SELECT|INSERT|UPDATE|DELETE|FROM |JOIN " apps/api/src --include="*.ts" | sed -n '1,500p'
+
+      - name: Live D1 schema audit
+        working-directory: apps/api
+        run: |
+          echo "=== D1 TABLES ==="
+          npx -y wrangler d1 execute helpy-db --remote --command "
+          SELECT name, sql
+          FROM sqlite_master
+          WHERE type='table'
+          ORDER BY name;
+          "
+
+          echo
+          echo "=== D1 INDEXES ==="
+          npx -y wrangler d1 execute helpy-db --remote --command "
+          SELECT name, tbl_name, sql
+          FROM sqlite_master
+          WHERE type='index'
+          ORDER BY tbl_name, name;
+          "
+
+          echo
+          echo "=== D1 FOREIGN KEYS ==="
+          for t in users client_profiles master_profiles jobs offers job_photos chat_messages payments payment_methods payment_customers payment_events reviews disputes translation_tasks; do
+            echo "--- $t ---"
+            npx -y wrangler d1 execute helpy-db --remote --command "PRAGMA foreign_key_list($t);" || true
+          done
+
+          echo
+          echo "=== D1 COLUMNS ==="
+          for t in users client_profiles master_profiles jobs offers job_photos chat_messages payments payment_methods payment_customers payment_events reviews disputes translation_tasks; do
+            echo "--- $t ---"
+            npx -y wrangler d1 execute helpy-db --remote --command "PRAGMA table_info($t);" || true
+          done
+
+          echo
+          echo "=== D1 COUNTS ==="
+          npx -y wrangler d1 execute helpy-db --remote --command "
+          SELECT
+            (SELECT COUNT(*) FROM users) AS users,
+            (SELECT COUNT(*) FROM client_profiles) AS client_profiles,
+            (SELECT COUNT(*) FROM master_profiles) AS master_profiles,
+            (SELECT COUNT(*) FROM jobs) AS jobs,
+            (SELECT COUNT(*) FROM offers) AS offers,
+            (SELECT COUNT(*) FROM job_photos) AS job_photos,
+            (SELECT COUNT(*) FROM chat_messages) AS chat_messages,
+            (SELECT COUNT(*) FROM payments) AS payments,
+            (SELECT COUNT(*) FROM reviews) AS reviews,
+            (SELECT COUNT(*) FROM disputes) AS disputes,
+            (SELECT COUNT(*) FROM translation_tasks) AS translation_tasks;
+          "
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
