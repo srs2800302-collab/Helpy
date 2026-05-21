@@ -21,6 +21,6 @@ jobs:
         working-directory: apps/api
         run: npm install
 
-      - name: Inspect D1 migration plan
+      - name: Dry-run D1 migration apply path
         working-directory: apps/api
-        run: npm run db:plan
+        run: npm run db:dry-run
