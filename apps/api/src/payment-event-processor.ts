@@ -1,34 +1,7 @@
+import { ensurePaymentEventsSchema } from './stripe-webhook';
+
 function ok(data: unknown, status = 200) {
   return Response.json({ success: true, data }, { status });
-}
-
-async function ensurePaymentEventsSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS payment_events (
-      id TEXT PRIMARY KEY,
-      provider TEXT NOT NULL,
-      provider_event_id TEXT NOT NULL,
-      event_type TEXT NOT NULL,
-      object_type TEXT,
-      object_id TEXT,
-      customer_id TEXT,
-      payment_method_id TEXT,
-      payload_json TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'received',
-      created_at TEXT NOT NULL,
-      processed_at TEXT
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_events_provider_event_unique
-     ON payment_events(provider, provider_event_id)`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE INDEX IF NOT EXISTS idx_payment_events_status_created
-     ON payment_events(status, created_at)`
-  ).run();
 }
 
 function mapEvent(row: any) {

@@ -7,7 +7,7 @@ function ok(data: unknown, status = 200) {
   return Response.json({ success: true, data }, { status });
 }
 
-async function ensurePaymentEventsSchema(env: any) {
+export async function ensurePaymentEventsSchema(env: any) {
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS payment_events (
       id TEXT PRIMARY KEY,
