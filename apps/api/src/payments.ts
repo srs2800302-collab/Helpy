@@ -70,31 +70,6 @@ export async function ensurePaymentsSchema(env: any) {
     )`
   ).run();
 
-  const columns = await env.DB.prepare('PRAGMA table_info(payments)').all();
-  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
-
-  const patches: Array<[string, string]> = [
-    ['job_id', 'ALTER TABLE payments ADD COLUMN job_id TEXT'],
-    ['client_user_id', 'ALTER TABLE payments ADD COLUMN client_user_id TEXT'],
-    ['payer_user_id', 'ALTER TABLE payments ADD COLUMN payer_user_id TEXT'],
-    ['payment_method_id', 'ALTER TABLE payments ADD COLUMN payment_method_id TEXT'],
-    ['payer_role', "ALTER TABLE payments ADD COLUMN payer_role TEXT NOT NULL DEFAULT 'client'"],
-    ['source', "ALTER TABLE payments ADD COLUMN source TEXT NOT NULL DEFAULT 'client_card'"],
-    ['provider', "ALTER TABLE payments ADD COLUMN provider TEXT NOT NULL DEFAULT 'mock'"],
-    ['provider_ref', 'ALTER TABLE payments ADD COLUMN provider_ref TEXT'],
-    ['amount', 'ALTER TABLE payments ADD COLUMN amount REAL'],
-    ['currency', "ALTER TABLE payments ADD COLUMN currency TEXT NOT NULL DEFAULT 'THB'"],
-    ['type', "ALTER TABLE payments ADD COLUMN type TEXT NOT NULL DEFAULT 'deposit'"],
-    ['status', "ALTER TABLE payments ADD COLUMN status TEXT NOT NULL DEFAULT 'paid'"],
-    ['created_at', 'ALTER TABLE payments ADD COLUMN created_at TEXT'],
-  ];
-
-  for (const [name, sql] of patches) {
-    if (!existing.has(name)) {
-      await env.DB.prepare(sql).run();
-    }
-  }
-
   await env.DB.prepare(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_job_type_unique
      ON payments(job_id, type)`
