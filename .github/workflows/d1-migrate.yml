@@ -10,6 +10,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package.json
+
+      - name: Install dependencies
+        working-directory: apps/api
+        run: npm install
+
       - name: Inspect D1 migration plan
         working-directory: apps/api
         run: npm run db:plan
