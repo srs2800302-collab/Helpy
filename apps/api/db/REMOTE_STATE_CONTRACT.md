@@ -59,5 +59,10 @@ Current implementation has:
 - db:check
 - db:plan
 - db:dry-run
+- db:remote-state
+- db:remote-applied
+- db:diff
+- db:bootstrap-registry
+- db:migrate
 
-Current implementation does not yet execute remote D1 migrations.
+Remote D1 migration execution exists, but must only run through explicit manual input.
