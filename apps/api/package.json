@@ -18,7 +18,8 @@
     "db:remote-state": "./scripts/d1-remote-state-readonly.sh",
     "db:diff": "./scripts/d1-migration-diff.sh",
     "db:bootstrap-registry": "./scripts/d1-bootstrap-registry.sh",
-    "db:remote-applied": "./scripts/d1-remote-applied-ids.sh"
+    "db:remote-applied": "./scripts/d1-remote-applied-ids.sh",
+    "db:migrate": "./scripts/d1-migration-apply.sh"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
