@@ -15,20 +15,40 @@ fi
 echo "=== D1 REMOTE STATE READ-ONLY ==="
 echo "Database: $DB_NAME"
 
+table_check_output="$(mktemp)"
+applied_output="$(mktemp)"
+trap 'rm -f "$table_check_output" "$applied_output"' EXIT
+
 echo
 echo "=== schema_migrations table check ==="
-if wrangler d1 execute "$DB_NAME" --remote --command \
-  "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations';"; then
-  echo "schema_migrations table check completed"
-else
-  echo "Unable to verify schema_migrations table"
+
+schema_table_query="SELECT 'schema_migrations_exists' AS marker FROM sqlite_master"
+schema_table_query="$schema_table_query WHERE type = 'table' AND name = 'schema_migrations';"
+
+if ! wrangler d1 execute "$DB_NAME" --remote --command "$schema_table_query" \
+  >"$table_check_output" 2>&1; then
+  cat "$table_check_output"
+  echo "Remote D1 access check failed"
+  exit 1
+fi
+
+cat "$table_check_output"
+
+if ! grep -q "schema_migrations_exists" "$table_check_output"; then
+  echo "schema_migrations table is missing; treating remote state as empty"
+  exit 0
 fi
 
 echo
 echo "=== applied migrations ==="
-if wrangler d1 execute "$DB_NAME" --remote --command \
-  "SELECT id, applied_at FROM schema_migrations ORDER BY id;"; then
-  echo "Remote migration state read completed"
-else
-  echo "schema_migrations is missing or unreadable; treating remote state as empty"
+
+if ! wrangler d1 execute "$DB_NAME" --remote --command \
+  "SELECT id, applied_at FROM schema_migrations ORDER BY id;" \
+  >"$applied_output" 2>&1; then
+  cat "$applied_output"
+  echo "Remote D1 applied migrations read failed"
+  exit 1
 fi
+
+cat "$applied_output"
+echo "Remote migration state read completed"
