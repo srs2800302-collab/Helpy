@@ -31,7 +31,7 @@ jobs:
         working-directory: apps/api
         run: |
           echo "=== D1 TABLES ==="
-          npx -y wrangler d1 execute helpy-db --remote --command "
+          npx -y wrangler d1 execute fixi-db --remote --command "
           SELECT name, sql
           FROM sqlite_master
           WHERE type='table'
@@ -40,7 +40,7 @@ jobs:
 
           echo
           echo "=== D1 INDEXES ==="
-          npx -y wrangler d1 execute helpy-db --remote --command "
+          npx -y wrangler d1 execute fixi-db --remote --command "
           SELECT name, tbl_name, sql
           FROM sqlite_master
           WHERE type='index'
@@ -51,19 +51,19 @@ jobs:
           echo "=== D1 FOREIGN KEYS ==="
           for t in users client_profiles master_profiles jobs offers job_photos chat_messages payments payment_methods payment_customers payment_events reviews disputes translation_tasks; do
             echo "--- $t ---"
-            npx -y wrangler d1 execute helpy-db --remote --command "PRAGMA foreign_key_list($t);" || true
+            npx -y wrangler d1 execute fixi-db --remote --command "PRAGMA foreign_key_list($t);" || true
           done
 
           echo
           echo "=== D1 COLUMNS ==="
           for t in users client_profiles master_profiles jobs offers job_photos chat_messages payments payment_methods payment_customers payment_events reviews disputes translation_tasks; do
             echo "--- $t ---"
-            npx -y wrangler d1 execute helpy-db --remote --command "PRAGMA table_info($t);" || true
+            npx -y wrangler d1 execute fixi-db --remote --command "PRAGMA table_info($t);" || true
           done
 
           echo
           echo "=== D1 COUNTS ==="
-          npx -y wrangler d1 execute helpy-db --remote --command "
+          npx -y wrangler d1 execute fixi-db --remote --command "
           SELECT
             (SELECT COUNT(*) FROM users) AS users,
             (SELECT COUNT(*) FROM client_profiles) AS client_profiles,
