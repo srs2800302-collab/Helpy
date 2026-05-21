@@ -24,3 +24,10 @@ jobs:
       - name: Dry-run D1 migration apply path
         working-directory: apps/api
         run: npm run db:dry-run
+
+      - name: Read remote D1 migration state
+        working-directory: apps/api
+        run: npm run db:remote-state
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
