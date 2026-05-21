@@ -43,22 +43,6 @@ export async function ensureDisputesSchema(env: any) {
     )`
   ).run();
 
-  const columns = await env.DB.prepare('PRAGMA table_info(disputes)').all();
-  const existing = new Set((columns.results ?? []).map((row: any) => row.name));
-
-  const patches: Array<[string, string]> = [
-    ['status', "ALTER TABLE disputes ADD COLUMN status TEXT NOT NULL DEFAULT 'open'"],
-    ['resolution', 'ALTER TABLE disputes ADD COLUMN resolution TEXT'],
-    ['resolved_by_user_id', 'ALTER TABLE disputes ADD COLUMN resolved_by_user_id TEXT'],
-    ['resolved_at', 'ALTER TABLE disputes ADD COLUMN resolved_at TEXT'],
-  ];
-
-  for (const [name, sql] of patches) {
-    if (!existing.has(name)) {
-      await env.DB.prepare(sql).run();
-    }
-  }
-
   await env.DB.prepare(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_disputes_job_unique
      ON disputes(job_id)`
