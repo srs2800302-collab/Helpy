@@ -16,7 +16,8 @@
     "db:plan": "./scripts/d1-migration-plan.sh",
     "db:dry-run": "./scripts/d1-migration-dry-run.sh",
     "db:remote-state": "./scripts/d1-remote-state-readonly.sh",
-    "db:diff": "./scripts/d1-migration-diff.sh"
+    "db:diff": "./scripts/d1-migration-diff.sh",
+    "db:bootstrap-registry": "./scripts/d1-bootstrap-registry.sh"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
