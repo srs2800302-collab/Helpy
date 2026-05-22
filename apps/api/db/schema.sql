@@ -181,7 +181,10 @@ CREATE TABLE IF NOT EXISTS disputes (
   status TEXT NOT NULL DEFAULT 'open',
   resolution TEXT,
   resolved_by_user_id TEXT,
-  resolved_at TEXT
+  resolved_at TEXT,
+  created_by_user_id TEXT,
+  reason TEXT,
+  created_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS translation_tasks (

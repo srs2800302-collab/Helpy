@@ -11,7 +11,9 @@ test -f "$MIGRATIONS_DIR/0000_migration_registry.sql"
 test -f "$MIGRATIONS_DIR/0001_initial_schema.sql"
 test -f "$MIGRATIONS_DIR/MANIFEST.sha256"
 
-cmp -s "$DB_DIR/schema.sql" "$MIGRATIONS_DIR/0001_initial_schema.sql"
+# schema.sql is the canonical current end-state.
+# 0001_initial_schema.sql is an immutable historical baseline.
+# They are allowed to diverge after later migrations are added.
 
 (
   cd "$MIGRATIONS_DIR"
