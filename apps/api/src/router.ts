@@ -22,7 +22,6 @@ import { getJobPaymentStatus } from './payment-status';
 import { listPaymentMethods, createMockCard, setDefaultPaymentMethod, deletePaymentMethod } from './payment-methods';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
-import { ensureRuntimeSchema } from './runtime-schema';
 import { ensureTranslationTasksSchema, processPendingTranslationTasks } from './translation';
 import { getAdminDisputes } from './admin-disputes';
 import { getAdminDashboard } from './admin-dashboard';
@@ -308,7 +307,6 @@ async function processTranslationTasks(request: Request, env: any) {
 
 
 export async function handleRequest(request: Request, env: any, ctx?: any) {
-  await ensureRuntimeSchema(env);
 
   const url = new URL(request.url);
   const path = url.pathname;
