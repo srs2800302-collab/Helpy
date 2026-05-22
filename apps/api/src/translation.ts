@@ -11,21 +11,13 @@ function normalizeLanguage(value: unknown): SupportedLanguage {
 }
 
 export async function ensureTranslationTasksSchema(env: any) {
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS translation_tasks (
-      id TEXT PRIMARY KEY,
-      entity_type TEXT NOT NULL,
-      entity_id TEXT NOT NULL,
-      field_name TEXT NOT NULL,
-      source_language TEXT NOT NULL,
-      target_language TEXT NOT NULL,
-      original_text TEXT NOT NULL,
-      translated_text TEXT,
-      status TEXT NOT NULL DEFAULT 'pending',
-      created_at TEXT NOT NULL,
-      updated_at TEXT
-    )
-  `).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'translation_tasks' LIMIT 1"
+  ).first();
+
+  if (!table) {
+    throw new Error('Missing required table: translation_tasks. Run D1 migrations before starting API.');
+  }
 }
 
 function buildEmptyTranslations(originalText: string, sourceLanguage: SupportedLanguage) {
