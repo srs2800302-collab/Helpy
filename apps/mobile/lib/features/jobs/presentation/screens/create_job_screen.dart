@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:dio/dio.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:image_picker/image_picker.dart';
@@ -105,6 +107,61 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     return result;
   }
 
+  bool _hasStreetOrDistrict(String value) {
+    final lower = value.toLowerCase();
+    if (lower.isEmpty) return false;
+    final weakOnly = RegExp(r'^(pattaya|chon buri|thailand|[0-9]{5})(,\s*)?$', caseSensitive: false);
+    final parts = lower.split(',').map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
+    return parts.any((part) =>
+        !weakOnly.hasMatch(part) &&
+        !RegExp(r'^-?\d+(\.\d+)?\s*,?\s*-?\d+(\.\d+)?$').hasMatch(part));
+  }
+
+  Future<String> _reverseGeocodeWithOsm(double latitude, double longitude) async {
+    try {
+      final response = await Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+          headers: const {'User-Agent': 'Helpy MVP Android'},
+          responseType: ResponseType.plain,
+        ),
+      ).get<String>(
+        'https://nominatim.openstreetmap.org/reverse',
+        queryParameters: {
+          'format': 'jsonv2',
+          'lat': latitude,
+          'lon': longitude,
+          'zoom': 18,
+          'addressdetails': 1,
+        },
+      );
+
+      final decoded = jsonDecode(response.data ?? '{}');
+      final address = decoded is Map ? decoded['address'] : null;
+      if (address is! Map) return '';
+
+      final parts = _uniqueReadableAddressParts([
+        address['road']?.toString(),
+        address['pedestrian']?.toString(),
+        address['residential']?.toString(),
+        address['neighbourhood']?.toString(),
+        address['suburb']?.toString(),
+        address['city_district']?.toString(),
+        address['city']?.toString(),
+        address['town']?.toString(),
+        address['state']?.toString(),
+        address['postcode']?.toString(),
+        address['country']?.toString(),
+      ]);
+
+      if (parts.isEmpty) return '';
+      return compactAddressForDisplay(parts.join(', '), locale: 'en');
+    } catch (_) {
+      return '';
+    }
+  }
+
   Future<void> _pickLocation() async {
     final jobsState = ref.read(jobsControllerProvider);
     final jobsController = ref.read(jobsControllerProvider.notifier);
@@ -153,6 +210,16 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         }
       }
     } catch (_) {}
+
+    if (!_hasStreetOrDistrict(nextAddress)) {
+      final osmAddress = await _reverseGeocodeWithOsm(
+        result.latitude,
+        result.longitude,
+      );
+      if (osmAddress.isNotEmpty) {
+        nextAddress = osmAddress;
+      }
+    }
 
     _addressController.text = nextAddress;
     jobsController.setAddressText(nextAddress);
