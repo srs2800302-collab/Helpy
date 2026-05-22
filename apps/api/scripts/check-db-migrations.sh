@@ -39,4 +39,6 @@ while IFS= read -r file; do
   expected=$((expected + 1))
 done < <(find "$MIGRATIONS_DIR" -maxdepth 1 -type f -name "*.sql" | sort)
 
+"$ROOT_DIR/scripts/check-runtime-schema-mutations.sh"
+
 echo "DB migrations check passed"
