@@ -8,32 +8,12 @@ type CreateReviewBody = {
 };
 
 export async function ensureReviewsSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS reviews (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      client_user_id TEXT NOT NULL,
-      master_user_id TEXT NOT NULL,
-      rating INTEGER NOT NULL,
-      comment TEXT,
-      comment_translations_json TEXT,
-      created_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `DELETE FROM reviews
-     WHERE id NOT IN (
-       SELECT MIN(id)
-       FROM reviews
-       GROUP BY job_id
-     )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
-     ON reviews(job_id)`
-  ).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'reviews' LIMIT 1"
+  ).first();
+  if (!table) {
+    throw new Error('Missing required table: reviews. Run D1 migrations before starting API.');
+  }
 }
 
 export async function getReviews(jobId: string, request: Request, env: any) {
