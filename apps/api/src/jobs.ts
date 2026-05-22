@@ -28,42 +28,12 @@ function normalizeNumber(value: unknown): number | null {
 }
 
 export async function ensureJobsSchema(env: any) {
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS jobs (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      price REAL NOT NULL DEFAULT 0,
-      category TEXT NOT NULL,
-      status TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT,
-      client_user_id TEXT NOT NULL,
-      description TEXT,
-      address_text TEXT,
-      title_original TEXT,
-      description_original TEXT,
-      source_language TEXT,
-      title_translations_json TEXT,
-      description_translations_json TEXT,
-      address_translations_json TEXT,
-      budget_type TEXT,
-      budget_from REAL,
-      budget_to REAL,
-      currency TEXT DEFAULT 'THB',
-      selected_master_user_id TEXT,
-      selected_master_name TEXT,
-      selected_offer_id TEXT,
-      selected_offer_price REAL,
-      deposit_amount REAL,
-      latitude REAL,
-      longitude REAL,
-      payment_method TEXT NOT NULL DEFAULT 'card',
-      commission_payer TEXT NOT NULL DEFAULT 'client',
-      deposit_percent INTEGER NOT NULL DEFAULT 40
-    )
-  `).run();
-
-
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'jobs' LIMIT 1"
+  ).first();
+  if (!table) {
+    throw new Error('Missing required table: jobs. Run D1 migrations before starting API.');
+  }
 }
 
 export async function getJobs(request: Request, env: any) {
