@@ -67,16 +67,16 @@ must first be added to:
 
 ---
 
-### 2. Runtime ALTER TABLE usage is temporary
+### 2. Runtime schema mutations are forbidden
 
-Current runtime schema patching is legacy MVP compatibility logic.
+Runtime handlers must not create or alter schema.
 
-Long-term target:
+Current rule:
 
-- deterministic bootstrap
-- formal migrations
-- centralized schema management
-- no hidden runtime ALTER TABLE mutations
+- schema changes go through `apps/api/db/schema.sql`
+- every schema change requires an ordered migration
+- API runtime may only assert required tables exist
+- hidden runtime `CREATE TABLE`, `CREATE INDEX`, `ALTER TABLE`, `DROP TABLE`, and `DROP INDEX` are forbidden
 
 ---
 
@@ -125,22 +125,17 @@ These endpoints must always remain admin-protected.
 
 ## Known technical debt
 
-Current DB layer still contains:
+Current DB layer still needs:
 
-- duplicated ensure schema logic
-- runtime ALTER TABLE calls
-- repeated schema fragments
-- no formal migration system
-- weak relational enforcement
-
-Accepted temporarily for MVP speed.
-
-Future target:
-
-- centralized migrations
-- deterministic schema bootstrap
-- removal of duplicated ensure logic
 - foreign key review
 - cascade strategy review
 - indexing review
 - payment consistency audit
+- migration runner hardening for future non-trivial schema changes
+
+Closed:
+
+- runtime schema creation
+- runtime index creation
+- global runtime schema bootstrap
+- duplicated runtime schema fragments

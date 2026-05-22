@@ -15,15 +15,13 @@ Migration system must provide:
 
 ## Current state
 
-Current MVP runtime still relies on:
+Current API runtime does not own schema creation.
 
-- ensureBaseSchema
-- ensureJobsSchema
-- ensureOffersSchema
-- ensurePaymentsSchema
-- other runtime ALTER TABLE helpers
+Runtime `ensure*Schema` helpers are assert-only guards:
 
-These are temporary compatibility mechanisms.
+- they verify required tables exist
+- they fail fast when migrations were not applied
+- they must not run `CREATE TABLE`, `CREATE INDEX`, `ALTER TABLE`, `DROP TABLE`, or `DROP INDEX`
 
 ---
 
@@ -78,11 +76,12 @@ If migration fails:
 
 ## Runtime safety
 
-Long-term target:
+Current rule:
 
 - no per-request schema mutations
-- no hidden ALTER TABLE during API requests
+- no hidden schema changes during API requests
 - schema changes occur only through migrations
+- `npm run db:check` guards against runtime DDL in `apps/api/src`
 
 ---
 
