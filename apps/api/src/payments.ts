@@ -51,34 +51,12 @@ async function getPaidDeposit(jobId: string, env: any) {
 }
 
 export async function ensurePaymentsSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS payments (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      client_user_id TEXT NOT NULL,
-      payer_user_id TEXT,
-      payment_method_id TEXT,
-      payer_role TEXT NOT NULL DEFAULT 'client',
-      source TEXT NOT NULL DEFAULT 'client_card',
-      provider TEXT NOT NULL DEFAULT 'mock',
-      provider_ref TEXT,
-      amount REAL NOT NULL,
-      currency TEXT NOT NULL,
-      type TEXT NOT NULL,
-      status TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_job_type_unique
-     ON payments(job_id, type)`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE INDEX IF NOT EXISTS idx_payments_payer_status
-     ON payments(payer_user_id, status, type)`
-  ).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'payments' LIMIT 1"
+  ).first();
+  if (!table) {
+    throw new Error('Missing required table: payments. Run D1 migrations before starting API.');
+  }
 }
 
 export async function createRefundPayment(jobId: string, env: any) {
