@@ -74,7 +74,10 @@ CREATE TABLE IF NOT EXISTS jobs (
   longitude REAL,
   payment_method TEXT NOT NULL DEFAULT 'card',
   commission_payer TEXT NOT NULL DEFAULT 'client',
-  deposit_percent INTEGER NOT NULL DEFAULT 40
+  deposit_percent INTEGER NOT NULL DEFAULT 40,
+  archived_at TEXT,
+  archived_by_user_id TEXT,
+  archive_reason TEXT
 );
 
 CREATE TABLE IF NOT EXISTS offers (
@@ -273,6 +276,8 @@ CREATE INDEX IF NOT EXISTS idx_jobs_category_status_created
 
 CREATE INDEX IF NOT EXISTS idx_jobs_selected_master_status_created
   ON jobs(selected_master_user_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_jobs_archive_status_created
+  ON jobs(archived_at, status, created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_job_photos_client_created
   ON job_photos(client_user_id, created_at DESC);
