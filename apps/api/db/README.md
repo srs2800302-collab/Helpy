@@ -139,3 +139,59 @@ Closed:
 - runtime index creation
 - global runtime schema bootstrap
 - duplicated runtime schema fragments
+
+---
+
+## Foreign key enforcement plan
+
+Current MVP rule:
+- live D1 integrity is enforced by audit first;
+- real FK constraints are not added until migration/rebuild path is proven safe;
+- orphan checks must stay green before any FK migration is planned.
+
+Current audit file:
+- `apps/api/db/d1_integrity_orphans.sql`
+
+### Low-risk FK candidates
+
+Can be promoted to real FK constraints later after clean live audit:
+
+- `client_profiles.user_id -> users.id`
+- `master_profiles.user_id -> users.id`
+- `offers.job_id -> jobs.id`
+- `chat_messages.job_id -> jobs.id`
+- `job_photos.job_id -> jobs.id`
+- `payments.job_id -> jobs.id`
+- `payment_customers.user_id -> users.id`
+- `payment_methods.user_id -> users.id`
+- `reviews.job_id -> jobs.id`
+- `disputes.job_id -> jobs.id`
+
+### Medium-risk FK candidates
+
+Keep audit-only until related flows are verified:
+
+- `jobs.selected_master_user_id -> users.id`
+- `jobs.selected_offer_id -> offers.id`
+- `offers.master_user_id -> users.id`
+- `payments.client_user_id -> users.id`
+- `payments.payer_user_id -> users.id`
+- `payments.payment_method_id -> payment_methods.id`
+- `reviews.client_user_id -> users.id`
+- `reviews.master_user_id -> users.id`
+
+### Audit-only for MVP
+
+Keep as integrity audit, not FK constraint yet:
+
+- `chat_messages.reply_to_message_id -> chat_messages.id`
+- `chat_messages.reply_sender_user_id -> users.id`
+- `payment_events.customer_id -> payment_customers.id`
+- `payment_events.payment_method_id -> payment_methods.id`
+- `disputes.resolved_by_user_id -> users.id`
+- `disputes.created_by_user_id -> users.id`
+
+Reason:
+- D1/SQLite FK additions require table rebuild migrations;
+- MVP production data must stay stable;
+- audit-first gives visibility without migration risk.
