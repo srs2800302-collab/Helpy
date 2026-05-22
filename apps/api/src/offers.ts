@@ -14,37 +14,13 @@ function fail(error: string, status = 400) {
 }
 
 export async function ensureOffersSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS offers (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      master_user_id TEXT NOT NULL,
-      master_name TEXT NOT NULL,
-      price REAL NOT NULL,
-      comment TEXT,
-      message TEXT,
-      comment_translations_json TEXT,
-      message_translations_json TEXT,
-      status TEXT NOT NULL DEFAULT 'active',
-      created_at TEXT NOT NULL
-    )`
-  ).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'offers' LIMIT 1"
+  ).first();
 
-  await env.DB.prepare(
-    `CREATE INDEX IF NOT EXISTS idx_offers_job_created_at
-      ON offers(job_id, created_at DESC)`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_offers_job_master_unique
-      ON offers(job_id, master_user_id)`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE INDEX IF NOT EXISTS idx_offers_master_created_at
-      ON offers(master_user_id, created_at DESC)`
-  ).run();
-
+  if (!table) {
+    throw new Error('Missing required table: offers. Run D1 migrations before starting API.');
+  }
 }
 
 export async function createOffer(jobId: string, request: Request, env: any, ctx?: any) {
