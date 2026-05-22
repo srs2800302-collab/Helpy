@@ -16,9 +16,14 @@ String _buildAddressDetails({
 }) {
   final address = addressText.trim();
   final room = roomNumber.trim();
+  final gps = latitude != null && longitude != null
+      ? 'GPS: ${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}'
+      : '';
+
   final lines = <String>[
     if (address.isNotEmpty) address,
     if (room.isNotEmpty) 'Room/unit: $room',
+    if (gps.isNotEmpty) gps,
   ];
 
   return lines.join('\n');
