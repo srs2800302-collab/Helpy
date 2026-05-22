@@ -120,7 +120,7 @@ async function resetJobsData(request: Request, env: any) {
     'payments',
     'reviews',
     'disputes',
-    'job_offers',
+    'offers',
     'jobs',
   ];
 
