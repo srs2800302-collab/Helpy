@@ -33,7 +33,10 @@ class LocalizedJobTitle extends ConsumerWidget {
         ) &&
         _isValidTitleForLocale(candidate, locale);
 
-    final primary = hasValidTranslation ? candidate : originalTitle;
+    final primary = _capitalizeTitle(
+      hasValidTranslation ? candidate : originalTitle,
+    );
+    final secondary = _capitalizeTitle(originalTitle);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +50,7 @@ class LocalizedJobTitle extends ConsumerWidget {
         if (hasValidTranslation) ...[
           SizedBox(height: spacing),
           Text(
-            originalTitle,
+            secondary,
             maxLines: maxLines,
             overflow: TextOverflow.ellipsis,
             style: secondaryStyle,
@@ -116,4 +119,12 @@ bool _latinTokensAreAllowedInRussianTitle(String value) {
   }
 
   return true;
+}
+
+String _capitalizeTitle(String value) {
+  final text = value.trim();
+  if (text.isEmpty) return text;
+
+  final first = text.characters.first;
+  return first.toUpperCase() + text.characters.skip(1).join();
 }
