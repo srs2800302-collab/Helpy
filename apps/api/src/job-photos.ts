@@ -10,25 +10,12 @@ const MAX_JOB_PHOTOS = 10;
 const MAX_URL_LENGTH = 2_000_000;
 
 export async function ensureJobPhotosSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS job_photos (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      client_user_id TEXT NOT NULL,
-      url TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE INDEX IF NOT EXISTS idx_job_photos_job_created
-     ON job_photos(job_id, created_at)`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_job_photos_job_url_unique
-     ON job_photos(job_id, url)`
-  ).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'job_photos' LIMIT 1"
+  ).first();
+  if (!table) {
+    throw new Error('Missing required table: job_photos. Run D1 migrations before starting API.');
+  }
 }
 
 function canViewJobPhotos(job: any, actorUserId: string, actorRole?: string) {
