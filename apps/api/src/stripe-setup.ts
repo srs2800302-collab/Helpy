@@ -6,21 +6,12 @@ function fail(error: string, status = 400) {
 }
 
 export async function ensurePaymentCustomersSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS payment_customers (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL UNIQUE,
-      provider TEXT NOT NULL,
-      provider_customer_id TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_customers_user_provider
-     ON payment_customers(user_id, provider)`
-  ).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'payment_customers' LIMIT 1"
+  ).first();
+  if (!table) {
+    throw new Error('Missing required table: payment_customers. Run D1 migrations before starting API.');
+  }
 }
 
 async function requireSelfOrAdmin(userId: string, request: Request, env: any) {
