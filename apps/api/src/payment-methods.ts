@@ -34,33 +34,12 @@ function mapPaymentMethod(row: any) {
 }
 
 export async function ensurePaymentMethodsSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS payment_methods (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      provider TEXT NOT NULL,
-      provider_payment_method_id TEXT NOT NULL,
-      type TEXT NOT NULL DEFAULT 'card',
-      brand TEXT,
-      last4 TEXT,
-      exp_month INTEGER,
-      exp_year INTEGER,
-      is_default INTEGER NOT NULL DEFAULT 0,
-      status TEXT NOT NULL DEFAULT 'active',
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE INDEX IF NOT EXISTS idx_payment_methods_user_status
-     ON payment_methods(user_id, status, is_default)`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_methods_provider_pm_unique
-     ON payment_methods(provider, provider_payment_method_id)`
-  ).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'payment_methods' LIMIT 1"
+  ).first();
+  if (!table) {
+    throw new Error('Missing required table: payment_methods. Run D1 migrations before starting API.');
+  }
 }
 
 async function syncMasterBillingState(userId: string, env: any) {
