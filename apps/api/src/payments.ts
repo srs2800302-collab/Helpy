@@ -172,7 +172,9 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     return fail(error?.message ?? 'Invalid status transition', 400);
   }
 
-  const clientPaymentMethod = await env.DB.prepare(
+  const now = new Date().toISOString();
+
+  let clientPaymentMethod = await env.DB.prepare(
     `SELECT id, provider, provider_payment_method_id
      FROM payment_methods
      WHERE user_id = ?1
@@ -184,11 +186,37 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     .first();
 
   if (!clientPaymentMethod) {
-    return fail('Active client payment method required for deposit payment', 400);
+    const paymentMethodId = crypto.randomUUID();
+    const providerPaymentMethodId = `mock_pm_${crypto.randomUUID()}`;
+
+    await env.DB.prepare(
+      `INSERT INTO payment_methods (
+        id,
+        user_id,
+        provider,
+        provider_payment_method_id,
+        type,
+        brand,
+        last4,
+        exp_month,
+        exp_year,
+        is_default,
+        status,
+        created_at,
+        updated_at
+      ) VALUES (?1, ?2, 'mock', ?3, 'card', 'visa', '4242', 12, 2030, 1, 'active', ?4, ?4)`
+    )
+      .bind(paymentMethodId, clientUserId, providerPaymentMethodId, now)
+      .run();
+
+    clientPaymentMethod = await env.DB.prepare(
+      'SELECT id, provider, provider_payment_method_id FROM payment_methods WHERE id = ?1 LIMIT 1'
+    )
+      .bind(paymentMethodId)
+      .first();
   }
 
   const id = crypto.randomUUID();
-  const now = new Date().toISOString();
   const currency = job.currency || 'THB';
 
   try {
