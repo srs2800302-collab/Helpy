@@ -17,7 +17,12 @@ jobs:
 
           echo
           echo "=== PRISMA SCHEMA ==="
-          test -f apps/api/prisma/schema.prisma && sed -n '1,260p' apps/api/prisma/schema.prisma || true
+          if test -f apps/api/prisma/schema.prisma; then
+            echo "schema.prisma exists"
+            grep -nE "^(datasource|generator|model|enum) " apps/api/prisma/schema.prisma || true
+          else
+            echo "schema.prisma missing"
+          fi
 
           echo
           echo "=== PRISMA MIGRATIONS ==="
