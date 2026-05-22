@@ -123,8 +123,8 @@ jobs:
 
           echo
           echo "=== D1 ORPHAN CHECKS ==="
-          SQL="$(cat db/d1_integrity_orphans.sql)"
-          npx -y wrangler d1 execute fixi-db --remote --json --command "$SQL" | jq -c 'if type == "array" then .[0].results[] else .results[] end'
+          npx -y wrangler d1 execute fixi-db --remote --json --file db/d1_integrity_orphans.sql \
+            | jq -c 'if type == "array" then .[]?.results[]? else .results[]? end'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
