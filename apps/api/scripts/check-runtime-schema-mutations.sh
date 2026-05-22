@@ -7,7 +7,7 @@ allowed_files='^(src/(chat|disputes|job-photos|jobs|offers|payments|payment-meth
 
 violations="$(
   cd "$ROOT_DIR"
-  grep -RInE "CREATE TABLE|ALTER TABLE|CREATE INDEX|DROP TABLE|DROP INDEX" src --include="*.ts" \
+  { grep -RInE "CREATE TABLE|ALTER TABLE|CREATE INDEX|DROP TABLE|DROP INDEX" src --include="*.ts" || true; } \
     | while IFS= read -r line; do
         file="${line%%:*}"
         if ! printf '%s\n' "$file" | grep -Eq "$allowed_files"; then
