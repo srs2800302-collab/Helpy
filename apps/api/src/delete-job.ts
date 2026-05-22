@@ -72,12 +72,29 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
     );
   }
 
+  const businessHistoryTables = ['payments', 'reviews', 'disputes'];
+
+  for (const table of businessHistoryTables) {
+    if (await tableExists(env, table)) {
+      const row = await env.DB.prepare(`SELECT COUNT(*) as count FROM ${table} WHERE job_id = ?1`)
+        .bind(jobId)
+        .first();
+
+      if (Number(row?.count ?? 0) > 0) {
+        return Response.json(
+          {
+            success: false,
+            error: 'Job has business history and cannot be deleted',
+          },
+          { status: 409 }
+        );
+      }
+    }
+  }
+
   const relatedDeletes: Array<[string, string]> = [
     ['job_photos', 'DELETE FROM job_photos WHERE job_id = ?1'],
     ['chat_messages', 'DELETE FROM chat_messages WHERE job_id = ?1'],
-    ['payments', 'DELETE FROM payments WHERE job_id = ?1'],
-    ['reviews', 'DELETE FROM reviews WHERE job_id = ?1'],
-    ['disputes', 'DELETE FROM disputes WHERE job_id = ?1'],
     ['offers', 'DELETE FROM offers WHERE job_id = ?1'],
     ['translation_tasks', "DELETE FROM translation_tasks WHERE entity_type = 'job' AND entity_id = ?1"],
   ];
