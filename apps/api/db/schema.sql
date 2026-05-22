@@ -2,6 +2,11 @@
 -- Source of truth for production/test D1 structure.
 -- Runtime handlers must not own schema creation long-term.
 
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  id TEXT PRIMARY KEY,
+  applied_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   role TEXT NOT NULL,
