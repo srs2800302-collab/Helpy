@@ -62,6 +62,29 @@ class JobLocationMapCard extends StatelessWidget {
           height: 150,
           child: Stack(
             children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '${latitude.toStringAsFixed(5)}, ${longitude.toStringAsFixed(5)}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               FlutterMap(
                 options: MapOptions(
                   initialCenter: point,

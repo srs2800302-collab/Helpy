@@ -140,6 +140,15 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
 
   bool isPostcodePart(String part) => RegExp(r'^\d{5}$').hasMatch(part);
 
+  bool isAdministrativeAreaPart(String part) {
+    final lower = part.toLowerCase();
+    return lower.startsWith('amphoe ') ||
+        lower.startsWith('amphur ') ||
+        lower.startsWith('district ') ||
+        lower == 'amphoe bang lamung' ||
+        lower == 'bang lamung district';
+  }
+
   bool isKnownGeoPart(String part) {
     final lower = part.toLowerCase();
     return lower.contains('thailand') ||
@@ -147,7 +156,8 @@ String compactAddressForDisplay(String? value, {String locale = 'en'}) {
         lower.contains('chon buri') ||
         lower.contains('chonburi') ||
         isPostcodePart(part) ||
-        isThaiPart(part);
+        isThaiPart(part) ||
+        isAdministrativeAreaPart(part);
   }
 
   final detailParts = addressParts.where((part) => !isKnownGeoPart(part)).toList();

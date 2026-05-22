@@ -266,7 +266,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                 ),
               ),
             ),
-          if (state.errorMessage != null)
+          if (state.errorMessage != null && state.messages.isEmpty)
             Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
