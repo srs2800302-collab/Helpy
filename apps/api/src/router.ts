@@ -5,6 +5,7 @@ import { createReview, getMasterSummary, getReviews } from './reviews';
 import { completeJob } from './complete-job';
 import { cancelJob } from './cancel-job';
 import { deleteJob } from './delete-job';
+import { archiveJob } from './archive-job';
 import { createDispute, getDispute, resolveDispute } from './disputes';
 import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
@@ -520,6 +521,10 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
 
     if (parts.length === 5 && parts[4] === 'complete' && method === 'POST') {
       return completeJob(jobId, request, env);
+    }
+
+    if (parts.length === 5 && parts[4] === 'archive' && method === 'POST') {
+      return archiveJob(jobId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'cancel' && method === 'POST') {
