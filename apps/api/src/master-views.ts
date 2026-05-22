@@ -2,6 +2,7 @@ import { requireAuth } from './auth-context';
 import { ensureJobsSchema } from './jobs';
 import { ensureReviewsSchema } from './reviews';
 import { ensureChatSchema } from './chat';
+import { processPendingTranslationTasks } from './translation';
 
 type MasterAccessResult =
   | { ok: true; userId: string }
@@ -127,6 +128,21 @@ export async function getOffersByMaster(
   const access = await ensureMasterAccess(request, pathUserId, env);
   if (!access.ok) {
     return access.response;
+  }
+
+  const idsResult = await env.DB.prepare(
+    'SELECT id FROM offers WHERE master_user_id = ?1 ORDER BY created_at DESC'
+  )
+    .bind(access.userId)
+    .all();
+
+  for (const offer of idsResult.results ?? []) {
+    await processPendingTranslationTasks({
+      env,
+      entityType: 'offer',
+      entityId: String((offer as any).id),
+      limit: 6,
+    }).catch(() => undefined);
   }
 
   const result = await env.DB.prepare(
