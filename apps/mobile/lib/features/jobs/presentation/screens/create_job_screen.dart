@@ -112,9 +112,12 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     if (lower.isEmpty) return false;
     final weakOnly = RegExp(r'^(pattaya|chon buri|thailand|[0-9]{5})(,\s*)?$', caseSensitive: false);
     final parts = lower.split(',').map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
-    return parts.any((part) =>
-        !weakOnly.hasMatch(part) &&
-        !RegExp(r'^-?\d+(\.\d+)?\s*,?\s*-?\d+(\.\d+)?$').hasMatch(part));
+    return parts.any((part) {
+      final hasEnglishOrThaiText = RegExp(r'[A-Za-z\u0E00-\u0E7F]').hasMatch(part);
+      return hasEnglishOrThaiText &&
+          !weakOnly.hasMatch(part) &&
+          !RegExp(r'^-?\d+(\.\d+)?\s*,?\s*-?\d+(\.\d+)?$').hasMatch(part);
+    });
   }
 
   Future<String> _reverseGeocodeWithOsm(double latitude, double longitude) async {
