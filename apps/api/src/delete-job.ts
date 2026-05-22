@@ -44,8 +44,7 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
 
   let canDelete =
     job.status === JOB_STATUS.draft ||
-    job.status === JOB_STATUS.awaiting_payment ||
-    job.status === JOB_STATUS.completed;
+    job.status === JOB_STATUS.awaiting_payment;
 
   if (!canDelete && job.status === JOB_STATUS.open) {
     let offersCount = 0;
@@ -67,7 +66,7 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
     return Response.json(
       {
         success: false,
-        error: 'Only draft, unpaid, completed, or open job without offers can be deleted',
+        error: 'Only draft, unpaid, or open job without offers can be deleted',
       },
       { status: 400 }
     );
