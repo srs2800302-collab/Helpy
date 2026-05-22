@@ -29,24 +29,12 @@ function sanitizeDispute(row: any) {
 }
 
 export async function ensureDisputesSchema(env: any) {
-  await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS disputes (
-      id TEXT PRIMARY KEY,
-      job_id TEXT NOT NULL,
-      created_by_user_id TEXT NOT NULL,
-      reason TEXT NOT NULL,
-      status TEXT NOT NULL,
-      resolution TEXT,
-      resolved_by_user_id TEXT,
-      resolved_at TEXT,
-      created_at TEXT NOT NULL
-    )`
-  ).run();
-
-  await env.DB.prepare(
-    `CREATE UNIQUE INDEX IF NOT EXISTS idx_disputes_job_unique
-     ON disputes(job_id)`
-  ).run();
+  const table = await env.DB.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'disputes' LIMIT 1"
+  ).first();
+  if (!table) {
+    throw new Error('Missing required table: disputes. Run D1 migrations before starting API.');
+  }
 }
 
 function canCreateDisputeInStatus(status: string) {
