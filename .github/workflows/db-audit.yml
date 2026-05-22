@@ -62,6 +62,14 @@ jobs:
           done
 
           echo
+          echo "=== D1 APPLIED MIGRATIONS ==="
+          npx -y wrangler d1 execute fixi-db --remote --command "
+          SELECT id, applied_at
+          FROM schema_migrations
+          ORDER BY id;
+          "
+
+          echo
           echo "=== D1 COUNTS ==="
           npx -y wrangler d1 execute fixi-db --remote --command "
           SELECT
