@@ -216,8 +216,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       controller.load(widget.jobId, silent: true);
     });
 
-    final canSend =
-        state.input.trim().isNotEmpty && !state.isLoading && !state.isSending;
+    final isChatClosed = _currentStatus == 'completed' ||
+        _currentStatus == 'cancelled' ||
+        _currentStatus == 'disputed';
+
+    if (isChatClosed && _textController.text.isNotEmpty) {
+      _textController.clear();
+      controller.setInput('');
+    }
+
+    final canSend = !isChatClosed &&
+        state.input.trim().isNotEmpty &&
+        !state.isLoading &&
+        !state.isSending;
 
     ref.listen(chatControllerProvider, (previous, next) {
       final previousCount = previous?.messages.length ?? 0;
@@ -263,6 +274,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Text(l10n.t('complete_job')),
+                ),
+              ),
+            ),
+          if (isChatClosed)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade100),
+                ),
+                child: Text(
+                  l10n.t('job_completed'),
+                  style: TextStyle(
+                    color: Colors.red.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -458,6 +489,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                     Expanded(
                       child: TextField(
                         controller: _textController,
+                        enabled: !isChatClosed,
                         onChanged: controller.setInput,
                         keyboardType: TextInputType.multiline,
                         textInputAction: TextInputAction.newline,
