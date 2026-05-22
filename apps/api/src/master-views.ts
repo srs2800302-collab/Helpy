@@ -251,6 +251,7 @@ export async function getAvailableJobsForMaster(
        deposit_amount
      FROM jobs
      WHERE status = ?1
+       AND archived_at IS NULL
        AND id NOT IN (
          SELECT job_id
          FROM offers

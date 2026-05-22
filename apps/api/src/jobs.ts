@@ -86,6 +86,7 @@ export async function getAvailableJobs(request: Request, env: any) {
             ) as has_applied
      FROM jobs j
      WHERE j.status = ?1
+       AND j.archived_at IS NULL
        AND NOT EXISTS(
          SELECT 1
          FROM offers applied
