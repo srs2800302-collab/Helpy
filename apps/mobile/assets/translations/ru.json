@@ -138,6 +138,7 @@
   "room_unit_label": "Комната / Unit",
   "draft_deleted": "Черновик удалён",
   "job_updated": "Заказ обновлён",
+  "job_archived": "Заказ архивирован",
   "category_required": "Выберите категорию",
   "title_too_short": "Название слишком короткое",
   "price_greater_than_zero": "Цена должна быть больше 0",
