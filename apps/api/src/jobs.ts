@@ -621,6 +621,7 @@ export async function getJobsByUser(userId: string, request: Request, env: any) 
               ) as last_message_translations_json
        FROM jobs j
        WHERE j.client_user_id = ?1
+          AND j.archived_at IS NULL
          AND j.status IN ('awaiting_payment', 'open', 'master_selected', 'in_progress', 'completed', 'cancelled', 'disputed')
        ORDER BY j.created_at DESC`
     )
