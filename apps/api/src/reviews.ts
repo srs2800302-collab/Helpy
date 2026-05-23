@@ -111,6 +111,13 @@ export async function createReview(jobId: string, request: Request, env: any, ct
     );
   }
 
+  if (job.archived_at) {
+    return Response.json(
+      { success: false, error: 'Archived job is read-only' },
+      { status: 409 }
+    );
+  }
+
   if (job.status !== 'completed') {
     return Response.json(
       { success: false, error: 'Review can be created only for completed job' },
