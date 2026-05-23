@@ -236,6 +236,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               builder: (_) => ChatScreen(
                 jobId: _job.id,
                 jobStatus: _job.status,
+                isArchived: _job.archivedAt != null,
               ),
             ),
           );

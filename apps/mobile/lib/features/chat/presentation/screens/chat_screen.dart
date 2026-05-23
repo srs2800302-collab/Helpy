@@ -13,11 +13,13 @@ import '../../domain/chat_message.dart';
 class ChatScreen extends ConsumerStatefulWidget {
   final String jobId;
   final String jobStatus;
+  final bool isArchived;
 
   const ChatScreen({
     super.key,
     required this.jobId,
     required this.jobStatus,
+    this.isArchived = false,
   });
 
   @override
@@ -216,7 +218,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       controller.load(widget.jobId, silent: true);
     });
 
-    final isChatClosed = _currentStatus == 'completed' ||
+    final isChatClosed = widget.isArchived ||
+        _currentStatus == 'completed' ||
         _currentStatus == 'cancelled' ||
         _currentStatus == 'disputed';
 
