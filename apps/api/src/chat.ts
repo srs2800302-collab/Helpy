@@ -361,6 +361,13 @@ export async function startWork(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (job.archived_at) {
+    return Response.json(
+      { success: false, error: 'Archived job cannot be started' },
+      { status: 409 }
+    );
+  }
+
   if (job.selected_master_user_id !== actorUserId) {
     return Response.json(
       { success: false, error: 'Only selected master can start work' },
