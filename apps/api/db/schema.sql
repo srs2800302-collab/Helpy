@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS client_profiles (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
   name TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS master_profiles (
@@ -32,7 +33,8 @@ CREATE TABLE IF NOT EXISTS master_profiles (
   created_at TEXT NOT NULL,
   has_billing_method INTEGER NOT NULL DEFAULT 0,
   billing_status TEXT NOT NULL DEFAULT 'missing',
-  cash_jobs_enabled INTEGER NOT NULL DEFAULT 0
+  cash_jobs_enabled INTEGER NOT NULL DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS service_categories (
@@ -77,7 +79,11 @@ CREATE TABLE IF NOT EXISTS jobs (
   deposit_percent INTEGER NOT NULL DEFAULT 40,
   archived_at TEXT,
   archived_by_user_id TEXT,
-  archive_reason TEXT
+  archive_reason TEXT,
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (selected_master_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (selected_offer_id) REFERENCES offers(id) ON DELETE SET NULL,
+  FOREIGN KEY (archived_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS offers (
@@ -91,7 +97,9 @@ CREATE TABLE IF NOT EXISTS offers (
   message TEXT,
   comment_translations_json TEXT,
   message_translations_json TEXT,
-  status TEXT NOT NULL DEFAULT 'active'
+  status TEXT NOT NULL DEFAULT 'active',
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+  FOREIGN KEY (master_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS chat_messages (
@@ -104,7 +112,11 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   reply_text TEXT,
   reply_sender_user_id TEXT,
   reply_text_translations_json TEXT,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (reply_to_message_id) REFERENCES chat_messages(id) ON DELETE SET NULL,
+  FOREIGN KEY (reply_sender_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS job_photos (
@@ -112,7 +124,9 @@ CREATE TABLE IF NOT EXISTS job_photos (
   job_id TEXT NOT NULL,
   client_user_id TEXT NOT NULL,
   url TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS payments (
@@ -129,7 +143,11 @@ CREATE TABLE IF NOT EXISTS payments (
   currency TEXT NOT NULL,
   type TEXT NOT NULL,
   status TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (payer_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS payment_customers (
@@ -138,7 +156,8 @@ CREATE TABLE IF NOT EXISTS payment_customers (
   provider TEXT NOT NULL,
   provider_customer_id TEXT NOT NULL,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS payment_methods (
@@ -154,7 +173,8 @@ CREATE TABLE IF NOT EXISTS payment_methods (
   is_default INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'active',
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS payment_events (
@@ -180,7 +200,10 @@ CREATE TABLE IF NOT EXISTS reviews (
   rating INTEGER,
   comment TEXT,
   comment_translations_json TEXT,
-  created_at TEXT
+  created_at TEXT,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (master_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS disputes (
@@ -192,7 +215,10 @@ CREATE TABLE IF NOT EXISTS disputes (
   resolved_at TEXT,
   created_by_user_id TEXT,
   reason TEXT,
-  created_at TEXT
+  created_at TEXT,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (resolved_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS translation_tasks (
