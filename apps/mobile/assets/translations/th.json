@@ -143,6 +143,8 @@
   "draft_deleted": "ลบฉบับร่างแล้ว",
   "job_updated": "อัปเดตงานแล้ว",
   "job_archived": "เก็บงานเข้าคลังแล้ว",
+  "archived_notice_title": "งานอยู่ในคลัง",
+  "archived_notice_body": "ยังดูประวัติงานได้ แต่ไม่สามารถแก้ไขได้แล้ว",
   "category_required": "กรุณาเลือกหมวดหมู่",
   "title_too_short": "ชื่องานสั้นเกินไป",
   "price_greater_than_zero": "ราคาต้องมากกว่า 0",

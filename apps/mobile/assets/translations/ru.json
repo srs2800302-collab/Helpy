@@ -143,6 +143,8 @@
   "draft_deleted": "Черновик удалён",
   "job_updated": "Заказ обновлён",
   "job_archived": "Заказ архивирован",
+  "archived_notice_title": "Заказ в архиве",
+  "archived_notice_body": "История заказа доступна для просмотра, но изменения больше недоступны.",
   "category_required": "Выберите категорию",
   "title_too_short": "Название слишком короткое",
   "price_greater_than_zero": "Цена должна быть больше 0",

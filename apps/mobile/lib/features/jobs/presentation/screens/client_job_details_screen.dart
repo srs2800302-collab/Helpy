@@ -450,14 +450,14 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               ),
             ),
           ),
-          if (primaryAction != null) ...[
+            if (primaryAction != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: primaryAction,
+              ),
+            ],
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: primaryAction,
-            ),
-          ],
-          const SizedBox(height: 12),
             _infoBlock(
               title: l10n.t('client_note_label'),
               body: displayDescription,
@@ -497,7 +497,10 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                             final uri = Uri.parse(
                               'https://www.google.com/maps/search/?api=1&query=${_job.latitude},${_job.longitude}',
                             );
-                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
                           },
                           icon: const Icon(Icons.map_outlined),
                           label: Text(l10n.t('open_in_maps')),
@@ -515,28 +518,35 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
             ),
             const SizedBox(height: 12),
             _photosBlock(l10n),
-
-          if (editJobAction != null) ...[
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: editJobAction,
-            ),
-          ],
-          if (archiveJobAction != null) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: archiveJobAction,
-            ),
-          ],
-          if (deleteJobAction != null) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: deleteJobAction,
-            ),
-          ],
+            if (_job.archivedAt != null) ...[
+              const SizedBox(height: 12),
+              _infoBlock(
+                title: l10n.t('archived_notice_title'),
+                body: l10n.t('archived_notice_body'),
+                icon: Icons.archive_outlined,
+              ),
+            ],
+            if (editJobAction != null) ...[
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: editJobAction,
+              ),
+            ],
+            if (archiveJobAction != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: archiveJobAction,
+              ),
+            ],
+            if (deleteJobAction != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: deleteJobAction,
+              ),
+            ],
           ],
         ),
       ),

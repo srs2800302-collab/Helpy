@@ -143,6 +143,8 @@
   "draft_deleted": "Draft deleted",
   "job_updated": "Job updated",
   "job_archived": "Job archived",
+  "archived_notice_title": "Job archived",
+  "archived_notice_body": "Job history is available to view, but changes are no longer available.",
   "category_required": "Select category",
   "title_too_short": "Title is too short",
   "price_greater_than_zero": "Price must be greater than 0",
