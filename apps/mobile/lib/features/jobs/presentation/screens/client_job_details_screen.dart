@@ -287,6 +287,54 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
         )
       : null;
 
+    final bool canArchiveJob =
+        (_job.status == 'completed' || _job.status == 'cancelled') &&
+        _job.archivedAt == null;
+
+    final Widget? archiveJobAction = canArchiveJob
+        ? OutlinedButton(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: Text(
+                    hasRealTranslation(
+                      original: originalTitle,
+                      translated: displayTitle,
+                    )
+                        ? displayTitle.trim()
+                        : originalTitle,
+                  ),
+                  content: Text(l10n.t('archive_job_confirm')),
+                  actions: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(dialogContext).pop(false),
+                      child: Text(l10n.t('cancel_action')),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(dialogContext).pop(true),
+                      child: Text(l10n.t('archive_job')),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed != true || !context.mounted) return;
+
+              final ok = await ref
+                  .read(jobsControllerProvider.notifier)
+                  .archiveJob(jobId: _job.id);
+
+              if (ok && context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: Text(l10n.t('archive_job')),
+          )
+        : null;
+
     final Widget? deleteJobAction = canDeleteDraft
         ? OutlinedButton(
             onPressed: () async {
@@ -472,6 +520,13 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
             SizedBox(
               width: double.infinity,
               child: editJobAction,
+            ),
+          ],
+          if (archiveJobAction != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: archiveJobAction,
             ),
           ],
           if (deleteJobAction != null) ...[
