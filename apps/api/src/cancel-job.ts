@@ -43,6 +43,13 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (job.archived_at) {
+    return Response.json(
+      { success: false, error: 'Archived job cannot be cancelled' },
+      { status: 409 }
+    );
+  }
+
   if (actorUserId !== job.client_user_id) {
     return Response.json(
       { success: false, error: 'Only job client can cancel job' },
