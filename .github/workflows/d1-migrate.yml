@@ -61,13 +61,6 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Inspect remote disputes schema
-        working-directory: apps/api
-        run: wrangler d1 execute fixi-db --remote --command "PRAGMA table_info(disputes);"
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
       - name: Read remote applied migration ids
         working-directory: apps/api
         run: npm run db:remote-applied
