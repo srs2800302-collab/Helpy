@@ -99,6 +99,8 @@
   "delete_action": "Delete",
   "cancel_action": "Cancel",
   "delete_draft": "Delete job",
+  "archive_job": "Archive job",
+  "archive_job_confirm": "Archive this job? It will be hidden from the active list, but kept in history.",
   "add_photo": "Add photo",
   "post_job": "Post job",
   "location_selected": "Location selected",

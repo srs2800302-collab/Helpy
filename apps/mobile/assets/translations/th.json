@@ -99,6 +99,8 @@
   "delete_action": "ลบ",
   "cancel_action": "ยกเลิก",
   "delete_draft": "ลบงาน",
+  "archive_job": "เก็บงานเข้าคลัง",
+  "archive_job_confirm": "เก็บงานนี้เข้าคลังหรือไม่? งานจะถูกซ่อนจากรายการใช้งาน แต่ยังอยู่ในประวัติ",
   "add_photo": "เพิ่มรูป",
   "post_job": "ลงประกาศงาน",
   "location_selected": "เลือกตำแหน่งแล้ว",
