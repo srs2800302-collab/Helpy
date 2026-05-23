@@ -122,6 +122,9 @@ class JobsApi {
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
+      archivedAt: DateTime.tryParse(json['archived_at'] as String? ?? ''),
+      archivedByUserId: json['archived_by_user_id'] as String?,
+      archiveReason: json['archive_reason'] as String?,
       price: double.tryParse(json['price']?.toString() ?? ''),
       depositAmount:
           double.tryParse(json['deposit_amount']?.toString() ?? ''),

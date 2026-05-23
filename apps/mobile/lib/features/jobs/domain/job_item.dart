@@ -13,6 +13,9 @@ class JobItem {
   final String status;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? archivedAt;
+  final String? archivedByUserId;
+  final String? archiveReason;
 
   final double? price;
   final double? depositAmount;
@@ -51,6 +54,9 @@ class JobItem {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    required this.archivedAt,
+    required this.archivedByUserId,
+    required this.archiveReason,
     required this.price,
     required this.depositAmount,
     required this.selectedMasterName,
