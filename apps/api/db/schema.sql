@@ -259,6 +259,9 @@ CREATE INDEX IF NOT EXISTS idx_job_photos_job_created
 CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_job_type_unique
   ON payments(job_id, type);
 
+CREATE INDEX IF NOT EXISTS idx_payments_job_created
+  ON payments(job_id, created_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_payments_payer_status
   ON payments(payer_user_id, status, type);
 
@@ -297,6 +300,9 @@ CREATE INDEX IF NOT EXISTS idx_jobs_status_created
 CREATE INDEX IF NOT EXISTS idx_jobs_client_status_created
   ON jobs(client_user_id, status, created_at DESC);
 
+CREATE INDEX IF NOT EXISTS idx_jobs_client_archive_status_created
+  ON jobs(client_user_id, archived_at, status, created_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_jobs_category_status_created
   ON jobs(category, status, created_at DESC);
 
@@ -319,3 +325,6 @@ CREATE INDEX IF NOT EXISTS idx_disputes_status_created
 
 CREATE INDEX IF NOT EXISTS idx_translation_tasks_status_created
   ON translation_tasks(status, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_translation_tasks_status_entity_created
+  ON translation_tasks(status, entity_type, entity_id, created_at ASC);
