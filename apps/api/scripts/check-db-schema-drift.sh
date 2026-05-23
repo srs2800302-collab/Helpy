@@ -40,7 +40,7 @@ dump_schema() {
      WHERE sql IS NOT NULL
        AND name NOT LIKE 'sqlite_%'
      ORDER BY type, name;" \
-    | python3 -c 'import re,sys; print("\n".join(re.sub(r"\s+", " ", line).replace(" ,", ",").replace(" )", ")").strip() for line in sys.stdin if line.strip()))'
+    | python3 -c 'import re, sys; print("\n".join(re.sub(r"CREATE TABLE \"([^\"]+)\"", r"CREATE TABLE \1", re.sub(r"\s+", " ", line).replace(" ,", ",").replace(" )", ")")).strip() for line in sys.stdin if line.strip()))'
 }
 
 dump_schema "$schema_db" > "$schema_out"

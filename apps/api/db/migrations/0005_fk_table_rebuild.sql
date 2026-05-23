@@ -544,7 +544,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_job_type_unique
   ON payments(job_id, type);
 
 CREATE INDEX IF NOT EXISTS idx_payments_payer_status
-  ON payments(payer_user_id, status);
+  ON payments(payer_user_id, status, type);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_customers_user_provider
   ON payment_customers(user_id, provider);
@@ -553,7 +553,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_methods_provider_pm_unique
   ON payment_methods(provider, provider_payment_method_id);
 
 CREATE INDEX IF NOT EXISTS idx_payment_methods_user_status
-  ON payment_methods(user_id, status);
+  ON payment_methods(user_id, status, is_default);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
   ON reviews(job_id);
