@@ -181,6 +181,10 @@ class ChatController extends StateNotifier<ChatState> {
         Future<void>(() async {
           await ref.read(offersControllerProvider.notifier).loadMyOffers();
         });
+      } else if (session.role == UserRole.client) {
+        Future<void>(() async {
+          await ref.read(jobsControllerProvider.notifier).loadClientJobs();
+        });
       }
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
