@@ -101,6 +101,17 @@ class JobsApi {
         .toList();
   }
 
+  Future<List<JobItem>> listArchivedClientJobs({
+    required String clientUserId,
+  }) async {
+    final response = await apiClient.dio.get('/users/$clientUserId/jobs/archive');
+
+    final data = response.data['data'] as List<dynamic>;
+    return data
+        .map((item) => _mapJob(item as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<JobItem> getJobById({
     required String jobId,
   }) async {

@@ -15,6 +15,7 @@ import '../../../../core/widgets/localized_job_title.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../../../core/widgets/job_review_summary.dart';
 import '../../../jobs/presentation/screens/client_job_details_screen.dart';
+import '../../../jobs/presentation/screens/client_archive_screen.dart';
 import '../../../chat/presentation/screens/chat_screen.dart';
 import '../../../jobs/presentation/screens/create_job_screen.dart';
 import '../../../reviews/presentation/screens/create_review_screen.dart';
@@ -143,6 +144,20 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
       appBar: AppBar(
         title: Text(l10n.t('home_title')),
         actions: [
+          if (session != null)
+            IconButton(
+              tooltip: l10n.t('archive_title'),
+              icon: const Icon(Icons.archive_outlined),
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ClientArchiveScreen(
+                      clientUserId: session.userId,
+                    ),
+                  ),
+                );
+              },
+            ),
           PopupMenuButton<String>(
             tooltip: l10n.t('language'),
             initialValue: currentLocale.languageCode,
