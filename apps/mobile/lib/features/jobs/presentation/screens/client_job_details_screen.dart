@@ -162,7 +162,8 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
 
     Widget? primaryAction;
 
-    if (_job.status == 'draft' || _job.status == 'awaiting_payment') {
+    if (_job.archivedAt == null &&
+        (_job.status == 'draft' || _job.status == 'awaiting_payment')) {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final paid = await Navigator.of(context).push<bool>(
