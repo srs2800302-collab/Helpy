@@ -28,6 +28,13 @@ export async function completeJob(jobId: string, request: Request, env: any) {
     );
   }
 
+  if (job.archived_at) {
+    return Response.json(
+      { success: false, error: 'Archived job cannot be completed' },
+      { status: 409 }
+    );
+  }
+
   const isClient = actorUserId === job.client_user_id;
   const isSelectedMaster = actorUserId === job.selected_master_user_id;
 
