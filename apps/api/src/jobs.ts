@@ -408,6 +408,13 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
     return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
   }
 
+  if (current.archived_at) {
+    return Response.json(
+      { success: false, error: 'Archived job is read-only' },
+      { status: 409 }
+    );
+  }
+
   if (current.client_user_id !== userId) {
     return Response.json({ success: false, error: 'Only job client can edit job' }, { status: 403 });
   }
