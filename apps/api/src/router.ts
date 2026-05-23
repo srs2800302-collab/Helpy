@@ -26,6 +26,7 @@ import { getMessages, sendMessage, startWork } from './chat';
 import { ensureTranslationTasksSchema, processPendingTranslationTasks } from './translation';
 import { getAdminDisputes } from './admin-disputes';
 import { getAdminDashboard } from './admin-dashboard';
+import { getAdminPayments } from './admin-payments';
 import { createStripeSetupIntent } from './stripe-setup';
 import { syncStripePaymentMethod } from './stripe-payment-method-sync';
 import { handleStripeWebhook } from './stripe-webhook';
@@ -320,6 +321,14 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
 
   if (path === '/api/v1/admin/disputes' && method === 'GET') {
     return getAdminDisputes(request, env);
+  }
+
+  if (path === '/api/v1/admin/jobs' && method === 'GET') {
+    return getJobs(request, env);
+  }
+
+  if (path === '/api/v1/admin/payments' && method === 'GET') {
+    return getAdminPayments(request, env);
   }
 
 
