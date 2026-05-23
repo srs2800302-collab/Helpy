@@ -426,13 +426,13 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
       return getAvailableJobsForMaster(request, userId, env);
     }
 
+    if (parts.length === 6 && parts[4] === 'jobs' && parts[5] === 'archive' && method === 'GET') {
+      return getArchivedJobsByUser(userId, request, env);
+    }
+
     if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
       const jobId = parts[5];
       return getUserJobDetails(userId, jobId, request, env);
-    }
-
-    if (parts.length === 6 && parts[4] === 'jobs' && parts[5] === 'archive' && method === 'GET') {
-      return getArchivedJobsByUser(userId, request, env);
     }
 
     if (parts.length === 5 && parts[4] === 'jobs' && method === 'GET') {
