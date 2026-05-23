@@ -273,7 +273,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                if (job.status == 'open') ...[
+                if (job.status == 'open' && job.archivedAt == null) ...[
                   SizedBox(
                     width: double.infinity,
                     child: job.hasApplied
@@ -368,6 +368,14 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
 
                 const SizedBox(height: 12),
                 _photosBlock(l10n),
+                if (job.archivedAt != null) ...[
+                  const SizedBox(height: 12),
+                  _infoBlock(
+                    title: l10n.t('archived_notice_title'),
+                    body: l10n.t('archived_notice_body'),
+                    icon: Icons.archive_outlined,
+                  ),
+                ],
 
                 if (canOpenChat) ...[
                   const SizedBox(height: 16),
@@ -384,6 +392,7 @@ class _MasterJobDetailsScreenState extends ConsumerState<MasterJobDetailsScreen>
                             builder: (_) => ChatScreen(
                               jobId: job.id,
                               jobStatus: job.status,
+                              isArchived: job.archivedAt != null,
                             ),
                           ),
                         );
