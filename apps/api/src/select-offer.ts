@@ -37,6 +37,10 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     return fail('Job not found', 404);
   }
 
+  if (job.archived_at) {
+    return fail('Archived job cannot select master', 409);
+  }
+
   if (job.client_user_id !== auth.userId) {
     return fail('Only job client can select master', 403);
   }
