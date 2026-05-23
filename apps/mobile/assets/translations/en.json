@@ -118,6 +118,8 @@
   "new_jobs_available_title": "New jobs available",
   "view_remaining_completed_jobs": "View remaining",
   "delete_confirm_short": "DELETE?",
+  "hide_completed_confirm": "Hide completed job from home?",
+  "hide_action": "Hide",
   "job_room_number": "Room / unit / condo number",
   "job_room_required": "Enter room / unit number",
   "client_note_label": "Client note",

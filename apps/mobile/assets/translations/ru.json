@@ -118,6 +118,8 @@
   "new_jobs_available_title": "Есть новые заказы",
   "view_remaining_completed_jobs": "Посмотреть остальные",
   "delete_confirm_short": "УДАЛИТЬ?",
+  "hide_completed_confirm": "Скрыть завершённый заказ с главной?",
+  "hide_action": "Скрыть",
   "job_room_number": "Номер комнаты / юнита / кондо",
   "job_room_required": "Укажите номер комнаты / юнита",
   "client_note_label": "Пояснение клиента",

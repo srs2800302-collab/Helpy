@@ -12,7 +12,7 @@ Future<bool> showConfirmDeleteDialog({
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: Text(title),
-      content: Text(l10n.t('delete_confirm_short')),
+      content: Text(l10n.t('hide_completed_confirm')),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -20,7 +20,7 @@ Future<bool> showConfirmDeleteDialog({
         ),
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(l10n.t('delete_action')),
+          child: Text(l10n.t('hide_action')),
         ),
       ],
     ),

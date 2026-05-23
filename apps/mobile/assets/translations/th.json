@@ -118,6 +118,8 @@
   "new_jobs_available_title": "มีงานใหม่",
   "view_remaining_completed_jobs": "ดูที่เหลือ",
   "delete_confirm_short": "ลบใช่ไหม?",
+  "hide_completed_confirm": "ซ่อนงานที่เสร็จแล้วจากหน้าแรกหรือไม่?",
+  "hide_action": "ซ่อน",
   "job_room_number": "เลขห้อง / ยูนิต / คอนโด",
   "job_room_required": "กรุณาระบุเลขห้อง / ยูนิต",
   "client_note_label": "รายละเอียดจากลูกค้า",
