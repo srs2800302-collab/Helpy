@@ -46,6 +46,11 @@ export async function archiveJob(jobId: string, request: Request, env: any) {
     });
   }
 
+  const allowedStatuses = new Set(['completed', 'cancelled']);
+  if (!allowedStatuses.has(String(job.status))) {
+    return fail('Only completed or cancelled jobs can be archived', 400);
+  }
+
   const now = new Date().toISOString();
   const reason = (body.reason ?? '').trim() || 'user_archive';
 
