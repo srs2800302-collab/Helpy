@@ -59,7 +59,10 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
   Future<void> _markMessageRead(String jobId, DateTime? createdAt) async {
     final next = await markReadMessageTimestamp(
-      keys: const [_readMasterMessageTimestampsKey],
+      keys: const [
+        _readMasterMessageTimestampsKey,
+        'readMasterOffersMessageTimestampsKey',
+      ],
       current: _readMessageTimestamps,
       jobId: jobId,
       createdAt: createdAt,
