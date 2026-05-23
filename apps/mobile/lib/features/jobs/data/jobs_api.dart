@@ -47,6 +47,19 @@ class JobsApi {
     await apiClient.dio.delete('/jobs/$jobId');
   }
 
+  Future<void> archiveJob({
+    required String jobId,
+    String? reason,
+  }) async {
+    await apiClient.dio.post(
+      '/jobs/$jobId/archive',
+      data: {
+        if (reason != null && reason.trim().isNotEmpty)
+          'reason': reason.trim(),
+      },
+    );
+  }
+
   Future<JobItem> updateDraftJob({
     required String jobId,
     required String categoryId,

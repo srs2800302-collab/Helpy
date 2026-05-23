@@ -143,6 +143,42 @@ class JobsController extends StateNotifier<JobsState> {
     }
   }
 
+  Future<bool> archiveJob({
+    required String jobId,
+    String? reason,
+  }) async {
+    state = state.copyWith(
+      isSubmitting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await ref.read(jobsApiProvider).archiveJob(
+        jobId: jobId,
+        reason: reason,
+      );
+
+      await loadClientJobs();
+
+      state = state.copyWith(
+        isSubmitting: false,
+        successMessage: 'job_archived',
+      );
+
+      return true;
+    } catch (e) {
+      final appError = ApiErrorMapper.map(e);
+
+      state = state.copyWith(
+        isSubmitting: false,
+        errorMessage: appError.message,
+      );
+
+      return false;
+    }
+  }
+
   Future<bool> deleteDraftJob({
     required String jobId,
   }) async {
