@@ -244,9 +244,6 @@ CREATE INDEX IF NOT EXISTS idx_offers_job_created_at
 CREATE INDEX IF NOT EXISTS idx_offers_master_created_at
   ON offers(master_user_id, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created
-  ON chat_messages(job_id, created_at);
-
 CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created_desc
   ON chat_messages(job_id, created_at DESC);
 
@@ -302,6 +299,9 @@ CREATE INDEX IF NOT EXISTS idx_jobs_client_status_created
 
 CREATE INDEX IF NOT EXISTS idx_jobs_client_archive_status_created
   ON jobs(client_user_id, archived_at, status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_jobs_client_archive_created
+  ON jobs(client_user_id, archived_at, created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_jobs_category_status_created
   ON jobs(category, status, created_at DESC);
