@@ -574,8 +574,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                           title: title,
                         );
                       },
-                      onTap: () {
-                        Navigator.of(context).push(
+                      onTap: () async {
+                        final changed = await Navigator.of(context).push<bool>(
                           MaterialPageRoute(
                             builder: (_) => MasterJobDetailsScreen(
                               jobId: item.jobId,
@@ -585,6 +585,9 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             ),
                           ),
                         );
+                        if (changed == true && mounted) {
+                          await _refreshAll();
+                        }
                       },
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
