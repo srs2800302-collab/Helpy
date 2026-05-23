@@ -567,6 +567,72 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
   );
 }
 
+export async function getArchivedJobsByUser(userId: string, request: Request, env: any) {
+  await ensureJobsSchema(env);
+  await ensureChatSchema(env);
+
+  const auth = await requireAuth(request, env);
+
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  if (auth.userId !== userId && auth.role !== 'admin') {
+    return Response.json(
+      { success: false, error: 'Forbidden' },
+      { status: 403 }
+    );
+  }
+
+  const result = await env.DB.prepare(
+    `SELECT j.*,
+            (
+              SELECT COUNT(*)
+              FROM offers o
+              WHERE o.job_id = j.id
+            ) as offers_count,
+            (
+              SELECT cm.text
+              FROM chat_messages cm
+              WHERE cm.job_id = j.id
+              ORDER BY cm.created_at DESC
+              LIMIT 1
+            ) as last_message,
+            (
+              SELECT cm.sender_user_id
+              FROM chat_messages cm
+              WHERE cm.job_id = j.id
+              ORDER BY cm.created_at DESC
+              LIMIT 1
+            ) as last_message_sender_user_id,
+            (
+              SELECT cm.created_at
+              FROM chat_messages cm
+              WHERE cm.job_id = j.id
+              ORDER BY cm.created_at DESC
+              LIMIT 1
+            ) as last_message_created_at,
+            (
+              SELECT cm.text_translations_json
+              FROM chat_messages cm
+              WHERE cm.job_id = j.id
+              ORDER BY cm.created_at DESC
+              LIMIT 1
+            ) as last_message_translations_json
+     FROM jobs j
+     WHERE j.client_user_id = ?1
+       AND j.archived_at IS NOT NULL
+     ORDER BY j.archived_at DESC`
+  )
+    .bind(userId)
+    .all();
+
+  return Response.json({
+    success: true,
+    data: await sanitizeJobs(result.results ?? [], env),
+  });
+}
+
 export async function getJobsByUser(userId: string, request: Request, env: any) {
   await ensureJobsSchema(env);
   await ensureChatSchema(env);
