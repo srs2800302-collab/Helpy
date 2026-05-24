@@ -16,7 +16,6 @@ applied_file="$(mktemp)"
 trap 'rm -f "$applied_file"' EXIT
 
 "$ROOT_DIR/scripts/d1-remote-applied-ids.sh" > "$applied_file"
-
 "$ROOT_DIR/scripts/d1-migration-diff.sh" "$applied_file"
 
 echo
@@ -36,7 +35,24 @@ while IFS= read -r file; do
 
   echo "[REGISTER] $name"
   wrangler d1 execute "$DB_NAME" --remote --command \
-    "INSERT OR IGNORE INTO schema_migrations (id, applied_at) VALUES ('$name', datetime('now'));"
+    "INSERT INTO schema_migrations (id, applied_at) VALUES ('$name', datetime('now'));"
+
+  echo "[VERIFY] $name"
+  verify_output="$(wrangler d1 execute "$DB_NAME" --remote --json --command \
+    "SELECT id FROM schema_migrations WHERE id = '$name' LIMIT 1;")"
+
+  printf '%s' "$verify_output" | node -e "
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+  const payload = JSON.parse(input);
+  const rows = payload.flatMap(item => item.results || []);
+  if (!rows.some(row => row.id === '$name')) {
+    console.error('Migration registration verification failed: $name');
+    process.exit(1);
+  }
+});
+"
 
   echo "[DONE] $name"
 done < <(find "$MIGRATIONS_DIR" -maxdepth 1 -type f -name "*.sql" | sort)
