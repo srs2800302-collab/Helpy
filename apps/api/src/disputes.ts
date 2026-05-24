@@ -71,10 +71,6 @@ export async function createDispute(jobId: string, request: Request, env: any) {
   const job = await getJob(jobId, env);
   if (!job) return fail('Job not found', 404);
 
-  if (job.archived_at) {
-    return fail('Archived job is read-only', 409);
-  }
-
   const isClient = actorUserId === job.client_user_id;
   const isSelectedMaster =
     !!job.selected_master_user_id &&
@@ -192,10 +188,6 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
 
   const job = await getJob(jobId, env);
   if (!job) return fail('Job not found', 404);
-
-  if (job.archived_at) {
-    return fail('Archived job is read-only', 409);
-  }
 
   if (job.status !== JOB_STATUS.disputed) {
     return fail('Only disputed job can be resolved', 400);

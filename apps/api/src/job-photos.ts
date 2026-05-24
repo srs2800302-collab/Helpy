@@ -94,13 +94,6 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.archived_at) {
-    return Response.json(
-      { success: false, error: 'Archived job cannot accept new photos' },
-      { status: 409 }
-    );
-  }
-
   if (job.client_user_id !== actorUserId) {
     return Response.json(
       { success: false, error: 'Only job client can add photos' },

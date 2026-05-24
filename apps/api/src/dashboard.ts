@@ -18,43 +18,43 @@ export async function getClientDashboard(userId: string, request: Request, env: 
   }
 
   const totalJobsRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND archived_at IS NULL'
+    'SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1'
   )
     .bind(userId)
     .first();
 
   const openJobsRow = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND archived_at IS NULL AND status = 'open'"
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'open'"
   )
     .bind(userId)
     .first();
 
   const masterSelectedJobsRow = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND archived_at IS NULL AND status = 'master_selected'"
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'master_selected'"
   )
     .bind(userId)
     .first();
 
   const inProgressJobsRow = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND archived_at IS NULL AND status = 'in_progress'"
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'in_progress'"
   )
     .bind(userId)
     .first();
 
   const completedJobsRow = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND archived_at IS NULL AND status = 'completed'"
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'completed'"
   )
     .bind(userId)
     .first();
 
   const cancelledJobsRow = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND archived_at IS NULL AND status = 'cancelled'"
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'cancelled'"
   )
     .bind(userId)
     .first();
 
   const disputedJobsRow = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND archived_at IS NULL AND status = 'disputed'"
+    "SELECT COUNT(*) as count FROM jobs WHERE client_user_id = ?1 AND status = 'disputed'"
   )
     .bind(userId)
     .first();
@@ -63,7 +63,7 @@ export async function getClientDashboard(userId: string, request: Request, env: 
     `SELECT COUNT(*) as count
      FROM jobs j
      WHERE j.client_user_id = ?1
-       AND j.archived_at IS NULL
+
        AND j.status = 'completed'
        AND NOT EXISTS (
          SELECT 1

@@ -57,10 +57,6 @@ export async function createOffer(jobId: string, request: Request, env: any, ctx
 
   if (!job) return fail('Job not found', 404);
 
-  if (job.archived_at) {
-    return fail('Archived job does not accept offers', 409);
-  }
-
   if (job.client_user_id === masterUserId) {
     return fail('Master cannot create offer for own job', 400);
   }

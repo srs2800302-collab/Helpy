@@ -141,10 +141,6 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
 
   if (!job) return fail('Job not found', 404);
 
-  if (job.archived_at) {
-    return fail('Archived job is read-only', 409);
-  }
-
   if (job.client_user_id !== clientUserId) {
     return fail('Only job client can pay deposit', 403);
   }

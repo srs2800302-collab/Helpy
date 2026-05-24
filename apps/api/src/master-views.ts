@@ -202,7 +202,6 @@ export async function getOffersByMaster(
      JOIN jobs j ON j.id = o.job_id
      LEFT JOIN reviews r ON r.job_id = j.id
      WHERE o.master_user_id = ?1
-       AND j.archived_at IS NULL
      ORDER BY o.created_at DESC`
   )
     .bind(access.userId)
@@ -252,7 +251,6 @@ export async function getAvailableJobsForMaster(
        deposit_amount
      FROM jobs
      WHERE status = ?1
-       AND archived_at IS NULL
        AND id NOT IN (
          SELECT job_id
          FROM offers

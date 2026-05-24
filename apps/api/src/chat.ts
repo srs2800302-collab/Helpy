@@ -207,13 +207,6 @@ export async function sendMessage(jobId: string, request: Request, env: any, ctx
     );
   }
 
-  if (job.archived_at) {
-    return Response.json(
-      { success: false, error: 'Archived job chat is read-only' },
-      { status: 409 }
-    );
-  }
-
   if (!canAccessJobChat(job, senderUserId)) {
     return Response.json(
       { success: false, error: 'User has no access to this job chat' },
@@ -358,13 +351,6 @@ export async function startWork(jobId: string, request: Request, env: any) {
     return Response.json(
       { success: false, error: 'Job not found' },
       { status: 404 }
-    );
-  }
-
-  if (job.archived_at) {
-    return Response.json(
-      { success: false, error: 'Archived job cannot be started' },
-      { status: 409 }
     );
   }
 

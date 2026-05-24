@@ -89,7 +89,6 @@ export async function getJobsByStatus(userId: string, request: Request, env: any
        longitude
      FROM jobs
      WHERE client_user_id = ?1
-       AND archived_at IS NULL
      ORDER BY created_at DESC`
   )
     .bind(userId)

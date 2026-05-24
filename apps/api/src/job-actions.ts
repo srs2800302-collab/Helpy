@@ -20,7 +20,6 @@ export async function getJobActions(jobId: string, request: Request, env: any) {
     `SELECT
        j.id,
        j.status,
-       j.archived_at,
        j.client_user_id,
        j.selected_master_user_id,
        EXISTS (
@@ -46,13 +45,11 @@ export async function getJobActions(jobId: string, request: Request, env: any) {
     return forbiddenResponse();
   }
 
-  const actions = job.archived_at
-    ? []
-    : buildJobActions(
-        job.status,
-        !!job.selected_master_user_id,
-        !!job.has_review
-      );
+  const actions = buildJobActions(
+    job.status,
+    !!job.selected_master_user_id,
+    !!job.has_review
+  );
 
   return Response.json({
     success: true,

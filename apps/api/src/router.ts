@@ -1,11 +1,10 @@
-import { createJob, getArchivedJobsByUser, getAvailableJobs, getJobById, getJobs, getJobsByUser, updateJob, updateJobStatus } from './jobs';
+import { createJob, getAvailableJobs, getJobById, getJobs, getJobsByUser, updateJob, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
 import { createReview, getMasterSummary, getReviews } from './reviews';
 import { completeJob } from './complete-job';
 import { cancelJob } from './cancel-job';
 import { deleteJob } from './delete-job';
-import { archiveJob } from './archive-job';
 import { createDispute, getDispute, resolveDispute } from './disputes';
 import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
@@ -435,9 +434,6 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
       return getAvailableJobsForMaster(request, userId, env);
     }
 
-    if (parts.length === 6 && parts[4] === 'jobs' && parts[5] === 'archive' && method === 'GET') {
-      return getArchivedJobsByUser(userId, request, env);
-    }
 
     if (parts.length === 6 && parts[4] === 'jobs' && method === 'GET') {
       const jobId = parts[5];
@@ -536,9 +532,6 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
       return completeJob(jobId, request, env);
     }
 
-    if (parts.length === 5 && parts[4] === 'archive' && method === 'POST') {
-      return archiveJob(jobId, request, env);
-    }
 
     if (parts.length === 5 && parts[4] === 'cancel' && method === 'POST') {
       return cancelJob(jobId, request, env);
