@@ -5,15 +5,13 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DB_DIR="$ROOT_DIR/db"
 MIGRATIONS_DIR="$DB_DIR/migrations"
 
-test -f "$DB_DIR/schema.sql"
 test -d "$MIGRATIONS_DIR"
 test -f "$MIGRATIONS_DIR/0000_migration_registry.sql"
 test -f "$MIGRATIONS_DIR/0001_initial_schema.sql"
 test -f "$MIGRATIONS_DIR/MANIFEST.sha256"
 
-# schema.sql is the canonical current end-state.
-# 0001_initial_schema.sql is an immutable historical baseline.
-# They are allowed to diverge after later migrations are added.
+# 0001_initial_schema.sql is the canonical MVP database baseline.
+# MANIFEST.sha256 protects migration file integrity.
 
 (
   cd "$MIGRATIONS_DIR"

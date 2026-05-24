@@ -28,10 +28,13 @@ Runtime `ensure*Schema` helpers are assert-only guards:
 ## Source of truth
 
 Canonical schema:
-- apps/api/db/schema.sql
+- apps/api/db/migrations/0001_initial_schema.sql
 
 Migration history:
 - apps/api/db/migrations/
+
+Migration manifest:
+- apps/api/db/migrations/MANIFEST.sha256
 
 ---
 
@@ -44,10 +47,9 @@ Rules:
 - applied migrations are tracked in:
   - schema_migrations
 
-Example:
+Current clean chain:
 - 0000_migration_registry.sql
 - 0001_initial_schema.sql
-- 0002_add_reviews_index.sql
 
 ---
 
@@ -108,6 +110,6 @@ Planned future stages:
 4. migration logging
 5. migration checksum validation
 6. rollback strategy evaluation
-7. foreign key audit
+7. remote apply verification
 8. cascade behavior audit
 9. index optimization audit

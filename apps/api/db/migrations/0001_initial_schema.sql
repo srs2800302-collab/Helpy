@@ -1,39 +1,43 @@
--- Helpy D1 canonical schema.
+-- Helpy D1 canonical schema v1.
 -- Source of truth for production/test D1 structure.
 -- Runtime handlers must not own schema creation long-term.
 
+PRAGMA foreign_keys = ON;
+
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
-  role TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  language TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('client', 'master', 'admin')),
+  phone TEXT NOT NULL UNIQUE,
+  language TEXT NOT NULL DEFAULT 'ru' CHECK (language IN ('ru', 'en', 'th')),
   created_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS client_profiles (
   id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
+  user_id TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS master_profiles (
   id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
+  user_id TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   bio TEXT,
-  is_verified INTEGER NOT NULL,
+  is_verified INTEGER NOT NULL DEFAULT 0 CHECK (is_verified IN (0, 1)),
+  has_billing_method INTEGER NOT NULL DEFAULT 0 CHECK (has_billing_method IN (0, 1)),
+  billing_status TEXT NOT NULL DEFAULT 'missing' CHECK (billing_status IN ('missing', 'active', 'disabled')),
+  cash_jobs_enabled INTEGER NOT NULL DEFAULT 0 CHECK (cash_jobs_enabled IN (0, 1)),
   created_at TEXT NOT NULL,
-  has_billing_method INTEGER NOT NULL DEFAULT 0,
-  billing_status TEXT NOT NULL DEFAULT 'missing',
-  cash_jobs_enabled INTEGER NOT NULL DEFAULT 0
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS service_categories (
   id TEXT PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
-  is_active INTEGER NOT NULL DEFAULT 1,
+  is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
   sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -42,9 +46,20 @@ CREATE TABLE IF NOT EXISTS service_categories (
 CREATE TABLE IF NOT EXISTS jobs (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
-  price REAL NOT NULL DEFAULT 0,
+  price REAL NOT NULL DEFAULT 0 CHECK (price >= 0),
   category TEXT NOT NULL,
-  status TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (
+    status IN (
+      'draft',
+      'awaiting_payment',
+      'open',
+      'master_selected',
+      'in_progress',
+      'completed',
+      'cancelled',
+      'disputed'
+    )
+  ),
   created_at TEXT NOT NULL,
   updated_at TEXT,
   client_user_id TEXT NOT NULL,
@@ -52,38 +67,42 @@ CREATE TABLE IF NOT EXISTS jobs (
   address_text TEXT,
   title_original TEXT,
   description_original TEXT,
-  source_language TEXT,
+  source_language TEXT CHECK (source_language IS NULL OR source_language IN ('ru', 'en', 'th', 'auto')),
   title_translations_json TEXT,
   description_translations_json TEXT,
   address_translations_json TEXT,
-  budget_type TEXT,
-  budget_from REAL,
-  budget_to REAL,
-  currency TEXT DEFAULT 'THB',
+  budget_type TEXT CHECK (budget_type IS NULL OR budget_type IN ('fixed', 'range', 'quote')),
+  budget_from REAL CHECK (budget_from IS NULL OR budget_from >= 0),
+  budget_to REAL CHECK (budget_to IS NULL OR budget_to >= 0),
+  currency TEXT NOT NULL DEFAULT 'THB' CHECK (currency IN ('THB')),
   selected_master_user_id TEXT,
   selected_master_name TEXT,
   selected_offer_id TEXT,
-  selected_offer_price REAL,
-  deposit_amount REAL,
-  latitude REAL,
-  longitude REAL,
-  payment_method TEXT NOT NULL DEFAULT 'card',
-  commission_payer TEXT NOT NULL DEFAULT 'client',
-  deposit_percent INTEGER NOT NULL DEFAULT 40
+  selected_offer_price REAL CHECK (selected_offer_price IS NULL OR selected_offer_price >= 0),
+  deposit_amount REAL CHECK (deposit_amount IS NULL OR deposit_amount >= 0),
+  latitude REAL CHECK (latitude IS NULL OR latitude BETWEEN -90 AND 90),
+  longitude REAL CHECK (longitude IS NULL OR longitude BETWEEN -180 AND 180),
+  payment_method TEXT NOT NULL DEFAULT 'card' CHECK (payment_method IN ('card', 'cash')),
+  commission_payer TEXT NOT NULL DEFAULT 'client' CHECK (commission_payer IN ('client', 'master')),
+  deposit_percent INTEGER NOT NULL DEFAULT 40 CHECK (deposit_percent = 40),
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (selected_master_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS offers (
   id TEXT PRIMARY KEY,
   job_id TEXT NOT NULL,
-  master_name TEXT NOT NULL,
-  price REAL NOT NULL,
-  comment TEXT,
-  created_at TEXT NOT NULL,
   master_user_id TEXT,
+  master_name TEXT NOT NULL,
+  price REAL NOT NULL CHECK (price >= 0),
   message TEXT,
-  comment_translations_json TEXT,
+  comment TEXT,
   message_translations_json TEXT,
-  status TEXT NOT NULL DEFAULT 'active'
+  comment_translations_json TEXT,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'selected', 'rejected', 'cancelled')),
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+  FOREIGN KEY (master_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS chat_messages (
@@ -96,7 +115,11 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   reply_text TEXT,
   reply_sender_user_id TEXT,
   reply_text_translations_json TEXT,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (reply_to_message_id) REFERENCES chat_messages(id) ON DELETE SET NULL,
+  FOREIGN KEY (reply_sender_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS job_photos (
@@ -104,24 +127,9 @@ CREATE TABLE IF NOT EXISTS job_photos (
   job_id TEXT NOT NULL,
   client_user_id TEXT NOT NULL,
   url TEXT NOT NULL,
-  created_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS payments (
-  id TEXT PRIMARY KEY,
-  job_id TEXT NOT NULL,
-  client_user_id TEXT NOT NULL,
-  payer_user_id TEXT,
-  payment_method_id TEXT,
-  payer_role TEXT NOT NULL DEFAULT 'client',
-  source TEXT NOT NULL DEFAULT 'client_card',
-  provider TEXT NOT NULL DEFAULT 'mock',
-  provider_ref TEXT,
-  amount REAL NOT NULL,
-  currency TEXT NOT NULL,
-  type TEXT NOT NULL,
-  status TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS payment_customers (
@@ -130,7 +138,8 @@ CREATE TABLE IF NOT EXISTS payment_customers (
   provider TEXT NOT NULL,
   provider_customer_id TEXT NOT NULL,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS payment_methods (
@@ -138,15 +147,37 @@ CREATE TABLE IF NOT EXISTS payment_methods (
   user_id TEXT NOT NULL,
   provider TEXT NOT NULL,
   provider_payment_method_id TEXT NOT NULL,
-  type TEXT NOT NULL DEFAULT 'card',
+  type TEXT NOT NULL DEFAULT 'card' CHECK (type IN ('card')),
   brand TEXT,
   last4 TEXT,
-  exp_month INTEGER,
-  exp_year INTEGER,
-  is_default INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'active',
+  exp_month INTEGER CHECK (exp_month IS NULL OR exp_month BETWEEN 1 AND 12),
+  exp_year INTEGER CHECK (exp_year IS NULL OR exp_year >= 2024),
+  is_default INTEGER NOT NULL DEFAULT 0 CHECK (is_default IN (0, 1)),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'disabled')),
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id TEXT PRIMARY KEY,
+  job_id TEXT NOT NULL,
+  client_user_id TEXT NOT NULL,
+  payer_user_id TEXT,
+  payment_method_id TEXT,
+  payer_role TEXT NOT NULL DEFAULT 'client' CHECK (payer_role IN ('client', 'master')),
+  source TEXT NOT NULL DEFAULT 'client_card' CHECK (source IN ('client_card', 'master_billing', 'cash')),
+  provider TEXT NOT NULL DEFAULT 'mock',
+  provider_ref TEXT,
+  amount REAL NOT NULL CHECK (amount >= 0),
+  currency TEXT NOT NULL CHECK (currency IN ('THB')),
+  type TEXT NOT NULL CHECK (type IN ('deposit', 'refund')),
+  status TEXT NOT NULL CHECK (status IN ('pending', 'paid', 'failed', 'refunded')),
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (payer_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS payment_events (
@@ -157,11 +188,13 @@ CREATE TABLE IF NOT EXISTS payment_events (
   object_type TEXT,
   object_id TEXT,
   payload_json TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'received',
+  status TEXT NOT NULL DEFAULT 'received' CHECK (status IN ('received', 'processed', 'failed')),
   created_at TEXT NOT NULL,
   processed_at TEXT,
   customer_id TEXT,
-  payment_method_id TEXT
+  payment_method_id TEXT,
+  FOREIGN KEY (customer_id) REFERENCES payment_customers(id) ON DELETE SET NULL,
+  FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS reviews (
@@ -169,31 +202,40 @@ CREATE TABLE IF NOT EXISTS reviews (
   job_id TEXT NOT NULL,
   client_user_id TEXT,
   master_user_id TEXT,
-  rating INTEGER,
+  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
   comment TEXT,
   comment_translations_json TEXT,
-  created_at TEXT
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (master_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS disputes (
   id TEXT PRIMARY KEY,
   job_id TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'open',
+  created_by_user_id TEXT,
+  reason TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'resolved', 'rejected')),
   resolution TEXT,
   resolved_by_user_id TEXT,
-  resolved_at TEXT
+  resolved_at TEXT,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (resolved_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS translation_tasks (
   id TEXT PRIMARY KEY,
-  entity_type TEXT NOT NULL,
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('job', 'offer', 'chat_message', 'review')),
   entity_id TEXT NOT NULL,
   field_name TEXT NOT NULL,
-  source_language TEXT NOT NULL,
-  target_language TEXT NOT NULL,
+  source_language TEXT NOT NULL CHECK (source_language IN ('ru', 'en', 'th', 'auto')),
+  target_language TEXT NOT NULL CHECK (target_language IN ('ru', 'en', 'th')),
   original_text TEXT NOT NULL,
   translated_text TEXT,
-  status TEXT NOT NULL DEFAULT 'pending',
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'done', 'failed')),
   created_at TEXT NOT NULL,
   updated_at TEXT
 );
@@ -213,11 +255,17 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created
 CREATE INDEX IF NOT EXISTS idx_chat_messages_job_created_desc
   ON chat_messages(job_id, created_at DESC);
 
+CREATE INDEX IF NOT EXISTS idx_chat_messages_sender_created
+  ON chat_messages(sender_user_id, created_at DESC);
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_job_photos_job_url_unique
   ON job_photos(job_id, url);
 
 CREATE INDEX IF NOT EXISTS idx_job_photos_job_created
   ON job_photos(job_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_job_photos_client_created
+  ON job_photos(client_user_id, created_at DESC);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_job_type_unique
   ON payments(job_id, type);
@@ -243,5 +291,26 @@ CREATE INDEX IF NOT EXISTS idx_payment_events_status_created
 CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_job_unique
   ON reviews(job_id);
 
+CREATE INDEX IF NOT EXISTS idx_reviews_master_created
+  ON reviews(master_user_id, created_at DESC);
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_disputes_job_unique
   ON disputes(job_id);
+
+CREATE INDEX IF NOT EXISTS idx_disputes_status_created
+  ON disputes(status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_jobs_status_created
+  ON jobs(status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_jobs_client_status_created
+  ON jobs(client_user_id, status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_jobs_category_status_created
+  ON jobs(category, status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_jobs_selected_master_status_created
+  ON jobs(selected_master_user_id, status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_translation_tasks_status_created
+  ON translation_tasks(status, created_at);
