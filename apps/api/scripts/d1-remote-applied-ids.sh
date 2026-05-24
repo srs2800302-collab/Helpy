@@ -11,16 +11,35 @@ if ! command -v wrangler >/dev/null 2>&1; then
   exit 2
 fi
 
-wrangler d1 execute "$DB_NAME" --remote --json --command \
-  "SELECT id FROM schema_migrations ORDER BY id;" \
-  | node -e '
+remote_json="$(wrangler d1 execute "$DB_NAME" --remote --json --command \
+  "SELECT id FROM schema_migrations ORDER BY id;")"
+
+printf '%s' "$remote_json" | node -e '
 let input = "";
 process.stdin.on("data", chunk => input += chunk);
 process.stdin.on("end", () => {
-  const payload = JSON.parse(input);
-  const rows = payload.flatMap(item => item.results || []);
+  if (!input.trim()) {
+    console.error("Remote applied migrations response is empty");
+    process.exit(1);
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(input);
+  } catch (error) {
+    console.error("Remote applied migrations response is not valid JSON");
+    console.error(error.message);
+    process.exit(1);
+  }
+
+  if (!Array.isArray(payload)) {
+    console.error("Remote applied migrations response must be a JSON array");
+    process.exit(1);
+  }
+
+  const rows = payload.flatMap(item => Array.isArray(item.results) ? item.results : []);
   for (const row of rows) {
-    if (typeof row.id === "string") {
+    if (row && typeof row.id === "string" && row.id.length > 0) {
       console.log(row.id);
     }
   }

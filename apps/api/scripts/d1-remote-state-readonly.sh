@@ -12,43 +12,57 @@ if ! command -v wrangler >/dev/null 2>&1; then
   exit 2
 fi
 
+parse_remote_json() {
+  node -e '
+let input = "";
+process.stdin.on("data", chunk => input += chunk);
+process.stdin.on("end", () => {
+  if (!input.trim()) {
+    console.error("Remote D1 response is empty");
+    process.exit(1);
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(input);
+  } catch (error) {
+    console.error("Remote D1 response is not valid JSON");
+    console.error(error.message);
+    process.exit(1);
+  }
+
+  if (!Array.isArray(payload)) {
+    console.error("Remote D1 response must be a JSON array");
+    process.exit(1);
+  }
+
+  const rows = payload.flatMap(item => Array.isArray(item.results) ? item.results : []);
+  console.log(JSON.stringify(rows));
+});
+'
+}
+
 echo "=== D1 REMOTE STATE READ-ONLY ==="
 echo "Database: $DB_NAME"
 
-table_check_output="$(mktemp)"
-applied_output="$(mktemp)"
-trap 'rm -f "$table_check_output" "$applied_output"' EXIT
-
 echo
 echo "=== schema_migrations table check ==="
+registry_json="$(wrangler d1 execute "$DB_NAME" --remote --json --command \
+  "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations';")"
+registry_rows="$(printf '%s' "$registry_json" | parse_remote_json)"
 
-schema_table_query="SELECT 'schema_migrations_exists' AS marker FROM sqlite_master"
-schema_table_query="$schema_table_query WHERE type = 'table' AND name = 'schema_migrations';"
-
-if ! wrangler d1 execute "$DB_NAME" --remote --command "$schema_table_query" \
-  >"$table_check_output" 2>&1; then
-  cat "$table_check_output"
-  echo "Remote D1 access check failed"
-  exit 1
-fi
-
-cat "$table_check_output"
-
-if ! grep -q "schema_migrations_exists" "$table_check_output"; then
+if [ "$registry_rows" = "[]" ]; then
   echo "schema_migrations table is missing; treating remote state as empty"
   exit 0
 fi
 
+echo "$registry_rows"
+
 echo
 echo "=== applied migrations ==="
+applied_json="$(wrangler d1 execute "$DB_NAME" --remote --json --command \
+  "SELECT id, applied_at FROM schema_migrations ORDER BY id;")"
+applied_rows="$(printf '%s' "$applied_json" | parse_remote_json)"
+echo "$applied_rows"
 
-if ! wrangler d1 execute "$DB_NAME" --remote --command \
-  "SELECT id, applied_at FROM schema_migrations ORDER BY id;" \
-  >"$applied_output" 2>&1; then
-  cat "$applied_output"
-  echo "Remote D1 applied migrations read failed"
-  exit 1
-fi
-
-cat "$applied_output"
 echo "Remote migration state read completed"
