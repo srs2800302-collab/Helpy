@@ -2,22 +2,19 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-allowed_files='^(src/(chat|disputes|job-photos|jobs|offers|payments|payment-methods|reviews|stripe-setup|stripe-webhook|translation)\.ts)$'
+SCHEMA_MUTATION_PATTERN="CREATE TABLE|ALTER TABLE|CREATE INDEX|DROP TABLE|DROP INDEX"
 
 violations="$(
   cd "$ROOT_DIR"
-  { grep -RInE "CREATE TABLE|ALTER TABLE|CREATE INDEX|DROP TABLE|DROP INDEX" src --include="*.ts" || true; } \
-    | while IFS= read -r line; do
-        file="${line%%:*}"
-        if ! printf '%s\n' "$file" | grep -Eq "$allowed_files"; then
-          printf '%s\n' "$line"
-        fi
-      done
+  find . \
+    \( -path './dist' -o -path './node_modules' -o -path './db' \) -prune \
+    -o \( -name '*.ts' -o -name '*.js' \) -type f -print0 \
+    | xargs -0 grep -InE "$SCHEMA_MUTATION_PATTERN" || true
 )"
 
 if [ -n "$violations" ]; then
-  echo "Runtime schema mutations are forbidden outside the legacy allowlist."
+  echo "Runtime schema mutations are forbidden."
+  echo "Use versioned D1 migrations instead."
   echo
   echo "$violations"
   exit 1
