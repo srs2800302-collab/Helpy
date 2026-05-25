@@ -317,3 +317,30 @@ CREATE INDEX IF NOT EXISTS idx_jobs_selected_master_status_created
 
 CREATE INDEX IF NOT EXISTS idx_translation_tasks_status_created
   ON translation_tasks(status, created_at);
+
+-- Canonical MVP seed data.
+INSERT OR IGNORE INTO users (id, role, phone, language, created_at)
+VALUES ('11111111-1111-1111-1111-111111111111', 'admin', '+70000000001', 'ru', '2026-01-01T00:00:00.000Z');
+
+INSERT OR IGNORE INTO service_categories (id, slug, is_active, sort_order, created_at, updated_at)
+VALUES
+  ('cleaning', 'cleaning', 1, 0, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('handyman', 'handyman', 1, 1, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('plumbing', 'plumbing', 1, 2, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('electrical', 'electrical', 1, 3, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('locks', 'locks', 1, 4, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('aircon', 'aircon', 1, 5, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('furniture_assembly', 'furniture_assembly', 1, 6, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('appliance_repair', 'appliance_repair', 1, 7, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('painting', 'painting', 1, 8, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('moving_delivery', 'moving_delivery', 1, 9, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('pest_control', 'pest_control', 1, 10, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('cctv_internet', 'cctv_internet', 1, 11, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('roofing', 'roofing', 1, 12, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('tiling_flooring', 'tiling_flooring', 1, 13, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('welding_metalwork', 'welding_metalwork', 1, 14, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('gardening', 'gardening', 1, 15, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('pool_service', 'pool_service', 1, 16, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('laundry_ironing', 'laundry_ironing', 1, 17, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('window_glass', 'window_glass', 1, 18, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z'),
+  ('renovation_general', 'renovation_general', 1, 19, '2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z');
