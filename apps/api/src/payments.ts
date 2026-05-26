@@ -330,7 +330,24 @@ export async function getPayments(jobId: string, request: Request, env: any) {
   }
 
   const result = await env.DB.prepare(
-    'SELECT * FROM payments WHERE job_id = ?1 ORDER BY created_at DESC'
+    `SELECT
+       id,
+       job_id,
+       client_user_id,
+       payer_user_id,
+       payment_method_id,
+       payer_role,
+       source,
+       provider,
+       provider_ref,
+       amount,
+       currency,
+       type,
+       status,
+       created_at
+     FROM payments
+     WHERE job_id = ?1
+     ORDER BY created_at DESC`
   )
     .bind(jobId)
     .all();
