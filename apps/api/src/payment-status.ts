@@ -1,7 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireRequestUserId } from './auth-context';
 import { JOB_STATUS } from './job-status';
-import { selectJobById } from './job-enrichment';
+import { PAYMENT_COLUMNS, selectJobById } from './job-enrichment';
 
 export async function getJobPaymentStatus(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
@@ -36,7 +36,7 @@ export async function getJobPaymentStatus(jobId: string, request: Request, env: 
   }
 
   const deposit = await env.DB.prepare(
-    `SELECT *
+    `SELECT ${PAYMENT_COLUMNS}
      FROM payments
      WHERE job_id = ?1
        AND type = 'deposit'
