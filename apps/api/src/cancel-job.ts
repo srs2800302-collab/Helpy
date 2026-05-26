@@ -1,6 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
+import { selectJobById } from './job-enrichment';
 
 function getRefundPolicy(status: string) {
   if (status === JOB_STATUS.awaiting_payment) {
@@ -30,11 +31,7 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
 
   const actorUserId = auth.userId;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(

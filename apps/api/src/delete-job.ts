@@ -1,6 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS } from './job-status';
 import { requireAuth } from './auth-context';
+import { selectJobById } from './job-enrichment';
 
 async function tableExists(env: any, tableName: string) {
   const row = await env.DB.prepare(
@@ -22,11 +23,7 @@ export async function deleteJob(jobId: string, request: Request, env: any) {
 
   const actorUserId = auth.userId;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(

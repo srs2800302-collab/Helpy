@@ -1,5 +1,6 @@
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
+import { selectJobById } from './job-enrichment';
 
 export async function completeJob(jobId: string, request: Request, env: any) {
   try {
@@ -15,11 +16,7 @@ export async function completeJob(jobId: string, request: Request, env: any) {
 
   const actorUserId = auth.userId;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(
