@@ -1,6 +1,22 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 
+const PAYMENT_METHOD_COLUMNS = `
+  id,
+  user_id,
+  provider,
+  provider_payment_method_id,
+  type,
+  brand,
+  last4,
+  exp_month,
+  exp_year,
+  is_default,
+  status,
+  created_at,
+  updated_at
+`;
+
 type SyncStripePaymentMethodBody = {
   customer_id?: string;
   payment_method_id?: string;
@@ -180,7 +196,7 @@ export async function syncStripePaymentMethod(
   }
 
   const existingMethod = await env.DB.prepare(
-    `SELECT *
+    `SELECT id
      FROM payment_methods
      WHERE user_id = ?1
        AND provider = 'stripe'
@@ -216,7 +232,7 @@ export async function syncStripePaymentMethod(
     await syncMasterBillingState(userId, env);
 
     const updated = await env.DB.prepare(
-      'SELECT * FROM payment_methods WHERE id = ?1 LIMIT 1'
+      `SELECT ${PAYMENT_METHOD_COLUMNS} FROM payment_methods WHERE id = ?1 LIMIT 1`
     )
       .bind(existingMethod.id)
       .first();
@@ -275,7 +291,7 @@ export async function syncStripePaymentMethod(
   await syncMasterBillingState(userId, env);
 
   const created = await env.DB.prepare(
-    'SELECT * FROM payment_methods WHERE id = ?1 LIMIT 1'
+    `SELECT ${PAYMENT_METHOD_COLUMNS} FROM payment_methods WHERE id = ?1 LIMIT 1`
   )
     .bind(id)
     .first();
