@@ -102,7 +102,18 @@ export async function getMessages(jobId: string, request: Request, env: any) {
   }
 
   const result = await env.DB.prepare(
-    `SELECT * FROM chat_messages
+    `SELECT
+       id,
+       job_id,
+       sender_user_id,
+       text,
+       text_translations_json,
+       reply_to_message_id,
+       reply_text,
+       reply_sender_user_id,
+       reply_text_translations_json,
+       created_at
+     FROM chat_messages
      WHERE job_id = ?1
      ORDER BY created_at DESC
      LIMIT ?2 OFFSET ?3`
@@ -120,7 +131,18 @@ export async function getMessages(jobId: string, request: Request, env: any) {
   }
 
   const refreshedResult = await env.DB.prepare(
-    `SELECT * FROM chat_messages
+    `SELECT
+       id,
+       job_id,
+       sender_user_id,
+       text,
+       text_translations_json,
+       reply_to_message_id,
+       reply_text,
+       reply_sender_user_id,
+       reply_text_translations_json,
+       created_at
+     FROM chat_messages
      WHERE job_id = ?1
      ORDER BY created_at DESC
      LIMIT ?2 OFFSET ?3`
