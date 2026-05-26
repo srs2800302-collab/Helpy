@@ -43,7 +43,39 @@ export async function getJobs(request: Request, env: any) {
   }
 
   const result = await env.DB.prepare(
-    'SELECT * FROM jobs ORDER BY created_at DESC'
+    `SELECT
+       id,
+       title,
+       price,
+       category,
+       status,
+       created_at,
+       updated_at,
+       client_user_id,
+       description,
+       address_text,
+       title_original,
+       description_original,
+       source_language,
+       title_translations_json,
+       description_translations_json,
+       address_translations_json,
+       budget_type,
+       budget_from,
+       budget_to,
+       currency,
+       selected_master_user_id,
+       selected_master_name,
+       selected_offer_id,
+       selected_offer_price,
+       deposit_amount,
+       latitude,
+       longitude,
+       payment_method,
+       commission_payer,
+       deposit_percent
+     FROM jobs
+     ORDER BY created_at DESC`
   ).all();
 
   return Response.json({
