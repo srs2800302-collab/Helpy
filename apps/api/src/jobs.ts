@@ -3,7 +3,7 @@ import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
 import { buildInitialTranslationsJson, buildTranslationsJson, detectLanguageFromText, processPendingTranslationTasks } from './translation';
-import { sanitizeJob, sanitizeJobs } from './job-enrichment';
+import { sanitizeJob, sanitizeJobs, selectJobById } from './job-enrichment';
 
 type CreateJobBody = {
   title?: string;
@@ -421,9 +421,7 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
   await assertRequiredTable(env, 'jobs');
 
   const userId = request.headers.get('x-user-id') ?? '';
-  const current = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
-    .bind(id)
-    .first();
+  const current = await selectJobById(env, id);
 
   if (!current) {
     return Response.json({ success: false, error: 'Job not found' }, { status: 404 });
