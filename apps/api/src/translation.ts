@@ -557,7 +557,7 @@ export async function processPendingTranslationTasks({
       await env.DB.prepare(`
         UPDATE translation_tasks
         SET translated_text = ?1,
-            status = 'completed',
+            status = 'done',
             updated_at = ?2
         WHERE id = ?3
       `).bind(result.translatedText, new Date().toISOString(), task.id).run();
