@@ -362,7 +362,14 @@ export async function processPendingTranslationTasks({
     : "WHERE status = 'pending'";
 
   const query = `
-    SELECT *
+    SELECT
+      id,
+      entity_type,
+      entity_id,
+      field_name,
+      source_language,
+      target_language,
+      original_text
     FROM translation_tasks
     ${where}
     ORDER BY created_at ASC
