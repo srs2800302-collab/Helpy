@@ -197,7 +197,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
 
   await env.DB.prepare(
     `UPDATE offers
-     SET status = CASE WHEN id = ?1 THEN 'accepted' ELSE 'rejected' END
+     SET status = CASE WHEN id = ?1 THEN 'selected' ELSE 'rejected' END
      WHERE job_id = ?2
        AND COALESCE(status, 'active') = 'active'`
   )
