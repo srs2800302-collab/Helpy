@@ -3,7 +3,7 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { createRefundPayment } from './payments';
 import { ok, fail } from './response';
-import { selectJobById } from './job-enrichment';
+import { PAYMENT_COLUMNS, selectJobById } from './job-enrichment';
 
 type CreateDisputeBody = {
   reason?: string;
@@ -216,7 +216,7 @@ export async function resolveDispute(jobId: string, request: Request, env: any) 
 
   if (body.resolution === 'refund') {
     const existingRefund = await env.DB.prepare(
-      "SELECT * FROM payments WHERE job_id = ?1 AND type = 'refund' LIMIT 1"
+      `SELECT ${PAYMENT_COLUMNS} FROM payments WHERE job_id = ?1 AND type = 'refund' LIMIT 1`
     )
       .bind(jobId)
       .first();

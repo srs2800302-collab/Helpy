@@ -3,7 +3,7 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { fail } from './response';
 import { assertMasterCanAcceptCashJob } from './payments/payment-rules';
-import { OFFER_COLUMNS, selectJobById } from './job-enrichment';
+import { OFFER_COLUMNS, PAYMENT_COLUMNS, selectJobById } from './job-enrichment';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
@@ -62,7 +62,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
 
   if (job.payment_method === 'card') {
     const deposit = await env.DB.prepare(
-      `SELECT * FROM payments
+      `SELECT ${PAYMENT_COLUMNS} FROM payments
        WHERE job_id = ?1
          AND type = 'deposit'
          AND status = 'paid'
