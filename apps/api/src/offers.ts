@@ -1,7 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 import { deferTranslations, processPendingTranslationTasks } from './translation';
-import { selectJobById } from './job-enrichment';
+import { OFFER_COLUMNS, selectJobById } from './job-enrichment';
 
 type CreateOfferBody = {
   master_name?: string;
@@ -136,7 +136,7 @@ export async function createOffer(jobId: string, request: Request, env: any, ctx
     }
 
     const createdOffer = await env.DB.prepare(
-      'SELECT * FROM offers WHERE id = ?1'
+      `SELECT ${OFFER_COLUMNS} FROM offers WHERE id = ?1`
     ).bind(id).first();
 
     return Response.json(

@@ -3,7 +3,7 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { fail } from './response';
 import { assertMasterCanAcceptCashJob } from './payments/payment-rules';
-import { selectJobById } from './job-enrichment';
+import { OFFER_COLUMNS, selectJobById } from './job-enrichment';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
@@ -47,7 +47,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
   }
 
   const offer = await env.DB.prepare(
-    'SELECT * FROM offers WHERE id = ?1 AND job_id = ?2'
+    `SELECT ${OFFER_COLUMNS} FROM offers WHERE id = ?1 AND job_id = ?2`
   )
     .bind(body.offer_id, jobId)
     .first();

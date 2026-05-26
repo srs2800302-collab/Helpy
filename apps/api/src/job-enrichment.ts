@@ -1,3 +1,17 @@
+export const OFFER_COLUMNS = `
+  id,
+  job_id,
+  master_user_id,
+  master_name,
+  price,
+  message,
+  comment,
+  message_translations_json,
+  comment_translations_json,
+  status,
+  created_at
+`;
+
 export const JOB_COLUMNS = `
   id,
   title,
