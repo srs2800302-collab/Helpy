@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS payment_events (
   object_type TEXT,
   object_id TEXT,
   payload_json TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'received' CHECK (status IN ('received', 'processed', 'failed')),
+  status TEXT NOT NULL DEFAULT 'received' CHECK (status IN ('received', 'ready_for_sync', 'processed', 'failed')),
   created_at TEXT NOT NULL,
   processed_at TEXT,
   customer_id TEXT,
@@ -235,7 +235,7 @@ CREATE TABLE IF NOT EXISTS translation_tasks (
   target_language TEXT NOT NULL CHECK (target_language IN ('ru', 'en', 'th')),
   original_text TEXT NOT NULL,
   translated_text TEXT,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'done', 'failed')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'done', 'failed')),
   created_at TEXT NOT NULL,
   updated_at TEXT
 );
