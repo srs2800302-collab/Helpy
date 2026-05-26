@@ -41,7 +41,8 @@ export async function createStripeSetupIntent(
   }
 
   let paymentCustomer = await env.DB.prepare(
-    `SELECT *
+    `SELECT
+       provider_customer_id
      FROM payment_customers
      WHERE user_id = ?1
        AND provider = 'stripe'
