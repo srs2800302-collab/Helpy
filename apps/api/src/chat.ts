@@ -4,6 +4,19 @@ import { requireAuth } from './auth-context';
 import { deferTranslations, processPendingTranslationTasks } from './translation';
 import { selectJobById } from './job-enrichment';
 
+const CHAT_MESSAGE_COLUMNS = `
+  id,
+  job_id,
+  sender_user_id,
+  text,
+  text_translations_json,
+  reply_to_message_id,
+  reply_text,
+  reply_sender_user_id,
+  reply_text_translations_json,
+  created_at
+`;
+
 const MAX_MESSAGE_LENGTH = 2000;
 const DEFAULT_MESSAGES_LIMIT = 50;
 const MAX_MESSAGES_LIMIT = 100;
@@ -228,7 +241,8 @@ export async function sendMessage(jobId: string, request: Request, env: any, ctx
   }
 
   const lastMessage = await env.DB.prepare(
-    `SELECT * FROM chat_messages
+    `SELECT ${CHAT_MESSAGE_COLUMNS}
+     FROM chat_messages
      WHERE job_id = ?1 AND sender_user_id = ?2
      ORDER BY created_at DESC
      LIMIT 1`
@@ -259,7 +273,7 @@ export async function sendMessage(jobId: string, request: Request, env: any, ctx
 
   if (replyToMessageId) {
     replyMessage = await env.DB.prepare(
-      `SELECT *
+      `SELECT ${CHAT_MESSAGE_COLUMNS}
        FROM chat_messages
        WHERE id = ?1 AND job_id = ?2`
     )
@@ -322,7 +336,7 @@ export async function sendMessage(jobId: string, request: Request, env: any, ctx
   }
 
   const created = await env.DB.prepare(
-    'SELECT * FROM chat_messages WHERE id = ?1'
+    `SELECT ${CHAT_MESSAGE_COLUMNS} FROM chat_messages WHERE id = ?1`
   )
     .bind(id)
     .first();
