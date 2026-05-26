@@ -549,11 +549,9 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
     await runTranslationWork();
   }
 
-  const updated = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
-    .bind(id)
-    .first();
+  const updated = await selectJobById(env, id);
 
-  return Response.json({ success: true, data: updated });
+  return Response.json({ success: true, data: await sanitizeJob(updated, env) });
 }
 
 export async function updateJobStatus(id: string, request: Request, env: any) {
