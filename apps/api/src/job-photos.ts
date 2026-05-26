@@ -1,6 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { JOB_STATUS } from './job-status';
+import { selectJobById } from './job-enrichment';
 
 type CreateJobPhotoBody = {
   url?: string;
@@ -72,11 +73,7 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(
@@ -185,11 +182,7 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
   const actorUserId = auth.userId;
   const actorRole = auth.role;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(

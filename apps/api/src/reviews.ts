@@ -1,6 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 import { deferTranslations } from './translation';
+import { selectJobById } from './job-enrichment';
 
 type CreateReviewBody = {
   master_user_id?: string;
@@ -16,11 +17,7 @@ export async function getReviews(jobId: string, request: Request, env: any) {
     return auth.response;
   }
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(
@@ -101,11 +98,7 @@ export async function createReview(jobId: string, request: Request, env: any, ct
     );
   }
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(
