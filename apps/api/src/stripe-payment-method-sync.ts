@@ -148,7 +148,9 @@ export async function syncStripePaymentMethod(
   const now = new Date().toISOString();
 
   let paymentCustomer = await env.DB.prepare(
-    `SELECT *
+    `SELECT
+       id,
+       provider_customer_id
      FROM payment_customers
      WHERE user_id = ?1
        AND provider = 'stripe'
