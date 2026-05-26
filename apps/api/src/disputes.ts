@@ -38,7 +38,21 @@ async function getJob(jobId: string, env: any) {
 }
 
 async function getDisputeRecord(jobId: string, env: any) {
-  return env.DB.prepare('SELECT * FROM disputes WHERE job_id = ?1 LIMIT 1').bind(jobId).first();
+  return env.DB.prepare(
+    `SELECT
+       id,
+       job_id,
+       created_by_user_id,
+       reason,
+       status,
+       resolution,
+       resolved_by_user_id,
+       resolved_at,
+       created_at
+     FROM disputes
+     WHERE job_id = ?1
+     LIMIT 1`
+  ).bind(jobId).first();
 }
 
 export async function createDispute(jobId: string, request: Request, env: any) {
