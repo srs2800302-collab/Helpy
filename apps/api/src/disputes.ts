@@ -3,6 +3,7 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { createRefundPayment } from './payments';
 import { ok, fail } from './response';
+import { selectJobById } from './job-enrichment';
 
 type CreateDisputeBody = {
   reason?: string;
@@ -33,7 +34,7 @@ function canCreateDisputeInStatus(status: string) {
 }
 
 async function getJob(jobId: string, env: any) {
-  return env.DB.prepare('SELECT * FROM jobs WHERE id = ?1').bind(jobId).first();
+  return selectJobById(env, jobId);
 }
 
 async function getDisputeRecord(jobId: string, env: any) {

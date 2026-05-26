@@ -2,6 +2,7 @@ import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { ok, fail } from './response';
+import { selectJobById } from './job-enrichment';
 
 function paymentData(payment: any, jobId: string, jobStatus: string) {
   return {
@@ -22,7 +23,7 @@ function paymentData(payment: any, jobId: string, jobStatus: string) {
 }
 
 async function getJob(jobId: string, env: any) {
-  return env.DB.prepare('SELECT * FROM jobs WHERE id = ?1').bind(jobId).first();
+  return selectJobById(env, jobId);
 }
 
 async function getPaymentByType(jobId: string, type: string, env: any) {
