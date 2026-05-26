@@ -1,3 +1,20 @@
+export const PAYMENT_COLUMNS = `
+  id,
+  job_id,
+  client_user_id,
+  payer_user_id,
+  payment_method_id,
+  payer_role,
+  source,
+  provider,
+  provider_ref,
+  amount,
+  currency,
+  type,
+  status,
+  created_at
+`;
+
 export const OFFER_COLUMNS = `
   id,
   job_id,

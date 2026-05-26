@@ -2,7 +2,7 @@ import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { ok, fail } from './response';
-import { selectJobById } from './job-enrichment';
+import { PAYMENT_COLUMNS, selectJobById } from './job-enrichment';
 
 function paymentData(payment: any, jobId: string, jobStatus: string) {
   return {
@@ -28,7 +28,7 @@ async function getJob(jobId: string, env: any) {
 
 async function getPaymentByType(jobId: string, type: string, env: any) {
   return env.DB.prepare(
-    `SELECT * FROM payments
+    `SELECT ${PAYMENT_COLUMNS} FROM payments
      WHERE job_id = ?1
        AND type = ?2
      ORDER BY created_at DESC
@@ -40,7 +40,7 @@ async function getPaymentByType(jobId: string, type: string, env: any) {
 
 async function getPaidDeposit(jobId: string, env: any) {
   return env.DB.prepare(
-    `SELECT * FROM payments
+    `SELECT ${PAYMENT_COLUMNS} FROM payments
      WHERE job_id = ?1
        AND type = 'deposit'
        AND status = 'paid'
@@ -281,7 +281,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     .run();
 
   const createdPayment = await env.DB.prepare(
-    'SELECT * FROM payments WHERE id = ?1 LIMIT 1'
+    `SELECT ${PAYMENT_COLUMNS} FROM payments WHERE id = ?1 LIMIT 1`
   )
     .bind(id)
     .first();
