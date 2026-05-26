@@ -31,6 +31,16 @@ export const JOB_COLUMNS = `
   deposit_percent
 `;
 
+export async function selectJobById(env: any, jobId: string) {
+  return env.DB.prepare(
+    `SELECT ${JOB_COLUMNS}
+     FROM jobs
+     WHERE id = ?1`
+  )
+    .bind(jobId)
+    .first();
+}
+
 export async function sanitizeJob(row: any, env: any) {
   if (!row) return row;
 
