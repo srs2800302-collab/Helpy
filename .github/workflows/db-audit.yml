@@ -145,3 +145,14 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Live D1 domain contract audit
+        working-directory: apps/api
+        run: |
+          echo "=== D1 DOMAIN CONTRACTS ==="
+          SQL="$(cat db/d1_domain_contracts.sql)"
+          npx -y wrangler d1 execute fixi-db --remote --json --command "$SQL" \
+            | jq -c '.[0].results[0]'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
