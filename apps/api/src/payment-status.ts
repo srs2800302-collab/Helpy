@@ -2,6 +2,7 @@ import { assertRequiredTable } from './schema-guards';
 import { requireRequestUserId } from './auth-context';
 import { JOB_STATUS } from './job-status';
 import { PAYMENT_COLUMNS, selectJobById } from './job-enrichment';
+import { PAYMENT_STATUS } from './db-domains';
 
 export async function getJobPaymentStatus(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
@@ -47,7 +48,7 @@ export async function getJobPaymentStatus(jobId: string, request: Request, env: 
     .first();
 
   const hasDeposit = !!deposit;
-  const depositPaid = deposit?.status === 'paid';
+  const depositPaid = deposit?.status === PAYMENT_STATUS.paid;
 
   let paymentStatus = 'unpaid';
 
