@@ -206,7 +206,13 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
   }
 
   const result = await env.DB.prepare(
-    `SELECT * FROM job_photos
+    `SELECT
+       id,
+       job_id,
+       client_user_id,
+       url,
+       created_at
+     FROM job_photos
      WHERE job_id = ?1
      ORDER BY created_at ASC`
   )
