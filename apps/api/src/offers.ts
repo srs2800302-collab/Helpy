@@ -202,7 +202,21 @@ export async function getOffers(jobId: string, request: Request, env: any, ctx?:
   }
 
   const result = await env.DB.prepare(
-    'SELECT * FROM offers WHERE job_id = ?1 ORDER BY created_at DESC'
+    `SELECT
+       id,
+       job_id,
+       master_user_id,
+       master_name,
+       price,
+       message,
+       comment,
+       message_translations_json,
+       comment_translations_json,
+       status,
+       created_at
+     FROM offers
+     WHERE job_id = ?1
+     ORDER BY created_at DESC`
   ).bind(jobId).all();
 
   return Response.json({
