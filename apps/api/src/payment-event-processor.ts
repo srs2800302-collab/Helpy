@@ -24,7 +24,18 @@ export async function processPendingPaymentEvents(_request: Request, env: any) {
   await assertRequiredTable(env, 'payment_events');
 
   const result = await env.DB.prepare(
-    `SELECT *
+    `SELECT
+       id,
+       provider,
+       provider_event_id,
+       event_type,
+       object_type,
+       object_id,
+       customer_id,
+       payment_method_id,
+       status,
+       created_at,
+       processed_at
      FROM payment_events
      WHERE status IN ('ready_for_sync', 'processed')
      ORDER BY created_at ASC
