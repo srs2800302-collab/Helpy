@@ -1,5 +1,6 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
+import { PAYMENT_METHOD_STATUS } from './db-domains';
 
 const PAYMENT_METHOD_COLUMNS = `
   id,
@@ -63,11 +64,11 @@ async function syncMasterBillingState(userId: string, env: any) {
     `SELECT id
      FROM payment_methods
      WHERE user_id = ?1
-       AND status = 'active'
+       AND status = ?
      ORDER BY is_default DESC, created_at ASC
      LIMIT 1`
   )
-    .bind(userId)
+    .bind(userId, PAYMENT_METHOD_STATUS.active)
     .first();
 
   if (activeMethod) {
@@ -160,11 +161,11 @@ export async function createMockCard(userId: string, request: Request, env: any)
     `SELECT id
      FROM payment_methods
      WHERE user_id = ?1
-       AND status = 'active'
+       AND status = ?
        AND is_default = 1
      LIMIT 1`
   )
-    .bind(userId)
+    .bind(userId, PAYMENT_METHOD_STATUS.active)
     .first();
 
   const id = crypto.randomUUID();
@@ -242,7 +243,7 @@ export async function setDefaultPaymentMethod(
     return fail('Payment method not found', 404);
   }
 
-  if (method.status !== 'active') {
+  if (method.status !== PAYMENT_METHOD_STATUS.active) {
     return fail('Only active payment method can be default', 400);
   }
 
@@ -317,11 +318,11 @@ export async function deletePaymentMethod(
     `SELECT id
      FROM payment_methods
      WHERE user_id = ?1
-       AND status = 'active'
+       AND status = ?
      ORDER BY created_at ASC
      LIMIT 1`
   )
-    .bind(userId)
+    .bind(userId, PAYMENT_METHOD_STATUS.active)
     .first();
 
   if (replacement) {
