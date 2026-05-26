@@ -1,6 +1,6 @@
+import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS } from './job-status';
 import { requireAuth } from './auth-context';
-import { ensureJobsSchema } from './jobs';
 
 async function tableExists(env: any, tableName: string) {
   const row = await env.DB.prepare(
@@ -13,7 +13,7 @@ async function tableExists(env: any, tableName: string) {
 }
 
 export async function deleteJob(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {

@@ -1,15 +1,13 @@
+import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
-import { ensureJobsSchema } from './jobs';
 import { fail } from './response';
-import { ensureOffersSchema } from './offers';
 import { assertMasterCanAcceptCashJob } from './payments/payment-rules';
-import { ensurePaymentsSchema } from './payments';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensureOffersSchema(env);
-  await ensurePaymentsSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'offers');
+  await assertRequiredTable(env, 'payments');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {

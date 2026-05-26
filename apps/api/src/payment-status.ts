@@ -1,11 +1,10 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireRequestUserId } from './auth-context';
-import { ensureJobsSchema } from './jobs';
 import { JOB_STATUS } from './job-status';
-import { ensurePaymentsSchema } from './payments';
 
 export async function getJobPaymentStatus(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensurePaymentsSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'payments');
 
   const auth = requireRequestUserId(request);
 

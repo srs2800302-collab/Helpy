@@ -1,3 +1,4 @@
+import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { deferTranslations, processPendingTranslationTasks } from './translation';
@@ -11,16 +12,6 @@ const MIN_MESSAGE_INTERVAL_MS = 1000;
 function containsPhoneNumber(value: string) {
   const compact = value.replace(/[\s().-]/g, '');
   return /(?:\+?\d{8,}|0\d{8,})/.test(compact);
-}
-
-export async function ensureChatSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'chat_messages' LIMIT 1"
-  ).first();
-
-  if (!table) {
-    throw new Error('Missing required table: chat_messages. Run D1 migrations before starting API.');
-  }
 }
 
 function canAccessJobChat(job: any, userId: string) {
@@ -72,7 +63,7 @@ function getMessagesOffset(request: Request) {
 }
 
 export async function getMessages(jobId: string, request: Request, env: any) {
-  await ensureChatSchema(env);
+  await assertRequiredTable(env, 'chat_messages');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
@@ -151,7 +142,7 @@ export async function getMessages(jobId: string, request: Request, env: any) {
 }
 
 export async function sendMessage(jobId: string, request: Request, env: any, ctx?: any) {
-  await ensureChatSchema(env);
+  await assertRequiredTable(env, 'chat_messages');
 
   let body: any;
   try {

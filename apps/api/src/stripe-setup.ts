@@ -1,17 +1,9 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 import { StripePaymentProvider } from './payments/stripe-provider';
 
 function fail(error: string, status = 400) {
   return Response.json({ success: false, error }, { status });
-}
-
-export async function ensurePaymentCustomersSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'payment_customers' LIMIT 1"
-  ).first();
-  if (!table) {
-    throw new Error('Missing required table: payment_customers. Run D1 migrations before starting API.');
-  }
 }
 
 async function requireSelfOrAdmin(userId: string, request: Request, env: any) {
@@ -33,7 +25,7 @@ export async function createStripeSetupIntent(
   request: Request,
   env: any,
 ) {
-  await ensurePaymentCustomersSchema(env);
+  await assertRequiredTable(env, 'payment_customers');
 
   const auth = await requireSelfOrAdmin(userId, request, env);
   if (!auth.ok) return auth.response;

@@ -1,6 +1,6 @@
+import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
-import { ensureJobsSchema } from './jobs';
 import { createRefundPayment } from './payments';
 import { ok, fail } from './response';
 
@@ -28,15 +28,6 @@ function sanitizeDispute(row: any) {
   };
 }
 
-export async function ensureDisputesSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'disputes' LIMIT 1"
-  ).first();
-  if (!table) {
-    throw new Error('Missing required table: disputes. Run D1 migrations before starting API.');
-  }
-}
-
 function canCreateDisputeInStatus(status: string) {
   return status === JOB_STATUS.master_selected || status === JOB_STATUS.in_progress;
 }
@@ -50,8 +41,8 @@ async function getDisputeRecord(jobId: string, env: any) {
 }
 
 export async function createDispute(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensureDisputesSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'disputes');
 
   let body: CreateDisputeBody;
   try {
@@ -133,8 +124,8 @@ export async function createDispute(jobId: string, request: Request, env: any) {
 }
 
 export async function getDispute(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensureDisputesSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'disputes');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
@@ -163,8 +154,8 @@ export async function getDispute(jobId: string, request: Request, env: any) {
 }
 
 export async function resolveDispute(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensureDisputesSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'disputes');
 
   let body: ResolveDisputeBody;
   try {

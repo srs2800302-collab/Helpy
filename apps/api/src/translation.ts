@@ -1,3 +1,4 @@
+import { assertRequiredTable } from './schema-guards';
 const SUPPORTED_LANGUAGES = ['ru', 'en', 'th'] as const;
 
 type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -8,16 +9,6 @@ function normalizeLanguage(value: unknown): SupportedLanguage {
   if (lang.startsWith('en')) return 'en';
   if (lang.startsWith('th')) return 'th';
   return 'ru';
-}
-
-export async function ensureTranslationTasksSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'translation_tasks' LIMIT 1"
-  ).first();
-
-  if (!table) {
-    throw new Error('Missing required table: translation_tasks. Run D1 migrations before starting API.');
-  }
 }
 
 function buildEmptyTranslations(originalText: string, sourceLanguage: SupportedLanguage) {
@@ -75,7 +66,7 @@ export async function buildTranslationsJson({
     entityType === 'review';
   const source = useAutoDetect ? 'auto' : normalizeLanguage(sourceLanguage);
 
-  await ensureTranslationTasksSchema(env);
+  await assertRequiredTable(env, 'translation_tasks');
 
   const translations: Record<SupportedLanguage, string> = useAutoDetect
     ? { ru: '', en: '', th: '' }
@@ -188,7 +179,7 @@ export async function cleanupTranslationTasksForEntity({
   entityType: string;
   entityId: string;
 }) {
-  await ensureTranslationTasksSchema(env);
+  await assertRequiredTable(env, 'translation_tasks');
 
   await env.DB.prepare(
     'DELETE FROM translation_tasks WHERE entity_type = ?1 AND entity_id = ?2',
@@ -355,7 +346,7 @@ export async function processPendingTranslationTasks({
   entityId?: string;
   limit?: number;
 }) {
-  await ensureTranslationTasksSchema(env);
+  await assertRequiredTable(env, 'translation_tasks');
 
   const staleProcessingBefore = new Date(Date.now() - 5 * 60 * 1000).toISOString();
   await env.DB.prepare(`

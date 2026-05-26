@@ -1,8 +1,8 @@
+import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS } from './job-status';
 import { requireAuth, requireRequestUserId } from './auth-context';
 import { buildPaymentTerms, type JobPaymentMethod } from './payments/payment-rules';
 import { buildInitialTranslationsJson, buildTranslationsJson, detectLanguageFromText, processPendingTranslationTasks } from './translation';
-import { ensureChatSchema } from './chat';
 import { sanitizeJob, sanitizeJobs } from './job-enrichment';
 
 type CreateJobBody = {
@@ -27,17 +27,8 @@ function normalizeNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export async function ensureJobsSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'jobs' LIMIT 1"
-  ).first();
-  if (!table) {
-    throw new Error('Missing required table: jobs. Run D1 migrations before starting API.');
-  }
-}
-
 export async function getJobs(request: Request, env: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
@@ -62,7 +53,7 @@ export async function getJobs(request: Request, env: any) {
 }
 
 export async function getAvailableJobs(request: Request, env: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
@@ -104,7 +95,7 @@ export async function getAvailableJobs(request: Request, env: any) {
 }
 
 export async function getJobById(id: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   const auth = await requireAuth(request, env);
 
@@ -151,7 +142,7 @@ export async function getJobById(id: string, request: Request, env: any) {
 }
 
 export async function createJob(request: Request, env: any, ctx?: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   let body: CreateJobBody;
   try {
@@ -394,9 +385,8 @@ export async function createJob(request: Request, env: any, ctx?: any) {
   );
 }
 
-
 export async function updateJob(id: string, request: Request, env: any, ctx?: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   const userId = request.headers.get('x-user-id') ?? '';
   const current = await env.DB.prepare('SELECT * FROM jobs WHERE id = ?1')
@@ -536,9 +526,8 @@ export async function updateJob(id: string, request: Request, env: any, ctx?: an
   return Response.json({ success: true, data: updated });
 }
 
-
 export async function updateJobStatus(id: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   let body: any;
   try {
@@ -567,8 +556,8 @@ export async function updateJobStatus(id: string, request: Request, env: any) {
 }
 
 export async function getJobsByUser(userId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensureChatSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'chat_messages');
 
   const auth = await requireAuth(request, env);
 

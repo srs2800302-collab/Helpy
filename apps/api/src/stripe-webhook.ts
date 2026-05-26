@@ -1,3 +1,4 @@
+import { assertRequiredTable } from './schema-guards';
 import { extractStripeEventSummary } from './stripe-event-utils';
 function fail(error: string, status = 400) {
   return Response.json({ success: false, error }, { status });
@@ -7,17 +8,8 @@ function ok(data: unknown, status = 200) {
   return Response.json({ success: true, data }, { status });
 }
 
-export async function ensurePaymentEventsSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'payment_events' LIMIT 1"
-  ).first();
-  if (!table) {
-    throw new Error('Missing required table: payment_events. Run D1 migrations before starting API.');
-  }
-}
-
 export async function handleStripeWebhook(request: Request, env: any) {
-  await ensurePaymentEventsSchema(env);
+  await assertRequiredTable(env, 'payment_events');
 
   let payloadText = '';
   try {

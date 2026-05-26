@@ -1,5 +1,5 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
-import { ensureDisputesSchema } from './disputes';
 import { ok, fail } from './response';
 
 async function safeCount(env: any, sql: string) {
@@ -24,7 +24,7 @@ export async function getAdminDashboard(request: Request, env: any) {
     return fail('Only admin can view dashboard', 403);
   }
 
-  await ensureDisputesSchema(env);
+  await assertRequiredTable(env, 'disputes');
 
   const totalJobs = await safeCount(env, 'SELECT COUNT(*) AS count FROM jobs');
   const openDisputes = await safeCount(

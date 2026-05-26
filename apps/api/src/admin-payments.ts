@@ -1,6 +1,6 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 import { ok, fail } from './response';
-import { ensurePaymentsSchema } from './payments';
 
 export async function getAdminPayments(request: Request, env: any) {
   const auth = await requireAuth(request, env);
@@ -10,7 +10,7 @@ export async function getAdminPayments(request: Request, env: any) {
     return fail('Only admin can view payments list', 403);
   }
 
-  await ensurePaymentsSchema(env);
+  await assertRequiredTable(env, 'payments');
 
   const result = await env.DB.prepare(
     `SELECT

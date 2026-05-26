@@ -1,6 +1,6 @@
+import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
-import { ensureJobsSchema } from './jobs';
 
 function getRefundPolicy(status: string) {
   if (status === JOB_STATUS.awaiting_payment) {
@@ -15,7 +15,7 @@ function getRefundPolicy(status: string) {
 }
 
 export async function cancelJob(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   try {
     await request.json();

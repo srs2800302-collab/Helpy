@@ -1,7 +1,5 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
-import { ensureJobsSchema } from './jobs';
-import { ensureReviewsSchema } from './reviews';
-import { ensureChatSchema } from './chat';
 import { processPendingTranslationTasks } from './translation';
 
 type MasterAccessResult =
@@ -121,9 +119,9 @@ export async function getOffersByMaster(
   pathUserId: string,
   env: any,
 ) {
-  await ensureJobsSchema(env);
-  await ensureChatSchema(env);
-  await ensureReviewsSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'chat_messages');
+  await assertRequiredTable(env, 'reviews');
 
   const access = await ensureMasterAccess(request, pathUserId, env);
   if (!access.ok) {
@@ -218,7 +216,7 @@ export async function getAvailableJobsForMaster(
   pathUserId: string,
   env: any,
 ) {
-  await ensureJobsSchema(env);
+  await assertRequiredTable(env, 'jobs');
 
   const access = await ensureMasterAccess(request, pathUserId, env);
   if (!access.ok) {

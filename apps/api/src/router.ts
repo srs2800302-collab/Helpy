@@ -1,3 +1,4 @@
+import { assertRequiredTable } from './schema-guards';
 import { createJob, getAvailableJobs, getJobById, getJobs, getJobsByUser, updateJob, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
@@ -22,7 +23,7 @@ import { getJobPaymentStatus } from './payment-status';
 import { listPaymentMethods, createMockCard, setDefaultPaymentMethod, deletePaymentMethod } from './payment-methods';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
-import { ensureTranslationTasksSchema, processPendingTranslationTasks } from './translation';
+import { processPendingTranslationTasks } from './translation';
 import { getAdminDisputes } from './admin-disputes';
 import { getAdminDashboard } from './admin-dashboard';
 import { getAdminPayments } from './admin-payments';
@@ -131,7 +132,7 @@ async function resetJobsData(request: Request, env: any) {
     }
   }
 
-  await ensureTranslationTasksSchema(env);
+  await assertRequiredTable(env, 'translation_tasks');
 
   await env.DB.prepare('DELETE FROM translation_tasks').run();
 
@@ -155,7 +156,7 @@ async function getTranslationTasks(request: Request, env: any) {
     );
   }
 
-  await ensureTranslationTasksSchema(env);
+  await assertRequiredTable(env, 'translation_tasks');
 
   const result = await env.DB.prepare(`
     SELECT entity_type, entity_id, field_name, source_language, target_language, status, original_text, translated_text, created_at

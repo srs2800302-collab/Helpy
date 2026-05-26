@@ -1,3 +1,4 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 import { deferTranslations } from './translation';
 
@@ -7,17 +8,8 @@ type CreateReviewBody = {
   comment?: string;
 };
 
-export async function ensureReviewsSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'reviews' LIMIT 1"
-  ).first();
-  if (!table) {
-    throw new Error('Missing required table: reviews. Run D1 migrations before starting API.');
-  }
-}
-
 export async function getReviews(jobId: string, request: Request, env: any) {
-  await ensureReviewsSchema(env);
+  await assertRequiredTable(env, 'reviews');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
@@ -62,7 +54,7 @@ export async function getReviews(jobId: string, request: Request, env: any) {
 }
 
 export async function createReview(jobId: string, request: Request, env: any, ctx?: any) {
-  await ensureReviewsSchema(env);
+  await assertRequiredTable(env, 'reviews');
 
   let body: CreateReviewBody;
   try {
@@ -211,7 +203,7 @@ export async function createReview(jobId: string, request: Request, env: any, ct
 }
 
 export async function getMasterSummary(masterUserId: string, request: Request, env: any) {
-  await ensureReviewsSchema(env);
+  await assertRequiredTable(env, 'reviews');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {

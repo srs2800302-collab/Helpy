@@ -1,3 +1,4 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 
 type CreateMockCardBody = {
@@ -31,15 +32,6 @@ function mapPaymentMethod(row: any) {
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
-}
-
-export async function ensurePaymentMethodsSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'payment_methods' LIMIT 1"
-  ).first();
-  if (!table) {
-    throw new Error('Missing required table: payment_methods. Run D1 migrations before starting API.');
-  }
 }
 
 async function syncMasterBillingState(userId: string, env: any) {
@@ -101,7 +93,7 @@ async function requireSelfOrAdmin(userId: string, request: Request, env: any) {
 }
 
 export async function listPaymentMethods(userId: string, request: Request, env: any) {
-  await ensurePaymentMethodsSchema(env);
+  await assertRequiredTable(env, 'payment_methods');
 
   const auth = await requireSelfOrAdmin(userId, request, env);
   if (!auth.ok) return auth.response;
@@ -119,7 +111,7 @@ export async function listPaymentMethods(userId: string, request: Request, env: 
 }
 
 export async function createMockCard(userId: string, request: Request, env: any) {
-  await ensurePaymentMethodsSchema(env);
+  await assertRequiredTable(env, 'payment_methods');
 
   const auth = await requireSelfOrAdmin(userId, request, env);
   if (!auth.ok) return auth.response;
@@ -216,7 +208,7 @@ export async function setDefaultPaymentMethod(
   request: Request,
   env: any,
 ) {
-  await ensurePaymentMethodsSchema(env);
+  await assertRequiredTable(env, 'payment_methods');
 
   const auth = await requireSelfOrAdmin(userId, request, env);
   if (!auth.ok) return auth.response;
@@ -275,7 +267,7 @@ export async function deletePaymentMethod(
   request: Request,
   env: any,
 ) {
-  await ensurePaymentMethodsSchema(env);
+  await assertRequiredTable(env, 'payment_methods');
 
   const auth = await requireSelfOrAdmin(userId, request, env);
   if (!auth.ok) return auth.response;

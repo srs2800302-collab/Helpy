@@ -1,6 +1,5 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
-import { ensurePaymentMethodsSchema } from './payment-methods';
-import { ensurePaymentCustomersSchema } from './stripe-setup';
 
 type SyncStripePaymentMethodBody = {
   customer_id?: string;
@@ -100,8 +99,8 @@ export async function syncStripePaymentMethod(
   request: Request,
   env: any,
 ) {
-  await ensurePaymentCustomersSchema(env);
-  await ensurePaymentMethodsSchema(env);
+  await assertRequiredTable(env, 'payment_customers');
+  await assertRequiredTable(env, 'payment_methods');
 
   const auth = await requireSelfOrAdmin(userId, request, env);
   if (!auth.ok) return auth.response;

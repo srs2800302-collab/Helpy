@@ -1,4 +1,4 @@
-import { ensurePaymentEventsSchema } from './stripe-webhook';
+import { assertRequiredTable } from './schema-guards';
 
 function ok(data: unknown, status = 200) {
   return Response.json({ success: true, data }, { status });
@@ -21,7 +21,7 @@ function mapEvent(row: any) {
 }
 
 export async function processPendingPaymentEvents(_request: Request, env: any) {
-  await ensurePaymentEventsSchema(env);
+  await assertRequiredTable(env, 'payment_events');
 
   const result = await env.DB.prepare(
     `SELECT *

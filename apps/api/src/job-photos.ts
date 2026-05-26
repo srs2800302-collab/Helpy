@@ -1,5 +1,5 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth, requireRequestUserId } from './auth-context';
-import { ensureJobsSchema } from './jobs';
 import { JOB_STATUS } from './job-status';
 
 type CreateJobPhotoBody = {
@@ -8,15 +8,6 @@ type CreateJobPhotoBody = {
 
 const MAX_JOB_PHOTOS = 10;
 const MAX_URL_LENGTH = 2_000_000;
-
-export async function ensureJobPhotosSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'job_photos' LIMIT 1"
-  ).first();
-  if (!table) {
-    throw new Error('Missing required table: job_photos. Run D1 migrations before starting API.');
-  }
-}
 
 function canViewJobPhotos(job: any, actorUserId: string, actorRole?: string) {
   return (
@@ -37,8 +28,8 @@ function canAddPhotosInStatus(status: string) {
 }
 
 export async function addJobPhoto(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensureJobPhotosSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'job_photos');
 
   let body: CreateJobPhotoBody;
   try {
@@ -183,8 +174,8 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
 }
 
 export async function getJobPhotos(jobId: string, request: Request, env: any) {
-  await ensureJobsSchema(env);
-  await ensureJobPhotosSchema(env);
+  await assertRequiredTable(env, 'jobs');
+  await assertRequiredTable(env, 'job_photos');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {

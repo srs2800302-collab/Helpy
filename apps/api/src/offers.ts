@@ -1,3 +1,4 @@
+import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 import { deferTranslations, processPendingTranslationTasks } from './translation';
 
@@ -13,18 +14,8 @@ function fail(error: string, status = 400) {
   return Response.json({ success: false, error }, { status });
 }
 
-export async function ensureOffersSchema(env: any) {
-  const table = await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'offers' LIMIT 1"
-  ).first();
-
-  if (!table) {
-    throw new Error('Missing required table: offers. Run D1 migrations before starting API.');
-  }
-}
-
 export async function createOffer(jobId: string, request: Request, env: any, ctx?: any) {
-  await ensureOffersSchema(env);
+  await assertRequiredTable(env, 'offers');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
@@ -127,7 +118,6 @@ export async function createOffer(jobId: string, request: Request, env: any, ctx
       )
       .run();
 
-
     const translationWork = deferTranslations({
       env,
       entityType: 'offer',
@@ -178,7 +168,7 @@ export async function createOffer(jobId: string, request: Request, env: any, ctx
 }
 
 export async function getOffers(jobId: string, request: Request, env: any, ctx?: any) {
-  await ensureOffersSchema(env);
+  await assertRequiredTable(env, 'offers');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
