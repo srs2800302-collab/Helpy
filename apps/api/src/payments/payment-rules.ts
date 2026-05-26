@@ -1,3 +1,4 @@
+import { MASTER_BILLING_STATUS } from '../db-domains';
 export type JobPaymentMethod = 'card' | 'cash';
 export type CommissionPayerRole = 'client' | 'master';
 
@@ -34,7 +35,7 @@ export function canMasterAcceptCashJob(input: {
 }) {
   return (
     input.hasBillingMethod === true &&
-    input.billingStatus === 'active' &&
+    input.billingStatus === MASTER_BILLING_STATUS.active &&
     input.cashJobsEnabled === true
   );
 }
