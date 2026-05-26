@@ -18,7 +18,15 @@ export async function requireAuth(request: Request, env: any) {
   }
 
   const user = await env.DB.prepare(
-    'SELECT * FROM users WHERE id = ?1 LIMIT 1'
+    `SELECT
+       id,
+       role,
+       phone,
+       language,
+       created_at
+     FROM users
+     WHERE id = ?1
+     LIMIT 1`
   )
     .bind(userId)
     .first();
