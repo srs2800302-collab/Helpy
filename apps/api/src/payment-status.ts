@@ -1,6 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireRequestUserId } from './auth-context';
 import { JOB_STATUS } from './job-status';
+import { selectJobById } from './job-enrichment';
 
 export async function getJobPaymentStatus(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
@@ -14,11 +15,7 @@ export async function getJobPaymentStatus(jobId: string, request: Request, env: 
 
   const actorUserId = auth.userId;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(

@@ -3,6 +3,7 @@ import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { fail } from './response';
 import { assertMasterCanAcceptCashJob } from './payments/payment-rules';
+import { selectJobById } from './job-enrichment';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
@@ -25,11 +26,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     return fail('offer_id is required', 400);
   }
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return fail('Job not found', 404);
