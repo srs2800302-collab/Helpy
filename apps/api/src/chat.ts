@@ -2,6 +2,7 @@ import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { deferTranslations, processPendingTranslationTasks } from './translation';
+import { selectJobById } from './job-enrichment';
 
 const MAX_MESSAGE_LENGTH = 2000;
 const DEFAULT_MESSAGES_LIMIT = 50;
@@ -74,11 +75,7 @@ export async function getMessages(jobId: string, request: Request, env: any) {
   const limit = getMessagesLimit(request);
   const offset = getMessagesOffset(request);
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(
@@ -207,11 +204,7 @@ export async function sendMessage(jobId: string, request: Request, env: any, ctx
     );
   }
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(
@@ -354,11 +347,7 @@ export async function startWork(jobId: string, request: Request, env: any) {
 
   const actorUserId = auth.userId;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  )
-    .bind(jobId)
-    .first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return Response.json(
