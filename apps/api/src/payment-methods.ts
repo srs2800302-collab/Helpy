@@ -1,6 +1,22 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 
+const PAYMENT_METHOD_COLUMNS = `
+  id,
+  user_id,
+  provider,
+  provider_payment_method_id,
+  type,
+  brand,
+  last4,
+  exp_month,
+  exp_year,
+  is_default,
+  status,
+  created_at,
+  updated_at
+`;
+
 type CreateMockCardBody = {
   brand?: string;
   last4?: string;
@@ -99,7 +115,7 @@ export async function listPaymentMethods(userId: string, request: Request, env: 
   if (!auth.ok) return auth.response;
 
   const result = await env.DB.prepare(
-    `SELECT *
+    `SELECT ${PAYMENT_METHOD_COLUMNS}
      FROM payment_methods
      WHERE user_id = ?1
      ORDER BY is_default DESC, created_at ASC`
@@ -194,7 +210,7 @@ export async function createMockCard(userId: string, request: Request, env: any)
   await syncMasterBillingState(userId, env);
 
   const created = await env.DB.prepare(
-    'SELECT * FROM payment_methods WHERE id = ?1 LIMIT 1'
+    `SELECT ${PAYMENT_METHOD_COLUMNS} FROM payment_methods WHERE id = ?1 LIMIT 1`
   )
     .bind(id)
     .first();
@@ -214,7 +230,7 @@ export async function setDefaultPaymentMethod(
   if (!auth.ok) return auth.response;
 
   const method = await env.DB.prepare(
-    `SELECT *
+    `SELECT ${PAYMENT_METHOD_COLUMNS}
      FROM payment_methods
      WHERE id = ?1 AND user_id = ?2
      LIMIT 1`
@@ -253,7 +269,7 @@ export async function setDefaultPaymentMethod(
   await syncMasterBillingState(userId, env);
 
   const updated = await env.DB.prepare(
-    'SELECT * FROM payment_methods WHERE id = ?1 LIMIT 1'
+    `SELECT ${PAYMENT_METHOD_COLUMNS} FROM payment_methods WHERE id = ?1 LIMIT 1`
   )
     .bind(methodId)
     .first();
@@ -273,7 +289,7 @@ export async function deletePaymentMethod(
   if (!auth.ok) return auth.response;
 
   const method = await env.DB.prepare(
-    `SELECT *
+    `SELECT ${PAYMENT_METHOD_COLUMNS}
      FROM payment_methods
      WHERE id = ?1 AND user_id = ?2
      LIMIT 1`
