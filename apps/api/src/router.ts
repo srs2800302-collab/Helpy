@@ -202,7 +202,7 @@ async function completeTranslationTask(request: Request, env: any) {
   }
 
   const task = await env.DB.prepare(`
-    SELECT *
+    SELECT id
     FROM translation_tasks
     WHERE entity_type = 'job'
       AND entity_id = ?1
