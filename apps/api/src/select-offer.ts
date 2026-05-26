@@ -4,6 +4,7 @@ import { requireAuth } from './auth-context';
 import { fail } from './response';
 import { assertMasterCanAcceptCashJob } from './payments/payment-rules';
 import { OFFER_COLUMNS, PAYMENT_COLUMNS, selectJobById } from './job-enrichment';
+import { OFFER_STATUS } from './db-domains';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
@@ -56,7 +57,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     return fail('Offer not found for this job', 404);
   }
 
-  if ((offer.status ?? 'active') !== 'active') {
+  if ((offer.status ?? OFFER_STATUS.active) !== OFFER_STATUS.active) {
     return fail('Offer is no longer active', 400);
   }
 
@@ -197,11 +198,11 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
 
   await env.DB.prepare(
     `UPDATE offers
-     SET status = CASE WHEN id = ?1 THEN 'selected' ELSE 'rejected' END
+     SET status = CASE WHEN id = ?1 THEN ?3 ELSE ?4 END
      WHERE job_id = ?2
-       AND COALESCE(status, 'active') = 'active'`
+       AND COALESCE(status, ?5) = ?5`
   )
-    .bind(offer.id, jobId)
+    .bind(offer.id, jobId, OFFER_STATUS.selected, OFFER_STATUS.rejected, OFFER_STATUS.active)
     .run();
 
   return Response.json({
