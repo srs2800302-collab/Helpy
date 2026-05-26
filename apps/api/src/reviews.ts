@@ -42,7 +42,18 @@ export async function getReviews(jobId: string, request: Request, env: any) {
   }
 
   const result = await env.DB.prepare(
-    'SELECT * FROM reviews WHERE job_id = ?1 ORDER BY created_at DESC'
+    `SELECT
+       id,
+       job_id,
+       client_user_id,
+       master_user_id,
+       rating,
+       comment,
+       comment_translations_json,
+       created_at
+     FROM reviews
+     WHERE job_id = ?1
+     ORDER BY created_at DESC`
   )
     .bind(jobId)
     .all();
