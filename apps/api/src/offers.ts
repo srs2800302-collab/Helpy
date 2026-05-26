@@ -1,6 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { requireAuth } from './auth-context';
 import { deferTranslations, processPendingTranslationTasks } from './translation';
+import { selectJobById } from './job-enrichment';
 
 type CreateOfferBody = {
   master_name?: string;
@@ -42,9 +43,7 @@ export async function createOffer(jobId: string, request: Request, env: any, ctx
     return fail('positive price is required', 400);
   }
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  ).bind(jobId).first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) return fail('Job not found', 404);
 
@@ -173,9 +172,7 @@ export async function getOffers(jobId: string, request: Request, env: any, ctx?:
   const auth = await requireAuth(request, env);
   if (!auth.ok) return auth.response;
 
-  const job = await env.DB.prepare(
-    'SELECT * FROM jobs WHERE id = ?1'
-  ).bind(jobId).first();
+  const job = await selectJobById(env, jobId);
 
   if (!job) {
     return fail('Job not found', 404);
