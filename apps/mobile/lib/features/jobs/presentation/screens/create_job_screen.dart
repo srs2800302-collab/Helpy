@@ -194,10 +194,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
         final parts = _uniqueReadableAddressParts([
-          p.name,
           p.street,
           p.thoroughfare,
-          p.subThoroughfare,
           p.subLocality,
           p.locality,
           p.subAdministrativeArea,
