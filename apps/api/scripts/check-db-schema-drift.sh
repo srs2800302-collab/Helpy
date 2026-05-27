@@ -17,8 +17,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-sqlite3 "$tmpdb" < "$MIGRATIONS_DIR/0000_migration_registry.sql"
-sqlite3 "$tmpdb" < "$MIGRATIONS_DIR/0001_initial_schema.sql"
+while IFS= read -r migration; do
+  sqlite3 "$tmpdb" < "$migration"
+done < <(find "$MIGRATIONS_DIR" -maxdepth 1 -type f -name "*.sql" | sort)
 
 fk_errors="$(sqlite3 "$tmpdb" "PRAGMA foreign_key_check;")"
 if [ -n "$fk_errors" ]; then
