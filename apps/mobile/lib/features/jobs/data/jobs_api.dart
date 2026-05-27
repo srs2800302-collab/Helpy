@@ -83,9 +83,7 @@ class JobsApi {
     final response = await apiClient.dio.get('/users/$clientUserId/jobs');
 
     final data = response.data['data'] as List<dynamic>;
-    return data
-        .map((item) => _mapJob(item as Map<String, dynamic>))
-        .toList();
+    return data.map((item) => _mapJob(item as Map<String, dynamic>)).toList();
   }
 
   Future<JobItem> getJobById({
@@ -116,18 +114,17 @@ class JobsApi {
       descriptionOriginal: json['description_original'] as String?,
       sourceLanguage: json['source_language'] as String?,
       titleTranslationsJson: json['title_translations_json'] as String?,
-      descriptionTranslationsJson: json['description_translations_json'] as String?,
+      descriptionTranslationsJson:
+          json['description_translations_json'] as String?,
       addressTranslationsJson: json['address_translations_json'] as String?,
       status: json['status'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
       price: double.tryParse(json['price']?.toString() ?? ''),
-      depositAmount:
-          double.tryParse(json['deposit_amount']?.toString() ?? ''),
+      depositAmount: double.tryParse(json['deposit_amount']?.toString() ?? ''),
       selectedMasterName: json['selected_master_name'] as String?,
-      selectedMasterUserId:
-          json['selected_master_user_id'] as String?,
+      selectedMasterUserId: json['selected_master_user_id'] as String?,
       selectedOfferId: json['selected_offer_id'] as String?,
       selectedOfferPrice: double.tryParse(
         json['selected_offer_price']?.toString() ?? '',
@@ -135,8 +132,10 @@ class JobsApi {
       hasReview: json['has_review'] as bool?,
       reviewRating: int.tryParse(json['review_rating']?.toString() ?? ''),
       reviewComment: json['review_comment'] as String?,
-      reviewCommentTranslationsJson: json['review_comment_translations_json'] as String?,
-      reviewCreatedAt: DateTime.tryParse(json['review_created_at'] as String? ?? ''),
+      reviewCommentTranslationsJson:
+          json['review_comment_translations_json'] as String?,
+      reviewCreatedAt:
+          DateTime.tryParse(json['review_created_at'] as String? ?? ''),
       offersCount: int.tryParse(json['offers_count']?.toString() ?? '') ?? 0,
       hasApplied: json['has_applied'] == true ||
           json['has_applied'] == 1 ||
@@ -145,8 +144,10 @@ class JobsApi {
       longitude: double.tryParse(json['longitude']?.toString() ?? ''),
       lastMessage: json['last_message'] as String?,
       lastMessageSenderUserId: json['last_message_sender_user_id'] as String?,
-      lastMessageCreatedAt: DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
-      lastMessageTranslationsJson: json['last_message_translations_json'] as String?,
+      lastMessageCreatedAt:
+          DateTime.tryParse(json['last_message_created_at'] as String? ?? ''),
+      lastMessageTranslationsJson:
+          json['last_message_translations_json'] as String?,
     );
   }
 }

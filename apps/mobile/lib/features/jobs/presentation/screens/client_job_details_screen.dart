@@ -30,6 +30,7 @@ class ClientJobDetailsScreen extends ConsumerStatefulWidget {
       jobId: jobId,
     );
   }
+
   final JobItem job;
 
   const ClientJobDetailsScreen({
@@ -38,10 +39,12 @@ class ClientJobDetailsScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ClientJobDetailsScreen> createState() => _ClientJobDetailsScreenState();
+  ConsumerState<ClientJobDetailsScreen> createState() =>
+      _ClientJobDetailsScreenState();
 }
 
-class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen> {
+class _ClientJobDetailsScreenState
+    extends ConsumerState<ClientJobDetailsScreen> {
   late JobItem _job;
   late Future<List<String>> _photosFuture;
 
@@ -54,26 +57,31 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
   }
 
   Future<void> _refresh() async {
-    final updatedJob = await ref.read(jobsApiProvider).getJobById(jobId: _job.id);
+    final updatedJob =
+        await ref.read(jobsApiProvider).getJobById(jobId: _job.id);
+    final photosFuture = widget._loadPhotos(ref, _job.id);
 
     if (!mounted) return;
 
     setState(() {
       _job = updatedJob;
+      _photosFuture = photosFuture;
     });
+
+    await photosFuture;
   }
-
-
 
   Future<void> _markLastMessageRead(String jobId, DateTime? createdAt) async {
     await markReadMessageTimestamp(
-      keys: const ['readClientMessageTimestampsKey', 'readClientJobsMessageTimestampsKey'],
+      keys: const [
+        'readClientMessageTimestampsKey',
+        'readClientJobsMessageTimestampsKey'
+      ],
       current: const <String>{},
       jobId: jobId,
       createdAt: createdAt,
     );
   }
-
 
   Widget _infoBlock({
     required String title,
@@ -118,7 +126,8 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               (url) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: GestureDetector(
-                  onTap: () => showJobPhotoPreviewDialog(context: context, url: url),
+                  onTap: () =>
+                      showJobPhotoPreviewDialog(context: context, url: url),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: JobPhotoWidget(url: url),
@@ -131,7 +140,6 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +203,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                     builder: (_) => JobOffersScreen(
                       jobId: _job.id,
                       jobTitle: originalTitle,
-                jobTitleTranslationsJson: _job.titleTranslationsJson,
+                      jobTitleTranslationsJson: _job.titleTranslationsJson,
                     ),
                   ),
                 );
@@ -213,7 +221,7 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                     builder: (_) => JobOffersScreen(
                       jobId: _job.id,
                       jobTitle: originalTitle,
-                jobTitleTranslationsJson: _job.titleTranslationsJson,
+                      jobTitleTranslationsJson: _job.titleTranslationsJson,
                     ),
                   ),
                 );
@@ -224,7 +232,8 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
               },
               child: Text(l10n.t('job_offers')),
             );
-    } else if (_job.status == 'master_selected' || _job.status == 'in_progress') {
+    } else if (_job.status == 'master_selected' ||
+        _job.status == 'in_progress') {
       primaryAction = ElevatedButton(
         onPressed: () async {
           await _markLastMessageRead(_job.id, _job.lastMessageCreatedAt);
@@ -271,21 +280,21 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
         _job.status == 'draft' || _job.status == 'awaiting_payment';
 
     final Widget? editJobAction = canDeleteDraft
-      ? OutlinedButton(
-          onPressed: () async {
-            final changed = await Navigator.of(context).push<bool>(
-              MaterialPageRoute(
-                builder: (_) => CreateJobScreen(editJob: _job),
-              ),
-            );
+        ? OutlinedButton(
+            onPressed: () async {
+              final changed = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => CreateJobScreen(editJob: _job),
+                ),
+              );
 
-            if (changed == true && context.mounted) {
-              Navigator.of(context).pop(true);
-            }
-          },
-          child: Text(l10n.t('edit_job')),
-        )
-      : null;
+              if (changed == true && context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: Text(l10n.t('edit_job')),
+          )
+        : null;
 
     final Widget? deleteJobAction = canDeleteDraft
         ? OutlinedButton(
@@ -294,10 +303,13 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                 context: context,
                 builder: (dialogContext) => AlertDialog(
                   title: Text(
-          hasRealTranslation(original: originalTitle, translated: displayTitle)
-              ? displayTitle.trim()
-              : originalTitle,
-        ),
+                    hasRealTranslation(
+                      original: originalTitle,
+                      translated: displayTitle,
+                    )
+                        ? displayTitle.trim()
+                        : originalTitle,
+                  ),
                   content: Text(l10n.t('delete_draft_confirm')),
                   actions: [
                     TextButton(
@@ -338,77 +350,84 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LocalizedJobTitle(
-                    originalTitle: originalTitle,
-                    displayTitle: displayTitle,
-                    primaryStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      height: 1.15,
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LocalizedJobTitle(
+                      originalTitle: originalTitle,
+                      displayTitle: displayTitle,
+                      primaryStyle: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        height: 1.15,
+                      ),
+                      secondaryStyle: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        height: 1.25,
+                      ),
+                      spacing: 6,
                     ),
-                    secondaryStyle: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                      height: 1.25,
+                    const SizedBox(height: 18),
+                    DefaultTextStyle(
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                        height: 1.35,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${l10n.t('categories')}: $categoryLabel'),
+                          const SizedBox(height: 6),
+                          Text('${l10n.t('status_label')}: $statusLabel'),
+                          const SizedBox(height: 6),
+                          Text(
+                              '${l10n.t('created_label')}: ${_job.createdAt.toLocal()}'),
+                          if (_job.price != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                                '${l10n.t('price_label')}: ${_job.price!.toStringAsFixed(0)} THB'),
+                          ],
+                          if (_job.depositAmount != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                                '${l10n.t('deposit_label')}: ${_job.depositAmount!.toStringAsFixed(0)} THB'),
+                          ],
+                          if ((_job.selectedMasterName ?? '')
+                              .trim()
+                              .isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                                '${l10n.t('master_label')}: ${_job.selectedMasterName}'),
+                          ],
+                          if (_job.hasReview == true) ...[
+                            const SizedBox(height: 6),
+                            Text(l10n.t('review_submitted')),
+                          ],
+                          if (_job.selectedOfferPrice != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                                '${l10n.t('price_label')}: ${_job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
+                          ],
+                        ],
+                      ),
                     ),
-                    spacing: 6,
-                  ),
-                  const SizedBox(height: 18),
-                  DefaultTextStyle(
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade700,
-                      height: 1.35,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${l10n.t('categories')}: $categoryLabel'),
-                        const SizedBox(height: 6),
-                        Text('${l10n.t('status_label')}: $statusLabel'),
-                        const SizedBox(height: 6),
-                        Text('${l10n.t('created_label')}: ${_job.createdAt.toLocal()}'),
-                        if (_job.price != null) ...[
-                          const SizedBox(height: 6),
-                          Text('${l10n.t('price_label')}: ${_job.price!.toStringAsFixed(0)} THB'),
-                        ],
-                        if (_job.depositAmount != null) ...[
-                          const SizedBox(height: 6),
-                          Text('${l10n.t('deposit_label')}: ${_job.depositAmount!.toStringAsFixed(0)} THB'),
-                        ],
-                        if ((_job.selectedMasterName ?? '').trim().isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Text('${l10n.t('master_label')}: ${_job.selectedMasterName}'),
-                        ],
-                        if (_job.hasReview == true) ...[
-                          const SizedBox(height: 6),
-                          Text(l10n.t('review_submitted')),
-                        ],
-                        if (_job.selectedOfferPrice != null) ...[
-                          const SizedBox(height: 6),
-                          Text('${l10n.t('price_label')}: ${_job.selectedOfferPrice!.toStringAsFixed(0)} THB'),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          if (primaryAction != null) ...[
+            if (primaryAction != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: primaryAction,
+              ),
+            ],
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: primaryAction,
-            ),
-          ],
-          const SizedBox(height: 12),
             _infoBlock(
               title: l10n.t('client_note_label'),
               body: displayDescription,
@@ -448,7 +467,10 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
                             final uri = Uri.parse(
                               'https://www.google.com/maps/search/?api=1&query=${_job.latitude},${_job.longitude}',
                             );
-                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
                           },
                           icon: const Icon(Icons.map_outlined),
                           label: Text(l10n.t('open_in_maps')),
@@ -466,21 +488,20 @@ class _ClientJobDetailsScreenState extends ConsumerState<ClientJobDetailsScreen>
             ),
             const SizedBox(height: 12),
             _photosBlock(l10n),
-
-          if (editJobAction != null) ...[
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: editJobAction,
-            ),
-          ],
-          if (deleteJobAction != null) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: deleteJobAction,
-            ),
-          ],
+            if (editJobAction != null) ...[
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: editJobAction,
+              ),
+            ],
+            if (deleteJobAction != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: deleteJobAction,
+              ),
+            ],
           ],
         ),
       ),

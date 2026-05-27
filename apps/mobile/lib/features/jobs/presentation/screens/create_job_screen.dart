@@ -154,7 +154,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         address['city']?.toString(),
         address['town']?.toString(),
         address['state']?.toString(),
-        address['postcode']?.toString(),
       ]);
 
       if (parts.isEmpty) return '';
@@ -195,8 +194,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
         final parts = _uniqueReadableAddressParts([
+          p.name,
           p.street,
           p.thoroughfare,
+          p.subThoroughfare,
           p.subLocality,
           p.locality,
           p.subAdministrativeArea,

@@ -96,7 +96,10 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
 
   Future<void> _markMessageRead(String jobId, DateTime? createdAt) async {
     final next = await markReadMessageTimestamp(
-      keys: const [_readMasterOffersMessageTimestampsKey],
+      keys: const [
+        _readMasterOffersMessageTimestampsKey,
+        'readMasterMessageTimestampsKey',
+      ],
       current: _readMessageTimestamps,
       jobId: jobId,
       createdAt: createdAt,
