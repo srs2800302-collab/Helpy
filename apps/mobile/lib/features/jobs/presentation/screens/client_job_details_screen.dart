@@ -59,12 +59,16 @@ class _ClientJobDetailsScreenState
   Future<void> _refresh() async {
     final updatedJob =
         await ref.read(jobsApiProvider).getJobById(jobId: _job.id);
+    final photosFuture = widget._loadPhotos(ref, _job.id);
 
     if (!mounted) return;
 
     setState(() {
       _job = updatedJob;
+      _photosFuture = photosFuture;
     });
+
+    await photosFuture;
   }
 
   Future<void> _markLastMessageRead(String jobId, DateTime? createdAt) async {

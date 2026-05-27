@@ -154,8 +154,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         address['city']?.toString(),
         address['town']?.toString(),
         address['state']?.toString(),
-        address['postcode']?.toString(),
-        address['country']?.toString(),
       ]);
 
       if (parts.isEmpty) return '';
@@ -204,8 +202,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           p.locality,
           p.subAdministrativeArea,
           p.administrativeArea,
-          p.postalCode,
-          p.country,
         ]);
 
         if (parts.isNotEmpty) {
