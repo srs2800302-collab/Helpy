@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
-import '../../../auth/domain/auth_session.dart';
 import '../../domain/chat_message.dart';
 
 class ChatState {
@@ -176,16 +175,6 @@ class ChatController extends StateNotifier<ChatState> {
       );
 
       await load(jobId, silent: true);
-
-      if (session.role == UserRole.master) {
-        Future<void>(() async {
-          await ref.read(offersControllerProvider.notifier).loadMyOffers();
-        });
-      } else if (session.role == UserRole.client) {
-        Future<void>(() async {
-          await ref.read(jobsControllerProvider.notifier).loadClientJobs();
-        });
-      }
     } catch (e) {
       final appError = ApiErrorMapper.map(e);
       state = state.copyWith(

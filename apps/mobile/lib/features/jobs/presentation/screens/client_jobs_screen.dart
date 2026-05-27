@@ -51,10 +51,7 @@ class _ClientJobsScreenState extends ConsumerState<ClientJobsScreen> {
 
   Future<void> _markMessageRead(String jobId, DateTime? createdAt) async {
     final next = await markReadMessageTimestamp(
-      keys: const [
-        _readClientJobsMessageTimestampsKey,
-        'readClientMessageTimestampsKey',
-      ],
+      keys: const [_readClientJobsMessageTimestampsKey],
       current: _readMessageTimestamps,
       jobId: jobId,
       createdAt: createdAt,

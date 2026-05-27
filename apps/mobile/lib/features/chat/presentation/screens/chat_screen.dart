@@ -24,8 +24,7 @@ class ChatScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends ConsumerState<ChatScreen>
-    with WidgetsBindingObserver {
+class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObserver {
   late String _currentStatus;
   late final TextEditingController _textController;
   late final ScrollController _scrollController;
@@ -114,9 +113,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
+        SnackBar(content: Text(AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
       );
     }
   }
@@ -152,9 +149,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         _isCompleting = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
+        SnackBar(content: Text(AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
       );
     }
   }
@@ -173,9 +168,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      ref
-          .read(chatControllerProvider.notifier)
-          .load(widget.jobId, silent: true);
+      ref.read(chatControllerProvider.notifier).load(widget.jobId, silent: true);
     }
   }
 
@@ -186,8 +179,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     if (_containsPhoneNumber(text)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text(AppLocalizations.of(context).t('phone_contact_not_allowed')),
+          content: Text(AppLocalizations.of(context).t('phone_contact_not_allowed')),
         ),
       );
       return;
@@ -249,8 +241,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
     return Scaffold(
       appBar: AppBar(
-        leading:
-            BackButton(onPressed: () => Navigator.of(context).pop(_hasChanges)),
+        leading: BackButton(onPressed: () => Navigator.of(context).pop(_hasChanges)),
         title: Text(l10n.t('chat')),
         actions: const [
           AppLanguageMenuButton(),
@@ -275,8 +266,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed:
-                      (state.isLoading || _isCompleting) ? null : _completeJob,
+                  onPressed: (state.isLoading || _isCompleting) ? null : _completeJob,
                   child: _isCompleting
                       ? const SizedBox(
                           width: 18,
@@ -343,8 +333,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                           translationsJson: m.textTranslationsJson,
                           locale: locale,
                         );
-                        final messageTime =
-                            formatShortDateTime(m.createdAt).split(' ').last;
+                        final messageTime = formatShortDateTime(m.createdAt).split(' ').last;
                         final isMe = m.senderUserId == (session?.userId ?? '');
                         final replySenderLabel = m.replySenderUserId == null
                             ? ''

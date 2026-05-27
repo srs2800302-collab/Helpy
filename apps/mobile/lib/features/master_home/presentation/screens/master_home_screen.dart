@@ -59,10 +59,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
 
   Future<void> _markMessageRead(String jobId, DateTime? createdAt) async {
     final next = await markReadMessageTimestamp(
-      keys: const [
-        _readMasterMessageTimestampsKey,
-        'readMasterOffersMessageTimestampsKey',
-      ],
+      keys: const [_readMasterMessageTimestampsKey],
       current: _readMessageTimestamps,
       jobId: jobId,
       createdAt: createdAt,
@@ -574,8 +571,8 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                           title: title,
                         );
                       },
-                      onTap: () async {
-                        final changed = await Navigator.of(context).push<bool>(
+                      onTap: () {
+                        Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => MasterJobDetailsScreen(
                               jobId: item.jobId,
@@ -585,9 +582,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                             ),
                           ),
                         );
-                        if (changed == true && mounted) {
-                          await _refreshAll();
-                        }
                       },
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

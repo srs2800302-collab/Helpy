@@ -29,6 +29,8 @@ String _buildAddressDetails({
   return lines.join('\n');
 }
 
+
+
 class JobsController extends StateNotifier<JobsState> {
   final Ref ref;
 
@@ -169,6 +171,7 @@ class JobsController extends StateNotifier<JobsState> {
     }
   }
 
+
   Future<JobItem?> updateDraft({
     required String jobId,
   }) async {
@@ -198,20 +201,20 @@ class JobsController extends StateNotifier<JobsState> {
 
     try {
       final updated = await ref.read(jobsApiProvider).updateDraftJob(
-            jobId: jobId,
-            categoryId: state.selectedCategoryId!,
-            title: state.title.trim(),
-            sourceLanguage: ref.read(currentLocaleProvider).languageCode,
-            description: state.description.trim(),
-            addressText: _buildAddressDetails(
-              addressText: state.addressText,
-              roomNumber: state.roomNumber,
-              latitude: state.latitude,
-              longitude: state.longitude,
-            ),
-            latitude: state.latitude,
-            longitude: state.longitude,
-          );
+        jobId: jobId,
+        categoryId: state.selectedCategoryId!,
+        title: state.title.trim(),
+        sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+        description: state.description.trim(),
+        addressText: _buildAddressDetails(
+          addressText: state.addressText,
+          roomNumber: state.roomNumber,
+          latitude: state.latitude,
+          longitude: state.longitude,
+        ),
+        latitude: state.latitude,
+        longitude: state.longitude,
+      );
 
       await loadClientJobs();
 
@@ -231,7 +234,7 @@ class JobsController extends StateNotifier<JobsState> {
     }
   }
 
-  Future<JobItem?> createDraft() async {
+Future<JobItem?> createDraft() async {
     if (state.isSubmitting) return null;
 
     final session = ref.read(authControllerProvider).session;
@@ -266,11 +269,11 @@ class JobsController extends StateNotifier<JobsState> {
             sourceLanguage: ref.read(currentLocaleProvider).languageCode,
             description: state.description.trim(),
             addressText: _buildAddressDetails(
-              addressText: state.addressText,
-              roomNumber: state.roomNumber,
-              latitude: state.latitude,
-              longitude: state.longitude,
-            ),
+          addressText: state.addressText,
+          roomNumber: state.roomNumber,
+          latitude: state.latitude,
+          longitude: state.longitude,
+        ),
             latitude: state.latitude,
             longitude: state.longitude,
           );
