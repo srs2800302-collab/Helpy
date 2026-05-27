@@ -156,46 +156,17 @@ export async function selectMyRole(request: Request, env: any) {
     return jsonError('Role switching is not allowed for this phone', 403);
   }
 
-  let user = await env.DB.prepare(
-    'SELECT id, role, phone, language, created_at FROM users WHERE phone = ?1 AND role = ?2 LIMIT 1'
-  ).bind(currentUser.phone, role).first();
+  const now = new Date().toISOString();
 
-  if (!user) {
-    const id = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
+  await env.DB.prepare(
+    'UPDATE users SET role = ?1 WHERE id = ?2'
+  ).bind(role, currentUser.id).run();
 
-    await env.DB.prepare(
-      'INSERT INTO users (id, role, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)'
-    ).bind(id, role, currentUser.phone, currentUser.language ?? 'ru', createdAt).run();
-
-    user = {
-      id,
-      role,
-      phone: currentUser.phone,
-      language: currentUser.language ?? 'ru',
-      created_at: createdAt,
-    };
-  }
-
-  if (role === 'master') {
-    const profile = await env.DB.prepare(
-      'SELECT user_id FROM master_profiles WHERE user_id = ?1 LIMIT 1'
-    ).bind(user.id).first();
-
-    if (!profile) {
-      await env.DB.prepare(
-        'INSERT INTO master_profiles (id, user_id, name, category, bio, is_verified, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
-      ).bind(
-        crypto.randomUUID(),
-        user.id,
-        'Test Master',
-        'cleaning',
-        'Test master profile',
-        0,
-        new Date().toISOString(),
-      ).run();
-    }
-  }
+  const user = {
+    ...currentUser,
+    role,
+    created_at: currentUser.created_at ?? now,
+  };
 
   return Response.json({
     success: true,
