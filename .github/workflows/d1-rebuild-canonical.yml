@@ -1,0 +1,122 @@
+name: D1 Rebuild Canonical
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type REBUILD_EMPTY_D1_FROM_CANONICAL"
+        required: true
+        type: string
+
+jobs:
+  rebuild-canonical:
+    if: ${{ github.event.inputs.confirm == 'REBUILD_EMPTY_D1_FROM_CANONICAL' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Wrangler
+        working-directory: apps/api
+        run: npm install -g wrangler
+
+      - name: Guard live DB is empty enough for rebuild
+        working-directory: apps/api
+        run: |
+          COUNTS="$(wrangler d1 execute fixi-db --remote --json --command "
+          SELECT
+            (SELECT COUNT(*) FROM jobs) AS jobs,
+            (SELECT COUNT(*) FROM offers) AS offers,
+            (SELECT COUNT(*) FROM job_photos) AS job_photos,
+            (SELECT COUNT(*) FROM chat_messages) AS chat_messages,
+            (SELECT COUNT(*) FROM payments) AS payments,
+            (SELECT COUNT(*) FROM payment_events) AS payment_events,
+            (SELECT COUNT(*) FROM reviews) AS reviews,
+            (SELECT COUNT(*) FROM disputes) AS disputes,
+            (SELECT COUNT(*) FROM translation_tasks) AS translation_tasks;
+          ")"
+          echo "$COUNTS"
+
+          echo "$COUNTS" | jq -e '.[0].results[0] |
+            .jobs == 0 and
+            .offers == 0 and
+            .job_photos == 0 and
+            .chat_messages == 0 and
+            .payments == 0 and
+            .payment_events == 0 and
+            .reviews == 0 and
+            .disputes == 0 and
+            .translation_tasks == 0'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Drop known tables
+        working-directory: apps/api
+        run: |
+          cat > rebuild_drop_tables.sql <<'SQL'
+          PRAGMA foreign_keys=OFF;
+
+          DROP TABLE IF EXISTS translation_tasks;
+          DROP TABLE IF EXISTS disputes;
+          DROP TABLE IF EXISTS reviews;
+          DROP TABLE IF EXISTS payment_events;
+          DROP TABLE IF EXISTS payments;
+          DROP TABLE IF EXISTS payment_methods;
+          DROP TABLE IF EXISTS payment_customers;
+          DROP TABLE IF EXISTS job_photos;
+          DROP TABLE IF EXISTS chat_messages;
+          DROP TABLE IF EXISTS offers;
+          DROP TABLE IF EXISTS platform_financial_settings;
+          DROP TABLE IF EXISTS jobs;
+          DROP TABLE IF EXISTS service_categories;
+          DROP TABLE IF EXISTS master_profiles;
+          DROP TABLE IF EXISTS client_profiles;
+          DROP TABLE IF EXISTS users;
+          DROP TABLE IF EXISTS schema_migrations;
+
+          PRAGMA foreign_keys=ON;
+          SQL
+
+          wrangler d1 execute fixi-db --remote --file rebuild_drop_tables.sql
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Apply canonical migrations
+        working-directory: apps/api
+        run: |
+          for migration in $(find db/migrations -maxdepth 1 -type f -name "*.sql" | sort); do
+            echo "[APPLY] $(basename "$migration")"
+            wrangler d1 execute fixi-db --remote --file "$migration"
+            echo "[DONE] $(basename "$migration")"
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify canonical rebuild
+        working-directory: apps/api
+        run: |
+          echo "=== jobs_old refs ==="
+          wrangler d1 execute fixi-db --remote --json --command "
+          SELECT name, sql
+          FROM sqlite_master
+          WHERE sql LIKE '%jobs_old%'
+          ORDER BY name;
+          " | jq -c '.[0].results'
+
+          echo "=== applied migrations ==="
+          wrangler d1 execute fixi-db --remote --json --command "
+          SELECT id FROM schema_migrations ORDER BY id;
+          " | jq -c '.[0].results'
+
+          echo "=== seed/settings counts ==="
+          wrangler d1 execute fixi-db --remote --json --command "
+          SELECT
+            (SELECT COUNT(*) FROM users WHERE id = '11111111-1111-1111-1111-111111111111' AND role = 'admin') AS admin_seed,
+            (SELECT COUNT(*) FROM service_categories) AS service_categories,
+            (SELECT COUNT(*) FROM platform_financial_settings WHERE is_active = 1) AS active_financial_settings;
+          " | jq -c '.[0].results[0]'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
