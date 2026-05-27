@@ -271,6 +271,22 @@ function localMvpTranslate({
   return '';
 }
 
+function sanitizeProviderTranslation(text: string) {
+  return text
+    .trim()
+    .replace(/^```[a-z]*\s*/i, '')
+    .replace(/```$/i, '')
+    .replace(/^['\"“”‘’]+|['\"“”‘’]+$/g, '')
+    .split('\n')
+    .map((line) =>
+      line
+        .trim()
+        .replace(/^(translation|translated text|thai|english|russian)\s*[:：-]\s*/i, '')
+        .trim(),
+    )
+    .find((line) => line.length > 0) ?? '';
+}
+
 async function translateWithProvider({
   text,
   sourceLanguage,
@@ -323,7 +339,7 @@ async function translateWithProvider({
     }
 
     const payload = (await response.json()) as any;
-    const translated = String(payload?.choices?.[0]?.message?.content ?? '').trim();
+    const translated = sanitizeProviderTranslation(String(payload?.choices?.[0]?.message?.content ?? ''));
 
     if (!translated) {
       throw new Error(`Typhoon empty translation: ${JSON.stringify(payload).slice(0, 500)}`);
