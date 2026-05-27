@@ -184,13 +184,27 @@ export async function selectMyRole(request: Request, env: any) {
 
     if (!profile) {
       await env.DB.prepare(
-        'INSERT INTO master_profiles (id, user_id, name, category, bio, is_verified, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
+        `INSERT INTO master_profiles (
+          id,
+          user_id,
+          name,
+          category,
+          bio,
+          is_verified,
+          has_billing_method,
+          billing_status,
+          cash_jobs_enabled,
+          created_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
       ).bind(
         crypto.randomUUID(),
         user.id,
         'Test Master',
         'cleaning',
         'Test master profile',
+        0,
+        0,
+        'missing',
         0,
         new Date().toISOString(),
       ).run();
