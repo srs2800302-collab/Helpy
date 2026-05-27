@@ -13,10 +13,14 @@ function makeTokens(userId: string) {
   };
 }
 
+function displayPhone(phone: string) {
+  return phone.replace(/:master$/, '');
+}
+
 function sanitizeUser(row: any) {
   return {
     id: row.id,
-    phone: row.phone,
+    phone: displayPhone(String(row.phone ?? '')),
     role: row.role,
     language: row.language,
     created_at: row.created_at ?? null,
@@ -152,21 +156,44 @@ export async function selectMyRole(request: Request, env: any) {
 
   if (!currentUser) return jsonError('User not found', 404);
 
-  if (!ROLE_SWITCHER_PHONES.has(String(currentUser.phone ?? '').trim())) {
+  const basePhone = String(currentUser.phone ?? '').replace(/:master$/, '');
+
+  if (!ROLE_SWITCHER_PHONES.has(basePhone)) {
     return jsonError('Role switching is not allowed for this phone', 403);
   }
 
   const now = new Date().toISOString();
+  const targetPhone = role === 'master' ? `${basePhone}:master` : basePhone;
 
-  await env.DB.prepare(
-    'UPDATE users SET role = ?1 WHERE id = ?2'
-  ).bind(role, currentUser.id).run();
+  let user = await env.DB.prepare(
+    'SELECT id, role, phone, language, created_at FROM users WHERE phone = ?1 LIMIT 1'
+  ).bind(targetPhone).first();
 
-  const user = {
-    ...currentUser,
-    role,
-    created_at: currentUser.created_at ?? now,
-  };
+  if (!user) {
+    const id = crypto.randomUUID();
+
+    await env.DB.prepare(
+      'INSERT INTO users (id, role, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)'
+    ).bind(id, role, targetPhone, currentUser.language ?? 'ru', now).run();
+
+    user = {
+      id,
+      role,
+      phone: targetPhone,
+      language: currentUser.language ?? 'ru',
+      created_at: now,
+    };
+  } else if (user.role !== role) {
+    await env.DB.prepare(
+      'UPDATE users SET role = ?1 WHERE id = ?2'
+    ).bind(role, user.id).run();
+
+    user = {
+      ...user,
+      role,
+    };
+  }
+
   if (role === 'master') {
     await env.DB.prepare(
       `INSERT OR IGNORE INTO master_profiles (
@@ -183,7 +210,7 @@ export async function selectMyRole(request: Request, env: any) {
       ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
     ).bind(
       crypto.randomUUID(),
-      currentUser.id,
+      user.id,
       'Test Master',
       'cleaning',
       'Test master profile',
