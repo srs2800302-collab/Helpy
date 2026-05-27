@@ -45,7 +45,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   }
 
   Future<void> _refreshUntilTranslationsReady() async {
-    for (var attempt = 0; attempt < 8; attempt++) {
+    for (var attempt = 0; attempt < 6; attempt++) {
       await _refreshJob(silent: true);
       if (!mounted) return;
 
@@ -61,7 +61,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
         return;
       }
 
-      await Future<void>.delayed(const Duration(milliseconds: 900));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
     }
   }
 

@@ -589,27 +589,21 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         final job = await jobsController.createDraft();
                         if (job == null || !context.mounted) return;
 
-                        final freshJob = await ref
-                            .read(jobsApiProvider)
-                            .getJobById(jobId: job.id);
-
-                        if (context.mounted) {
-                          final paid = await Navigator.of(context).push<bool>(
-                            MaterialPageRoute(
-                              builder: (_) => JobPaymentScreen(
-                                jobId: freshJob.id,
-                                jobTitle: (freshJob.titleOriginal ?? freshJob.title).trim(),
-                                jobTitleTranslationsJson: freshJob.titleTranslationsJson,
-                                depositAmount: freshJob.depositAmount ?? 0,
-                                price: freshJob.price,
-                                job: freshJob,
-                              ),
+                        final paid = await Navigator.of(context).push<bool>(
+                          MaterialPageRoute(
+                            builder: (_) => JobPaymentScreen(
+                              jobId: job.id,
+                              jobTitle: (job.titleOriginal ?? job.title).trim(),
+                              jobTitleTranslationsJson: job.titleTranslationsJson,
+                              depositAmount: job.depositAmount ?? 0,
+                              price: job.price,
+                              job: job,
                             ),
-                          );
+                          ),
+                        );
 
-                          if (paid == true && context.mounted) {
-                            Navigator.of(context).pop(true);
-                          }
+                        if (paid == true && context.mounted) {
+                          Navigator.of(context).pop(true);
                         }
                       }
                     : null,
