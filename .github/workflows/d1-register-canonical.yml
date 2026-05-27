@@ -1,0 +1,76 @@
+name: D1 Register Canonical Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type REGISTER_CANONICAL_MIGRATIONS_ONLY"
+        required: true
+        type: string
+
+jobs:
+  register-canonical-migrations:
+    if: ${{ github.event.inputs.confirm == 'REGISTER_CANONICAL_MIGRATIONS_ONLY' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Wrangler
+        working-directory: apps/api
+        run: npm install -g wrangler
+
+      - name: Guard rebuilt schema is clean and registry is empty
+        working-directory: apps/api
+        run: |
+          JOBS_OLD_REFS="$(wrangler d1 execute fixi-db --remote --json --command "
+          SELECT COUNT(*) AS count
+          FROM sqlite_master
+          WHERE sql LIKE '%jobs_old%';
+          " | jq -r '.[0].results[0].count')"
+
+          REGISTRY_COUNT="$(wrangler d1 execute fixi-db --remote --json --command "
+          SELECT COUNT(*) AS count
+          FROM schema_migrations;
+          " | jq -r '.[0].results[0].count')"
+
+          SEED_COUNTS="$(wrangler d1 execute fixi-db --remote --json --command "
+          SELECT
+            (SELECT COUNT(*) FROM users WHERE id = '11111111-1111-1111-1111-111111111111' AND role = 'admin') AS admin_seed,
+            (SELECT COUNT(*) FROM service_categories) AS service_categories,
+            (SELECT COUNT(*) FROM platform_financial_settings WHERE is_active = 1) AS active_financial_settings;
+          " | jq -c '.[0].results[0]')"
+
+          echo "JOBS_OLD_REFS=$JOBS_OLD_REFS"
+          echo "REGISTRY_COUNT=$REGISTRY_COUNT"
+          echo "SEED_COUNTS=$SEED_COUNTS"
+
+          test "$JOBS_OLD_REFS" = "0"
+          test "$REGISTRY_COUNT" = "0"
+          echo "$SEED_COUNTS" | jq -e '.admin_seed == 1 and .service_categories == 20 and .active_financial_settings == 1'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Register canonical migration ids
+        working-directory: apps/api
+        run: |
+          wrangler d1 execute fixi-db --remote --command "
+          INSERT INTO schema_migrations (id, applied_at) VALUES
+            ('0000_migration_registry.sql', datetime('now')),
+            ('0001_initial_schema.sql', datetime('now')),
+            ('0002_live_contract_alignment.sql', datetime('now')),
+            ('0003_financial_policy_foundation.sql', datetime('now'));
+          "
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify registered migration ids
+        working-directory: apps/api
+        run: |
+          wrangler d1 execute fixi-db --remote --json --command "
+          SELECT id FROM schema_migrations ORDER BY id;
+          " | jq -c '.[0].results'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
