@@ -9,6 +9,7 @@ SELECT
   (SELECT COUNT(*) FROM payments) AS payments,
   (SELECT COUNT(*) FROM reviews) AS reviews,
   (SELECT COUNT(*) FROM disputes) AS disputes,
+  (SELECT COUNT(*) FROM payment_events) AS payment_events,
   (
     SELECT COUNT(*)
     FROM translation_tasks
