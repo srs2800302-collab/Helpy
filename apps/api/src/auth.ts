@@ -167,6 +167,33 @@ export async function selectMyRole(request: Request, env: any) {
     role,
     created_at: currentUser.created_at ?? now,
   };
+  if (role === 'master') {
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO master_profiles (
+        id,
+        user_id,
+        name,
+        category,
+        bio,
+        is_verified,
+        has_billing_method,
+        billing_status,
+        cash_jobs_enabled,
+        created_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
+    ).bind(
+      crypto.randomUUID(),
+      currentUser.id,
+      'Test Master',
+      'cleaning',
+      'Test master profile',
+      0,
+      0,
+      'missing',
+      0,
+      now,
+    ).run();
+  }
 
   return Response.json({
     success: true,
