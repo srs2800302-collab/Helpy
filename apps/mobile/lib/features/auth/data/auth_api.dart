@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/auth_session.dart';
 
@@ -16,12 +17,28 @@ class AuthApi {
   AuthApi(this.apiClient);
 
   Future<void> requestOtp(String phone) async {
-    await apiClient.post(
-      '/auth/request-otp',
-      data: {
-        'phone': phone,
-      },
-    );
+    try {
+      await apiClient.post(
+        '/auth/request-otp',
+        data: {
+          'phone': phone,
+        },
+      );
+    } on DioException catch (e) {
+      final retryable =
+          e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError;
+
+      if (!retryable) rethrow;
+
+      await apiClient.post(
+        '/auth/request-otp',
+        data: {
+          'phone': phone,
+        },
+      );
+    }
   }
 
   Future<AuthSession> verifyOtp(String phone, String code) async {
