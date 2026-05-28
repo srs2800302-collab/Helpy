@@ -53,18 +53,47 @@ class JobAddressResolver {
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isEmpty) return '';
 
-      final p = placemarks.first;
-      return _uniqueReadableAddressParts([
-        p.street,
-        p.thoroughfare,
-        p.subLocality,
-        p.locality,
-        p.subAdministrativeArea,
-        p.administrativeArea,
-      ]).join(', ');
+      final candidates = placemarks
+          .map(_googlePlacemarkAddress)
+          .where((address) => address.isNotEmpty)
+          .toList();
+
+      candidates.sort((a, b) => _addressScore(b).compareTo(_addressScore(a)));
+      return candidates.isEmpty ? '' : candidates.first;
     } catch (_) {
       return '';
     }
+  }
+
+  String _googlePlacemarkAddress(Placemark placemark) {
+    return _uniqueReadableAddressParts([
+      placemark.street,
+      placemark.thoroughfare,
+      placemark.subLocality,
+      placemark.locality,
+      placemark.subAdministrativeArea,
+      placemark.administrativeArea,
+    ]).join(', ');
+  }
+
+  int _addressScore(String value) {
+    final lower = value.toLowerCase();
+    var score = 0;
+
+    if (AddressDisplayFormatter.hasStrongAddress(value)) score += 100;
+    if (RegExp(r'\d').hasMatch(value)) score += 20;
+    if (lower.contains('soi')) score += 20;
+    if (lower.contains('road') || lower.contains('rd')) score += 15;
+    if (lower.contains('thap phraya')) score += 20;
+    if (lower.contains('phra tamnak') || lower.contains('pratumnak')) {
+      score += 20;
+    }
+    if (lower.contains('jomtien')) score += 20;
+    if (lower.contains('pattaya')) score += 10;
+    if (lower.contains('bang lamung')) score -= 5;
+    if (lower.contains('chon buri') || lower.contains('chonburi')) score -= 5;
+
+    return score;
   }
 
   Future<String> _reverseGeocodeWithOsm({
