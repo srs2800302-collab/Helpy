@@ -46,7 +46,7 @@ class JobsController extends StateNotifier<JobsState> {
   void setTitle(String value) {
     state = state.copyWith(
       title: value,
-      titleTranslationsJson: null,
+      clearTitleTranslations: true,
       clearError: true,
       clearSuccess: true,
     );
@@ -55,7 +55,7 @@ class JobsController extends StateNotifier<JobsState> {
   void setDescription(String value) {
     state = state.copyWith(
       description: value,
-      descriptionTranslationsJson: null,
+      clearDescriptionTranslations: true,
       clearError: true,
       clearSuccess: true,
     );
@@ -390,10 +390,12 @@ class JobsController extends StateNotifier<JobsState> {
         description: '',
         addressText: '',
         roomNumber: '',
-        latitude: null,
-        longitude: null,
+        clearLatitude: true,
+        clearLongitude: true,
         clearPhotos: true,
         clearSelectedCategory: true,
+        clearTitleTranslations: true,
+        clearDescriptionTranslations: true,
         successMessage: 'job_created',
       );
 

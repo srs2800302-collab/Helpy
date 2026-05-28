@@ -60,6 +60,10 @@ class JobsState {
     bool clearSuccess = false,
     bool clearSelectedCategory = false,
     bool clearPhotos = false,
+    bool clearTitleTranslations = false,
+    bool clearDescriptionTranslations = false,
+    bool clearLatitude = false,
+    bool clearLongitude = false,
   }) {
     return JobsState(
       isLoading: isLoading ?? this.isLoading,
@@ -70,13 +74,16 @@ class JobsState {
           clearSelectedCategory ? null : (selectedCategoryId ?? this.selectedCategoryId),
       title: title ?? this.title,
       description: description ?? this.description,
-      titleTranslationsJson: titleTranslationsJson ?? this.titleTranslationsJson,
-      descriptionTranslationsJson:
-          descriptionTranslationsJson ?? this.descriptionTranslationsJson,
+      titleTranslationsJson: clearTitleTranslations
+          ? null
+          : (titleTranslationsJson ?? this.titleTranslationsJson),
+      descriptionTranslationsJson: clearDescriptionTranslations
+          ? null
+          : (descriptionTranslationsJson ?? this.descriptionTranslationsJson),
       addressText: addressText ?? this.addressText,
       roomNumber: roomNumber ?? this.roomNumber,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
+      latitude: clearLatitude ? null : (latitude ?? this.latitude),
+      longitude: clearLongitude ? null : (longitude ?? this.longitude),
       photos: clearPhotos ? const [] : (photos ?? this.photos),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
