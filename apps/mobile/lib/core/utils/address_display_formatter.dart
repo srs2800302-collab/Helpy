@@ -58,8 +58,12 @@ class AddressDisplayFormatter {
   static List<String> _splitAddressParts(String value) {
     final normalized = value
         .replaceAll('\n', ',')
-        .replaceAll('ประเทศไทย', 'Thailand')
+        .replaceAll('ทัพพระยา', 'Thap Phraya')
+        .replaceAll('พระตำหนัก', 'Pratumnak')
+        .replaceAll('จอมเทียน', 'Jomtien')
+        .replaceAll('เมืองพัทยา', 'Pattaya')
         .replaceAll('พัทยา', 'Pattaya')
+        .replaceAll('ประเทศไทย', 'Thailand')
         .replaceAll('ชลบุรี', 'Chon Buri');
 
     return normalized
