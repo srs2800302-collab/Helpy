@@ -351,6 +351,59 @@ async function translateWithProvider({
   }
 }
 
+
+export async function translateTextPreview({
+  text,
+  sourceLanguage,
+  env,
+}: {
+  text: string;
+  sourceLanguage: string | null | undefined;
+  env: any;
+}) {
+  const originalText = text.trim();
+  const source = detectLanguageFromText(originalText) ?? normalizeLanguage(sourceLanguage);
+  const translations: Record<SupportedLanguage, string> = {
+    ru: '',
+    en: '',
+    th: '',
+  };
+
+  await Promise.all(
+    SUPPORTED_LANGUAGES.map(async (targetLanguage) => {
+      if (targetLanguage === source) {
+        translations[targetLanguage] = originalText;
+        return;
+      }
+
+      const rawTranslatedText = await translateWithProvider({
+        text: originalText,
+        sourceLanguage: source,
+        targetLanguage,
+        env,
+      });
+      const translatedText = applyTranslationFallbacks({
+        text: rawTranslatedText,
+        targetLanguage,
+      });
+
+      if (
+        !isValidTranslationForTargetLanguage({
+          text: translatedText,
+          targetLanguage,
+        })
+      ) {
+        throw new Error(`Invalid translation script for ${targetLanguage}`);
+      }
+
+      translations[targetLanguage] = translatedText;
+    }),
+  );
+
+  return translations;
+}
+
+
 export async function processPendingTranslationTasks({
   env,
   entityType,

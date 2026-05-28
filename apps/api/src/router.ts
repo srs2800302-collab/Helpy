@@ -1,4 +1,5 @@
 import { assertRequiredTable } from './schema-guards';
+import { requireAuth } from './auth-context';
 import { createJob, getAvailableJobs, getJobById, getJobs, getJobsByUser, updateJob, updateJobStatus } from './jobs';
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
@@ -23,7 +24,7 @@ import { getJobPaymentStatus } from './payment-status';
 import { listPaymentMethods, createMockCard, setDefaultPaymentMethod, deletePaymentMethod } from './payment-methods';
 import { getCategories } from './categories';
 import { getMessages, sendMessage, startWork } from './chat';
-import { processPendingTranslationTasks } from './translation';
+import { processPendingTranslationTasks, translateTextPreview } from './translation';
 import { getAdminDisputes } from './admin-disputes';
 import { getAdminDashboard } from './admin-dashboard';
 import { getAdminPayments } from './admin-payments';
@@ -382,6 +383,42 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
   if (path === '/api/v1/categories' && method === 'GET') {
     return getCategories();
   }
+
+  if (path === '/api/v1/translations/preview' && method === 'POST') {
+    const auth = await requireAuth(request, env);
+    if (!auth.ok) {
+      return auth.response;
+    }
+
+    const body = await request.json().catch(() => null) as {
+      text?: string;
+      source_language?: string;
+    } | null;
+    const text = body?.text?.trim() ?? '';
+
+    if (text.length < 2) {
+      return Response.json(
+        { success: false, error: 'text is required' },
+        { status: 400 },
+      );
+    }
+
+    const translations = await translateTextPreview({
+      text,
+      sourceLanguage: body?.source_language,
+      env,
+    });
+
+    return Response.json({
+      success: true,
+      data: {
+        original_text: text,
+        translations_json: JSON.stringify(translations),
+        translations,
+      },
+    });
+  }
+
 
   if (path === '/api/v1/payments/webhooks/stripe' && method === 'POST') {
     return handleStripeWebhook(request, env);
