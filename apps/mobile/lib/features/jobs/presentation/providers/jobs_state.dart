@@ -70,6 +70,9 @@ class JobsState {
           clearSelectedCategory ? null : (selectedCategoryId ?? this.selectedCategoryId),
       title: title ?? this.title,
       description: description ?? this.description,
+      titleTranslationsJson: titleTranslationsJson ?? this.titleTranslationsJson,
+      descriptionTranslationsJson:
+          descriptionTranslationsJson ?? this.descriptionTranslationsJson,
       addressText: addressText ?? this.addressText,
       roomNumber: roomNumber ?? this.roomNumber,
       latitude: latitude ?? this.latitude,
