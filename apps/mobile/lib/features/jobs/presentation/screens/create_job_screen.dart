@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/address_display_formatter.dart';
+import '../../../../core/utils/job_address_resolver.dart';
 import '../../../../core/utils/category_mapper.dart';
-import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../domain/job_item.dart';
@@ -100,80 +97,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   }
 
 
-  bool _isReadableAddressPart(String value) {
-    final text = value.trim();
-    if (text.isEmpty) return false;
-    if (RegExp(r'^[A-Z0-9]{4,}\+[A-Z0-9]{2,}$').hasMatch(text)) return false;
-    if (RegExp(r'^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$').hasMatch(text)) return false;
-    if (RegExp(r'[\u0E00-\u0E7F]').hasMatch(text)) return false;
-    return true;
-  }
-
-  String _readableAddressPart(String? value) {
-    final text = (value ?? '').trim();
-    return _isReadableAddressPart(text) ? text : '';
-  }
-
-  List<String> _uniqueReadableAddressParts(List<String?> values) {
-    final seen = <String>{};
-    final result = <String>[];
-
-    for (final value in values) {
-      final part = _readableAddressPart(value);
-      if (part.isEmpty) continue;
-
-      final key = part.toLowerCase();
-      if (seen.add(key)) {
-        result.add(part);
-      }
-    }
-
-    return result;
-  }
-
-  Future<String> _reverseGeocodeWithOsm(double latitude, double longitude) async {
-    try {
-      final response = await Dio(
-        BaseOptions(
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-          headers: const {'User-Agent': 'Helpy MVP Android'},
-          responseType: ResponseType.plain,
-        ),
-      ).get<String>(
-        'https://nominatim.openstreetmap.org/reverse',
-        queryParameters: {
-          'format': 'jsonv2',
-          'lat': latitude,
-          'lon': longitude,
-          'zoom': 18,
-          'addressdetails': 1,
-        },
-      );
-
-      final decoded = jsonDecode(response.data ?? '{}');
-      final address = decoded is Map ? decoded['address'] : null;
-      if (address is! Map) return '';
-
-      final parts = _uniqueReadableAddressParts([
-        address['road']?.toString(),
-        address['pedestrian']?.toString(),
-        address['residential']?.toString(),
-        address['neighbourhood']?.toString(),
-        address['suburb']?.toString(),
-        address['city_district']?.toString(),
-        address['city']?.toString(),
-        address['town']?.toString(),
-        address['state']?.toString(),
-      ]);
-
-      if (parts.isEmpty) return '';
-      return compactAddressForDisplay(parts.join(', '), locale: 'en');
-    } catch (_) {
-      return '';
-    }
-  }
-
   Future<void> _pickLocation() async {
     final jobsState = ref.read(jobsControllerProvider);
     final jobsController = ref.read(jobsControllerProvider.notifier);
@@ -192,42 +115,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     jobsController.setLatitude(result.latitude);
     jobsController.setLongitude(result.longitude);
 
-    String nextAddress =
-        '${result.latitude.toStringAsFixed(6)}, ${result.longitude.toStringAsFixed(6)}';
-
-    try {
-      await setLocaleIdentifier('en_US');
-      final placemarks = await placemarkFromCoordinates(
-        result.latitude,
-        result.longitude,
-      );
-
-      if (placemarks.isNotEmpty) {
-        final p = placemarks.first;
-        final parts = _uniqueReadableAddressParts([
-          p.street,
-          p.thoroughfare,
-          p.subLocality,
-          p.locality,
-          p.subAdministrativeArea,
-          p.administrativeArea,
-        ]);
-
-        if (parts.isNotEmpty) {
-          nextAddress = compactAddressForDisplay(parts.join(', '), locale: 'en');
-        }
-      }
-    } catch (_) {}
-
-    if (!AddressDisplayFormatter.hasStrongAddress(nextAddress)) {
-      final osmAddress = await _reverseGeocodeWithOsm(
-        result.latitude,
-        result.longitude,
-      );
-      if (osmAddress.isNotEmpty) {
-        nextAddress = osmAddress;
-      }
-    }
+    final nextAddress = await JobAddressResolver().resolve(
+      latitude: result.latitude,
+      longitude: result.longitude,
+    );
 
     _addressController.text = nextAddress;
     jobsController.setAddressText(nextAddress);
