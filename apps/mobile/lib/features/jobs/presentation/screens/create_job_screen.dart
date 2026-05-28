@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/utils/address_display_formatter.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
@@ -130,19 +131,6 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     return result;
   }
 
-  bool _hasStreetOrDistrict(String value) {
-    final lower = value.toLowerCase();
-    if (lower.isEmpty) return false;
-    final weakOnly = RegExp(r'^(pattaya|chon buri|thailand|[0-9]{5})(,\s*)?$', caseSensitive: false);
-    final parts = lower.split(',').map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
-    return parts.any((part) {
-      final hasEnglishOrThaiText = RegExp(r'[A-Za-z\u0E00-\u0E7F]').hasMatch(part);
-      return hasEnglishOrThaiText &&
-          !weakOnly.hasMatch(part) &&
-          !RegExp(r'^-?\d+(\.\d+)?\s*,?\s*-?\d+(\.\d+)?$').hasMatch(part);
-    });
-  }
-
   Future<String> _reverseGeocodeWithOsm(double latitude, double longitude) async {
     try {
       final response = await Dio(
@@ -231,7 +219,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       }
     } catch (_) {}
 
-    if (!_hasStreetOrDistrict(nextAddress)) {
+    if (!AddressDisplayFormatter.hasStrongAddress(nextAddress)) {
       final osmAddress = await _reverseGeocodeWithOsm(
         result.latitude,
         result.longitude,
@@ -366,7 +354,12 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         !isCategoriesLoading &&
         (jobsState.selectedCategoryId ?? '').isNotEmpty &&
         jobsState.title.trim().length >= 3 &&
-        jobsState.roomNumber.trim().isNotEmpty;
+        jobsState.roomNumber.trim().isNotEmpty &&
+        AddressDisplayFormatter.hasUsableJobLocation(
+          addressText: jobsState.addressText,
+          latitude: jobsState.latitude,
+          longitude: jobsState.longitude,
+        );
 
     return Scaffold(
       appBar: AppBar(
