@@ -8,6 +8,7 @@ import '../../../auth/domain/auth_session.dart';
 import '../../domain/chat_message.dart';
 
 class ChatState {
+  final String? jobId;
   final bool isLoading;
   final List<ChatMessage> messages;
   final String input;
@@ -15,6 +16,7 @@ class ChatState {
   final String? errorMessage;
 
   const ChatState({
+    this.jobId,
     this.isLoading = false,
     this.messages = const [],
     this.input = '',
@@ -23,6 +25,7 @@ class ChatState {
   });
 
   ChatState copyWith({
+    String? jobId,
     bool? isLoading,
     List<ChatMessage>? messages,
     String? input,
@@ -31,6 +34,7 @@ class ChatState {
     bool clearError = false,
   }) {
     return ChatState(
+      jobId: jobId ?? this.jobId,
       isLoading: isLoading ?? this.isLoading,
       messages: messages ?? this.messages,
       input: input ?? this.input,
@@ -73,17 +77,17 @@ class ChatController extends StateNotifier<ChatState> {
   }
 
   Future<void> load(String jobId, {bool silent = false}) async {
+    if (_currentJobId != jobId) {
+      _currentJobId = jobId;
+      state = ChatState(jobId: jobId, isLoading: true);
+      silent = false;
+    }
+
     if (_isLoadingMessages) {
       return;
     }
 
     _isLoadingMessages = true;
-
-    if (_currentJobId != jobId) {
-      _currentJobId = jobId;
-      state = const ChatState(isLoading: true);
-      silent = false;
-    }
 
     final session = ref.read(authControllerProvider).session;
 
@@ -113,8 +117,14 @@ class ChatController extends StateNotifier<ChatState> {
           _messagesFingerprint(messages) ==
               _messagesFingerprint(state.messages);
 
+      if (_currentJobId != jobId) {
+        _isLoadingMessages = false;
+        return;
+      }
+
       if (!hasSameMessages) {
         state = state.copyWith(
+          jobId: jobId,
           isLoading: false,
           messages: messages,
           clearError: true,

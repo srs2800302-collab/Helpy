@@ -213,6 +213,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(chatControllerProvider);
+    final visibleMessages = state.jobId == widget.jobId
+        ? state.messages.where((m) => m.jobId == widget.jobId).toList()
+        : const <ChatMessage>[];
     final controller = ref.read(chatControllerProvider.notifier);
     final l10n = AppLocalizations.of(context);
     final locale = ref.watch(currentLocaleProvider).languageCode;
@@ -307,7 +310,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                 ),
               ),
             ),
-          if (state.errorMessage != null && state.messages.isEmpty)
+          if (state.errorMessage != null && visibleMessages.isEmpty)
             Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
@@ -318,7 +321,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           Expanded(
             child: RefreshIndicator(
               onRefresh: () => controller.load(widget.jobId),
-              child: state.isLoading && state.messages.isEmpty
+              child: state.isLoading && visibleMessages.isEmpty
                   ? ListView(
                       controller: _scrollController,
                       children: const [
@@ -329,9 +332,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   : ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.all(12),
-                      itemCount: state.messages.length,
+                      itemCount: visibleMessages.length,
                       itemBuilder: (context, index) {
-                        final m = state.messages[index];
+                        final m = visibleMessages[index];
                         final senderLabel = _senderLabel(
                           senderUserId: m.senderUserId,
                           currentUserId: session?.userId ?? '',
