@@ -55,6 +55,25 @@ class AddressDisplayFormatter {
     ].join('\n');
   }
 
+  static bool hasStrongAddress(String? value) {
+    final raw = (value ?? '').trim();
+    if (raw.isEmpty) return false;
+
+    final parts = _splitAddressParts(raw);
+    if (parts.isEmpty) return false;
+
+    final street = _selectStreet(parts);
+    return street.isNotEmpty && _looksLikeStreet(street);
+  }
+
+  static bool hasUsableJobLocation({
+    required String? addressText,
+    required double? latitude,
+    required double? longitude,
+  }) {
+    return latitude != null && longitude != null && hasStrongAddress(addressText);
+  }
+
   static List<String> _splitAddressParts(String value) {
     final normalized = value
         .replaceAll('\n', ',')
