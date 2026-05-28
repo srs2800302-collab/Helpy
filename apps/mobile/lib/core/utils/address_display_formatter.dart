@@ -6,12 +6,13 @@ class AddressDisplayFormatter {
     final parts = _splitAddressParts(raw);
     if (parts.isEmpty) return '';
 
-    final postcode = parts.firstWhere(_isPostcode, orElse: () => '');
+    final postcode = _selectPostcode(parts);
     final street = _selectStreet(parts);
 
     return [
       if (street.isNotEmpty) street,
       'Pattaya',
+      'Chon Buri',
       if (postcode.isNotEmpty) postcode,
       'Thailand',
     ].join(', ');
@@ -111,6 +112,15 @@ class AddressDisplayFormatter {
       _looksLikeStreet,
       orElse: () => unique.isNotEmpty ? unique.first : '',
     );
+  }
+
+  static String _selectPostcode(List<String> parts) {
+    for (final part in parts) {
+      final match = RegExp(r'\b\d{5}\b').firstMatch(part);
+      if (match != null) return match.group(0) ?? '';
+    }
+
+    return '';
   }
 
   static String _stripLeadingHouseNumber(String value) {
