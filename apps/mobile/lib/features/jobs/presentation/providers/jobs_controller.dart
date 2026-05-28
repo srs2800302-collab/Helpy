@@ -294,15 +294,41 @@ class JobsController extends StateNotifier<JobsState> {
 
     try {
       final selectedPhotos = List<XFile>.from(state.photos);
+      final sourceLanguage = ref.read(currentLocaleProvider).languageCode;
+      final titleText = state.title.trim();
+      final descriptionText = state.description.trim();
+      final descriptionSource = descriptionText.isEmpty ? titleText : descriptionText;
+
+      var titleTranslationsJson = state.titleTranslationsJson;
+      var descriptionTranslationsJson = state.descriptionTranslationsJson;
+
+      if ((titleTranslationsJson ?? '').trim().isEmpty) {
+        titleTranslationsJson = await ref.read(jobsApiProvider).previewTranslations(
+              text: titleText,
+              sourceLanguage: sourceLanguage,
+            );
+      }
+
+      if ((descriptionTranslationsJson ?? '').trim().isEmpty) {
+        descriptionTranslationsJson = await ref.read(jobsApiProvider).previewTranslations(
+              text: descriptionSource,
+              sourceLanguage: sourceLanguage,
+            );
+      }
+
+      state = state.copyWith(
+        titleTranslationsJson: titleTranslationsJson,
+        descriptionTranslationsJson: descriptionTranslationsJson,
+      );
 
       final created = await ref.read(jobsApiProvider).createDraft(
             clientUserId: session.userId,
             categoryId: state.selectedCategoryId!,
-            title: state.title.trim(),
-            sourceLanguage: ref.read(currentLocaleProvider).languageCode,
-            description: state.description.trim(),
-            titleTranslationsJson: state.titleTranslationsJson,
-            descriptionTranslationsJson: state.descriptionTranslationsJson,
+            title: titleText,
+            sourceLanguage: sourceLanguage,
+            description: descriptionText,
+            titleTranslationsJson: titleTranslationsJson,
+            descriptionTranslationsJson: descriptionTranslationsJson,
             addressText: _buildAddressDetails(
               addressText: state.addressText,
               roomNumber: state.roomNumber,
