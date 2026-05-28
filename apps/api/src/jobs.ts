@@ -11,6 +11,8 @@ type CreateJobBody = {
   description?: string;
   address_text?: string;
   source_language?: string;
+  title_translations_json?: string;
+  description_translations_json?: string;
   budget_type?: string;
   budget_from?: number | null;
   budget_to?: number | null;
@@ -25,6 +27,28 @@ function normalizeNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
+}
+
+function validTranslationsJsonOrNull(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+
+  const raw = value.trim();
+  if (!raw) return null;
+
+  try {
+    const decoded = JSON.parse(raw);
+    if (
+      decoded === null ||
+      typeof decoded !== 'object' ||
+      Array.isArray(decoded)
+    ) {
+      return null;
+    }
+
+    return JSON.stringify(decoded);
+  } catch (_) {
+    return null;
+  }
 }
 
 export async function getJobs(request: Request, env: any) {
@@ -251,14 +275,25 @@ export async function createJob(request: Request, env: any, ctx?: any) {
   const sourceLanguage = detectLanguageFromText(body.title) ?? requestedSourceLanguage;
 
   // === translations ===
-  const titleTranslationsJson = buildInitialTranslationsJson({
-    text: body.title,
-    sourceLanguage,
-  });
-  const descriptionTranslationsJson = buildInitialTranslationsJson({
-    text: body.description,
-    sourceLanguage,
-  });
+  const titlePreviewTranslationsJson = validTranslationsJsonOrNull(
+    body.title_translations_json,
+  );
+  const descriptionPreviewTranslationsJson = validTranslationsJsonOrNull(
+    body.description_translations_json,
+  );
+
+  const titleTranslationsJson =
+    titlePreviewTranslationsJson ??
+    buildInitialTranslationsJson({
+      text: body.title,
+      sourceLanguage,
+    });
+  const descriptionTranslationsJson =
+    descriptionPreviewTranslationsJson ??
+    buildInitialTranslationsJson({
+      text: body.description,
+      sourceLanguage,
+    });
   const addressTranslationsJson = buildInitialTranslationsJson({
     text: body.address_text,
     sourceLanguage,
