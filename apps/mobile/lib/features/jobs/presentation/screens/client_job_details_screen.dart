@@ -68,7 +68,6 @@ class _ClientJobDetailsScreenState
       _photosFuture = photosFuture;
     });
 
-    await photosFuture;
   }
 
   Future<void> _markLastMessageRead(String jobId, DateTime? createdAt) async {
