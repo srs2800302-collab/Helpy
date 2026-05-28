@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/errors/api_error_mapper.dart';
+import '../../../../core/utils/address_display_formatter.dart';
 import '../../domain/job_item.dart';
 import 'jobs_state.dart';
 
@@ -283,6 +284,20 @@ class JobsController extends StateNotifier<JobsState> {
 
     if (state.title.trim().length < 3) {
       state = state.copyWith(errorMessage: 'title_too_short');
+      return null;
+    }
+
+    if (state.roomNumber.trim().isEmpty) {
+      state = state.copyWith(errorMessage: 'job_room_required');
+      return null;
+    }
+
+    if (!AddressDisplayFormatter.hasUsableJobLocation(
+      addressText: state.addressText,
+      latitude: state.latitude,
+      longitude: state.longitude,
+    )) {
+      state = state.copyWith(errorMessage: 'invalid_job_location');
       return null;
     }
 

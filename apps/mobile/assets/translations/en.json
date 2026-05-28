@@ -143,6 +143,7 @@
   "job_archived": "Job archived",
   "category_required": "Select category",
   "title_too_short": "Title is too short",
+  "invalid_job_location": "Pick an exact address on the map. Street/area and GPS are required.",
   "price_greater_than_zero": "Price must be greater than 0",
   "no_session": "Session not found",
   "job_fallback_id": "Job {id}",
