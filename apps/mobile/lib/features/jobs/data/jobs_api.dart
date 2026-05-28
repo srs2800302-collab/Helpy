@@ -27,9 +27,7 @@ class JobsApi {
         'description': (description == null || description.trim().isEmpty)
             ? title
             : description.trim(),
-        'address_text': (addressText == null || addressText.trim().isEmpty)
-            ? 'Pattaya'
-            : addressText.trim(),
+        'address_text': addressText?.trim(),
         'source_language': sourceLanguage,
           if ((titleTranslationsJson ?? '').trim().isNotEmpty)
             'title_translations_json': titleTranslationsJson!.trim(),
@@ -89,9 +87,7 @@ class JobsApi {
         'description': (description == null || description.trim().isEmpty)
             ? title
             : description.trim(),
-        'address_text': (addressText == null || addressText.trim().isEmpty)
-            ? 'Pattaya'
-            : addressText.trim(),
+        'address_text': addressText?.trim(),
         'source_language': sourceLanguage,
         'latitude': latitude,
         'longitude': longitude,
