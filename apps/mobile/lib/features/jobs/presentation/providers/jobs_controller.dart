@@ -312,29 +312,8 @@ class JobsController extends StateNotifier<JobsState> {
       final sourceLanguage = ref.read(currentLocaleProvider).languageCode;
       final titleText = state.title.trim();
       final descriptionText = state.description.trim();
-      final descriptionSource = descriptionText.isEmpty ? titleText : descriptionText;
-
-      var titleTranslationsJson = state.titleTranslationsJson;
-      var descriptionTranslationsJson = state.descriptionTranslationsJson;
-
-      if ((titleTranslationsJson ?? '').trim().isEmpty) {
-        titleTranslationsJson = await ref.read(jobsApiProvider).previewTranslations(
-              text: titleText,
-              sourceLanguage: sourceLanguage,
-            );
-      }
-
-      if ((descriptionTranslationsJson ?? '').trim().isEmpty) {
-        descriptionTranslationsJson = await ref.read(jobsApiProvider).previewTranslations(
-              text: descriptionSource,
-              sourceLanguage: sourceLanguage,
-            );
-      }
-
-      state = state.copyWith(
-        titleTranslationsJson: titleTranslationsJson,
-        descriptionTranslationsJson: descriptionTranslationsJson,
-      );
+      final titleTranslationsJson = state.titleTranslationsJson;
+      final descriptionTranslationsJson = state.descriptionTranslationsJson;
 
       final created = await ref.read(jobsApiProvider).createDraft(
             clientUserId: session.userId,
