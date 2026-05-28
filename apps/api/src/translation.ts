@@ -417,7 +417,7 @@ export async function processPendingTranslationTasks({
 }) {
   await assertRequiredTable(env, 'translation_tasks');
 
-  const staleProcessingBefore = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  const staleProcessingBefore = new Date(Date.now() - 30 * 1000).toISOString();
   await env.DB.prepare(`
     UPDATE translation_tasks
     SET status = 'pending',

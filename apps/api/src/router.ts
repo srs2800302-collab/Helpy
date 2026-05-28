@@ -539,7 +539,7 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     const jobId = parts[3];
 
     if (parts.length === 4 && method === 'GET') {
-      return getJobById(jobId, request, env);
+      return getJobById(jobId, request, env, ctx);
     }
 
     if (parts.length === 4 && method === 'DELETE') {

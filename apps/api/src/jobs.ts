@@ -150,7 +150,7 @@ export async function getAvailableJobs(request: Request, env: any) {
   });
 }
 
-export async function getJobById(id: string, request: Request, env: any) {
+export async function getJobById(id: string, request: Request, env: any, ctx?: any) {
   await assertRequiredTable(env, 'jobs');
 
   const auth = await requireAuth(request, env);
@@ -190,6 +190,15 @@ export async function getJobById(id: string, request: Request, env: any) {
       { status: 403 }
     );
   }
+
+  ctx?.waitUntil?.(
+    processPendingTranslationTasks({
+      env,
+      entityType: 'job',
+      entityId: id,
+      limit: 20,
+    }).catch(() => undefined),
+  );
 
   return Response.json({
     success: true,
