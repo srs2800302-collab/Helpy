@@ -5,10 +5,8 @@ import 'dart:io';
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:dio/dio.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/providers.dart';
@@ -302,74 +300,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     required double? latitude,
     required double? longitude,
   }) {
-    final point = LatLng(latitude ?? 12.923556, longitude ?? 100.882455);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: isBusy ? null : _pickLocation,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          width: 72,
-          height: 56,
-          margin: const EdgeInsets.all(6),
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Stack(
-            children: [
-              IgnorePointer(
-                child: FlutterMap(
-                  options: MapOptions(
-                    initialCenter: point,
-                    initialZoom: 14,
-                    interactionOptions: const InteractionOptions(
-                      flags: InteractiveFlag.none,
-                    ),
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.helpy.app',
-                    ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: point,
-                          width: 24,
-                          height: 24,
-                          child: const Icon(
-                            Icons.location_pin,
-                            size: 24,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                right: 4,
-                top: 4,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Icon(
-                    Icons.open_in_full,
-                    size: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return _LocationPickerPreview(
+      isDisabled: isBusy,
+      hasLocation: latitude != null && longitude != null,
+      onTap: _pickLocation,
     );
   }
 
@@ -642,6 +576,60 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class _LocationPickerPreview extends StatelessWidget {
+  const _LocationPickerPreview({
+    required this.isDisabled,
+    required this.hasLocation,
+    required this.onTap,
+  });
+
+  final bool isDisabled;
+  final bool hasLocation;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isDisabled ? null : onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: 72,
+          height: 56,
+          margin: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey.shade50,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                hasLocation
+                    ? Icons.location_on
+                    : Icons.add_location_alt_outlined,
+                color: hasLocation ? Colors.red : Colors.blueGrey,
+                size: 28,
+              ),
+              const Positioned(
+                right: 4,
+                top: 4,
+                child: Icon(
+                  Icons.open_in_full,
+                  size: 14,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
