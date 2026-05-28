@@ -73,7 +73,6 @@ class _MasterJobDetailsScreenState
         _photosFuture = photosFuture;
       });
 
-      await photosFuture;
     } catch (e) {
       if (!mounted) return;
       setState(() {
