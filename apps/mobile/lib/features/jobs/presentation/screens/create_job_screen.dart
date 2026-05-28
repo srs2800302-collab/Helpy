@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -36,6 +37,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   late final TextEditingController _roomController;
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
+  Timer? _titlePreviewTimer;
+  Timer? _descriptionPreviewTimer;
 
   @override
   void initState() {
@@ -68,11 +71,33 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
   @override
   void dispose() {
+    _titlePreviewTimer?.cancel();
+    _descriptionPreviewTimer?.cancel();
     _addressController.dispose();
     _roomController.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  void _onTitleChanged(String value) {
+    final controller = ref.read(jobsControllerProvider.notifier);
+    controller.setTitle(value);
+
+    _titlePreviewTimer?.cancel();
+    _titlePreviewTimer = Timer(const Duration(milliseconds: 600), () {
+      controller.previewTitleTranslations(value);
+    });
+  }
+
+  void _onDescriptionChanged(String value) {
+    final controller = ref.read(jobsControllerProvider.notifier);
+    controller.setDescription(value);
+
+    _descriptionPreviewTimer?.cancel();
+    _descriptionPreviewTimer = Timer(const Duration(milliseconds: 600), () {
+      controller.previewDescriptionTranslations(value);
+    });
   }
 
 
@@ -428,7 +453,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             const SizedBox(height: 16),
             TextField(
                 key: ValueKey('job_title_$locale'),
-              onChanged: jobsController.setTitle,
+              onChanged: _onTitleChanged,
               enabled: !isBusy,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -438,7 +463,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             const SizedBox(height: 16),
             TextField(
                 key: ValueKey('job_description_$locale'),
-              onChanged: jobsController.setDescription,
+              onChanged: _onDescriptionChanged,
               enabled: !isBusy,
               maxLines: 4,
               decoration: InputDecoration(

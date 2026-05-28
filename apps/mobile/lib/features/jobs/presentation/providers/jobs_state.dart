@@ -10,6 +10,8 @@ class JobsState {
   final String? selectedCategoryId;
   final String title;
   final String description;
+  final String? titleTranslationsJson;
+  final String? descriptionTranslationsJson;
   final String addressText;
   final String roomNumber;
   final double? latitude;
@@ -26,6 +28,8 @@ class JobsState {
     this.selectedCategoryId,
     this.title = '',
     this.description = '',
+    this.titleTranslationsJson,
+    this.descriptionTranslationsJson,
     this.addressText = '',
     this.roomNumber = '',
     this.latitude,
@@ -43,6 +47,8 @@ class JobsState {
     String? selectedCategoryId,
     String? title,
     String? description,
+    String? titleTranslationsJson,
+    String? descriptionTranslationsJson,
     String? addressText,
     String? roomNumber,
     double? latitude,

@@ -45,6 +45,7 @@ class JobsController extends StateNotifier<JobsState> {
   void setTitle(String value) {
     state = state.copyWith(
       title: value,
+      titleTranslationsJson: null,
       clearError: true,
       clearSuccess: true,
     );
@@ -53,9 +54,44 @@ class JobsController extends StateNotifier<JobsState> {
   void setDescription(String value) {
     state = state.copyWith(
       description: value,
+      descriptionTranslationsJson: null,
       clearError: true,
       clearSuccess: true,
     );
+  }
+
+  Future<void> previewTitleTranslations(String value) async {
+    final text = value.trim();
+    if (text.length < 3 || text != state.title.trim()) return;
+
+    try {
+      final translationsJson =
+          await ref.read(jobsApiProvider).previewTranslations(
+                text: text,
+                sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+              );
+
+      if (translationsJson == null || text != state.title.trim()) return;
+
+      state = state.copyWith(titleTranslationsJson: translationsJson);
+    } catch (_) {}
+  }
+
+  Future<void> previewDescriptionTranslations(String value) async {
+    final text = value.trim();
+    if (text.length < 2 || text != state.description.trim()) return;
+
+    try {
+      final translationsJson =
+          await ref.read(jobsApiProvider).previewTranslations(
+                text: text,
+                sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+              );
+
+      if (translationsJson == null || text != state.description.trim()) return;
+
+      state = state.copyWith(descriptionTranslationsJson: translationsJson);
+    } catch (_) {}
   }
 
   void setAddressText(String value) {
@@ -265,6 +301,8 @@ class JobsController extends StateNotifier<JobsState> {
             title: state.title.trim(),
             sourceLanguage: ref.read(currentLocaleProvider).languageCode,
             description: state.description.trim(),
+            titleTranslationsJson: state.titleTranslationsJson,
+            descriptionTranslationsJson: state.descriptionTranslationsJson,
             addressText: _buildAddressDetails(
               addressText: state.addressText,
               roomNumber: state.roomNumber,

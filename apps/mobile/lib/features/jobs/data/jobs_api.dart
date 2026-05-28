@@ -13,6 +13,8 @@ class JobsApi {
     required String sourceLanguage,
     String? description,
     String? addressText,
+      String? titleTranslationsJson,
+      String? descriptionTranslationsJson,
     double? latitude,
     double? longitude,
   }) async {
@@ -29,6 +31,10 @@ class JobsApi {
             ? 'Pattaya'
             : addressText.trim(),
         'source_language': sourceLanguage,
+          if ((titleTranslationsJson ?? '').trim().isNotEmpty)
+            'title_translations_json': titleTranslationsJson!.trim(),
+          if ((descriptionTranslationsJson ?? '').trim().isNotEmpty)
+            'description_translations_json': descriptionTranslationsJson!.trim(),
         'budget_type': 'fixed',
         'budget_from': 1000,
         'price': 1000,
@@ -39,6 +45,24 @@ class JobsApi {
     );
 
     return _mapJob(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<String?> previewTranslations({
+    required String text,
+    required String sourceLanguage,
+  }) async {
+    final raw = text.trim();
+    if (raw.length < 2) return null;
+
+    final response = await apiClient.dio.post(
+      '/translations/preview',
+      data: {
+        'text': raw,
+        'source_language': sourceLanguage,
+      },
+    );
+
+    return response.data['data']?['translations_json'] as String?;
   }
 
   Future<void> deleteDraftJob({
