@@ -34,6 +34,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   Set<String> _hiddenCompletedJobIds = <String>{};
   Set<String> _readMessageTimestamps = <String>{};
   Set<String> _completingJobIds = <String>{};
+  bool _pendingTranslationRefreshScheduled = false;
 
   @override
   void initState() {
@@ -157,6 +158,34 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     }
   }
 
+  void _schedulePendingTranslationRefresh(List<dynamic> offers) {
+    if (_pendingTranslationRefreshScheduled) return;
+
+    final hasPendingTranslations = offers.any((item) {
+      final hasMessage = (item.message ?? '').toString().trim().isNotEmpty;
+      final hasComment = (item.priceComment ?? '').toString().trim().isNotEmpty;
+      final missingMessageTranslation =
+          hasMessage && (item.messageTranslationsJson ?? '').toString().trim().isEmpty;
+      final missingCommentTranslation =
+          hasComment && (item.priceCommentTranslationsJson ?? '').toString().trim().isEmpty;
+
+      return missingMessageTranslation || missingCommentTranslation;
+    });
+
+    if (!hasPendingTranslations) return;
+
+    _pendingTranslationRefreshScheduled = true;
+
+    Future<void>.delayed(const Duration(seconds: 2), () async {
+      if (!mounted) return;
+
+      await ref.read(offersControllerProvider.notifier).loadMyOffers();
+
+      if (!mounted) return;
+      _pendingTranslationRefreshScheduled = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final offersState = ref.watch(offersControllerProvider);
@@ -170,6 +199,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final marketplaceState = ref.watch(marketplaceControllerProvider);
     final activeOffers =
         offersState.items.where((item) => item.status != 'completed').toList();
+    _schedulePendingTranslationRefresh(activeOffers);
     final incomingMessageOffers = activeOffers.where((item) {
       return (item.lastMessage ?? '').trim().isNotEmpty &&
           item.lastMessageSenderUserId != null &&
