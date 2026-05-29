@@ -190,12 +190,14 @@ export async function getOffers(jobId: string, request: Request, env: any, ctx?:
   ).bind(jobId).all();
 
   for (const offer of idsResult.results ?? []) {
-    await processPendingTranslationTasks({
-      env,
-      entityType: 'offer',
-      entityId: String((offer as any).id),
-      limit: 6,
-    }).catch(() => undefined);
+    ctx?.waitUntil?.(
+      processPendingTranslationTasks({
+        env,
+        entityType: 'offer',
+        entityId: String((offer as any).id),
+        limit: 6,
+      }).catch(() => undefined),
+    );
   }
 
   const result = await env.DB.prepare(

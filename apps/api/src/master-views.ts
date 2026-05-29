@@ -118,6 +118,7 @@ export async function getOffersByMaster(
   request: Request,
   pathUserId: string,
   env: any,
+  ctx?: any,
 ) {
   await assertRequiredTable(env, 'jobs');
   await assertRequiredTable(env, 'chat_messages');
@@ -135,12 +136,14 @@ export async function getOffersByMaster(
     .all();
 
   for (const offer of idsResult.results ?? []) {
-    await processPendingTranslationTasks({
-      env,
-      entityType: 'offer',
-      entityId: String((offer as any).id),
-      limit: 6,
-    }).catch(() => undefined);
+    ctx?.waitUntil?.(
+      processPendingTranslationTasks({
+        env,
+        entityType: 'offer',
+        entityId: String((offer as any).id),
+        limit: 6,
+      }).catch(() => undefined),
+    );
   }
 
   const result = await env.DB.prepare(

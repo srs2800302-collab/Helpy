@@ -465,7 +465,7 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     }
 
     if (parts.length === 5 && parts[4] === 'offers' && method === 'GET') {
-      return getOffersByMaster(request, userId, env);
+      return getOffersByMaster(request, userId, env, ctx);
     }
 
     if (parts.length === 5 && parts[4] === 'available-jobs' && method === 'GET') {
