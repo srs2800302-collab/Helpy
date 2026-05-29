@@ -158,16 +158,32 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     }
   }
 
-  void _schedulePendingTranslationRefresh(List<dynamic> offers) {
+  void _schedulePendingTranslationRefresh(
+    List<dynamic> offers,
+    String locale,
+  ) {
     if (_pendingTranslationRefreshScheduled) return;
 
     final hasPendingTranslations = offers.any((item) {
-      final hasMessage = (item.message ?? '').toString().trim().isNotEmpty;
-      final hasComment = (item.priceComment ?? '').toString().trim().isNotEmpty;
+      final rawMessage = (item.message ?? '').toString().trim();
+      final rawComment = (item.priceComment ?? '').toString().trim();
+
+      final message = translatedOrOriginal(
+        original: rawMessage,
+        translationsJson: item.messageTranslationsJson,
+        locale: locale,
+      ).trim();
+
+      final comment = translatedOrOriginal(
+        original: rawComment,
+        translationsJson: item.priceCommentTranslationsJson,
+        locale: locale,
+      ).trim();
+
       final missingMessageTranslation =
-          hasMessage && (item.messageTranslationsJson ?? '').toString().trim().isEmpty;
+          rawMessage.isNotEmpty && message == rawMessage;
       final missingCommentTranslation =
-          hasComment && (item.priceCommentTranslationsJson ?? '').toString().trim().isEmpty;
+          rawComment.isNotEmpty && comment == rawComment;
 
       return missingMessageTranslation || missingCommentTranslation;
     });
@@ -199,7 +215,7 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     final marketplaceState = ref.watch(marketplaceControllerProvider);
     final activeOffers =
         offersState.items.where((item) => item.status != 'completed').toList();
-    _schedulePendingTranslationRefresh(activeOffers);
+    _schedulePendingTranslationRefresh(activeOffers, locale);
     final incomingMessageOffers = activeOffers.where((item) {
       return (item.lastMessage ?? '').trim().isNotEmpty &&
           item.lastMessageSenderUserId != null &&
