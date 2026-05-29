@@ -75,13 +75,14 @@ class CreateOfferScreen extends ConsumerWidget {
               labelText: l10n.t('offer_price_comment'),
             ),
           ),
-          const SizedBox(height: 16),
-          if (state.errorMessage != null)
+          if (state.errorMessage != null) ...[
+            const SizedBox(height: 8),
             Text(
               l10n.t(state.errorMessage!),
               style: const TextStyle(color: Colors.red),
             ),
-          const SizedBox(height: 16),
+          ],
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
