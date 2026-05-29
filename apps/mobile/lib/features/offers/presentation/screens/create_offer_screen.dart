@@ -36,7 +36,10 @@ class CreateOfferScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           TextField(
-            onChanged: controller.setMessage,
+            onChanged: (value) {
+              controller.setMessage(value);
+              controller.previewMessageTranslations(value);
+            },
             enabled: !isBusy,
             maxLines: 2,
             decoration: InputDecoration(
@@ -56,7 +59,10 @@ class CreateOfferScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           TextField(
-            onChanged: controller.setPriceComment,
+            onChanged: (value) {
+              controller.setPriceComment(value);
+              controller.previewPriceCommentTranslations(value);
+            },
             enabled: !isBusy,
             minLines: 6,
             maxLines: 10,

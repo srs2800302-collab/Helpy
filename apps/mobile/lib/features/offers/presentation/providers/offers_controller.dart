@@ -12,9 +12,27 @@ class OffersController extends StateNotifier<OffersState> {
   void setMessage(String value) {
     state = state.copyWith(
       message: value,
+      clearMessageTranslations: true,
       clearError: true,
       clearSuccess: true,
     );
+  }
+
+  Future<void> previewMessageTranslations(String value) async {
+    final text = value.trim();
+    if (text.length < 2 || text != state.message.trim()) return;
+
+    try {
+      final translationsJson =
+          await ref.read(jobsApiProvider).previewTranslations(
+                text: text,
+                sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+              );
+
+      if (translationsJson == null || text != state.message.trim()) return;
+
+      state = state.copyWith(messageTranslationsJson: translationsJson);
+    } catch (_) {}
   }
 
   void setPrice(String value) {
@@ -28,9 +46,27 @@ class OffersController extends StateNotifier<OffersState> {
   void setPriceComment(String value) {
     state = state.copyWith(
       priceComment: value,
+      clearPriceCommentTranslations: true,
       clearError: true,
       clearSuccess: true,
     );
+  }
+
+  Future<void> previewPriceCommentTranslations(String value) async {
+    final text = value.trim();
+    if (text.length < 2 || text != state.priceComment.trim()) return;
+
+    try {
+      final translationsJson =
+          await ref.read(jobsApiProvider).previewTranslations(
+                text: text,
+                sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+              );
+
+      if (translationsJson == null || text != state.priceComment.trim()) return;
+
+      state = state.copyWith(priceCommentTranslationsJson: translationsJson);
+    } catch (_) {}
   }
 
   Future<void> loadMyOffers() async {
@@ -97,6 +133,8 @@ class OffersController extends StateNotifier<OffersState> {
             priceComment: state.priceComment.trim().isEmpty
                 ? null
                 : state.priceComment.trim(),
+            messageTranslationsJson: state.messageTranslationsJson,
+            commentTranslationsJson: state.priceCommentTranslationsJson,
           );
 
       state = state.copyWith(
@@ -104,6 +142,8 @@ class OffersController extends StateNotifier<OffersState> {
         message: '',
         price: '',
         priceComment: '',
+        clearMessageTranslations: true,
+        clearPriceCommentTranslations: true,
         successMessage: 'offer_created',
       );
 

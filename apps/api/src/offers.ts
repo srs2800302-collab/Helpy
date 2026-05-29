@@ -9,7 +9,23 @@ type CreateOfferBody = {
   message?: string;
   comment?: string;
   source_language?: string;
+  message_translations_json?: string;
+  comment_translations_json?: string;
 };
+
+function validTranslationsJsonOrNull(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const raw = value.trim();
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return JSON.stringify(parsed);
+  } catch {
+    return null;
+  }
+}
 
 function fail(error: string, status = 400) {
   return Response.json({ success: false, error }, { status });
@@ -86,8 +102,12 @@ export async function createOffer(jobId: string, request: Request, env: any, ctx
     const commentText = body.comment?.toString().trim() || '';
     const messageText = body.message?.toString().trim() || '';
 
-    const commentTranslationsJson = null;
-    const messageTranslationsJson = null;
+    const commentTranslationsJson = validTranslationsJsonOrNull(
+      body.comment_translations_json,
+    );
+    const messageTranslationsJson = validTranslationsJsonOrNull(
+      body.message_translations_json,
+    );
 
     await env.DB.prepare(
       `INSERT INTO offers (

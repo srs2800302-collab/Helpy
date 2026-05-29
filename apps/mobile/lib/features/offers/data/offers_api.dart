@@ -13,6 +13,8 @@ class OffersApi {
     required double price,
     String? message,
     String? priceComment,
+    String? messageTranslationsJson,
+    String? commentTranslationsJson,
   }) async {
     final response = await apiClient.dio.post(
       '/jobs/$jobId/offers',
@@ -22,6 +24,10 @@ class OffersApi {
         'price': price,
         'comment': priceComment,
         'message': message,
+        if ((messageTranslationsJson ?? '').trim().isNotEmpty)
+          'message_translations_json': messageTranslationsJson!.trim(),
+        if ((commentTranslationsJson ?? '').trim().isNotEmpty)
+          'comment_translations_json': commentTranslationsJson!.trim(),
       },
     );
 

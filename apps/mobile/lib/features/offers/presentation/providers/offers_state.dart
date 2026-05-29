@@ -8,6 +8,8 @@ class OffersState {
   final String message;
   final String price;
   final String priceComment;
+  final String? messageTranslationsJson;
+  final String? priceCommentTranslationsJson;
   final String? errorMessage;
   final String? successMessage;
 
@@ -19,6 +21,8 @@ class OffersState {
     this.message = '',
     this.price = '',
     this.priceComment = '',
+    this.messageTranslationsJson,
+    this.priceCommentTranslationsJson,
     this.errorMessage,
     this.successMessage,
   });
@@ -31,10 +35,14 @@ class OffersState {
     String? message,
     String? price,
     String? priceComment,
+    String? messageTranslationsJson,
+    String? priceCommentTranslationsJson,
     String? errorMessage,
     String? successMessage,
     bool clearError = false,
     bool clearSuccess = false,
+    bool clearMessageTranslations = false,
+    bool clearPriceCommentTranslations = false,
   }) {
     return OffersState(
       isLoading: isLoading ?? this.isLoading,
@@ -44,6 +52,12 @@ class OffersState {
       message: message ?? this.message,
       price: price ?? this.price,
       priceComment: priceComment ?? this.priceComment,
+      messageTranslationsJson: clearMessageTranslations
+          ? null
+          : (messageTranslationsJson ?? this.messageTranslationsJson),
+      priceCommentTranslationsJson: clearPriceCommentTranslations
+          ? null
+          : (priceCommentTranslationsJson ?? this.priceCommentTranslationsJson),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
     );
