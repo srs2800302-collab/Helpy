@@ -140,6 +140,29 @@ export async function getMessages(jobId: string, request: Request, env: any) {
     });
   }
 
+  await env.DB.prepare(
+    `UPDATE chat_messages AS reply
+     SET reply_text_translations_json = (
+       SELECT source.text_translations_json
+       FROM chat_messages AS source
+       WHERE source.id = reply.reply_to_message_id
+         AND source.job_id = reply.job_id
+     )
+     WHERE reply.job_id = ?1
+       AND reply.reply_to_message_id IS NOT NULL
+       AND (reply.reply_text_translations_json IS NULL OR TRIM(reply.reply_text_translations_json) = '')
+       AND EXISTS (
+         SELECT 1
+         FROM chat_messages AS source
+         WHERE source.id = reply.reply_to_message_id
+           AND source.job_id = reply.job_id
+           AND source.text_translations_json IS NOT NULL
+           AND TRIM(source.text_translations_json) != ''
+       )`
+  )
+    .bind(jobId)
+    .run();
+
   const refreshedResult = await env.DB.prepare(
     `SELECT
        id,
