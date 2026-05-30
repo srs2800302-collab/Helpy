@@ -124,17 +124,36 @@ class OffersController extends StateNotifier<OffersState> {
     );
 
     try {
+      final messageText = state.message.trim();
+      final priceCommentText = state.priceComment.trim();
+      var messageTranslationsJson = state.messageTranslationsJson;
+      var priceCommentTranslationsJson = state.priceCommentTranslationsJson;
+
+      if (messageText.isNotEmpty) {
+        messageTranslationsJson ??=
+            await ref.read(jobsApiProvider).previewTranslations(
+                  text: messageText,
+                  sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+                );
+      }
+
+      if (priceCommentText.isNotEmpty) {
+        priceCommentTranslationsJson ??=
+            await ref.read(jobsApiProvider).previewTranslations(
+                  text: priceCommentText,
+                  sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+                );
+      }
+
       await ref.read(offersApiProvider).createOffer(
             jobId: jobId,
             masterUserId: session.userId,
             masterName: '',
             price: parsedPrice,
-            message: state.message.trim().isEmpty ? null : state.message.trim(),
-            priceComment: state.priceComment.trim().isEmpty
-                ? null
-                : state.priceComment.trim(),
-            messageTranslationsJson: state.messageTranslationsJson,
-            commentTranslationsJson: state.priceCommentTranslationsJson,
+            message: messageText.isEmpty ? null : messageText,
+            priceComment: priceCommentText.isEmpty ? null : priceCommentText,
+            messageTranslationsJson: messageTranslationsJson,
+            commentTranslationsJson: priceCommentTranslationsJson,
           );
 
       state = state.copyWith(
