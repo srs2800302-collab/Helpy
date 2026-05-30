@@ -49,7 +49,10 @@ class _MasterJobDetailsScreenState
   void initState() {
     super.initState();
     _photosFuture = _loadPhotos();
-    Future.microtask(_refresh);
+    Future.microtask(() async {
+      await _refresh();
+      await _refreshPhotosUntilStable();
+    });
   }
 
   Future<List<String>> _loadPhotos() {
@@ -78,6 +81,25 @@ class _MasterJobDetailsScreenState
       setState(() {
         _errorMessage = ApiErrorMapper.map(e).message;
       });
+    }
+  }
+
+  Future<void> _refreshPhotosUntilStable() async {
+    var lastCount = -1;
+
+    for (var attempt = 0; attempt < 8; attempt++) {
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      final photos = await _loadPhotos();
+      if (!mounted) return;
+
+      if (photos.length != lastCount) {
+        lastCount = photos.length;
+        setState(() {
+          _photosFuture = Future.value(photos);
+        });
+      }
+
+      if (photos.length >= 10) return;
     }
   }
 

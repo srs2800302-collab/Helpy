@@ -53,7 +53,10 @@ class _ClientJobDetailsScreenState
     super.initState();
     _job = widget.job;
     _photosFuture = widget._loadPhotos(ref, _job.id);
-    Future.microtask(_refresh);
+    Future.microtask(() async {
+      await _refresh();
+      await _refreshPhotosUntilStable();
+    });
   }
 
   Future<void> _refresh() async {
@@ -68,6 +71,25 @@ class _ClientJobDetailsScreenState
       _photosFuture = photosFuture;
     });
 
+  }
+
+  Future<void> _refreshPhotosUntilStable() async {
+    var lastCount = -1;
+
+    for (var attempt = 0; attempt < 8; attempt++) {
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      final photos = await widget._loadPhotos(ref, _job.id);
+      if (!mounted) return;
+
+      if (photos.length != lastCount) {
+        lastCount = photos.length;
+        setState(() {
+          _photosFuture = Future.value(photos);
+        });
+      }
+
+      if (photos.length >= 10) return;
+    }
   }
 
   Future<void> _markLastMessageRead(String jobId, DateTime? createdAt) async {
