@@ -190,6 +190,9 @@ class _MasterMarketplaceScreenState
                                           displayDescription.trim(),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ],
                                       const SizedBox(height: 8),

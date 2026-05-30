@@ -40,6 +40,9 @@ class JobInfoBlock extends StatelessWidget {
                     body.trim(),
                     maxLines: 16,
                     overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),

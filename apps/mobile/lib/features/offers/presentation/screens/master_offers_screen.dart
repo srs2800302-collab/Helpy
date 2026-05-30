@@ -297,6 +297,9 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                         message,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ],
                                     if (comment.isNotEmpty) ...[
@@ -311,6 +314,9 @@ class _MasterOffersScreenState extends ConsumerState<MasterOffersScreen> {
                                         comment,
                                         maxLines: 10,
                                         overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ],
                                     if (lastMessage.isNotEmpty) ...[

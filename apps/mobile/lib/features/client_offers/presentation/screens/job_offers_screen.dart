@@ -217,6 +217,9 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                             displayMessage.trim(),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ],
                                         if (displayPriceComment.trim().isNotEmpty) ...[
@@ -230,6 +233,9 @@ class _JobOffersScreenState extends ConsumerState<JobOffersScreen> {
                                             displayPriceComment.trim(),
                                             maxLines: 10,
                                             overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ],
                                         const SizedBox(height: 14),

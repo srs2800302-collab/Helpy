@@ -509,6 +509,9 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                                 message,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                             if (rawComment.isNotEmpty) ...[
@@ -523,6 +526,9 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                                 comment,
                                 maxLines: 10,
                                 overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                             if (item.status == 'in_progress') ...[
