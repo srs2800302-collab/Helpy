@@ -66,7 +66,7 @@ class ChatController extends StateNotifier<ChatState> {
   Future<void> init(String jobId) async {
     await load(jobId);
     _polling?.cancel();
-    _polling = Timer.periodic(const Duration(seconds: 3), (_) {
+    _polling = Timer.periodic(const Duration(seconds: 1), (_) {
       load(jobId, silent: true);
     });
   }
