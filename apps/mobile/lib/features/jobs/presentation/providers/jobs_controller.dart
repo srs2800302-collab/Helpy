@@ -348,25 +348,32 @@ class JobsController extends StateNotifier<JobsState> {
 
       final createdForUi = created;
 
-      // Upload photos in background so job creation is not blocked.
+      // Upload photos in small batches so details refresh receives larger chunks.
       Future(() async {
-        for (final photo in selectedPhotos.take(10)) {
-          try {
-            final bytes = await photo.readAsBytes();
-            final lowerName = photo.name.toLowerCase();
-            final ext = lowerName.endsWith('.png')
-                ? 'png'
-                : lowerName.endsWith('.webp')
-                    ? 'webp'
-                    : 'jpeg';
+        final photos = selectedPhotos.take(10).toList();
+        for (var start = 0; start < photos.length; start += 3) {
+          final batch = photos.skip(start).take(3);
+          await Future.wait(
+            batch.map((photo) async {
+              try {
+                final bytes = await photo.readAsBytes();
+                final lowerName = photo.name.toLowerCase();
+                final ext = lowerName.endsWith('.png')
+                    ? 'png'
+                    : lowerName.endsWith('.webp')
+                        ? 'webp'
+                        : 'jpeg';
 
-            final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
+                final dataUrl =
+                    'data:image/$ext;base64,${base64Encode(bytes)}';
 
-            await ref.read(jobsApiProvider).addJobPhoto(
-                  jobId: created.id,
-                  url: dataUrl,
-                );
-          } catch (_) {}
+                await ref.read(jobsApiProvider).addJobPhoto(
+                      jobId: created.id,
+                      url: dataUrl,
+                    );
+              } catch (_) {}
+            }),
+          );
         }
       });
 
