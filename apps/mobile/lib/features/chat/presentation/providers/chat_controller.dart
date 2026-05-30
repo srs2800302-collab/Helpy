@@ -137,7 +137,7 @@ class ChatController extends StateNotifier<ChatState> {
       }
       _isLoadingMessages = false;
     } catch (e) {
-      if (silent && state.messages.isNotEmpty) {
+      if (silent) {
         state = state.copyWith(isLoading: false);
         _isLoadingMessages = false;
         return;
