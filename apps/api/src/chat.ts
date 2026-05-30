@@ -131,14 +131,6 @@ export async function getMessages(jobId: string, request: Request, env: any) {
     .bind(jobId, limit, offset)
     .all();
 
-  for (const message of result.results ?? []) {
-    await processPendingTranslationTasks({
-      env,
-      entityType: 'chat_message',
-      entityId: String(message.id),
-      limit: 3,
-    });
-  }
 
   await env.DB.prepare(
     `UPDATE chat_messages AS reply
