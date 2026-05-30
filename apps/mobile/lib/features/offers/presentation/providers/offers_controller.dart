@@ -9,6 +9,20 @@ class OffersController extends StateNotifier<OffersState> {
 
   OffersController(this.ref) : super(const OffersState());
 
+  Future<String?> _previewTranslationsOrNull(String text) async {
+    final raw = text.trim();
+    if (raw.length < 2) return null;
+
+    try {
+      return await ref.read(jobsApiProvider).previewTranslations(
+            text: raw,
+            sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+          );
+    } catch (_) {
+      return null;
+    }
+  }
+
   void setMessage(String value) {
     state = state.copyWith(
       message: value,
@@ -129,21 +143,9 @@ class OffersController extends StateNotifier<OffersState> {
       var messageTranslationsJson = state.messageTranslationsJson;
       var priceCommentTranslationsJson = state.priceCommentTranslationsJson;
 
-      if (messageText.isNotEmpty) {
-        messageTranslationsJson ??=
-            await ref.read(jobsApiProvider).previewTranslations(
-                  text: messageText,
-                  sourceLanguage: ref.read(currentLocaleProvider).languageCode,
-                );
-      }
-
-      if (priceCommentText.isNotEmpty) {
-        priceCommentTranslationsJson ??=
-            await ref.read(jobsApiProvider).previewTranslations(
-                  text: priceCommentText,
-                  sourceLanguage: ref.read(currentLocaleProvider).languageCode,
-                );
-      }
+      messageTranslationsJson ??= await _previewTranslationsOrNull(messageText);
+      priceCommentTranslationsJson ??=
+          await _previewTranslationsOrNull(priceCommentText);
 
       await ref.read(offersApiProvider).createOffer(
             jobId: jobId,
