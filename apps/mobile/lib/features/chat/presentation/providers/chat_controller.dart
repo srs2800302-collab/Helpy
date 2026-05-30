@@ -129,6 +129,11 @@ class ChatController extends StateNotifier<ChatState> {
           messages: messages,
           clearError: true,
         );
+      } else if (state.errorMessage != null || state.isLoading) {
+        state = state.copyWith(
+          isLoading: false,
+          clearError: true,
+        );
       }
       _isLoadingMessages = false;
     } catch (e) {
