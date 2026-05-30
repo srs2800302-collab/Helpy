@@ -177,7 +177,7 @@ class ChatController extends StateNotifier<ChatState> {
     state = state.copyWith(isSending: true);
 
     try {
-      await ref.read(chatApiProvider).sendMessage(
+      final createdMessage = await ref.read(chatApiProvider).sendMessage(
         jobId: jobId,
         userId: session.userId,
         text: text,
@@ -185,12 +185,21 @@ class ChatController extends StateNotifier<ChatState> {
         replyToMessageId: replyToMessageId,
       );
 
+      final messages = [
+        ...state.messages.where((message) => message.id != createdMessage.id),
+        createdMessage,
+      ];
+
       state = state.copyWith(
         input: '',
         isSending: false,
+        messages: messages,
+        clearError: true,
       );
 
-      await load(jobId, silent: true);
+      Future<void>(() async {
+        await load(jobId, silent: true);
+      });
 
       if (session.role == UserRole.master) {
         Future<void>(() async {
