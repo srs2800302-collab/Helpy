@@ -324,6 +324,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               child: state.isLoading && visibleMessages.isEmpty
                   ? ListView(
                       controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       children: const [
                         SizedBox(height: 240),
                         Center(child: CircularProgressIndicator()),
@@ -331,6 +332,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                     )
                   : ListView.builder(
                       controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(12),
                       itemCount: visibleMessages.length,
                       itemBuilder: (context, index) {
