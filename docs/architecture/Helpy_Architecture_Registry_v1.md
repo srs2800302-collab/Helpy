@@ -1464,5 +1464,3 @@ GAP:
 - Anti-abuse rules.
 - Rating display thresholds.
 - Handling new masters with few orders.
-
-
