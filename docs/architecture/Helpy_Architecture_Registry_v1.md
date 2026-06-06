@@ -1310,3 +1310,98 @@ GAP:
 - Pricing
 - Service Playbook
 - финальный аудит
+
+## Global Rule → Chat Lifecycle Rules
+
+Status: APPROVED GLOBAL RULE ✅
+
+Purpose:
+- Chat is not a messenger.
+- Chat is a business process tool and changes its role depending on the order lifecycle stage.
+
+### Stage 1. Initial Scope Collection
+
+Client:
+- Sends photos only through the order form.
+
+Purpose:
+- Build the initial technical specification (TЗ).
+
+### Stage 2. Chat Before Work Starts
+
+Allowed:
+- Clarifying questions.
+- Discussion of hidden works.
+- Material clarification.
+- Technical discussion.
+- Price justification.
+- One-time final price agreement.
+
+Forbidden:
+
+Client:
+- Cannot send additional photos.
+
+Master:
+- Cannot send photos.
+
+Reason:
+- Chat must not become a remote diagnostic/help center.
+
+### Stage 3. Start Work
+
+Trigger:
+- Master presses "Start Work".
+
+After this action:
+
+Client:
+- Photo sending remains unavailable.
+
+Master:
+- Photo sending becomes available.
+
+Purpose:
+- Protect the master.
+- Record hidden defects.
+- Record dangerous conditions.
+- Provide evidence.
+
+### Stage 4. Work Completion
+
+Master obligations:
+- Verify the result of work.
+- Take final photos of completed work.
+- Send final photos through Helpy chat.
+
+Examples:
+- Installed equipment.
+- Final result.
+- Clean work area.
+
+### Stage 5. Client Confirmation
+
+Client:
+- Reviews the result.
+- Confirms work completion.
+
+Before confirmation:
+- The master cannot complete the order.
+
+### Stage 6. Complete Order
+
+Trigger:
+- "Complete Order" button becomes available to the master only after client confirmation.
+
+Result:
+- Order status changes to completed.
+- Review flow starts.
+- Historical data is preserved.
+- Order becomes available for analytics and disputes.
+
+Business Principles:
+- Chat is part of the order workflow.
+- Chat protects the client.
+- Chat protects the master.
+- Chat protects the platform.
+- Chat generates knowledge for improving Helpy.
