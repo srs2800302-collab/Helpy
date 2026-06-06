@@ -1405,3 +1405,64 @@ Business Principles:
 - Chat protects the master.
 - Chat protects the platform.
 - Chat generates knowledge for improving Helpy.
+
+## Global GAP → Reviews & Reputation System
+
+Status: 🟨 STORED PARTIALLY
+
+Problem:
+- Simple star rating is not enough for Helpy master reputation.
+- A 1–5 rating alone does not give clients enough useful information.
+- Early ratings can distort a new master's reputation.
+- Some clients rate automatically.
+- Some clients do not leave reviews.
+- One negative review can unfairly damage a new master.
+- Pattaya clients need reputation signals based on experience, reliability, and communication.
+
+Approved Direction:
+- Master reputation must not be based only on star rating.
+
+Master Profile Reputation Should Include:
+- Average client rating.
+- Completed orders count.
+- Success rate.
+- Refusals after accepting an order.
+- Languages available for communication.
+
+Review Flow:
+- Review form opens after completed order flow.
+- Client can leave a star rating from 1 to 5.
+- Client can leave an optional text comment.
+
+Structured Review GAP:
+- Structured review options require a separate audit.
+
+Candidates for structured feedback:
+- Work quality.
+- Politeness.
+- Punctuality.
+- Cleanliness after work.
+- Price matched the agreed final price.
+
+Additional Metrics GAP:
+- Repeat clients.
+- Average response time.
+- On-time arrival.
+- Other trust metrics require a separate audit.
+
+Admin / Analytics Notes:
+- Reviews and reputation should support client decision-making.
+- Reviews and reputation should support master quality control.
+- Reviews and reputation should support platform analytics.
+- Reviews and reputation should help detect weak points in service quality.
+
+GAP:
+- Final review form architecture.
+- Reputation metric formulas.
+- Master profile UI.
+- Admin moderation rules.
+- Anti-abuse rules.
+- Rating display thresholds.
+- Handling new masters with few orders.
+
+
