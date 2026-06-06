@@ -316,3 +316,278 @@ For each approved category:
 
 Source of truth:
 Approved chat history + future DOCX archives.
+
+---
+
+## 16. Service Architecture Registry — Furniture Assembly
+Status: APPROVED ✅
+Registry Status: STORED + DOCS ✅
+
+### Root Category
+Furniture Assembly
+
+### Subcategories
+- Kitchen Assembly — STORED + DOCS ✅
+- Cabinet Furniture — STORED + DOCS ✅
+- Built-in Furniture — STORED + DOCS ✅
+
+---
+
+### 16.1 Kitchen Assembly
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Client Questions
+- Is there a kitchen layout / scheme with dimensions?
+  - Yes
+  - No
+
+#### Required Photos
+- Kitchen layout / scheme with dimensions.
+- Supplier specification / комплектовочный лист.
+- Front view of installation place.
+- Water outputs with tape measure from corner/floor.
+- Sockets with tape measure from corner/floor.
+- Ventilation opening with tape measure if present.
+- General view of furniture boxes.
+
+#### Client Guidance
+- Furniture must be on site before master arrives.
+- Client provides access and prepared workspace.
+- Client provides layout and dimensions if available.
+- Appliance connection is separate.
+
+#### Master Guidance
+- Verify modules, countertop, fittings and basic completeness.
+- Verify layout, water outputs, sockets and ventilation.
+- Missing elements must be fixed in platform chat before work starts.
+- Before hanging upper modules, verify wall/base safety.
+
+#### Platform Rules
+- Kitchen assembly does not include plumbing, electrical relocation or appliance connection.
+- Future root category: Home Appliances Installation & Connection.
+- Disassembly of old kitchen: 50% of installation price.
+- Launch baseline: from 5,000 THB.
+
+#### Admin Dependencies
+- Kitchen Assembly Base Price.
+- Furniture Disassembly Percent.
+- Required photos management.
+- Rule visibility.
+- Premium inspection service.
+
+---
+
+### 16.2 Cabinet Furniture
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Scope
+Includes new corpus/cabinet furniture:
+- wardrobes;
+- non-built-in sliding wardrobes;
+- dressers;
+- cabinets;
+- shelves;
+- beds;
+- tables;
+- chairs;
+- furniture sets;
+- similar corpus furniture.
+
+Does not include built-in furniture.
+
+#### Client Questions
+1. Furniture list table:
+   - Furniture type
+   - Quantity
+   - Dimensions (W × H × D)
+
+Default:
+- 3 rows.
+- Button: Add furniture.
+- Rows are not limited by platform architecture.
+
+2. Does the item require wall fastening?
+   - Yes
+   - No
+   - I do not know
+
+3. Do children live in the property?
+   - Yes
+   - No
+
+#### Required Photos
+- General view of boxes.
+- Image/photo/screenshot of finished product if available.
+- Installation place photo.
+
+#### Client Guidance
+- Furniture must be on site before master arrives.
+- Client prepares access and workspace.
+- Client clears personal belongings.
+- For large cabinet furniture, enough space is required to assemble the carcass lying down.
+- For tall cabinet furniture, ceiling height must exceed furniture height by at least 10 cm.
+
+#### Master Guidance
+- Verify packaging before opening.
+- Photograph damaged packaging before work starts.
+- Verify visible damage before assembly.
+- If parts are damaged but usable, continue only after client confirmation in chat.
+- Verify wall fastening and safety requirements.
+
+#### Platform Rules
+- Category is based on assembly technology, not product names.
+- Do not create separate subcategories for шкаф / кровать / комод / стол.
+- Master does not move, sort or store client belongings.
+- Furniture disassembly with preservation is allowed as a separate service.
+- Disassembly for large furniture: 50% of assembly/installation price.
+
+#### Admin Dependencies
+- Dynamic furniture table.
+- Wall fastening question.
+- Children safety question.
+- Required photos management.
+- Furniture Disassembly Percent.
+- Cabinet Furniture Base Price.
+
+---
+
+### 16.3 Built-in Furniture
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Architecture
+Built-in furniture is a separate work technology.
+
+Workflow:
+Measurement → Project → Installation
+
+Built-in furniture is assembled element-by-element directly in the niche/place of installation.
+
+It is not Cabinet Furniture.
+
+#### Client Questions
+1. Is existing furniture disassembly required before installation?
+   - No
+   - Yes, disposal
+   - Yes, preserve
+
+2. Who performed the room measurement before ordering?
+   - Client
+   - Furniture manufacturer
+
+3. Niche measurement table:
+   - Width: bottom outside, bottom inside, middle outside, middle inside, top outside, top inside.
+   - Height: left, right.
+   - Depth: bottom left, bottom right, middle left, middle right, top left, top right.
+
+4. What material are the installation walls made of?
+   - Concrete
+   - Brick
+   - Aerated concrete
+   - Drywall / gypsum board, specify number of layers
+   - Other, client describes
+
+5. Is there a stretch ceiling in the installation area?
+   - Yes
+   - No
+   - I do not know
+
+If yes:
+- Are reinforcements prepared?
+  - Yes
+  - No
+  - I do not know
+
+6. Does the project include lighting or electrical connections?
+   - Yes
+   - No
+
+#### Required Photos
+- Exterior scheme of the item with dimensions.
+- Internal layout / filling scheme with dimensions.
+- Installation place photo.
+- Packing list / supplier specification, if available.
+
+#### Client Guidance
+- Client provides exterior scheme, internal layout, niche measurements and installation place photo.
+- Packing list/specification is provided if available.
+- Client must disclose if existing furniture must be dismantled.
+- Client must disclose if existing furniture must be preserved.
+- Furniture and components must be delivered to the installation area before master arrives.
+- Workspace must be prepared by the client.
+- Personal belongings must be removed by the client.
+
+#### Master Guidance
+- Verify niche dimensions against project.
+- Verify wall material and safe fastening independently.
+- Verify stretch ceiling and reinforcements before installation.
+- Verify electrical connection point if lighting/electrical elements are included.
+- Verify packaging and completeness before installation.
+- Record packaging damage or part damage in platform chat before work starts.
+- If preserved furniture is dismantled, place parts in agreed area and collect fittings in one bag/box.
+
+#### Built-in Furniture Rules
+- Main document is the product scheme with dimensions and construction.
+- After the scheme, the most important data is installation place/niche dimensions.
+- Niche dimensions must match project dimensions or construction tolerances.
+- Installation complexity is determined not only by external size, but also by internal filling.
+- Client measurements are treated as higher risk than manufacturer measurements.
+- Master independently verifies safe fastening.
+- Stretch ceiling and reinforcements must be checked before installation.
+- Lighting/electrical connections increase installation complexity and must be considered.
+
+#### Furniture Rules Stored Inside Built-in Furniture
+- Furniture must be delivered before installation.
+- Master does not organize transport, lifting, storage or logistics.
+- Master does not pack furniture for moving.
+- Furniture disassembly is a separate service.
+- Furniture disassembly with preservation: 50% of installation price.
+- Hardware/fittings are collected into one bag/box.
+- Transport, storage, packing and removal are outside the service scope.
+
+#### Pricing
+- Built-in Furniture Base Price: from 3,500 THB.
+- Furniture disassembly: 50% of installation price.
+- Control measurement and completeness verification: 500 THB.
+- Prices are MVP baselines and must be editable from Admin Panel.
+
+#### Premium Services
+- Control measurement.
+- Completeness verification.
+- Recommended, not mandatory.
+- Especially useful for kitchens, built-in furniture and complex furniture projects.
+
+#### Admin Dependencies
+- Built-in Furniture Base Price.
+- Furniture Disassembly Percent.
+- Inspection Service Price.
+- Dynamic niche measurement table.
+- Required photos management.
+- Master eligibility by Advanced furniture skill level.
+
+---
+
+### 16.4 Furniture Skill Levels
+Status: APPROVED ✅
+
+- Basic: Cabinet Furniture.
+- Intermediate: Kitchen Assembly.
+- Advanced: Built-in Furniture.
+
+Purpose:
+Control master access to complex furniture orders.
+
+---
+
+### 16.5 Furniture Admin Settings
+Status: APPROVED ✅
+
+Future Admin Panel must support:
+- Kitchen Assembly Base Price.
+- Cabinet Furniture Base Price.
+- Built-in Furniture Base Price.
+- Furniture Disassembly Percent.
+- Inspection Service Price.
+- Required photo management.
+- Question management.
+- Rule visibility.
+- Master eligibility rules.
