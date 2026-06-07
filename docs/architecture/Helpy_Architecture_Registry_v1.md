@@ -332,6 +332,28 @@ Purpose:
 - Operational analytics.
 - Platform improvement.
 
+### Review / Reputation Builder
+
+Admin can configure:
+- Review activation.
+- Review visibility.
+- Review checkbox management.
+- Review translations.
+- Reputation metric visibility.
+- Reliability icon visibility.
+- Review publication rules.
+
+Admin can access:
+- Review list.
+- Client comments.
+- Reputation analytics.
+- Review statistics.
+
+Purpose:
+- Improve service quality.
+- Monitor reputation trends.
+- Manage review experience without APK rebuild.
+
 ### Global Rules Builder
 
 Admin can manage:
@@ -1417,59 +1439,58 @@ Business Principles:
 
 ## Global GAP → Reviews & Reputation System
 
-Status: 🟨 STORED PARTIALLY
-
-Problem:
-- Simple star rating is not enough for Helpy master reputation.
-- A 1–5 rating alone does not give clients enough useful information.
-- Early ratings can distort a new master's reputation.
-- Some clients rate automatically.
-- Some clients do not leave reviews.
-- One negative review can unfairly damage a new master.
-- Pattaya clients need reputation signals based on experience, reliability, and communication.
-
-Approved Direction:
-- Master reputation must not be based only on star rating.
-
-Master Profile Reputation Should Include:
-- Average client rating.
-- Completed orders count.
-- Success rate.
-- Refusals after accepting an order.
-- Languages available for communication.
+Status: ✅ APPROVED
 
 Review Flow:
-- Review form opens after completed order flow.
-- Client can leave a star rating from 1 to 5.
-- Client can leave an optional text comment.
 
-Structured Review GAP:
-- Structured review options require a separate audit.
+Вопрос 1:
+Как вы оцениваете работу мастера?
 
-Candidates for structured feedback:
-- Work quality.
-- Politeness.
-- Punctuality.
-- Cleanliness after work.
-- Price matched the agreed final price.
+- ☆ ☆ ☆ ☆ ☆ (горизонтальный выбор 1–5 звёзд).
 
-Additional Metrics GAP:
-- Repeat clients.
-- Average response time.
-- On-time arrival.
-- Other trust metrics require a separate audit.
+Вопрос 2:
+Что вы можете отметить?
+(можно выбрать несколько вариантов)
+
+- Соблюдал договорённости;
+- Работа выполнена аккуратно;
+- Убрал за собой после завершения работ;
+- Готов(а) обратиться к этому мастеру снова.
+
+Комментарий:
+- Необязателен.
+
+Review Rules:
+- Клиент самостоятельно решает, оставлять комментарий или нет.
+- Экран отзыва можно закрыть.
+- Создание новых заказов не блокируется.
+
+Master Metrics:
+- ⭐ Качество работы;
+- 🛠 Опыт;
+- 💬⏰ Надёжность;
+- 💬 Отзывы.
+
+Reliability:
+- Отражает соблюдение договорённостей.
+- Включает соблюдение согласованного времени и качество предварительной коммуникации.
+- Использует утверждённый фирменный значок Helpy.
+
+Rating Display:
+- Показывается сразу после первого отзыва.
+- Новые мастера отображаются без специальных ограничений.
+- Платформа не создаёт искусственных преимуществ или ограничений.
+
+Reviews:
+- Показывается количество отзывов.
+- При нажатии открывается список комментариев клиентов.
 
 Admin / Analytics Notes:
-- Reviews and reputation should support client decision-making.
-- Reviews and reputation should support master quality control.
-- Reviews and reputation should support platform analytics.
-- Reviews and reputation should help detect weak points in service quality.
+- Reviews помогают клиентам принимать решения.
+- Reviews используются для контроля качества.
+- Reviews используются для аналитики платформы.
 
 GAP:
-- Final review form architecture.
 - Reputation metric formulas.
-- Master profile UI.
 - Admin moderation rules.
 - Anti-abuse rules.
-- Rating display thresholds.
-- Handling new masters with few orders.
