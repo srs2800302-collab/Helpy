@@ -286,6 +286,65 @@ Reserved:
 - Finance Manager
 - Moderator
 
+### Chat Lifecycle / Attachment Rules Builder
+
+Admin can configure:
+- Which order stages allow chat access.
+- Which order stages allow photo attachments.
+- Who can send attachments.
+- Attachment limits.
+- Attachment rules.
+- Chat system guidance.
+
+Purpose:
+- Change chat business rules without APK rebuild.
+- Keep chat behavior controlled by platform business logic.
+
+### Completion Flow Builder
+
+Admin can configure:
+- Who initiates completion.
+- Whether client confirmation is required.
+- When the master can access Complete Order.
+- Completion timers.
+- Auto-completion behavior.
+- Escalation to disputes.
+- Completion notifications.
+
+Purpose:
+- Completion flow is business logic.
+- Completion rules must remain configurable without APK rebuild.
+
+### Evidence / Quality Control Center
+
+Admin can access:
+- Chat history.
+- Chat photos.
+- Final work photos.
+- Client confirmations.
+- Price change history.
+- Status history.
+- Related disputes.
+
+Purpose:
+- Evidence protection.
+- Quality control.
+- Operational analytics.
+- Platform improvement.
+
+### Global Rules Builder
+
+Admin can manage:
+- Global rule activation.
+- Global rule versions.
+- Category assignments.
+- Draft / Published states.
+- Feature rollout.
+
+Purpose:
+- Reduce APK rebuilds.
+- Centralize business logic management.
+
 ## 14. Future Business Direction
 Status: RESERVED FOR FUTURE EXPANSION ✅
 
