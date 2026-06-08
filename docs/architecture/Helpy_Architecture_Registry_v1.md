@@ -352,13 +352,82 @@ Enable without release.
 - Admin Notifications
 
 ### Platform Settings Center
-Single location for:
+
+Status: ✅ APPROVED
+
+Purpose:
+Centralized platform settings layer for business, legal, support, compliance, release, maintenance, backup-status and system-health metadata.
+
+This section is part of Admin Panel Architecture.
+It defines the required future Platform Settings contract, not the immediate UI implementation.
+
+Editable Settings:
 - commission;
 - disputes;
 - timers;
 - premium prices;
 - notification settings;
-- translation settings.
+- translation settings;
+- company name;
+- company legal name;
+- company address;
+- company country;
+- company city;
+- support email;
+- support phone;
+- support WhatsApp;
+- support Telegram;
+- support working hours;
+- Privacy Policy URL;
+- Terms of Service URL;
+- Refund Policy URL;
+- Master Agreement URL;
+- Client Agreement URL;
+- maintenance mode;
+- maintenance message;
+- minimum supported Android app version;
+- latest Android app version;
+- soft update message;
+- force update message.
+
+Read-Only Operational Status:
+- backup enabled;
+- last backup run time;
+- last backup status;
+- backup retention policy;
+- backup storage provider;
+- last backup error;
+- system status;
+- API status;
+- database status;
+- translation status;
+- payment status;
+- last health check time;
+- Data Safety last review time;
+- permissions review status.
+
+Governance Rules:
+- Mobile app, backend and Admin Panel must consume public platform settings from one API contract.
+- Legal, support and company metadata must not be hardcoded inside APK.
+- Admin Panel may edit only approved editable settings.
+- Operational status fields are read-only by default.
+- Every platform setting change must create an audit log entry.
+- Backup execution is infrastructure-owned.
+- Admin Panel may display backup status and approved backup actions.
+- Admin Panel must not expose unsafe raw database download by default.
+- Secrets must never be stored in platform settings.
+- API keys, payment credentials, Cloudflare tokens, Google Play credentials and private keys must remain in environment secrets.
+
+Reserved Data Model:
+- platform_settings;
+- platform_setting_audit_log.
+
+Reserved Public API:
+- GET /api/v1/platform/settings/public
+
+Reserved Admin API:
+- GET /api/v1/admin/platform/settings
+- PATCH /api/v1/admin/platform/settings/:key
 
 ### Future Admin Roles Reserve
 Reserved:
