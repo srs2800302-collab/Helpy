@@ -594,6 +594,50 @@ Purpose:
 - Completion flow is business logic.
 - Completion rules must remain configurable without APK rebuild.
 
+### Admin Order Timeline / Evidence Screen
+
+Admin must be able to open an order and see the full business lifecycle:
+
+- job created;
+- deposit paid;
+- master selected;
+- work started;
+- master evidence photos uploaded;
+- client completion confirmation;
+- job completed;
+- review submitted;
+- dispute opened / resolved if applicable.
+
+Prepared MVP Flow:
+
+- Start Work changes order status from master_selected to in_progress.
+- Start Work creates job_events.work_started.
+- Master can upload evidence photos only after work starts.
+- Master can select up to 10 evidence photos per upload action.
+- Total order photo limit is 20 photos for MVP.
+- Evidence photos are used for hidden defects, unsafe conditions, work process and final result.
+- Current DB field job_photos.client_user_id is a legacy name and acts as uploaded_by_user_id until schema-cleanup.
+- Final schema-cleanup before launch must rename this concept cleanly.
+
+Admin Screen Requirements:
+
+- Show order status timeline.
+- Show chat history.
+- Show client initial photos.
+- Show master evidence photos.
+- Show event history from job_events.
+- Show payment/deposit state.
+- Show selected master.
+- Show completion state.
+- Show review state.
+- Show dispute state.
+
+Purpose:
+
+- Prepare Admin Panel for operational control.
+- Connect Chat Lifecycle, Evidence, Completion Flow, Disputes and Reviews into one order screen.
+- Prevent business-rule drift between mobile flow and admin visibility.
+
 ### Evidence / Quality Control Center
 
 Admin can access:

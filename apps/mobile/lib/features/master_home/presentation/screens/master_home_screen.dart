@@ -5,7 +5,6 @@ import '../../../../core/utils/hidden_completed_jobs.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/error_visibility.dart';
 import '../../../../core/utils/job_status_mapper.dart';
@@ -33,7 +32,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
   static const _hiddenCompletedJobsKey = 'master_hidden_completed_job_ids';
   Set<String> _hiddenCompletedJobIds = <String>{};
   Set<String> _readMessageTimestamps = <String>{};
-  Set<String> _completingJobIds = <String>{};
   bool _pendingTranslationRefreshScheduled = false;
 
   @override
@@ -119,44 +117,6 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
     await ref.read(marketplaceControllerProvider.notifier).loadOpenJobs();
   }
 
-  Future<void> _completeOfferJob(String jobId) async {
-    if (_completingJobIds.contains(jobId)) return;
-
-    final session = ref.read(authControllerProvider).session;
-    if (session == null) return;
-
-    setState(() {
-      _completingJobIds = {..._completingJobIds, jobId};
-    });
-
-    try {
-      await ref.read(chatApiProvider).completeJob(
-            jobId: jobId,
-            userId: session.userId,
-          );
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context).t('job_completed'))),
-      );
-
-      await _refreshAll();
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _completingJobIds = {..._completingJobIds}..remove(jobId);
-        });
-      }
-    }
-  }
 
   void _schedulePendingTranslationRefresh(
     List<dynamic> offers,
@@ -536,19 +496,23 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
-                                  onPressed:
-                                      _completingJobIds.contains(item.jobId)
-                                          ? null
-                                          : () => _completeOfferJob(item.jobId),
-                                  icon: _completingJobIds.contains(item.jobId)
-                                      ? const SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2),
-                                        )
-                                      : const Icon(Icons.check_circle_outline),
-                                  label: Text(l10n.t('complete_job')),
+                                  onPressed: () async {
+                                    final changed =
+                                        await Navigator.of(context).push<bool>(
+                                      MaterialPageRoute(
+                                        builder: (_) => ChatScreen(
+                                          jobId: item.jobId,
+                                          jobStatus: item.status,
+                                        ),
+                                      ),
+                                    );
+
+                                    if (changed == true && mounted) {
+                                      await _refreshAll();
+                                    }
+                                  },
+                                  icon: const Icon(Icons.chat_bubble_outline),
+                                  label: Text(l10n.t('proceed_to_chat')),
                                 ),
                               ),
                             ],
