@@ -2024,6 +2024,77 @@ Business Principles:
 - Chat protects the platform.
 - Chat generates knowledge for improving Helpy.
 
+## Job Events / Order Timeline Contract
+
+Status: APPROVED FOUNDATION ✅
+
+Purpose:
+- job_events is the platform timeline for an order.
+- job_events must not replace chat_messages.
+- job_events must not be stored as fake user chat messages.
+- job_events is the source of truth for Admin Panel order timeline, lifecycle audit, disputes, evidence flow, completion flow and analytics.
+
+Data Separation:
+- chat_messages = user-to-user communication between client and selected master.
+- job_events = platform lifecycle events and business process history.
+- System/platform events must not use fake admin sender ids inside chat_messages.
+
+Admin Panel Usage:
+- Order Timeline
+- Chat Lifecycle / Attachment Rules Builder
+- Completion Flow Builder
+- Evidence / Quality Control Center
+- Disputes
+- Review / Reputation Builder
+- Audit and analytics views
+
+Initial Event Types:
+- deposit_paid
+- master_selected
+- work_started
+- work_completed_by_master
+- completion_confirmed_by_client
+- job_completed
+- dispute_opened
+- dispute_resolved
+- job_cancelled
+- review_submitted
+
+Future Event Types:
+- refund_issued
+- admin_intervention
+- price_adjustment_requested
+- price_adjustment_approved
+- evidence_uploaded
+- attachment_policy_changed
+
+Core Fields:
+- id
+- job_id
+- event_type
+- actor_user_id
+- actor_role
+- payload_json
+- created_at
+
+Rules:
+- actor_user_id is nullable for pure platform/system events.
+- event_type must be explicit and stable.
+- payload_json stores event-specific details without changing schema for every new event.
+- job_events must be append-only for business history.
+- Admin Panel may read job_events for order timeline and dispute context.
+- Mobile app may later render selected job_events as system timeline cards.
+- chat_messages remains focused on client/master text communication.
+
+MVP Implementation Order:
+1. Create job_events schema.
+2. Add event writer helper.
+3. Write work_started event from startWork.
+4. Write job_completed event from completeJob.
+5. Add admin/order timeline endpoint.
+6. Later connect mobile timeline rendering if needed.
+
+
 ## Global GAP → Reviews & Reputation System
 
 Status: ✅ APPROVED
