@@ -271,10 +271,59 @@ Admin Panel is a Business Logic Builder.
 - Premium Services
 
 ### Guidance Builder
-- Client Guidance
-- Master Guidance
-- Safety Notes
-- Platform Notes
+
+Status: ✅ APPROVED
+
+Purpose:
+Admin-managed contextual guidance for clients and masters during key product flows.
+
+Guidance content must be derived from approved service documentation, Service Playbooks, Client Docs, Master Docs and Admin Rules, but delivered to mobile app only through structured Admin/API records.
+
+Runtime Markdown document parsing is not allowed for mobile guidance.
+
+Guidance Targets:
+- Client Guidance;
+- Master Guidance;
+- Safety Notes;
+- Platform Notes;
+- category-specific hints;
+- subcategory-specific hints;
+- question-specific hints;
+- photo requirement hints;
+- before-offer master guidance;
+- create-order client guidance;
+- completion guidance;
+- dispute-prevention guidance.
+
+Trigger Context:
+- role;
+- screen;
+- category;
+- subcategory;
+- form step;
+- question key;
+- photo step;
+- order status;
+- language.
+
+Governance Rules:
+- Guidance must be editable from Admin Panel without APK rebuild.
+- Guidance must support RU, EN and TH.
+- Guidance must support Draft / Published lifecycle.
+- Only Published guidance is visible to users.
+- Guidance must support preview for Client View and Master View.
+- Guidance changes must be written to Audit Log.
+- Guidance must not contradict approved Service Playbooks.
+- Guidance must not replace legal documents.
+- Guidance must be short, contextual and action-oriented.
+- Mobile app must request guidance through structured API, not from raw documents.
+
+Future Roadmap:
+- Guidance Builder must be included in Admin Panel roadmap.
+- Guidance Builder must be connected to Dynamic Form Engine.
+- Guidance Builder must be connected to Knowledge Base Engine.
+- Guidance Builder must be connected to Category Health Check.
+- Guidance Builder must allow Admin to attach hints to category, subcategory, question, photo and workflow stages.
 
 ### Draft / Published
 Changes are prepared in Draft.
