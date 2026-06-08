@@ -199,6 +199,33 @@ Constraints:
 - FK payer_user_id -> users(id) ON DELETE SET NULL
 - FK payment_method_id -> payment_methods(id) ON DELETE SET NULL
 
+### job_events
+
+Purpose: append-only platform lifecycle timeline for orders.
+
+Keep:
+- id
+- job_id
+- event_type
+- actor_user_id
+- actor_role
+- payload_json
+- created_at
+
+Constraints:
+- FK job_id -> jobs(id) ON DELETE CASCADE
+- FK actor_user_id -> users(id) ON DELETE SET NULL
+- actor_user_id is nullable for system events.
+- actor_role is client, master, admin or system.
+- payload_json defaults to '{}'.
+- job_events must stay separate from chat_messages.
+
+Indexes:
+- job_id, created_at
+- job_id, created_at DESC
+- event_type, created_at DESC
+- actor_user_id, created_at DESC where actor_user_id is not null
+
 ### chat_messages
 
 Purpose: client/master job chat.
