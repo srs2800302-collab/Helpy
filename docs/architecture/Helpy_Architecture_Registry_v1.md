@@ -478,6 +478,85 @@ Reserved Admin API:
 - GET /api/v1/admin/platform/settings
 - PATCH /api/v1/admin/platform/settings/:key
 
+### Admin Panel Roadmap Extensions
+
+Status: ✅ APPROVED
+
+Purpose:
+Reserved Admin Panel modules that reduce operational risk, prevent business-rule drift and help validate configuration before publication.
+
+These modules are part of the Admin Panel roadmap.
+They do not require immediate MVP implementation, but the architecture must reserve space for them before Admin Panel development.
+
+Must-Have Roadmap:
+- Rules Simulator;
+- Impact Analysis;
+- Registry Coverage;
+- Sandbox Mode.
+
+Nice-To-Have Roadmap:
+- Search Everywhere;
+- Bulk Operations;
+- Import / Export.
+
+Rules Simulator:
+Admin can simulate what the client or master will see for a selected role, category, subcategory, form step, language, pricing rule, guidance rule, photo requirement and workflow state.
+
+Purpose:
+- Prove behavior before publication.
+- Reduce APK rebuilds.
+- Prevent broken category/form/pricing/guidance combinations.
+
+Impact Analysis:
+Admin can see what depends on a category, subcategory, question, photo requirement, pricing rule, guidance rule, feature flag or workflow rule before changing, disabling, archiving or publishing it.
+
+Purpose:
+- Prevent accidental breakage.
+- Show dependencies before risky changes.
+- Support safe Admin Panel publishing.
+
+Registry Coverage:
+Admin can see readiness coverage per category/subcategory:
+- questions;
+- photo requirements;
+- pricing rules;
+- guidance;
+- translations;
+- client docs;
+- master docs;
+- service playbook;
+- admin rules;
+- health check status.
+
+Purpose:
+- Show what is complete, missing or risky before launch.
+- Support category readiness decisions.
+- Keep Registry and Admin Panel aligned.
+
+Sandbox Mode:
+Admin can test draft categories, rules, pricing, guidance, completion flows and feature flags without exposing them to real users.
+
+Purpose:
+- Separate draft experiments from production.
+- Test future service logic safely.
+- Support controlled Admin Panel rollout.
+
+Search Everywhere:
+Admin can search across categories, subcategories, questions, photo requirements, pricing rules, guidance, translations, notes and platform settings.
+
+Purpose:
+- Reduce admin friction as Registry grows.
+- Help find duplicated or conflicting rules.
+- Support faster maintenance.
+
+Governance Rules:
+- Roadmap extensions must follow Draft / Published lifecycle where applicable.
+- Roadmap extensions must support Audit Log where changes are possible.
+- Roadmap extensions must not bypass Category Health Check.
+- Roadmap extensions must not expose secrets or unsafe database access.
+- Roadmap extensions should be implemented gradually after core Admin Panel builders.
+- Rules Simulator, Impact Analysis, Registry Coverage and Sandbox Mode are higher priority than Search Everywhere, Bulk Operations and Import / Export.
+
 ### Future Admin Roles Reserve
 Reserved:
 - Super Admin
