@@ -71,6 +71,88 @@ Closed Categories:
 - Locks
 - Furniture Assembly
 
+## Category Governance
+
+Status: APPROVED ✅
+
+Helpy Categories
+
+1. Cleaning
+2. Air Conditioning
+3. Plumbing
+4. Electrical
+5. Locks
+6. Furniture Assembly
+
+Future Launch Category:
+- Home Appliances
+
+Rules:
+- Home Appliances проектируется последней категорией перед MVP Launch.
+- До запуска платформы новые категории не добавляются.
+- Масштабирование категорий начинается только после получения реальной статистики.
+
+## Reference Category Standard
+
+Status: APPROVED ✅
+
+Reference Category:
+- Plumbing
+
+Definition:
+- Plumbing является эталонной категорией Helpy.
+- Все категории сравниваются с уровнем детализации Plumbing.
+
+Minimum Architecture Standard:
+
+- Business Scope
+- Definitions
+- Question Flow
+- Required Photos
+- Service Playbook
+- Business Rules
+- Admin Rules
+- GAP
+- Registry Storage
+
+Rule:
+- Категория считается завершённой только после достижения уровня детализации Plumbing.
+
+## Specialized Reference Categories
+
+Status: APPROVED ✅
+
+Categories:
+- Cleaning
+- Furniture Assembly
+
+Definition:
+- Данные категории используют собственную бизнес-логику.
+- Они не обязаны повторять структуру Plumbing.
+
+Rule:
+- Уровень детализации не может быть ниже Plumbing.
+
+## Electrical Shower Policy
+
+Status: APPROVED ✅
+
+Enabled:
+- Install New Electric Shower
+- Replace Existing Electric Shower
+
+Disabled On Launch:
+- Not Heating Water
+- Water Leak
+- Trips Breaker / Power Loss
+
+Reason:
+- Helpy MVP ориентирован на установку и замену оборудования.
+- Диагностика и ремонт электрических душей не являются приоритетом запуска.
+
+Future:
+- Может быть включено после анализа реальных заказов.
+
 ## 7. Deferred Categories
 Status: RESERVED ✅
 
