@@ -7,7 +7,7 @@ type CreateJobPhotoBody = {
   url?: string;
 };
 
-const MAX_JOB_PHOTOS = 10;
+const MAX_JOB_PHOTOS = 20;
 const MAX_URL_LENGTH = 2_000_000;
 
 function canViewJobPhotos(job: any, actorUserId: string, actorRole?: string) {

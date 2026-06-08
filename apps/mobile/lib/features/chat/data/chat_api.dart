@@ -89,6 +89,22 @@ class ChatApi {
     );
   }
 
+  Future<void> addJobPhoto({
+    required String jobId,
+    required String userId,
+    required String url,
+  }) async {
+    await apiClient.dio.post(
+      '/jobs/$jobId/photos',
+      options: Options(
+        headers: {
+          'x-user-id': userId,
+        },
+      ),
+      data: {'url': url},
+    );
+  }
+
   Future<void> completeJob({
     required String jobId,
     required String userId,

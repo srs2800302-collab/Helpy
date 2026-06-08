@@ -419,6 +419,31 @@ export async function startWork(jobId: string, request: Request, env: any) {
     .bind(JOB_STATUS.in_progress, now, jobId)
     .run();
 
+  await env.DB.prepare(
+    `INSERT INTO job_events (
+      id,
+      job_id,
+      event_type,
+      actor_user_id,
+      actor_role,
+      payload_json,
+      created_at
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+  )
+    .bind(
+      crypto.randomUUID(),
+      jobId,
+      'work_started',
+      actorUserId,
+      'master',
+      JSON.stringify({
+        from_status: JOB_STATUS.master_selected,
+        to_status: JOB_STATUS.in_progress,
+      }),
+      now,
+    )
+    .run();
+
   return Response.json({
     success: true,
     data: {

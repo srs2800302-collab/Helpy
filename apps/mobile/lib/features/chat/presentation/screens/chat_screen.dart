@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -30,7 +33,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   late final TextEditingController _textController;
   late final ScrollController _scrollController;
   ChatMessage? _replyToMessage;
-  bool _isCompleting = false;
   bool _hasChanges = false;
 
   bool _containsPhoneNumber(String value) {
@@ -121,40 +123,64 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     }
   }
 
-  Future<void> _completeJob() async {
-    if (_isCompleting) return;
-
+  Future<void> _addEvidencePhotos() async {
     final session = ref.read(authControllerProvider).session;
     if (session == null) return;
 
-    setState(() {
-      _isCompleting = true;
-    });
-
     try {
-      await ref.read(chatApiProvider).completeJob(
-            jobId: widget.jobId,
-            userId: session.userId,
-          );
+      final picker = ImagePicker();
+      final picked = await picker.pickMultiImage(
+        imageQuality: 85,
+        limit: 10,
+      );
+
+      if (picked.isEmpty) return;
+
+      for (var start = 0; start < picked.length; start += 3) {
+        final batch = picked.skip(start).take(3);
+
+        await Future.wait(
+          batch.map((photo) async {
+            final bytes = await photo.readAsBytes();
+            final lowerName = photo.name.toLowerCase();
+            final ext = lowerName.endsWith('.png')
+                ? 'png'
+                : lowerName.endsWith('.webp')
+                    ? 'webp'
+                    : 'jpeg';
+            final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
+
+            await ref.read(chatApiProvider).addJobPhoto(
+                  jobId: widget.jobId,
+                  userId: session.userId,
+                  url: dataUrl,
+                );
+          }),
+        );
+      }
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).t('job_completed')),
+          content: Text(
+            AppLocalizations.of(context)
+                .t('evidence_photos_uploaded')
+                .replaceAll('{count}', picked.length.toString()),
+          ),
         ),
       );
 
-      Navigator.of(context).pop(true);
+      _hasChanges = true;
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _isCompleting = false;
-      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                AppLocalizations.of(context).t(ApiErrorMapper.map(e).message))),
+          content: Text(
+            AppLocalizations.of(context).t(ApiErrorMapper.map(e).message),
+          ),
+        ),
       );
     }
   }
@@ -277,16 +303,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed:
-                      (state.isLoading || _isCompleting) ? null : _completeJob,
-                  child: _isCompleting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.t('complete_job')),
+                child: ElevatedButton.icon(
+                  onPressed: state.isLoading ? null : _addEvidencePhotos,
+                  icon: const Icon(Icons.photo_camera_outlined),
+                  label: Text(l10n.t('add_evidence_photo')),
                 ),
               ),
             ),
