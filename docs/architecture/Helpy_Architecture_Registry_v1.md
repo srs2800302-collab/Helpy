@@ -64,11 +64,11 @@ Status: APPROVED ✅
 Status: APPROVED ✅
 
 Closed Categories:
-- Air Conditioning
-- Electrical
-- Plumbing
-- Locks
 - Cleaning
+- Air Conditioning
+- Plumbing
+- Electrical
+- Locks
 - Furniture Assembly
 
 ## 7. Deferred Categories
