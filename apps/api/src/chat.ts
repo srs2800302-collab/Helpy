@@ -1,7 +1,7 @@
 import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
-import { deferTranslations, processPendingTranslationTasks } from './translation';
+import { buildInitialTranslationsJson, deferTranslations, processPendingTranslationTasks } from './translation';
 import { selectJobById } from './job-enrichment';
 
 const CHAT_MESSAGE_COLUMNS = `
@@ -22,6 +22,25 @@ const DEFAULT_MESSAGES_LIMIT = 50;
 const MAX_MESSAGES_LIMIT = 100;
 const DEFAULT_MESSAGES_OFFSET = 0;
 const MIN_MESSAGE_INTERVAL_MS = 1000;
+
+function validTranslationsJsonOrNull(value: unknown): string | null {
+  if (typeof value !== 'string' || !value.trim()) return null;
+
+  try {
+    const parsed = JSON.parse(value);
+    if (
+      parsed === null ||
+      typeof parsed !== 'object' ||
+      Array.isArray(parsed)
+    ) {
+      return null;
+    }
+
+    return JSON.stringify(parsed);
+  } catch {
+    return null;
+  }
+}
 
 function containsPhoneNumber(value: string) {
   const compact = value.replace(/[\s().-]/g, '');
@@ -231,6 +250,7 @@ export async function sendMessage(jobId: string, request: Request, env: any, ctx
   const senderUserId = auth.userId as string;
   const text = body?.text?.toString().trim();
   const sourceLanguage = body?.source_language?.toString().trim() || 'ru';
+  const textTranslationsPreviewJson = validTranslationsJsonOrNull(body?.text_translations_json);
   const replyToMessageId = body?.reply_to_message_id?.toString().trim() || null;
 
   if (!text) {
@@ -327,7 +347,12 @@ export async function sendMessage(jobId: string, request: Request, env: any, ctx
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const textTranslationsJson = null;
+  const textTranslationsJson =
+    textTranslationsPreviewJson ??
+    buildInitialTranslationsJson({
+      text,
+      sourceLanguage,
+    });
 
   await env.DB.prepare(
     `INSERT INTO chat_messages (

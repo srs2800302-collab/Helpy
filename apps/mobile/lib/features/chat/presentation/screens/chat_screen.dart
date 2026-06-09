@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -35,6 +36,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   late final TextEditingController _textController;
   late final ScrollController _scrollController;
   ChatMessage? _replyToMessage;
+  Timer? _translationPreviewTimer;
+  String? _translationPreviewSourceText;
+  String? _translationPreviewJson;
   bool _hasChanges = false;
 
   bool _containsPhoneNumber(String value) {
@@ -73,6 +77,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     WidgetsBinding.instance.addObserver(this);
     _currentStatus = widget.jobStatus;
     _textController = TextEditingController();
+    _textController.addListener(_scheduleTranslationPreview);
     _scrollController = ScrollController();
 
     Future.microtask(() async {
@@ -84,6 +89,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _translationPreviewTimer?.cancel();
+    _textController.removeListener(_scheduleTranslationPreview);
     _textController.dispose();
     _scrollController.dispose();
     ref.read(chatControllerProvider.notifier).disposePolling();
@@ -394,6 +401,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     }
   }
 
+  void _scheduleTranslationPreview() {
+    final text = _textController.text.trim();
+    _translationPreviewTimer?.cancel();
+
+    if (text.length < 2 || _containsPhoneNumber(text)) {
+      _translationPreviewSourceText = null;
+      _translationPreviewJson = null;
+      return;
+    }
+
+    _translationPreviewTimer = Timer(const Duration(milliseconds: 700), () async {
+      final sourceText = _textController.text.trim();
+      if (sourceText.length < 2 || _containsPhoneNumber(sourceText)) return;
+
+      try {
+        final json = await ref.read(chatApiProvider).previewTextTranslations(
+              text: sourceText,
+              sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+            );
+
+        if (_textController.text.trim() != sourceText) return;
+
+        _translationPreviewSourceText = sourceText;
+        _translationPreviewJson = json;
+      } catch (_) {
+        // Preview is best-effort. sendMessage fallback still handles translations.
+      }
+    });
+  }
+
   Future<void> _sendMessage() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
@@ -408,8 +445,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       return;
     }
 
+    final textTranslationsJson =
+        _translationPreviewSourceText == text ? _translationPreviewJson : null;
+
     await ref.read(chatControllerProvider.notifier).send(
           widget.jobId,
+          text: text,
+          textTranslationsJson: textTranslationsJson,
           replyToMessageId: _replyToMessage?.id,
         );
 
@@ -420,6 +462,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     if (error == null) {
       _hasChanges = true;
       _textController.clear();
+      _translationPreviewSourceText = null;
+      _translationPreviewJson = null;
       _clearReply();
       _scrollToBottom();
     }
@@ -449,11 +493,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
     if (isChatClosed && _textController.text.isNotEmpty) {
       _textController.clear();
-      controller.setInput('');
     }
 
     final canSend = !isChatClosed &&
-        state.input.trim().isNotEmpty &&
+        _textController.text.trim().isNotEmpty &&
         !state.isLoading &&
         !state.isSending;
     final canClientConfirmCompletion = _currentStatus == 'in_progress' &&
@@ -767,7 +810,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       child: TextField(
                         controller: _textController,
                         enabled: !isChatClosed,
-                        onChanged: controller.setInput,
                         keyboardType: TextInputType.multiline,
                         textInputAction: TextInputAction.newline,
                         minLines: 1,

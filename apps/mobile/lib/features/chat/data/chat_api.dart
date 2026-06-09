@@ -77,11 +77,27 @@ class ChatApi {
     );
   }
 
+  Future<String?> previewTextTranslations({
+    required String text,
+    required String sourceLanguage,
+  }) async {
+    final response = await apiClient.dio.post(
+      '/translations/preview',
+      data: {
+        'text': text,
+        'source_language': sourceLanguage,
+      },
+    );
+
+    return response.data['data']?['translations_json'] as String?;
+  }
+
   Future<ChatMessage> sendMessage({
     required String jobId,
     required String userId,
     required String text,
     required String sourceLanguage,
+    String? textTranslationsJson,
     String? replyToMessageId,
   }) async {
     final res = await apiClient.dio.post(
@@ -94,6 +110,8 @@ class ChatApi {
       data: {
         'text': text,
         'source_language': sourceLanguage,
+        if (textTranslationsJson != null && textTranslationsJson.trim().isNotEmpty)
+          'text_translations_json': textTranslationsJson.trim(),
         if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
       },
     );

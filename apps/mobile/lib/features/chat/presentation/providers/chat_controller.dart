@@ -14,7 +14,6 @@ class ChatState {
   final int evidencePhotoCount;
   final List<String> evidencePhotoUrls;
   final bool completionConfirmedByClient;
-  final String input;
   final bool isSending;
   final String? errorMessage;
 
@@ -25,7 +24,6 @@ class ChatState {
     this.evidencePhotoCount = 0,
     this.evidencePhotoUrls = const [],
     this.completionConfirmedByClient = false,
-    this.input = '',
     this.isSending = false,
     this.errorMessage,
   });
@@ -37,7 +35,6 @@ class ChatState {
     int? evidencePhotoCount,
     List<String>? evidencePhotoUrls,
     bool? completionConfirmedByClient,
-    String? input,
     bool? isSending,
     String? errorMessage,
     bool clearError = false,
@@ -50,7 +47,6 @@ class ChatState {
       evidencePhotoUrls: evidencePhotoUrls ?? this.evidencePhotoUrls,
       completionConfirmedByClient:
           completionConfirmedByClient ?? this.completionConfirmedByClient,
-      input: input ?? this.input,
       isSending: isSending ?? this.isSending,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
@@ -180,15 +176,10 @@ class ChatController extends StateNotifier<ChatState> {
     }
   }
 
-  void setInput(String value) {
-    state = state.copyWith(
-      input: value,
-      clearError: true,
-    );
-  }
-
   Future<void> send(
     String jobId, {
+    required String text,
+    String? textTranslationsJson,
     String? replyToMessageId,
   }) async {
     if (state.isSending) {
@@ -196,9 +187,9 @@ class ChatController extends StateNotifier<ChatState> {
     }
 
     final session = ref.read(authControllerProvider).session;
-    final text = state.input.trim();
+    final normalizedText = text.trim();
 
-    if (session == null || text.isEmpty) {
+    if (session == null || normalizedText.isEmpty) {
       return;
     }
 
@@ -208,8 +199,9 @@ class ChatController extends StateNotifier<ChatState> {
       final createdMessage = await ref.read(chatApiProvider).sendMessage(
         jobId: jobId,
         userId: session.userId,
-        text: text,
+        text: normalizedText,
         sourceLanguage: ref.read(currentLocaleProvider).languageCode,
+        textTranslationsJson: textTranslationsJson,
         replyToMessageId: replyToMessageId,
       );
 
@@ -219,7 +211,6 @@ class ChatController extends StateNotifier<ChatState> {
       ];
 
       state = state.copyWith(
-        input: '',
         isSending: false,
         messages: messages,
         clearError: true,
