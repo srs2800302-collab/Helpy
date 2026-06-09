@@ -35,6 +35,7 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
   await assertRequiredTable(env, 'job_photos');
   await assertRequiredTable(env, 'chat_messages');
+  await assertRequiredTable(env, 'job_events');
 
   let body: CreateJobPhotoBody;
   try {
@@ -195,6 +196,31 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
           null,
           null,
           null,
+          now,
+        )
+        .run();
+
+      await env.DB.prepare(
+        `INSERT INTO job_events (
+          id,
+          job_id,
+          event_type,
+          actor_user_id,
+          actor_role,
+          payload_json,
+          created_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+      )
+        .bind(
+          crypto.randomUUID(),
+          jobId,
+          'evidence_uploaded',
+          actorUserId,
+          'master',
+          JSON.stringify({
+            photo_count: photoCount,
+            source: 'chat_evidence_upload',
+          }),
           now,
         )
         .run();
