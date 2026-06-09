@@ -13,7 +13,7 @@ export type JobStatus = (typeof JOB_STATUS)[keyof typeof JOB_STATUS];
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   draft: ['awaiting_payment', 'cancelled'],
-  awaiting_payment: ['open', 'cancelled'],
+  awaiting_payment: ['master_selected', 'cancelled'],
   open: ['master_selected', 'cancelled'],
   master_selected: ['in_progress', 'disputed'],
   in_progress: ['completed', 'disputed'],
