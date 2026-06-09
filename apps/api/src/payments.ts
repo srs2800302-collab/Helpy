@@ -160,7 +160,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
   }
 
   try {
-    assertTransition(job.status, JOB_STATUS.open);
+    assertTransition(job.status, JOB_STATUS.master_selected);
   } catch (error: any) {
     return fail(error?.message ?? 'Invalid status transition', 400);
   }
@@ -263,7 +263,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
             currency: existing?.currency ?? currency,
           },
           jobId,
-          JOB_STATUS.open
+          JOB_STATUS.master_selected
         ),
       });
     }
@@ -278,7 +278,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
          deposit_amount = ?3
      WHERE id = ?4`
   )
-    .bind(JOB_STATUS.open, now, depositAmount, jobId)
+    .bind(JOB_STATUS.master_selected, now, depositAmount, jobId)
     .run();
 
   const createdPayment = await env.DB.prepare(
@@ -305,7 +305,7 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
         created_at: now,
       },
       jobId,
-      JOB_STATUS.open
+      JOB_STATUS.master_selected
     ),
   });
 }
