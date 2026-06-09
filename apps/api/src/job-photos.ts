@@ -82,9 +82,14 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
-  if (job.client_user_id !== actorUserId) {
+  const isClient = job.client_user_id === actorUserId;
+  const isSelectedMasterEvidence =
+    job.selected_master_user_id === actorUserId &&
+    job.status === JOB_STATUS.in_progress;
+
+  if (!isClient && !isSelectedMasterEvidence) {
     return Response.json(
-      { success: false, error: 'Only job client can add photos' },
+      { success: false, error: 'Only job client or selected master can add photos' },
       { status: 403 }
     );
   }
