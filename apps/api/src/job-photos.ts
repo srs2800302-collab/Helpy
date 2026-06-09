@@ -203,6 +203,8 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
     );
   }
 
+  const scope = new URL(request.url).searchParams.get('scope');
+
   const result = await env.DB.prepare(
     `SELECT
        id,
@@ -212,9 +214,10 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
        created_at
      FROM job_photos
      WHERE job_id = ?1
+       AND (?2 != 'evidence' OR client_user_id = ?3)
      ORDER BY created_at ASC`
   )
-    .bind(jobId)
+    .bind(jobId, scope, job.selected_master_user_id)
     .all();
 
   return Response.json({

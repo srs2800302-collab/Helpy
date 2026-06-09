@@ -180,9 +180,10 @@ export async function getMessages(jobId: string, request: Request, env: any) {
   const evidencePhotoCountResult = await env.DB.prepare(
     `SELECT COUNT(*) as count
      FROM job_photos
-     WHERE job_id = ?1`
+     WHERE job_id = ?1
+       AND client_user_id = ?2`
   )
-    .bind(jobId)
+    .bind(jobId, job.selected_master_user_id)
     .first();
 
   const completionConfirmation = await env.DB.prepare(

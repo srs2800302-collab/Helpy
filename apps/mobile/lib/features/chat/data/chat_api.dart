@@ -54,7 +54,7 @@ class ChatApi {
     }).toList();
 
     final photosRes = await apiClient.dio.get(
-      '/jobs/$jobId/photos',
+        '/jobs/$jobId/photos?scope=evidence',
       options: Options(
         headers: {
           'x-user-id': userId,

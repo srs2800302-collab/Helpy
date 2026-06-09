@@ -44,9 +44,10 @@ export async function confirmCompletion(jobId: string, request: Request, env: an
   const evidencePhotoCountResult = await env.DB.prepare(
     `SELECT COUNT(*) as count
      FROM job_photos
-     WHERE job_id = ?1`
+     WHERE job_id = ?1
+       AND client_user_id = ?2`
   )
-    .bind(jobId)
+    .bind(jobId, job.selected_master_user_id)
     .first();
 
   if (Number(evidencePhotoCountResult?.count ?? 0) <= 0) {
