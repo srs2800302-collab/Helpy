@@ -139,10 +139,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       if (picked.isEmpty) return;
 
       for (var start = 0; start < picked.length; start += 3) {
-        final batch = picked.skip(start).take(3);
+        final batch = picked.skip(start).take(3).toList();
 
         await Future.wait(
-          batch.map((photo) async {
+          batch.asMap().entries.map((entry) async {
+            final photo = entry.value;
+            final shouldNotifyChat = start == 0 && entry.key == 0;
             final bytes = await photo.readAsBytes();
             final lowerName = photo.name.toLowerCase();
             final ext = lowerName.endsWith('.png')
@@ -156,6 +158,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   jobId: widget.jobId,
                   userId: session.userId,
                   url: dataUrl,
+                  notifyChat: shouldNotifyChat,
+                  photoCount: shouldNotifyChat ? picked.length : null,
                 );
           }),
         );
@@ -278,55 +282,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     }
   }
 
-  Widget _evidencePhotosBlock(AppLocalizations l10n, List<String> photos) {
+  bool _isEvidencePhotoMessage(String text) {
+    final value = text.trim();
+    return value.endsWith('📷') &&
+        (value.startsWith('Мастер прикрепил') ||
+            value.startsWith('The master attached') ||
+            value.startsWith('ช่างแนบ'));
+  }
+
+  Widget _evidencePhotosBlock(List<String> photos) {
     if (photos.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.t('add_evidence_photo'),
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 96,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: photos.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final url = photos[index];
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: SizedBox(
+        height: 86,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: photos.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final url = photos[index];
 
-                return GestureDetector(
-                  onTap: () => showJobPhotoPreviewDialog(
-                    context: context,
-                    url: url,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                      width: 96,
-                      height: 96,
-                      child: JobPhotoWidget(url: url),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+            return GestureDetector(
+              onTap: () => showJobPhotoPreviewDialog(
+                context: context,
+                url: url,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  width: 86,
+                  height: 86,
+                  child: JobPhotoWidget(url: url),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -532,19 +527,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(12),
-                      itemCount: visibleMessages.length +
-                          (state.evidencePhotoCount > 0 ? 1 : 0),
+                      itemCount: visibleMessages.length,
                       itemBuilder: (context, index) {
-                        if (state.evidencePhotoCount > 0 && index == 0) {
-                          return _evidencePhotosBlock(
-                            l10n,
-                            state.evidencePhotoUrls,
-                          );
-                        }
-
-                        final messageIndex =
-                            state.evidencePhotoCount > 0 ? index - 1 : index;
-                        final m = visibleMessages[messageIndex];
+                        final m = visibleMessages[index];
                         final senderLabel = _senderLabel(
                           senderUserId: m.senderUserId,
                           currentUserId: session?.userId ?? '',
@@ -646,6 +631,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                                       ),
                                     ),
                                   Text(displayText),
+                                  if (_isEvidencePhotoMessage(displayText))
+                                    _evidencePhotosBlock(state.evidencePhotoUrls),
                                   const SizedBox(height: 4),
                                   Text(
                                     '$senderLabel • $messageTime',

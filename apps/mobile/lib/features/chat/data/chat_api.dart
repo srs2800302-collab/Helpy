@@ -132,6 +132,8 @@ class ChatApi {
     required String jobId,
     required String userId,
     required String url,
+    bool notifyChat = false,
+    int? photoCount,
   }) async {
     await apiClient.dio.post(
       '/jobs/$jobId/photos',
@@ -140,7 +142,11 @@ class ChatApi {
           'x-user-id': userId,
         },
       ),
-      data: {'url': url},
+      data: {
+        'url': url,
+        if (notifyChat) 'notify_chat': true,
+        if (photoCount != null) 'photo_count': photoCount,
+      },
     );
   }
 

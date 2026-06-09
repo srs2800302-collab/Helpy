@@ -5,6 +5,8 @@ import { selectJobById } from './job-enrichment';
 
 type CreateJobPhotoBody = {
   url?: string;
+  notify_chat?: boolean;
+  photo_count?: number;
 };
 
 const MAX_JOB_PHOTOS = 20;
@@ -132,6 +134,11 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const notifyChat = body.notify_chat === true;
+  const photoCount = Math.max(1, Number(body.photo_count ?? 1));
+  const ruPhotoText = `Мастер прикрепил ${photoCount} 📷`;
+  const enPhotoText = `The master attached ${photoCount} 📷`;
+  const thPhotoText = `ช่างแนบ ${photoCount} 📷`;
 
   try {
     await env.DB.prepare(
@@ -146,7 +153,7 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
       .bind(id, jobId, actorUserId, url, now)
       .run();
 
-    if (isSelectedMasterEvidence) {
+    if (isSelectedMasterEvidence && notifyChat) {
       await env.DB.prepare(
         `INSERT INTO chat_messages (
           id,
@@ -165,11 +172,11 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
           crypto.randomUUID(),
           jobId,
           actorUserId,
-          '📷 Добавлены фото результата работы',
+          ruPhotoText,
           JSON.stringify({
-            ru: '📷 Добавлены фото результата работы',
-            en: '📷 Work result photos added',
-            th: '📷 เพิ่มรูปภาพผลงานแล้ว',
+            ru: ruPhotoText,
+            en: enPhotoText,
+            th: thPhotoText,
           }),
           null,
           null,
