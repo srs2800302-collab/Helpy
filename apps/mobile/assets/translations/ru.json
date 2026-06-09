@@ -168,5 +168,6 @@
   "error_bad_request": "Некорректные данные запроса.",
   "error_unknown": "Произошла непредвиденная ошибка.",
   "server_error": "Ошибка сервера. Попробуйте позже.",
-  "master_photos_label": "Фото мастера"
+  "master_photos_label": "Фото мастера",
+  "evidence_photos_remaining": "Осталось фото: {count}"
 }

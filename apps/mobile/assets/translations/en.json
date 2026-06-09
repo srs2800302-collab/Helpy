@@ -168,5 +168,6 @@
   "error_bad_request": "Invalid request data.",
   "error_unknown": "Unexpected error occurred.",
   "server_error": "Server error. Please try again later.",
-  "master_photos_label": "Master photos"
+  "master_photos_label": "Master photos",
+  "evidence_photos_remaining": "Photos left: {count}"
 }

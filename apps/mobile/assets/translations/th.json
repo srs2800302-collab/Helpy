@@ -168,5 +168,6 @@
   "error_bad_request": "ข้อมูลคำขอไม่ถูกต้อง",
   "error_unknown": "เกิดข้อผิดพลาดที่ไม่คาดคิด",
   "server_error": "เกิดข้อผิดพลาดของเซิร์ฟเวอร์ กรุณาลองใหม่ภายหลัง",
-  "master_photos_label": "รูปภาพจากช่าง"
+  "master_photos_label": "รูปภาพจากช่าง",
+  "evidence_photos_remaining": "เหลือรูปภาพ: {count}"
 }

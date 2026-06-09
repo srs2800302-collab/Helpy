@@ -9,7 +9,8 @@ type CreateJobPhotoBody = {
   photo_count?: number;
 };
 
-const MAX_JOB_PHOTOS = 20;
+const MAX_CLIENT_JOB_PHOTOS = 10;
+const MAX_MASTER_EVIDENCE_PHOTOS = 20;
 const MAX_URL_LENGTH = 2_000_000;
 
 function canViewJobPhotos(job: any, actorUserId: string, actorRole?: string) {
@@ -117,25 +118,37 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     );
   }
 
-  const countRow = await env.DB.prepare(
-    'SELECT COUNT(*) as count FROM job_photos WHERE job_id = ?1'
+  const maxPhotos = isSelectedMasterEvidence
+    ? MAX_MASTER_EVIDENCE_PHOTOS
+    : MAX_CLIENT_JOB_PHOTOS;
+  const ownerPhotoCountRow = await env.DB.prepare(
+    'SELECT COUNT(*) as count FROM job_photos WHERE job_id = ?1 AND client_user_id = ?2'
   )
-    .bind(jobId)
+    .bind(jobId, actorUserId)
     .first();
 
-  const currentCount = Number(countRow?.count ?? 0);
+  const currentOwnerPhotoCount = Number(ownerPhotoCountRow?.count ?? 0);
+  const remainingOwnerPhotoSlots = maxPhotos - currentOwnerPhotoCount;
 
-  if (currentCount >= MAX_JOB_PHOTOS) {
+  if (remainingOwnerPhotoSlots <= 0) {
     return Response.json(
-      { success: false, error: `Job can have at most ${MAX_JOB_PHOTOS} photos` },
+      { success: false, error: `User can have at most ${maxPhotos} photos for this job` },
+      { status: 400 }
+    );
+  }
+
+  const notifyChat = body.notify_chat === true;
+  const photoCount = Math.max(1, Number(body.photo_count ?? 1));
+
+  if (notifyChat && photoCount > remainingOwnerPhotoSlots) {
+    return Response.json(
+      { success: false, error: `Only ${remainingOwnerPhotoSlots} photo slots left for this job` },
       { status: 400 }
     );
   }
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const notifyChat = body.notify_chat === true;
-  const photoCount = Math.max(1, Number(body.photo_count ?? 1));
   const ruPhotoText = `Мастер прикрепил ${photoCount} 📷`;
   const enPhotoText = `The master attached ${photoCount} 📷`;
   const thPhotoText = `ช่างแนบ ${photoCount} 📷`;

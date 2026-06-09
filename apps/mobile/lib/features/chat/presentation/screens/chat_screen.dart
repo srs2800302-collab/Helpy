@@ -131,9 +131,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
     try {
       final picker = ImagePicker();
+      final remainingPhotos =
+          20 - ref.read(chatControllerProvider).evidencePhotoCount;
+      if (remainingPhotos <= 0) return;
+
       final picked = await picker.pickMultiImage(
         imageQuality: 85,
-        limit: 10,
+        limit: remainingPhotos,
       );
 
       if (picked.isEmpty) return;
@@ -141,28 +145,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       for (var start = 0; start < picked.length; start += 3) {
         final batch = picked.skip(start).take(3).toList();
 
-        await Future.wait(
-          batch.asMap().entries.map((entry) async {
-            final photo = entry.value;
-            final shouldNotifyChat = start == 0 && entry.key == 0;
-            final bytes = await photo.readAsBytes();
-            final lowerName = photo.name.toLowerCase();
-            final ext = lowerName.endsWith('.png')
-                ? 'png'
-                : lowerName.endsWith('.webp')
-                    ? 'webp'
-                    : 'jpeg';
-            final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
+        for (final entry in batch.asMap().entries) {
+          final photo = entry.value;
+          final shouldNotifyChat = start == 0 && entry.key == 0;
+          final bytes = await photo.readAsBytes();
+          final lowerName = photo.name.toLowerCase();
+          final ext = lowerName.endsWith('.png')
+              ? 'png'
+              : lowerName.endsWith('.webp')
+                  ? 'webp'
+                  : 'jpeg';
+          final dataUrl = 'data:image/$ext;base64,${base64Encode(bytes)}';
 
-            await ref.read(chatApiProvider).addJobPhoto(
-                  jobId: widget.jobId,
-                  userId: session.userId,
-                  url: dataUrl,
-                  notifyChat: shouldNotifyChat,
-                  photoCount: shouldNotifyChat ? picked.length : null,
-                );
-          }),
-        );
+          await ref.read(chatApiProvider).addJobPhoto(
+                jobId: widget.jobId,
+                userId: session.userId,
+                url: dataUrl,
+                notifyChat: shouldNotifyChat,
+                photoCount: shouldNotifyChat ? picked.length : null,
+              );
+        }
       }
 
       if (!mounted) return;
@@ -461,6 +463,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     final canMasterCompleteJob = _currentStatus == 'in_progress' &&
         isMaster &&
         state.completionConfirmedByClient;
+    final evidencePhotosRemaining =
+        (20 - state.evidencePhotoCount).clamp(0, 20).toInt();
 
     ref.listen(chatControllerProvider, (previous, next) {
       final previousCount = previous?.messages.length ?? 0;
@@ -503,16 +507,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       ? null
                       : canMasterCompleteJob
                           ? _completeJob
-                          : _addEvidencePhotos,
+                          : evidencePhotosRemaining > 0
+                              ? _addEvidencePhotos
+                              : null,
                   icon: Icon(
                     canMasterCompleteJob
                         ? Icons.check_circle_outline
                         : Icons.photo_camera_outlined,
                   ),
                   label: Text(
-                    l10n.t(canMasterCompleteJob
-                        ? 'complete_job'
-                        : 'add_evidence_photo'),
+                    canMasterCompleteJob
+                        ? l10n.t('complete_job')
+                        : state.evidencePhotoCount > 0
+                            ? l10n
+                                .t('evidence_photos_remaining')
+                                .replaceAll(
+                                  '{count}',
+                                  '$evidencePhotosRemaining',
+                                )
+                            : l10n.t('add_evidence_photo'),
                   ),
                 ),
               ),
