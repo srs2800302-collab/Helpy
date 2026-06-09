@@ -4,7 +4,7 @@ import { createJob, getAvailableJobs, getJobById, getJobs, getJobsByUser, update
 import { createOffer, getOffers } from './offers';
 import { selectOffer } from './select-offer';
 import { createReview, getMasterSummary, getReviews } from './reviews';
-import { completeJob } from './complete-job';
+import { completeJob, confirmCompletion } from './complete-job';
 import { cancelJob } from './cancel-job';
 import { deleteJob } from './delete-job';
 import { createDispute, getDispute, resolveDispute } from './disputes';
@@ -570,6 +570,9 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
       return completeJob(jobId, request, env);
     }
 
+    if (parts.length === 5 && parts[4] === 'confirm-completion' && method === 'POST') {
+      return confirmCompletion(jobId, request, env);
+    }
 
     if (parts.length === 5 && parts[4] === 'cancel' && method === 'POST') {
       return cancelJob(jobId, request, env);
