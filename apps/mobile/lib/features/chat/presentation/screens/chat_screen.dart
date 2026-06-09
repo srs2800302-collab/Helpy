@@ -112,7 +112,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         ),
       );
 
-      Navigator.of(context).pop(true);
+      _hasChanges = true;
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

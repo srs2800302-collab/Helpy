@@ -392,7 +392,9 @@ class _MasterHomeScreenState extends ConsumerState<MasterHomeScreen> {
                     translationsJson: item.addressTranslationsJson,
                     locale: locale,
                   ).trim();
-                  final statusLabel = l10n.t(mapJobStatusKey(item.status));
+                  final statusLabel = item.status == 'in_progress'
+                      ? l10n.t('proceed_to_chat')
+                      : l10n.t(mapJobStatusKey(item.status));
                   final rawMessage = (item.message ?? '').trim();
                   final message = translatedOrOriginal(
                     original: item.message,
