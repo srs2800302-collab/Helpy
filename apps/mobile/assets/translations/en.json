@@ -167,5 +167,6 @@
   "error_conflict": "This action has already been performed.",
   "error_bad_request": "Invalid request data.",
   "error_unknown": "Unexpected error occurred.",
-  "server_error": "Server error. Please try again later."
+  "server_error": "Server error. Please try again later.",
+  "master_photos_label": "Master photos"
 }

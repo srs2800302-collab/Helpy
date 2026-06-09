@@ -43,7 +43,7 @@ class _MasterJobDetailsScreenState
     extends ConsumerState<MasterJobDetailsScreen> {
   JobItem? _job;
   String? _errorMessage;
-  late Future<List<String>> _photosFuture;
+  late Future<List<JobPhotoItem>> _photosFuture;
 
   @override
   void initState() {
@@ -55,8 +55,8 @@ class _MasterJobDetailsScreenState
     });
   }
 
-  Future<List<String>> _loadPhotos() {
-    return loadJobPhotoUrls(
+  Future<List<JobPhotoItem>> _loadPhotos() {
+    return loadJobPhotoItems(
       ref: ref,
       jobId: widget.jobId,
     );
@@ -127,8 +127,48 @@ class _MasterJobDetailsScreenState
     );
   }
 
+  Widget _photoSection({
+    required String title,
+    required List<JobPhotoItem> photos,
+  }) {
+    if (photos.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...photos.map(
+          (photo) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: GestureDetector(
+              onTap: () => showJobPhotoPreviewDialog(
+                context: context,
+                url: photo.url,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: JobPhotoWidget(url: photo.url),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _photosBlock(AppLocalizations l10n) {
-    return FutureBuilder<List<String>>(
+    return FutureBuilder<List<JobPhotoItem>>(
       future: _photosFuture,
       builder: (context, photosSnapshot) {
         if (photosSnapshot.connectionState != ConnectionState.done) {
@@ -139,7 +179,7 @@ class _MasterJobDetailsScreenState
           return Text(photosSnapshot.error.toString());
         }
 
-        final photos = photosSnapshot.data ?? const <String>[];
+        final photos = photosSnapshot.data ?? const <JobPhotoItem>[];
         if (photos.isEmpty) {
           return _infoBlock(
             title: l10n.t('client_photos_label'),
@@ -148,31 +188,28 @@ class _MasterJobDetailsScreenState
           );
         }
 
+        final masterUserId = _job?.selectedMasterUserId;
+        final clientPhotos = photos
+            .where((photo) =>
+                masterUserId == null || photo.ownerUserId != masterUserId)
+            .toList();
+        final masterPhotos = photos
+            .where((photo) =>
+                masterUserId != null && photo.ownerUserId == masterUserId)
+            .toList();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Text(
-                l10n.t('client_photos_label'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            _photoSection(
+              title: l10n.t('client_photos_label'),
+              photos: clientPhotos,
             ),
-            const SizedBox(height: 12),
-            ...photos.map(
-              (url) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: GestureDetector(
-                  onTap: () =>
-                      showJobPhotoPreviewDialog(context: context, url: url),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: JobPhotoWidget(url: url),
-                  ),
-                ),
-              ),
+            if (clientPhotos.isNotEmpty && masterPhotos.isNotEmpty)
+              const SizedBox(height: 16),
+            _photoSection(
+              title: l10n.t('master_photos_label'),
+              photos: masterPhotos,
             ),
           ],
         );

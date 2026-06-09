@@ -2211,3 +2211,60 @@ Admin / Analytics Notes:
 GAP:
 - Admin moderation rules.
 - Anti-abuse rules.
+
+## Global Decision → Chat Evidence Photos & Job Details Photo Ownership
+
+Status: ✅ APPROVED
+
+Scope:
+- Mobile chat.
+- Backend photo upload endpoint.
+- Client job details screen.
+- Master job details screen.
+- RU / EN / TH localization.
+
+Chat Evidence Photo Rules:
+- Master evidence photos are allowed only for the selected master during `in_progress`.
+- One user action of selecting N photos creates one chat system message.
+- Backend upload batching must not leak into UX.
+- Example: if the master selects 10 photos, mobile may upload them as 3+3+3+1, but chat must show one message only.
+- Approved chat system message format:
+  - RU: `Мастер прикрепил N 📷`
+  - EN: `The master attached N 📷`
+  - TH: `ช่างแนบ N 📷`
+- The message is stored as a normal chat message with localized `text_translations_json`.
+- Evidence photos are rendered inline under the upload message in chat.
+- Evidence photos must not be rendered as a separate block at the top of chat.
+- This keeps evidence visually connected to the exact chat event that created it.
+- Current MVP detection of evidence-photo system messages is text-pattern based for RU / EN / TH.
+- Future schema improvement: replace text-pattern detection with explicit message type or metadata when chat message schema is revised.
+
+Job Details Photo Display Rules:
+- Job details must separate photos into two visual sections:
+  - Client photos.
+  - Master photos.
+- Client and master details screens must use the same grouping logic.
+- Empty photo sections are hidden.
+- If no photos exist at all, show the existing "photos not saved" message.
+- Photo section labels must be localized in RU / EN / TH.
+- Master evidence/result photos remain visible in job details after completion.
+- This is intentional: both client and master should see the result/history of work after completion.
+
+Photo Ownership Contract:
+- `job_photos.client_user_id` currently stores the actor user id that uploaded the photo.
+- Backend proof:
+  - `INSERT INTO job_photos (... client_user_id ...)`
+  - `.bind(id, jobId, actorUserId, url, now)`
+- API proof:
+  - `GET /jobs/:id/photos` returns `client_user_id`.
+- Mobile treats this returned value as `ownerUserId`.
+- Current grouping rule:
+  - `photo.ownerUserId == job.selectedMasterUserId` → Master photos.
+  - Otherwise → Client photos.
+- The current field name is legacy and misleading, but current behavior is correct for MVP.
+
+Recorded Technical Debt:
+- `job_photos.client_user_id` should be reviewed during the next canonical DB/schema revision.
+- Preferred future name: `owner_user_id` or `uploaded_by_user_id`.
+- Rename must be done only after read-only usage audit across backend, mobile, admin, migrations and live D1 data.
+- Do not rename this field as an isolated quick patch.
