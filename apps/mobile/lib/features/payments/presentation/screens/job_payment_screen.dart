@@ -41,28 +41,7 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
   void initState() {
     super.initState();
     _job = widget.job;
-    Future.microtask(_refreshUntilTranslationsReady);
-  }
-
-  Future<void> _refreshUntilTranslationsReady() async {
-    for (var attempt = 0; attempt < 6; attempt++) {
-      await _refreshJob(silent: true);
-      if (!mounted) return;
-
-      final locale = ref.read(currentLocaleProvider).languageCode;
-      final originalTitle = (_job?.titleOriginal ?? widget.jobTitle).trim();
-      final displayTitle = translatedOrOriginal(
-        original: originalTitle,
-        translationsJson: _job?.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
-        locale: locale,
-      );
-
-      if (hasRealTranslation(original: originalTitle, translated: displayTitle)) {
-        return;
-      }
-
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-    }
+    Future.microtask(() => _refreshJob(silent: true));
   }
 
   Future<void> _refreshJob({bool silent = false}) async {
@@ -75,7 +54,6 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
         _job = updatedJob;
         if (!silent) _errorMessage = null;
       });
-
     } catch (e) {
       if (!mounted || silent) return;
       final appError = ApiErrorMapper.map(e);
@@ -147,7 +125,8 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
     final originalTitle = (job?.titleOriginal ?? widget.jobTitle).trim();
     final displayTitle = translatedOrOriginal(
       original: originalTitle,
-      translationsJson: job?.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
+      translationsJson:
+          job?.titleTranslationsJson ?? widget.jobTitleTranslationsJson,
       locale: locale,
     );
 
@@ -169,93 +148,95 @@ class _JobPaymentScreenState extends ConsumerState<JobPaymentScreen> {
                 ],
               )
             : ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Card(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () async {
-                  final changed = await Navigator.of(context).push<bool>(
-                    MaterialPageRoute(
-                      builder: (_) => ClientJobDetailsScreen(job: job),
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () async {
+                        final changed = await Navigator.of(context).push<bool>(
+                          MaterialPageRoute(
+                            builder: (_) => ClientJobDetailsScreen(job: job),
+                          ),
+                        );
+                        if (changed == true && context.mounted) {
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            LocalizedJobTitle(
+                              originalTitle: originalTitle,
+                              displayTitle: displayTitle,
+                              primaryStyle: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              secondaryStyle: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                                height: 1.25,
+                              ),
+                              spacing: 6,
+                            ),
+                            if (price != null) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                '${l10n.t('total_price')}: ${price.toStringAsFixed(0)} THB',
+                              ),
+                            ],
+                            const SizedBox(height: 12),
+                            Text(
+                                '${l10n.t('deposit_label')}: THB $amountLabel'),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.touch_app, size: 16),
+                                const SizedBox(width: 6),
+                                Text(l10n.t('view_details')),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  );
-                  if (changed == true && context.mounted) {
-                    Navigator.of(context).pop(true);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    LocalizedJobTitle(
-                      originalTitle: originalTitle,
-                      displayTitle: displayTitle,
-                      primaryStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                  ),
+                  const SizedBox(height: 16),
+                  if (_errorMessage != null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      secondaryStyle: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                        height: 1.25,
+                      child: Text(
+                        l10n.t(_errorMessage!),
+                        style: const TextStyle(color: Colors.red),
                       ),
-                      spacing: 6,
                     ),
-                    if (price != null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        '${l10n.t('total_price')}: ${price.toStringAsFixed(0)} THB',
-                      ),
-                    ],
                     const SizedBox(height: 12),
-                    Text('${l10n.t('deposit_label')}: THB $amountLabel'),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.touch_app, size: 16),
-                        const SizedBox(width: 6),
-                        Text(l10n.t('view_details')),
-                      ],
-                    ),
                   ],
-                ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: (_isPaying || widget.depositAmount <= 0)
+                          ? null
+                          : _payDeposit,
+                      child: _isPaying
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(l10n.t('pay_deposit')),
+                    ),
+                  ),
+                ],
               ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (_errorMessage != null) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.red),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  l10n.t(_errorMessage!),
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed:
-                    (_isPaying || widget.depositAmount <= 0) ? null : _payDeposit,
-                child: _isPaying
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.t('pay_deposit')),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
