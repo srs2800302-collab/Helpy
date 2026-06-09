@@ -10,6 +10,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
   await assertRequiredTable(env, 'offers');
   await assertRequiredTable(env, 'payments');
+  await assertRequiredTable(env, 'job_events');
 
   const auth = await requireAuth(request, env);
   if (!auth.ok) {
@@ -193,6 +194,35 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       JOB_STATUS.master_selected,
       now,
       jobId
+    )
+    .run();
+
+  await env.DB.prepare(
+    `INSERT INTO job_events (
+      id,
+      job_id,
+      event_type,
+      actor_user_id,
+      actor_role,
+      payload_json,
+      created_at
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+  )
+    .bind(
+      crypto.randomUUID(),
+      jobId,
+      'master_selected',
+      auth.userId,
+      'client',
+      JSON.stringify({
+        offer_id: offer.id,
+        master_user_id: offer.master_user_id,
+        master_name: offer.master_name,
+        selected_offer_price: offer.price,
+        from_status: JOB_STATUS.open,
+        to_status: JOB_STATUS.master_selected,
+      }),
+      now,
     )
     .run();
 
