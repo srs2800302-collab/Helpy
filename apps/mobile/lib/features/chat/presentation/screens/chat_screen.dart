@@ -237,6 +237,42 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     }
   }
 
+  Future<void> _completeJob() async {
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) return;
+
+    try {
+      await ref.read(chatApiProvider).completeJob(
+            jobId: widget.jobId,
+            userId: session.userId,
+          );
+
+      if (!mounted) return;
+
+      setState(() {
+        _currentStatus = 'completed';
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).t('job_completed')),
+        ),
+      );
+
+      _hasChanges = true;
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context).t(ApiErrorMapper.map(e).message),
+          ),
+        ),
+      );
+    }
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
@@ -323,6 +359,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         isClient &&
         state.evidencePhotoCount > 0 &&
         !state.completionConfirmedByClient;
+    final canMasterCompleteJob = _currentStatus == 'in_progress' &&
+        isMaster &&
+        state.completionConfirmedByClient;
 
     ref.listen(chatControllerProvider, (previous, next) {
       final previousCount = previous?.messages.length ?? 0;
@@ -361,9 +400,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: state.isLoading ? null : _addEvidencePhotos,
-                  icon: const Icon(Icons.photo_camera_outlined),
-                  label: Text(l10n.t('add_evidence_photo')),
+                  onPressed: state.isLoading
+                      ? null
+                      : canMasterCompleteJob
+                          ? _completeJob
+                          : _addEvidencePhotos,
+                  icon: Icon(
+                    canMasterCompleteJob
+                        ? Icons.check_circle_outline
+                        : Icons.photo_camera_outlined,
+                  ),
+                  label: Text(
+                    l10n.t(canMasterCompleteJob
+                        ? 'complete_job'
+                        : 'add_evidence_photo'),
+                  ),
                 ),
               ),
             ),
