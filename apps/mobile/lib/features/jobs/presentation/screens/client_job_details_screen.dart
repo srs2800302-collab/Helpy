@@ -228,7 +228,7 @@ class _ClientJobDetailsScreenState
 
     Widget? primaryAction;
 
-    if (_job.status == 'draft' || _job.status == 'awaiting_payment') {
+    if (_job.status == 'awaiting_payment') {
       primaryAction = ElevatedButton(
         onPressed: () async {
           final paid = await Navigator.of(context).push<bool>(

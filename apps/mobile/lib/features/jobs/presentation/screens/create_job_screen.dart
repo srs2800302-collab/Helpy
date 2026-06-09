@@ -12,7 +12,6 @@ import '../../../../core/utils/address_display_formatter.dart';
 import '../../../../core/utils/job_address_resolver.dart';
 import '../../../../core/utils/category_mapper.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
-import '../../../payments/presentation/screens/job_payment_screen.dart';
 import '../../domain/job_item.dart';
 import 'job_location_picker_screen.dart';
 
@@ -448,22 +447,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         final job = await jobsController.createDraft();
                         if (job == null || !context.mounted) return;
 
-                        final paid = await Navigator.of(context).push<bool>(
-                          MaterialPageRoute(
-                            builder: (_) => JobPaymentScreen(
-                              jobId: job.id,
-                              jobTitle: (job.titleOriginal ?? job.title).trim(),
-                              jobTitleTranslationsJson: job.titleTranslationsJson,
-                              depositAmount: job.depositAmount ?? 0,
-                              price: job.price,
-                              job: job,
-                            ),
-                          ),
-                        );
-
-                        if (paid == true && context.mounted) {
-                          Navigator.of(context).pop(true);
-                        }
+                        Navigator.of(context).pop(true);
                       }
                     : null,
                 child: isBusy
