@@ -177,6 +177,25 @@ export async function getMessages(jobId: string, request: Request, env: any) {
 
   const messages = (refreshedResult.results ?? []).slice().reverse();
 
+  const evidencePhotoCountResult = await env.DB.prepare(
+    `SELECT COUNT(*) as count
+     FROM job_photos
+     WHERE job_id = ?1`
+  )
+    .bind(jobId)
+    .first();
+
+  const completionConfirmation = await env.DB.prepare(
+    `SELECT id
+     FROM job_events
+     WHERE job_id = ?1
+       AND event_type = 'completion_confirmed_by_client'
+     ORDER BY created_at DESC
+     LIMIT 1`
+  )
+    .bind(jobId)
+    .first();
+
   return Response.json({
     success: true,
     data: messages,
@@ -184,6 +203,8 @@ export async function getMessages(jobId: string, request: Request, env: any) {
       limit,
       offset,
       count: messages.length,
+      evidence_photo_count: Number(evidencePhotoCountResult?.count ?? 0),
+      completion_confirmed_by_client: !!completionConfirmation,
     },
   });
 }

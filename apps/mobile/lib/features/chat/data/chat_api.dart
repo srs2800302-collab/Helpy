@@ -2,12 +2,24 @@ import '../../../core/network/api_client.dart';
 import '../domain/chat_message.dart';
 import 'package:dio/dio.dart';
 
+class ChatMessagesResult {
+  final List<ChatMessage> messages;
+  final int evidencePhotoCount;
+  final bool completionConfirmedByClient;
+
+  const ChatMessagesResult({
+    required this.messages,
+    required this.evidencePhotoCount,
+    required this.completionConfirmedByClient,
+  });
+}
+
 class ChatApi {
   final ApiClient apiClient;
 
   ChatApi(this.apiClient);
 
-  Future<List<ChatMessage>> getMessages({
+  Future<ChatMessagesResult> getMessages({
     required String jobId,
     required String userId,
   }) async {
@@ -21,7 +33,8 @@ class ChatApi {
     );
 
     final data = res.data['data'] as List<dynamic>;
-    return data.map((e) {
+    final meta = (res.data['meta'] as Map<String, dynamic>?) ?? const {};
+    final messages = data.map((e) {
       final m = e as Map<String, dynamic>;
       return ChatMessage(
         id: m['id'] as String,
@@ -32,10 +45,19 @@ class ChatApi {
         replyToMessageId: m['reply_to_message_id'] as String?,
         replyText: m['reply_text'] as String?,
         replySenderUserId: m['reply_sender_user_id'] as String?,
-        replyTextTranslationsJson: m['reply_text_translations_json'] as String?,
+        replyTextTranslationsJson:
+            m['reply_text_translations_json'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
       );
     }).toList();
+
+    return ChatMessagesResult(
+      messages: messages,
+      evidencePhotoCount:
+          int.tryParse(meta['evidence_photo_count']?.toString() ?? '') ?? 0,
+      completionConfirmedByClient:
+          meta['completion_confirmed_by_client'] == true,
+    );
   }
 
   Future<ChatMessage> sendMessage({

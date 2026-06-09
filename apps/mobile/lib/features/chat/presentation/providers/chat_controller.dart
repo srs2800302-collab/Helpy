@@ -11,6 +11,8 @@ class ChatState {
   final String? jobId;
   final bool isLoading;
   final List<ChatMessage> messages;
+  final int evidencePhotoCount;
+  final bool completionConfirmedByClient;
   final String input;
   final bool isSending;
   final String? errorMessage;
@@ -19,6 +21,8 @@ class ChatState {
     this.jobId,
     this.isLoading = false,
     this.messages = const [],
+    this.evidencePhotoCount = 0,
+    this.completionConfirmedByClient = false,
     this.input = '',
     this.isSending = false,
     this.errorMessage,
@@ -28,6 +32,8 @@ class ChatState {
     String? jobId,
     bool? isLoading,
     List<ChatMessage>? messages,
+    int? evidencePhotoCount,
+    bool? completionConfirmedByClient,
     String? input,
     bool? isSending,
     String? errorMessage,
@@ -108,14 +114,17 @@ class ChatController extends StateNotifier<ChatState> {
     }
 
     try {
-      final messages = await ref.read(chatApiProvider).getMessages(
+      final result = await ref.read(chatApiProvider).getMessages(
             jobId: jobId,
             userId: session.userId,
           );
 
       final hasSameMessages = silent &&
-          _messagesFingerprint(messages) ==
-              _messagesFingerprint(state.messages);
+          _messagesFingerprint(result.messages) ==
+              _messagesFingerprint(state.messages) &&
+          result.evidencePhotoCount == state.evidencePhotoCount &&
+          result.completionConfirmedByClient ==
+              state.completionConfirmedByClient;
 
       if (_currentJobId != jobId) {
         _isLoadingMessages = false;
@@ -126,12 +135,16 @@ class ChatController extends StateNotifier<ChatState> {
         state = state.copyWith(
           jobId: jobId,
           isLoading: false,
-          messages: messages,
+          messages: result.messages,
+          evidencePhotoCount: result.evidencePhotoCount,
+          completionConfirmedByClient: result.completionConfirmedByClient,
           clearError: true,
         );
       } else if (state.errorMessage != null || state.isLoading) {
         state = state.copyWith(
           isLoading: false,
+          evidencePhotoCount: result.evidencePhotoCount,
+          completionConfirmedByClient: result.completionConfirmedByClient,
           clearError: true,
         );
       }
