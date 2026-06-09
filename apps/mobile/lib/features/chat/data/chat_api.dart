@@ -5,11 +5,13 @@ import 'package:dio/dio.dart';
 class ChatMessagesResult {
   final List<ChatMessage> messages;
   final int evidencePhotoCount;
+  final List<String> evidencePhotoUrls;
   final bool completionConfirmedByClient;
 
   const ChatMessagesResult({
     required this.messages,
     required this.evidencePhotoCount,
+    required this.evidencePhotoUrls,
     required this.completionConfirmedByClient,
   });
 }
@@ -51,10 +53,25 @@ class ChatApi {
       );
     }).toList();
 
+    final photosRes = await apiClient.dio.get(
+      '/jobs/$jobId/photos',
+      options: Options(
+        headers: {
+          'x-user-id': userId,
+        },
+      ),
+    );
+
+    final photosData = photosRes.data['data'] as List<dynamic>? ?? const [];
+    final evidencePhotoUrls = photosData
+        .map((item) => (item as Map<String, dynamic>)['url']?.toString() ?? '')
+        .where((url) => url.trim().isNotEmpty)
+        .toList();
+
     return ChatMessagesResult(
       messages: messages,
-      evidencePhotoCount:
-          int.tryParse(meta['evidence_photo_count']?.toString() ?? '') ?? 0,
+      evidencePhotoCount: evidencePhotoUrls.length,
+      evidencePhotoUrls: evidencePhotoUrls,
       completionConfirmedByClient:
           meta['completion_confirmed_by_client'] == true,
     );

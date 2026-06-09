@@ -12,6 +12,7 @@ class ChatState {
   final bool isLoading;
   final List<ChatMessage> messages;
   final int evidencePhotoCount;
+  final List<String> evidencePhotoUrls;
   final bool completionConfirmedByClient;
   final String input;
   final bool isSending;
@@ -22,6 +23,7 @@ class ChatState {
     this.isLoading = false,
     this.messages = const [],
     this.evidencePhotoCount = 0,
+    this.evidencePhotoUrls = const [],
     this.completionConfirmedByClient = false,
     this.input = '',
     this.isSending = false,
@@ -33,6 +35,7 @@ class ChatState {
     bool? isLoading,
     List<ChatMessage>? messages,
     int? evidencePhotoCount,
+    List<String>? evidencePhotoUrls,
     bool? completionConfirmedByClient,
     String? input,
     bool? isSending,
@@ -43,6 +46,10 @@ class ChatState {
       jobId: jobId ?? this.jobId,
       isLoading: isLoading ?? this.isLoading,
       messages: messages ?? this.messages,
+      evidencePhotoCount: evidencePhotoCount ?? this.evidencePhotoCount,
+      evidencePhotoUrls: evidencePhotoUrls ?? this.evidencePhotoUrls,
+      completionConfirmedByClient:
+          completionConfirmedByClient ?? this.completionConfirmedByClient,
       input: input ?? this.input,
       isSending: isSending ?? this.isSending,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
@@ -59,6 +66,10 @@ String _messagesFingerprint(List<ChatMessage> messages) {
             m.replyTextTranslationsJson ?? '',
           ].join('|'))
       .join('\n');
+}
+
+String _photoUrlsFingerprint(List<String> urls) {
+  return urls.join('\n');
 }
 
 class ChatController extends StateNotifier<ChatState> {
@@ -123,6 +134,8 @@ class ChatController extends StateNotifier<ChatState> {
           _messagesFingerprint(result.messages) ==
               _messagesFingerprint(state.messages) &&
           result.evidencePhotoCount == state.evidencePhotoCount &&
+          _photoUrlsFingerprint(result.evidencePhotoUrls) ==
+              _photoUrlsFingerprint(state.evidencePhotoUrls) &&
           result.completionConfirmedByClient ==
               state.completionConfirmedByClient;
 
@@ -137,6 +150,7 @@ class ChatController extends StateNotifier<ChatState> {
           isLoading: false,
           messages: result.messages,
           evidencePhotoCount: result.evidencePhotoCount,
+          evidencePhotoUrls: result.evidencePhotoUrls,
           completionConfirmedByClient: result.completionConfirmedByClient,
           clearError: true,
         );
@@ -144,6 +158,7 @@ class ChatController extends StateNotifier<ChatState> {
         state = state.copyWith(
           isLoading: false,
           evidencePhotoCount: result.evidencePhotoCount,
+          evidencePhotoUrls: result.evidencePhotoUrls,
           completionConfirmedByClient: result.completionConfirmedByClient,
           clearError: true,
         );

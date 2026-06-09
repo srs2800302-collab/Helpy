@@ -10,6 +10,8 @@ import '../../../../core/errors/api_error_mapper.dart';
 import '../../../../core/utils/translation_display.dart';
 import '../../../../core/utils/date_time_format.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
+import '../../../../core/widgets/job_photo_preview_dialog.dart';
+import '../../../../core/widgets/job_photo_widget.dart';
 import '../../../auth/domain/auth_session.dart';
 import '../../domain/chat_message.dart';
 
@@ -161,6 +163,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
       if (!mounted) return;
 
+      await ref.read(chatControllerProvider.notifier).load(widget.jobId);
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -271,6 +276,59 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         ),
       );
     }
+  }
+
+  Widget _evidencePhotosBlock(AppLocalizations l10n, List<String> photos) {
+    if (photos.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.t('add_evidence_photo'),
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 96,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: photos.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final url = photos[index];
+
+                return GestureDetector(
+                  onTap: () => showJobPhotoPreviewDialog(
+                    context: context,
+                    url: url,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: SizedBox(
+                      width: 96,
+                      height: 96,
+                      child: JobPhotoWidget(url: url),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _scrollToBottom() {
@@ -474,9 +532,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(12),
-                      itemCount: visibleMessages.length,
+                      itemCount: visibleMessages.length +
+                          (state.evidencePhotoCount > 0 ? 1 : 0),
                       itemBuilder: (context, index) {
-                        final m = visibleMessages[index];
+                        if (state.evidencePhotoCount > 0 && index == 0) {
+                          return _evidencePhotosBlock(
+                            l10n,
+                            state.evidencePhotoUrls,
+                          );
+                        }
+
+                        final messageIndex =
+                            state.evidencePhotoCount > 0 ? index - 1 : index;
+                        final m = visibleMessages[messageIndex];
                         final senderLabel = _senderLabel(
                           senderUserId: m.senderUserId,
                           currentUserId: session?.userId ?? '',
