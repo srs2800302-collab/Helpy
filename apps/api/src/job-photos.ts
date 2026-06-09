@@ -214,7 +214,7 @@ export async function getJobPhotos(jobId: string, request: Request, env: any) {
        created_at
      FROM job_photos
      WHERE job_id = ?1
-       AND (?2 != 'evidence' OR client_user_id = ?3)
+       AND (?2 IS NULL OR ?2 != 'evidence' OR client_user_id = ?3)
      ORDER BY created_at ASC`
   )
     .bind(jobId, scope, job.selected_master_user_id)
