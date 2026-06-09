@@ -282,12 +282,58 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     }
   }
 
-  bool _isEvidencePhotoMessage(String text) {
+  int _evidencePhotoCountFromMessage(String text) {
     final value = text.trim();
-    return value.endsWith('📷') &&
-        (value.startsWith('Мастер прикрепил') ||
-            value.startsWith('The master attached') ||
-            value.startsWith('ช่างแนบ'));
+    if (!value.endsWith('📷')) {
+      return 0;
+    }
+
+    final match = RegExp(r'\d+').firstMatch(value);
+    if (match == null) {
+      return 0;
+    }
+
+    final count = int.tryParse(match.group(0) ?? '');
+    if (count == null || count <= 0) {
+      return 0;
+    }
+
+    return count;
+  }
+
+  bool _isEvidencePhotoMessage(String text) {
+    return _evidencePhotoCountFromMessage(text) > 0 &&
+        (text.trim().startsWith('Мастер прикрепил') ||
+            text.trim().startsWith('The master attached') ||
+            text.trim().startsWith('ช่างแนบ'));
+  }
+
+  List<String> _evidencePhotosForMessage({
+    required List<ChatMessage> messages,
+    required ChatMessage targetMessage,
+    required String locale,
+    required List<String> allPhotos,
+  }) {
+    var usedPhotos = 0;
+
+    for (final message in messages) {
+      final text = translatedOrOriginal(
+        original: message.text,
+        translationsJson: message.textTranslationsJson,
+        locale: locale,
+      );
+      final count = _isEvidencePhotoMessage(text)
+          ? _evidencePhotoCountFromMessage(text)
+          : 0;
+
+      if (message.id == targetMessage.id) {
+        return allPhotos.skip(usedPhotos).take(count).toList();
+      }
+
+      usedPhotos += count;
+    }
+
+    return const <String>[];
   }
 
   Widget _evidencePhotosBlock(List<String> photos) {
@@ -632,7 +678,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                                     ),
                                   Text(displayText),
                                   if (_isEvidencePhotoMessage(displayText))
-                                    _evidencePhotosBlock(state.evidencePhotoUrls),
+                                    _evidencePhotosBlock(
+                                      _evidencePhotosForMessage(
+                                        messages: visibleMessages,
+                                        targetMessage: m,
+                                        locale: locale,
+                                        allPhotos: state.evidencePhotoUrls,
+                                      ),
+                                    ),
                                   const SizedBox(height: 4),
                                   Text(
                                     '$senderLabel • $messageTime',
