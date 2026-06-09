@@ -1,8 +1,15 @@
 import { MASTER_BILLING_STATUS } from '../db-domains';
-export type JobPaymentMethod = 'card' | 'cash';
+
+export type JobPaymentMethod =
+  | 'promptpay'
+  | 'cash'
+  | 'bank_transfer'
+  | 'wallet'
+  | 'card';
+
 export type CommissionPayerRole = 'client' | 'master';
 
-export const DEPOSIT_PERCENT = 40;
+export const DEPOSIT_PERCENT = 30;
 
 export function deriveCommissionPayer(
   paymentMethod: JobPaymentMethod,

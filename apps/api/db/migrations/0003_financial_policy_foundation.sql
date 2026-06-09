@@ -2,7 +2,7 @@
 -- Purpose:
 -- 1. Store active configurable financial policy for new jobs.
 -- 2. Keep jobs as immutable financial snapshots.
--- 3. Relax jobs.deposit_percent from fixed 40 to configurable 0..100.
+-- 3. Set default platform commission/deposit percent to 30 and keep it configurable 0..100.
 -- 4. Use SQLite legacy ALTER behavior to rebuild jobs without rewriting dependent FK targets.
 
 PRAGMA foreign_keys=OFF;
@@ -11,15 +11,17 @@ CREATE TABLE platform_financial_settings (
   id TEXT PRIMARY KEY,
   is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
   currency TEXT NOT NULL DEFAULT 'THB' CHECK (currency IN ('THB')),
-  default_deposit_percent INTEGER NOT NULL DEFAULT 40 CHECK (default_deposit_percent BETWEEN 0 AND 100),
-  client_card_enabled INTEGER NOT NULL DEFAULT 1 CHECK (client_card_enabled IN (0, 1)),
-  client_cash_enabled INTEGER NOT NULL DEFAULT 1 CHECK (client_cash_enabled IN (0, 1)),
-  master_cash_jobs_enabled INTEGER NOT NULL DEFAULT 1 CHECK (master_cash_jobs_enabled IN (0, 1)),
-  default_card_commission_payer TEXT NOT NULL DEFAULT 'client'
-    CHECK (default_card_commission_payer IN ('client', 'master')),
+  default_deposit_percent INTEGER NOT NULL DEFAULT 30 CHECK (default_deposit_percent BETWEEN 0 AND 100),
+  promptpay_enabled INTEGER NOT NULL DEFAULT 1 CHECK (promptpay_enabled IN (0, 1)),
+  cash_enabled INTEGER NOT NULL DEFAULT 1 CHECK (cash_enabled IN (0, 1)),
+  bank_transfer_enabled INTEGER NOT NULL DEFAULT 1 CHECK (bank_transfer_enabled IN (0, 1)),
+  wallet_enabled INTEGER NOT NULL DEFAULT 1 CHECK (wallet_enabled IN (0, 1)),
+  card_enabled INTEGER NOT NULL DEFAULT 0 CHECK (card_enabled IN (0, 1)),
+  default_promptpay_commission_payer TEXT NOT NULL DEFAULT 'client'
+    CHECK (default_promptpay_commission_payer IN ('client', 'master')),
   default_cash_commission_payer TEXT NOT NULL DEFAULT 'master'
     CHECK (default_cash_commission_payer IN ('client', 'master')),
-  master_cash_commission_percent INTEGER NOT NULL DEFAULT 40
+  master_cash_commission_percent INTEGER NOT NULL DEFAULT 30
     CHECK (master_cash_commission_percent BETWEEN 0 AND 100),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -34,10 +36,12 @@ INSERT INTO platform_financial_settings (
   is_active,
   currency,
   default_deposit_percent,
-  client_card_enabled,
-  client_cash_enabled,
-  master_cash_jobs_enabled,
-  default_card_commission_payer,
+  promptpay_enabled,
+  cash_enabled,
+  bank_transfer_enabled,
+  wallet_enabled,
+  card_enabled,
+  default_promptpay_commission_payer,
   default_cash_commission_payer,
   master_cash_commission_percent,
   created_at,
@@ -46,13 +50,15 @@ INSERT INTO platform_financial_settings (
   'default',
   1,
   'THB',
-  40,
+  30,
   1,
   1,
   1,
+  1,
+  0,
   'client',
   'master',
-  40,
+  30,
   datetime('now'),
   datetime('now')
 );
@@ -100,9 +106,9 @@ CREATE TABLE jobs (
   deposit_amount REAL CHECK (deposit_amount IS NULL OR deposit_amount >= 0),
   latitude REAL CHECK (latitude IS NULL OR latitude BETWEEN -90 AND 90),
   longitude REAL CHECK (longitude IS NULL OR longitude BETWEEN -180 AND 180),
-  payment_method TEXT NOT NULL DEFAULT 'card' CHECK (payment_method IN ('card', 'cash')),
+  payment_method TEXT NOT NULL DEFAULT 'promptpay' CHECK (payment_method IN ('promptpay', 'cash', 'bank_transfer', 'wallet', 'card')),
   commission_payer TEXT NOT NULL DEFAULT 'client' CHECK (commission_payer IN ('client', 'master')),
-  deposit_percent INTEGER NOT NULL DEFAULT 40 CHECK (deposit_percent BETWEEN 0 AND 100),
+  deposit_percent INTEGER NOT NULL DEFAULT 30 CHECK (deposit_percent BETWEEN 0 AND 100),
   FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE RESTRICT,
   FOREIGN KEY (selected_master_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
@@ -167,8 +173,15 @@ SELECT
   deposit_amount,
   latitude,
   longitude,
-  payment_method,
-  commission_payer,
+  CASE
+    WHEN payment_method = 'cash' THEN 'cash'
+    WHEN payment_method IN ('promptpay', 'bank_transfer', 'wallet') THEN payment_method
+    ELSE 'promptpay'
+  END,
+  CASE
+    WHEN payment_method = 'cash' THEN 'master'
+    ELSE 'client'
+  END,
   deposit_percent
 FROM jobs_old;
 

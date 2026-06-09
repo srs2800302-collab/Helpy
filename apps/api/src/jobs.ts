@@ -255,11 +255,11 @@ export async function createJob(request: Request, env: any, ctx?: any) {
     );
   }
 
-  const paymentMethod = body.payment_method ?? 'card';
+  const paymentMethod = body.payment_method ?? 'promptpay';
 
-  if (paymentMethod !== 'card' && paymentMethod !== 'cash') {
+  if (!['promptpay', 'cash', 'bank_transfer', 'wallet', 'card'].includes(paymentMethod)) {
     return Response.json(
-      { success: false, error: 'payment_method must be card or cash' },
+      { success: false, error: 'payment_method must be promptpay, cash, bank_transfer, wallet or card' },
       { status: 400 }
     );
   }
@@ -309,8 +309,7 @@ export async function createJob(request: Request, env: any, ctx?: any) {
   });
 
   const paymentTerms = buildPaymentTerms(price, paymentMethod);
-  const initialStatus =
-    paymentMethod === 'cash' ? JOB_STATUS.open : JOB_STATUS.awaiting_payment;
+  const initialStatus = JOB_STATUS.open;
 
   await env.DB.prepare(
     `INSERT INTO jobs (

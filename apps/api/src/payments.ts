@@ -137,14 +137,15 @@ export async function createDeposit(jobId: string, request: Request, env: any) {
     return fail('Only job client can pay deposit', 403);
   }
 
-  if (typeof job.price !== 'number' || job.price <= 0) {
-    return fail('Job price must be set before payment', 400);
+  if (typeof job.selected_offer_price !== 'number' || job.selected_offer_price <= 0) {
+    return fail('Selected offer price must be set before deposit payment', 400);
   }
 
-  const depositAmount =
-    typeof job.deposit_amount === 'number' && job.deposit_amount > 0
-      ? job.deposit_amount
-      : Math.round(job.price * 0.40);
+  if (typeof job.deposit_amount !== 'number' || job.deposit_amount <= 0) {
+    return fail('Deposit amount must be fixed before deposit payment', 400);
+  }
+
+  const depositAmount = job.deposit_amount;
 
   const existingPaidDeposit = await getPaidDeposit(jobId, env);
   if (existingPaidDeposit) {

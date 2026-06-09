@@ -2,8 +2,7 @@ import { assertRequiredTable } from './schema-guards';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { fail } from './response';
-import { assertMasterCanAcceptCashJob } from './payments/payment-rules';
-import { OFFER_COLUMNS, PAYMENT_COLUMNS, selectJobById } from './job-enrichment';
+import { OFFER_COLUMNS, selectJobById } from './job-enrichment';
 import { OFFER_STATUS } from './db-domains';
 
 export async function selectOffer(jobId: string, request: Request, env: any) {
@@ -62,119 +61,14 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
     return fail('Offer is no longer active', 400);
   }
 
-  if (job.payment_method === 'card') {
-    const deposit = await env.DB.prepare(
-      `SELECT ${PAYMENT_COLUMNS} FROM payments
-       WHERE job_id = ?1
-         AND type = 'deposit'
-         AND status = 'paid'
-       ORDER BY created_at DESC
-       LIMIT 1`
-    )
-      .bind(jobId)
-      .first();
-
-    if (!deposit) {
-      return fail('Deposit payment required before selecting master', 400);
-    }
-  }
-
-  let masterPaymentMethod: any = null;
-
-  if (job.payment_method === 'cash') {
-    const masterProfile = await env.DB.prepare(
-      `SELECT
-         has_billing_method,
-         billing_status,
-         cash_jobs_enabled
-       FROM master_profiles
-       WHERE user_id = ?1
-       LIMIT 1`
-    )
-      .bind(offer.master_user_id)
-      .first();
-
-    try {
-      assertMasterCanAcceptCashJob({
-        hasBillingMethod: !!masterProfile?.has_billing_method,
-        billingStatus: masterProfile?.billing_status ?? 'missing',
-        cashJobsEnabled: !!masterProfile?.cash_jobs_enabled,
-      });
-    } catch {
-      return fail(
-        'Master cannot accept cash job without active billing method',
-        400
-      );
-    }
-
-    masterPaymentMethod = await env.DB.prepare(
-      `SELECT id, provider, provider_payment_method_id
-       FROM payment_methods
-       WHERE user_id = ?1
-         AND status = 'active'
-       ORDER BY is_default DESC, created_at ASC
-       LIMIT 1`
-    )
-      .bind(offer.master_user_id)
-      .first();
-
-    if (!masterPaymentMethod) {
-      return fail('Active master payment method not found', 400);
-    }
-
-    const existingCashDeposit = await env.DB.prepare(
-      `SELECT id
-       FROM payments
-       WHERE job_id = ?1
-         AND type = 'deposit'
-         AND payer_role = 'master'
-       LIMIT 1`
-    )
-      .bind(jobId)
-      .first();
-
-    if (!existingCashDeposit) {
-      const paymentId = crypto.randomUUID();
-
-      await env.DB.prepare(
-        `INSERT INTO payments (
-          id,
-          job_id,
-          client_user_id,
-          payer_user_id,
-          payment_method_id,
-          payer_role,
-          source,
-          provider,
-          provider_ref,
-          amount,
-          currency,
-          type,
-          status,
-          created_at
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`
-      )
-        .bind(
-          paymentId,
-          jobId,
-          job.client_user_id,
-          offer.master_user_id,
-          masterPaymentMethod.id,
-          'master',
-          'master_card',
-          masterPaymentMethod.provider ?? 'mock',
-          `mock_master_charge_${paymentId}`,
-          job.deposit_amount,
-          job.currency || 'THB',
-          'deposit',
-          'paid',
-          new Date().toISOString()
-        )
-        .run();
-    }
-  }
-
   const now = new Date().toISOString();
+
+  const selectedDepositAmount = Math.round(Number(offer.price) * 0.3 * 100) / 100;
+  const commissionPayer = job.payment_method === 'cash' ? 'master' : 'client';
+  const nextStatus =
+    commissionPayer === 'master'
+      ? JOB_STATUS.master_selected
+      : JOB_STATUS.awaiting_payment;
 
   await env.DB.prepare(
     `UPDATE jobs
@@ -183,48 +77,52 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
          selected_master_user_id = ?3,
          selected_offer_price = ?4,
          status = ?5,
-         updated_at = ?6
-     WHERE id = ?7`
+         updated_at = ?6,
+         deposit_amount = ?7
+     WHERE id = ?8`
   )
     .bind(
       offer.id,
       offer.master_name,
       offer.master_user_id,
       offer.price,
-      JOB_STATUS.master_selected,
+      nextStatus,
       now,
+      selectedDepositAmount,
       jobId
     )
     .run();
 
-  await env.DB.prepare(
-    `INSERT INTO job_events (
-      id,
-      job_id,
-      event_type,
-      actor_user_id,
-      actor_role,
-      payload_json,
-      created_at
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
-  )
-    .bind(
-      crypto.randomUUID(),
-      jobId,
-      'master_selected',
-      auth.userId,
-      'client',
-      JSON.stringify({
-        offer_id: offer.id,
-        master_user_id: offer.master_user_id,
-        master_name: offer.master_name,
-        selected_offer_price: offer.price,
-        from_status: JOB_STATUS.open,
-        to_status: JOB_STATUS.master_selected,
-      }),
-      now,
+  if (nextStatus === JOB_STATUS.master_selected) {
+    await env.DB.prepare(
+      `INSERT INTO job_events (
+        id,
+        job_id,
+        event_type,
+        actor_user_id,
+        actor_role,
+        payload_json,
+        created_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
     )
-    .run();
+      .bind(
+        crypto.randomUUID(),
+        jobId,
+        'master_selected',
+        auth.userId,
+        'client',
+        JSON.stringify({
+          offer_id: offer.id,
+          master_user_id: offer.master_user_id,
+          master_name: offer.master_name,
+          selected_offer_price: offer.price,
+          from_status: JOB_STATUS.open,
+          to_status: nextStatus,
+        }),
+        now,
+      )
+      .run();
+  }
 
   await env.DB.prepare(
     `UPDATE offers
@@ -243,7 +141,7 @@ export async function selectOffer(jobId: string, request: Request, env: any) {
       selected_master_name: offer.master_name,
       selected_master_user_id: offer.master_user_id,
       selected_offer_price: offer.price,
-      status: JOB_STATUS.master_selected,
+      status: nextStatus,
       updated_at: now,
     },
   });
