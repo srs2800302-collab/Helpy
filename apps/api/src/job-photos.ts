@@ -31,6 +31,7 @@ function canAddPhotosInStatus(status: string) {
 export async function addJobPhoto(jobId: string, request: Request, env: any) {
   await assertRequiredTable(env, 'jobs');
   await assertRequiredTable(env, 'job_photos');
+  await assertRequiredTable(env, 'chat_messages');
 
   let body: CreateJobPhotoBody;
   try {
@@ -144,6 +145,40 @@ export async function addJobPhoto(jobId: string, request: Request, env: any) {
     )
       .bind(id, jobId, actorUserId, url, now)
       .run();
+
+    if (isSelectedMasterEvidence) {
+      await env.DB.prepare(
+        `INSERT INTO chat_messages (
+          id,
+          job_id,
+          sender_user_id,
+          text,
+          text_translations_json,
+          reply_to_message_id,
+          reply_text,
+          reply_sender_user_id,
+          reply_text_translations_json,
+          created_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
+      )
+        .bind(
+          crypto.randomUUID(),
+          jobId,
+          actorUserId,
+          '📷 Добавлены фото результата работы',
+          JSON.stringify({
+            ru: '📷 Добавлены фото результата работы',
+            en: '📷 Work result photos added',
+            th: '📷 เพิ่มรูปภาพผลงานแล้ว',
+          }),
+          null,
+          null,
+          null,
+          null,
+          now,
+        )
+        .run();
+    }
   } catch (error: any) {
     const message = error?.message ?? 'Failed to add photo';
 
