@@ -127,6 +127,21 @@ class ChatApi {
     );
   }
 
+  Future<void> confirmCompletion({
+    required String jobId,
+    required String userId,
+  }) async {
+    await apiClient.dio.post(
+      '/jobs/$jobId/confirm-completion',
+      options: Options(
+        headers: {
+          'x-user-id': userId,
+        },
+      ),
+      data: const {},
+    );
+  }
+
   Future<void> completeJob({
     required String jobId,
     required String userId,

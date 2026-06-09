@@ -185,6 +185,58 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     }
   }
 
+  Future<void> _confirmCompletion() async {
+    final session = ref.read(authControllerProvider).session;
+    if (session == null) return;
+
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.t('confirm_completion_title')),
+        content: Text(l10n.t('confirm_completion_message')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.t('confirm_completion_no')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.t('confirm_completion_yes')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(chatApiProvider).confirmCompletion(
+            jobId: widget.jobId,
+            userId: session.userId,
+          );
+      await ref.read(chatControllerProvider.notifier).load(widget.jobId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.t('completion_confirmed')),
+        ),
+      );
+
+      _hasChanges = true;
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.t(ApiErrorMapper.map(e).message)),
+        ),
+      );
+    }
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
@@ -247,6 +299,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     final locale = ref.watch(currentLocaleProvider).languageCode;
     final session = ref.watch(authControllerProvider).session;
     final isMaster = session?.role == UserRole.master;
+    final isClient = session?.role == UserRole.client;
 
     ref.listen(currentLocaleProvider, (previous, next) {
       if (previous?.languageCode == next.languageCode) return;
@@ -266,6 +319,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         state.input.trim().isNotEmpty &&
         !state.isLoading &&
         !state.isSending;
+    final canClientConfirmCompletion = _currentStatus == 'in_progress' &&
+        isClient &&
+        state.evidencePhotoCount > 0 &&
+        !state.completionConfirmedByClient;
 
     ref.listen(chatControllerProvider, (previous, next) {
       final previousCount = previous?.messages.length ?? 0;
@@ -307,6 +364,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   onPressed: state.isLoading ? null : _addEvidencePhotos,
                   icon: const Icon(Icons.photo_camera_outlined),
                   label: Text(l10n.t('add_evidence_photo')),
+                ),
+              ),
+            ),
+          if (canClientConfirmCompletion)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: state.isLoading ? null : _confirmCompletion,
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: Text(l10n.t('confirm_work_completion')),
                 ),
               ),
             ),
