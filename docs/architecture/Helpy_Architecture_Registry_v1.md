@@ -2457,11 +2457,26 @@ If admin action is required, it must be recorded as a new `admin_intervention` e
 
 ### Chat Evidence Rule
 
-After an order reaches master selection or dispute-related stages, chat becomes part of the evidence package.
+Chat has two different evidence meanings and they must not be mixed.
+
+Price justification evidence:
+- before the client selects a master, the master may explain why the Entry Price must change;
+- the explanation may happen in chat;
+- the client must understand and confirm the revised price before it becomes final;
+- the platform must record the confirmed price result in `job_events`;
+- required timeline events: price_adjustment_requested and price_adjustment_approved.
+
+Completion evidence:
+- after work starts, the master must upload evidence photos;
+- evidence photos prove hidden defects, unsafe conditions, work process and final result;
+- the client must confirm completion before the master can complete the order;
+- only after client completion confirmation may the master access Complete Order;
+- completion confirmation and completion must be recorded in `job_events`.
 
 Disputes must use:
 - chat history;
 - job_events timeline;
+- price change history;
 - payment state;
 - evidence photos;
 - completion state;
