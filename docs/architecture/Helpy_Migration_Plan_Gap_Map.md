@@ -128,9 +128,8 @@ Every schema migration must include:
 ## Open Decisions Before SQL
 
 1. Pre-selection chat storage model:
-   - job_id-only with offer authorization;
-   - offer_id in chat_messages;
-   - chat_threads.
+   - APPROVED: chat_threads.
+   - Reason: chat is part of workflow, business logic, evidence and Admin Panel control.
 
 2. Offer lifecycle storage:
    - extend offers.status;

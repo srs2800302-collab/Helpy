@@ -185,11 +185,12 @@ Gap:
 - One job may have multiple offers and therefore multiple pre-selection conversations.
 
 Target Design Question:
-- Option A: keep chat_messages job_id-only and authorize by offers table.
-- Option B: add offer_id to chat_messages for pre-selection messages.
-- Option C: introduce chat_threads for job/offer scoped conversations.
+- APPROVED Decision: introduce chat_threads for job/offer scoped conversations.
 
-Decision must be made before migration.
+Reason:
+- Chat is part of workflow, business logic, evidence and Admin Panel control.
+- One order can have multiple chat contexts.
+- A single job_id chat would mix negotiations, work coordination and dispute context.
 
 ---
 

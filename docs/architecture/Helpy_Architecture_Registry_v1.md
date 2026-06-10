@@ -2481,3 +2481,78 @@ Admin Order Timeline must combine:
 
 The Admin Panel must present these layers together while keeping their data responsibilities separate.
 
+
+---
+
+## Chat Threads Architecture Decision
+
+Status: APPROVED ✅
+
+### Decision
+
+Helpy will use `chat_threads` as the canonical chat context model.
+
+Chat is not a side feature.
+
+Chat is part of the order workflow, business logic, evidence model and future Admin Panel control layer.
+
+### Why
+
+A single order can have multiple chat contexts:
+- pre-selection negotiation with each master;
+- post-selection work coordination;
+- evidence discussion;
+- dispute/support review;
+- admin-visible operational context.
+
+Using only `job_id` for chat messages would mix different business contexts into one conversation and create long-term drift.
+
+### Canonical Model
+
+`chat_threads` will represent the chat context.
+
+`chat_messages` will belong to a chat thread.
+
+A thread may be linked to:
+- job;
+- offer;
+- selected master;
+- lifecycle stage;
+- thread type;
+- thread status.
+
+### Initial Thread Types
+
+- pre_selection_offer;
+- work;
+- dispute;
+- admin_support.
+
+### Business Rules
+
+Pre-selection offer threads:
+- one thread per job + offer;
+- visible to the client and the offering master;
+- not visible to other masters;
+- used for scope clarification and price negotiation.
+
+Work thread:
+- created or activated after master selection;
+- visible to the client and selected master;
+- used for arrival coordination, work execution and evidence context.
+
+Admin:
+- can read all threads for an order from the Admin Panel;
+- must see thread type, participants, lifecycle stage and related timeline events;
+- admin interventions must be recorded as `admin_intervention` events, not by rewriting chat history.
+
+### Timeline Separation
+
+`chat_threads` and `chat_messages` provide human communication context.
+
+`job_events` remains the immutable business timeline.
+
+Chat threads must not replace `job_events`.
+
+`job_events` must not be stored as fake chat messages.
+
