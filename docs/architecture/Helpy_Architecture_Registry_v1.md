@@ -2821,3 +2821,76 @@ Admin must be able to compare:
 - related chat context;
 - related job_events.
 
+---
+## Helpy Canonical Order Lifecycle Contract
+
+Status: APPROVED ✅
+
+Admin / Platform
+↓
+sets Entry Price
+
+Client
+↓
+sees Entry Price
+↓
+agrees to enter under this price
+↓
+answers structured questions
+↓
+uploads required photos
+↓
+forms the initial structured job scope
+↓
+publishes the order
+
+Master
+↓
+reviews the structured job scope
+↓
+either accepts Entry Price
+↓
+or performs ONE justified price increase
+↓
+explains the reason in chat
+↓
+stores `price_revision_reason`
+↓
+submits an application with Final Price
+
+Client
+↓
+selects the master
+↓
+thereby officially accepts Final Price
+
+System
+↓
+creates immutable financial snapshot
+↓
+calculates commission from Final Price
+↓
+calculates deposit from Final Price
+
+Then
+↓
+Start Work
+↓
+Evidence Photos
+↓
+Client Completion Confirmation
+↓
+Master Complete Order
+↓
+Review / Dispute
+
+Canonical Rules:
+- Entry Price is defined by platform/admin pricing rules.
+- Initial job scope is formed through structured questions and required photos.
+- Masters may revise Entry Price only once.
+- Price revision must be justified against the structured job scope.
+- Chat contains human explanation.
+- Structured fields and `job_events` contain business facts.
+- Client selection of the master constitutes acceptance of Final Price.
+- Financial snapshots become immutable after fixation.
+- Commission and deposit are always based on Final Price.
