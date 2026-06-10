@@ -2781,7 +2781,11 @@ Masters must not request additional photos in chat when required photos were alr
 
 ### Entry Price Rule
 
-Platform Entry Price is calculated from the structured job scope and approved pricing rules.
+Platform Entry Price is assigned by platform/admin pricing rules for the selected service type before the final job scope is completed.
+
+The client enters the order under this Entry Price.
+
+Structured job scope allows the master to validate the scope, accept the Entry Price or justify a one-time price increase.
 
 Entry Price is not based only on free-text description.
 
