@@ -2351,6 +2351,72 @@ Mobile must not locally override visibility.
 Timeline API is responsible for filtering events according to actor role and relationship to the order.
 
 
+### Guidance Trigger Matrix
+
+Guidance Trigger Matrix defines which lifecycle events may trigger contextual guidance or next-step CTA cards.
+
+Guidance is not hardcoded in Flutter.
+
+Timeline events may trigger guidance lookup by:
+- event_type;
+- role;
+- screen;
+- workflow stage;
+- category;
+- subcategory;
+- language.
+
+| event_type | Client Guidance | Master Guidance | Runtime Now | Purpose |
+|---|---:|---:|---:|---|
+| order_created | yes | no | no | explain next step before publication |
+| job_published | yes | eligible / offer master | no | explain marketplace visibility and offer review |
+| initial_offer_sent | yes | owner master | no | explain offer received / waiting state |
+| price_adjustment_requested | yes | owner master | no | explain price justification and client decision |
+| price_adjustment_approved | yes | owner master | no | explain approved revised price |
+| final_application_sent | yes | owner master | no | explain final application and selection |
+| master_selected | yes | selected master | yes | guide chat, arrival coordination and deposit state |
+| financial_snapshot_created | no | no | no | admin-only financial audit |
+| deposit_created | yes | selected master | no | explain deposit/payment obligation |
+| deposit_paid | yes | selected master | no | explain next step after payment |
+| commission_obligation_created | no | selected master | no | explain master platform commission obligation for cash flow |
+| work_started | yes | selected master | yes | guide evidence photos and work process |
+| evidence_uploaded | yes | selected master | yes | explain evidence review / continue work |
+| completion_confirmed_by_client | yes | selected master | yes | unlock master complete order guidance |
+| job_completed | yes | selected master | yes | guide review / closeout |
+| review_submitted | yes | selected master | no | explain reputation / completion closure |
+| dispute_opened | yes | selected master | no | explain dispute process |
+| dispute_resolved | yes | selected master | no | explain resolution outcome |
+| admin_intervention | no | no | no | admin-only operational context |
+
+### Guidance Trigger Rules
+
+If `Runtime Now = yes`, mobile may use the event once Timeline API is implemented.
+
+If `Runtime Now = no`, the trigger is approved but must wait until backend emits the event.
+
+Guidance lookup must not be implemented as local Flutter `if event_type` text.
+
+Flutter may use event_type only to request or place guidance records.
+
+Actual guidance text must come from Guidance Records through API.
+
+### CTA Rule
+
+Guidance may include CTA metadata later.
+
+Examples:
+- open_chat;
+- pay_deposit;
+- upload_evidence_photos;
+- confirm_completion;
+- complete_order;
+- leave_review;
+- open_dispute.
+
+CTA availability must still be validated by backend business rules.
+
+Mobile must not use guidance CTA as the source of permission.
+
 ### Default Sorting
 
 Timeline events are returned in ascending chronological order by default.
