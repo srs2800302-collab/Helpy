@@ -3922,3 +3922,159 @@ Admin configuration may tune published ranking behavior only after the contract,
 Helpy should help clients find the best-fit master without artificially limiting marketplace supply.
 
 The platform should improve decision quality while preserving client freedom of choice.
+---
+## Guidance API Contract
+
+Status: APPROVED ✅
+
+### Purpose
+
+Guidance API delivers structured contextual guidance records to mobile screens.
+
+Mobile applications must not read Markdown documents.
+
+Mobile applications must not hardcode business guidance text.
+
+### Source Of Truth
+
+Guidance API reads published Guidance Records managed through Admin / Guidance Builder.
+
+Guidance content is derived from:
+- Client Docs;
+- Master Docs;
+- Service Playbooks;
+- Admin Rules;
+- approved category rules;
+- approved workflow rules.
+
+### Endpoints
+
+Mobile:
+
+GET /api/v1/guidance
+
+Admin Preview:
+
+GET /api/v1/admin/guidance/preview
+
+### Mobile Request Context
+
+Mobile guidance requests must be able to pass:
+
+- role;
+- screen;
+- category;
+- subcategory;
+- scenario_branch;
+- form_step;
+- question_key;
+- photo_step;
+- job_status;
+- workflow_stage;
+- event_type;
+- language.
+
+Not every field is required for every screen.
+
+The API must match the most specific published guidance records available.
+
+### Response Shape
+
+Response must use the standard API envelope:
+
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "...",
+        "slot": "before_form_step",
+        "role": "client",
+        "context": "create_order",
+        "title": "...",
+        "body": "...",
+        "severity": "info",
+        "cta": {
+          "type": "open_chat",
+          "label": "Open chat"
+        },
+        "dismissible": true
+      }
+    ]
+  }
+}
+
+### Empty Response Rule
+
+If no matching guidance exists, API returns:
+
+{
+  "success": true,
+  "data": {
+    "items": []
+  }
+}
+
+Mobile must keep the screen clean and continue normally.
+
+### Publication Rule
+
+Mobile API returns only Published guidance.
+
+Draft guidance must never be visible to normal users.
+
+Admin Preview API may return Draft guidance for preview and testing.
+
+### Localization Rule
+
+Guidance API returns text in requested language.
+
+Supported launch languages:
+- RU;
+- EN;
+- TH.
+
+If a requested translation is unavailable, API may return configured fallback text, but must not make one language structurally primary.
+
+### CTA Rule
+
+Guidance records may include CTA metadata.
+
+CTA examples:
+- open_chat;
+- pay_deposit;
+- upload_evidence_photos;
+- confirm_completion;
+- complete_order;
+- leave_review;
+- open_dispute.
+
+CTA from guidance is presentation only.
+
+Backend business rules remain the source of permission.
+
+### Priority Rule
+
+When multiple records match, API should return records ordered by:
+1. exact context match;
+2. workflow stage specificity;
+3. category/subcategory specificity;
+4. form step or event specificity;
+5. admin-defined sort order.
+
+### Audit / Governance
+
+Guidance changes must support:
+- Draft / Published lifecycle;
+- Audit Log;
+- Preview;
+- RU / EN / TH localization;
+- publication without APK rebuild.
+
+### Implementation Rule
+
+Flutter renders guidance records.
+
+Flutter does not own guidance content.
+
+Flutter does not duplicate business rules inside widgets.
