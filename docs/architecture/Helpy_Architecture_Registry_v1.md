@@ -2070,74 +2070,180 @@ Business Principles:
 
 ## Job Events / Order Timeline Contract
 
-Status: APPROVED FOUNDATION ✅
+Status: APPROVED CANONICAL ✅
 
-Purpose:
-- job_events is the platform timeline for an order.
-- job_events must not replace chat_messages.
-- job_events must not be stored as fake user chat messages.
-- job_events is the source of truth for Admin Panel order timeline, lifecycle audit, disputes, evidence flow, completion flow and analytics.
+### Purpose
 
-Data Separation:
-- chat_messages = user-to-user communication between client and selected master.
-- job_events = platform lifecycle events and business process history.
-- System/platform events must not use fake admin sender ids inside chat_messages.
+`job_events` is the append-only platform timeline for an order.
 
-Admin Panel Usage:
-- Order Timeline
-- Chat Lifecycle / Attachment Rules Builder
-- Completion Flow Builder
-- Evidence / Quality Control Center
-- Disputes
-- Review / Reputation Builder
-- Audit and analytics views
+It is the source of truth for:
+- order lifecycle audit;
+- Admin Panel order timeline;
+- disputes;
+- evidence flow;
+- completion flow;
+- payment/financial timeline visibility;
+- operational analytics;
+- future notifications.
 
-Initial Event Types:
-- deposit_paid
-- master_selected
-- work_started
-- work_completed_by_master
-- completion_confirmed_by_client
-- job_completed
-- dispute_opened
-- dispute_resolved
-- job_cancelled
-- review_submitted
+### Data Separation
 
-Future Event Types:
-- refund_issued
-- admin_intervention
-- price_adjustment_requested
-- price_adjustment_approved
-- evidence_uploaded
-- attachment_policy_changed
+`chat_messages` stores human communication.
 
-Core Fields:
-- id
-- job_id
-- event_type
-- actor_user_id
-- actor_role
-- payload_json
-- created_at
+`job_events` stores business process history.
 
-Rules:
-- actor_user_id is nullable for pure platform/system events.
-- event_type must be explicit and stable.
-- payload_json stores event-specific details without changing schema for every new event.
-- job_events must be append-only for business history.
-- Admin Panel may read job_events for order timeline and dispute context.
-- Mobile app may later render selected job_events as system timeline cards.
-- chat_messages remains focused on client/master text communication.
+System/platform lifecycle events must not be stored as fake user chat messages.
 
-MVP Implementation Order:
-1. Create job_events schema.
-2. Add event writer helper.
-3. Write work_started event from startWork.
-4. Write job_completed event from completeJob.
-5. Add admin/order timeline endpoint.
-6. Later connect mobile timeline rendering if needed.
+Chat may explain human context.
+`job_events` must record business facts.
 
+### Core Fields
+
+- id;
+- job_id;
+- event_type;
+- actor_user_id;
+- actor_role;
+- payload_json;
+- created_at.
+
+### Immutability Rule
+
+`job_events` are append-only.
+
+Normal users must not edit, delete or hide job events.
+
+Admin must not rewrite business history.
+
+If correction or intervention is required, it must be recorded as a new event.
+
+### Actor Rule
+
+`actor_user_id` may be null only for pure system/platform events.
+
+`actor_role` must be one of:
+- client;
+- master;
+- admin;
+- system.
+
+### Canonical Event Types
+
+#### Order / Scope
+
+- order_created;
+- job_published;
+- job_cancelled.
+
+#### Offer / Price
+
+- initial_offer_sent;
+- price_adjustment_requested;
+- price_adjustment_approved;
+- final_application_sent;
+- master_selected.
+
+#### Financial
+
+- financial_snapshot_created;
+- deposit_created;
+- deposit_paid;
+- commission_obligation_created;
+- refund_issued.
+
+#### Work / Evidence / Completion
+
+- work_started;
+- evidence_uploaded;
+- completion_confirmed_by_client;
+- job_completed.
+
+#### Review / Dispute / Admin
+
+- review_submitted;
+- dispute_opened;
+- dispute_resolved;
+- admin_intervention.
+
+### Event Visibility Principle
+
+Admin can see all job events.
+
+Client and master timelines may show selected user-facing events only.
+
+Internal/system events may be hidden from mobile UI while remaining visible to Admin.
+
+### Current Runtime Coverage
+
+Current backend already writes:
+- master_selected;
+- work_started;
+- evidence_uploaded;
+- completion_confirmed_by_client;
+- job_completed.
+
+Current backend reads:
+- completion_confirmed_by_client.
+
+### Current DB Domain Coverage
+
+Current migration `0004_job_events_timeline.sql` already supports:
+- deposit_paid;
+- master_selected;
+- work_started;
+- work_completed_by_master;
+- completion_confirmed_by_client;
+- job_completed;
+- dispute_opened;
+- dispute_resolved;
+- job_cancelled;
+- review_submitted;
+- refund_issued;
+- admin_intervention;
+- price_adjustment_requested;
+- price_adjustment_approved;
+- evidence_uploaded;
+- attachment_policy_changed.
+
+### Known Domain Gap
+
+The current DB domain does not yet include all canonical event types.
+
+Missing canonical event types:
+- order_created;
+- job_published;
+- initial_offer_sent;
+- final_application_sent;
+- financial_snapshot_created;
+- deposit_created;
+- commission_obligation_created.
+
+Deprecated / legacy event types:
+- work_completed_by_master.
+
+Reserved / admin configuration event types:
+- attachment_policy_changed.
+
+### Implementation Rule
+
+No runtime code should emit an event type that is not documented here.
+
+No migration should be written from this contract alone.
+
+Before DB migration, create a concrete migration plan that:
+- adds missing canonical event types;
+- preserves existing event history;
+- keeps compatibility with current runtime events;
+- documents deprecated/reserved event types;
+- includes APPLY / REGISTER / DONE / audit / smoke.
+
+### Timeline Rule
+
+Timeline contracts must be derived from this event contract.
+
+Mobile timelines may display only selected event types.
+
+Admin timelines must preserve the complete event history.
 
 ## Global GAP → Reviews & Reputation System
 
