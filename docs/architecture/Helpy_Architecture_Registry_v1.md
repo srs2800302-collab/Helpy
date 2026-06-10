@@ -39,16 +39,25 @@ Platform determines the required specialist.
 ## 4. Core Business Model
 Status: APPROVED ✅
 
-Order Flow:
-Client → Create Order → Deposit → Open Marketplace → Offers → Select Master → Chat → Work Execution → Completion → Review
+Canonical business flow is defined by:
+- Helpy Canonical Order Lifecycle Contract;
+- Order Entry Price / Final Price Contract;
+- Thailand Payment Runtime Architecture Decision.
 
-Default Platform Commission: 30%
+Default Platform Commission:
+30% of Final Agreed Price
 
-Commission Source:
-Deposit
+Commission / Payment Source:
+- PromptPay QR: client pays platform deposit.
+- Bank Transfer: client pays platform deposit with manual/verified confirmation.
+- Cash: client pays master directly; platform creates master commission obligation.
 
 Commission Value:
 Editable from Admin Panel.
+
+Rule:
+Commission source depends on selected payment method.
+Core Business Model must not override the Thailand Payment Runtime Architecture Decision.
 
 ## 5. Chat Governance
 Status: APPROVED ✅
