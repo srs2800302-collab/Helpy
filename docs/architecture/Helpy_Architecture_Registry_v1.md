@@ -2770,7 +2770,10 @@ Timeline events include:
 - price_adjustment_requested;
 - price_adjustment_approved;
 - master_selected;
+- financial_snapshot_created;
+- deposit_created;
 - deposit_paid;
+- commission_obligation_created;
 - work_started;
 - evidence_uploaded;
 - completion_confirmed_by_client;
