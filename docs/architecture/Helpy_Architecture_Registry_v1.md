@@ -3811,3 +3811,114 @@ Helpy should prioritize:
 - confidence in statistics.
 
 No single signal should become an absolute eligibility filter unless explicitly approved by future business rules.
+---
+## Master Ranking Hybrid Model Contract
+
+Status: APPROVED ✅
+
+### Decision
+
+Helpy uses a hybrid master ranking model.
+
+The model separates:
+
+1. Eligibility
+2. Ranking
+3. Client Choice
+
+These concepts must not be mixed.
+
+### Eligibility
+
+Eligibility answers:
+
+"Can this master participate in this order?"
+
+Eligibility is a yes/no business decision.
+
+Examples:
+- master profile is active;
+- master is not blocked;
+- master supports the selected category/subcategory;
+- category/subcategory is enabled;
+- master meets required skill or verification rules if applicable.
+
+Ineligible masters must not be shown as available for the order.
+
+### Ranking
+
+Ranking answers:
+
+"In what order should eligible masters or offers be presented?"
+
+Ranking affects presentation order only.
+
+Ranking must not hide eligible masters.
+
+Ranking must use approved MVP signals:
+
+1. shared_spoken_language
+2. work_quality_rating
+3. reliability_ratio
+4. completed_jobs_count
+5. review_count
+
+### Hybrid Model
+
+Helpy does not use pure hard sorting.
+
+Helpy does not use unexplained black-box scoring.
+
+Helpy uses a hybrid model:
+
+- eligibility gates define who may participate;
+- approved ranking signals influence ordering;
+- signal hierarchy defines conceptual priority;
+- final choice remains with the client.
+
+### Signal Application Rule
+
+Ranking signals should improve ordering, not create absolute exclusion.
+
+A master with weaker ranking signals may still be visible if eligible.
+
+A master with no shared spoken language may still be visible and selectable.
+
+A new master must not be hidden only because they have fewer reviews or completed jobs.
+
+### No Hidden Penalty Rule
+
+MVP ranking must not use:
+- hidden coefficients;
+- hidden penalties;
+- temporal weights;
+- penalties for new masters;
+- platform assumptions not supported by explicit user/client feedback.
+
+### Review Count Rule
+
+review_count is the last ranking signal.
+
+It is a confidence/trust signal, not an independent quality signal.
+
+It may increase confidence in work_quality_rating and reliability_ratio, but must not dominate them.
+
+### Client Choice Rule
+
+Helpy recommends.
+
+Client decides.
+
+Client selection of the master is the official acceptance of Final Price and selected master.
+
+### Admin Rule
+
+Any future change to ranking signals, weights, eligibility rules or visibility rules must be explicitly approved and auditable.
+
+Admin configuration may tune published ranking behavior only after the contract, implementation and audit model support it.
+
+### Business Principle
+
+Helpy should help clients find the best-fit master without artificially limiting marketplace supply.
+
+The platform should improve decision quality while preserving client freedom of choice.
