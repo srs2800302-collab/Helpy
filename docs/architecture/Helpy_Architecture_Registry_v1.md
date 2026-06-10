@@ -2245,6 +2245,135 @@ Mobile timelines may display only selected event types.
 
 Admin timelines must preserve the complete event history.
 
+## Timeline API Contract
+
+Status: APPROVED ✅
+
+### Purpose
+
+Timeline API exposes `job_events` as an ordered order lifecycle timeline.
+
+Timeline API must serve:
+- client order timeline;
+- master order timeline;
+- admin order timeline;
+- dispute evidence review;
+- operational audit.
+
+### Source Of Truth
+
+Timeline API reads from `job_events`.
+
+Timeline API must not rebuild business history from chat messages.
+
+Timeline API may enrich events with related job, payment, offer, photo, review or dispute data, but `job_events` remains the lifecycle source.
+
+### Endpoints
+
+Client / Master:
+
+GET /api/v1/jobs/:jobId/timeline
+
+Admin:
+
+GET /api/v1/admin/jobs/:jobId/timeline
+
+### Access Rules
+
+Client may read timeline only for own job.
+
+Selected master may read timeline only for selected job.
+
+Master with active pre-selection offer may later read only pre-selection timeline context if approved.
+
+Admin may read full timeline for any job.
+
+### Visibility Rules
+
+Admin timeline shows all events.
+
+Client and master timelines show only user-facing events.
+
+Internal/system events may be hidden from mobile while remaining visible to Admin.
+
+### Default Sorting
+
+Timeline events are returned in ascending chronological order by default.
+
+created_at ASC
+
+API may later support DESC pagination for large timelines.
+
+### Response Shape
+
+Response must use the standard API envelope:
+
+{
+  "success": true,
+  "data": {
+    "job_id": "...",
+    "timeline": [
+      {
+        "id": "...",
+        "event_type": "master_selected",
+        "actor_user_id": "...",
+        "actor_role": "client",
+        "created_at": "...",
+        "payload": {},
+        "visibility": {
+          "client": true,
+          "master": true,
+          "admin": true
+        }
+      }
+    ]
+  }
+}
+
+### Event Payload Rule
+
+payload_json is stored as text in DB.
+
+Timeline API must return parsed payload as object.
+
+Invalid payload_json must not crash timeline response.
+
+If payload_json is invalid, API returns an empty object and may include admin-only warning later.
+
+### Mobile Timeline Rule
+
+Mobile must not infer lifecycle from job status alone when timeline is available.
+
+Mobile may render selected timeline events as system cards.
+
+Mobile must not display internal-only events.
+
+### Admin Timeline Rule
+
+Admin timeline must preserve full event history.
+
+Admin timeline must support dispute review, evidence review, payment review and operational audit.
+
+### Localization Rule
+
+Timeline API may return raw event_type first.
+
+User-facing labels must be produced through localization layer or guidance/timeline label registry.
+
+Hardcoded event labels inside Flutter are not allowed.
+
+### Relationship With Guided Job Flow
+
+Timeline API is the read model for Guided Job Flow lifecycle history.
+
+Guided Job Flow defines what should happen.
+
+job_events records what happened.
+
+Timeline API exposes what happened to clients, masters and admins according to visibility rules.
+
+---
+
 ## Global GAP → Reviews & Reputation System
 
 Status: ✅ APPROVED
