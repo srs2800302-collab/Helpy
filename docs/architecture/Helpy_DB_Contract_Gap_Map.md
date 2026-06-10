@@ -57,22 +57,19 @@ Status: APPROVED GAP MAP ✅
 
 ## Core DB Gap
 
-The current schema supports the old flow:
+Current schema still stores price, offer, chat and payment facts in compatibility fields from the older flow.
 
-jobs.price
-→ offers.price
-→ jobs.selected_offer_price
-→ jobs.deposit_amount
+Registry Reference:
+- Order Entry Price / Final Price Contract
+- Offer Lifecycle Architecture Decision
+- Final Price Architecture Decision
+- Chat Threads Architecture Decision
+- Thailand Payment Runtime Architecture Decision
+- Admin Order Timeline / Evidence Screen
 
-The approved Registry requires the new price lifecycle:
+DB Gap Map must describe storage gaps and schema consequences only.
 
-platform entry price
-→ initial master offer
-→ optional one-time revised price
-→ client confirmation
-→ final master application
-→ final agreed price
-→ deposit/commission snapshot
+It must not redefine the canonical business flow.
 
 ---
 
@@ -86,10 +83,13 @@ Gap:
 - Registry now defines this as Platform Entry Price.
 - API/UI need a clear semantic contract.
 
-Target:
+Registry Reference:
+- Order Entry Price / Final Price Contract
+
+DB Consequence:
 - Preserve existing data.
-- Treat jobs.price as Platform Entry Price for compatibility.
-- Future schema may rename or alias it as entry_price only through controlled migration.
+- Treat jobs.price as Platform Entry Price compatibility field.
+- Future rename or alias to entry_price requires controlled migration.
 - Do not remove jobs.price blindly.
 
 ---
@@ -111,13 +111,16 @@ Gap:
 - No final_application_sent_at field.
 - No enforcement data for one-time price revision.
 
-Target:
-- Preserve initial offer price.
+Registry Reference:
+- Offer Lifecycle Architecture Decision
+- Structured Job Scope / Price Justification Contract
+
+DB Consequence:
+- Preserve initial offer price separately.
 - Store one-time revised price separately.
-- Store reason separately from general comment.
-- Store final application timestamp/evidence.
-- Store final application timestamp.
-- Keep final agreed price available for selection and payment.
+- Store price_revision_reason separately from general comment.
+- Store final_application_sent_at.
+- Store final_agreed_price for selection and payment.
 
 ---
 
@@ -132,14 +135,14 @@ Current:
 Gap:
 - No status for negotiation/final application.
 
-Target:
-- APPROVED Decision: use offers.status + lifecycle fields + job_events.
+Registry Reference:
+- Offer Lifecycle Architecture Decision
 
-Reason:
+DB Consequence:
 - offers.status stores current operational state.
 - Offer lifecycle fields store price facts, reason and timestamps.
 - job_events stores immutable business history.
-- Master selection is allowed only after final_application_sent.
+- Master selection must be enforceable only after final_application_sent exists.
 
 ---
 
@@ -157,10 +160,14 @@ Gap:
 - No explicit commission_base_amount field.
 - Deposit is calculated before the full new lifecycle is represented.
 
-Target:
-- APPROVED: offers.final_agreed_price preserves negotiation outcome.
-- APPROVED: jobs store immutable financial snapshot.
-- APPROVED: selected_offer_price may remain as compatibility alias during migration.
+Registry Reference:
+- Final Price Architecture Decision
+- Order Entry Price / Final Price Contract
+
+DB Consequence:
+- offers.final_agreed_price preserves negotiation outcome.
+- jobs must store immutable financial snapshot.
+- selected_offer_price may remain as compatibility alias during migration.
 - Financial snapshots must not be rewritten after fixation.
 
 ---
@@ -176,13 +183,14 @@ Gap:
 - Pre-selection chat requires access by active/negotiating offer participant.
 - One job may have multiple offers and therefore multiple pre-selection conversations.
 
-Approved Target:
-- APPROVED Decision: introduce chat_threads for job/offer scoped conversations.
+Registry Reference:
+- Chat Threads Architecture Decision
+- Communication Layer / Business Timeline Contract
 
-Reason:
-- Chat is part of workflow, business logic, evidence and Admin Panel control.
-- One order can have multiple chat contexts.
-- A single job_id chat would mix negotiations, work coordination and dispute context.
+DB Consequence:
+- Canonical target is chat_threads for job/offer scoped conversations.
+- Pre-selection chat must be separable from work chat.
+- DB design must prevent mixing negotiations, work coordination and dispute/admin context.
 
 ---
 
@@ -196,10 +204,14 @@ Gap:
 - Events exist, but DB offer fields do not store the actual current business price state.
 - Chat text alone must not be source of truth.
 
-Target:
+Registry Reference:
+- Communication Layer / Business Timeline Contract
+- Offer Lifecycle Architecture Decision
+
+DB Consequence:
 - Store price lifecycle fields in offers/jobs.
-- Store timeline events in job_events.
-- Use chat only as human context.
+- Store immutable timeline events in job_events.
+- Keep chat only as human context, not source of business state.
 
 ---
 
@@ -215,11 +227,14 @@ Gap:
 - Runtime still has legacy card/mock/Stripe paths.
 - PromptPay QR and cash collection state are not fully modelled in payments.
 
-Target:
-- APPROVED: PromptPay QR is primary client-to-platform deposit method.
-- APPROVED: Cash creates master-to-platform commission obligation, not client deposit.
-- APPROVED: Bank Transfer MVP may use simple pending → paid admin/verified flow.
-- APPROVED: Wallet/TrueMoney remains configurable through platform_financial_settings.
+Registry Reference:
+- Thailand Payment Runtime Architecture Decision
+
+DB Consequence:
+- PromptPay QR must be modelled as client-to-platform deposit.
+- Cash must be modelled as master-to-platform commission obligation, not client deposit.
+- Bank Transfer may use simple pending → paid admin/verified state.
+- Wallet/TrueMoney remains configurable through platform_financial_settings.
 - Keep card columns/tables as future expansion while card_enabled is false.
 - Do not delete Stripe/card structures blindly.
 
@@ -244,7 +259,12 @@ Gap:
   - review;
   - dispute.
 
-Target:
+Registry Reference:
+- Admin Order Timeline / Evidence Screen
+- Timeline API Contract
+- Communication Layer / Business Timeline Contract
+
+DB Consequence:
 - Prefer query/read-model endpoint first.
 - Avoid premature denormalized timeline table until query needs are proven.
 - Add indexes only after query contract is approved.
