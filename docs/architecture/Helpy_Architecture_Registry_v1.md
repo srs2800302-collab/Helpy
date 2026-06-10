@@ -3637,3 +3637,126 @@ Guidance content must be managed through Admin/Guidance Builder with:
 - Preview;
 - publication without APK rebuild.
 
+---
+## Language Matching Principle
+
+Status: APPROVED ✅
+
+### Decision
+
+Helpy separates three language concepts:
+
+- UI Language;
+- Original Content Language;
+- Spoken Languages.
+
+These concepts must not be mixed.
+
+### UI Language
+
+UI Language defines how the interface is displayed to the user.
+
+It controls:
+- buttons;
+- labels;
+- guidance;
+- timeline labels;
+- system messages;
+- category texts.
+
+UI Language must not be used as a proxy for communication compatibility.
+
+### Original Content Language
+
+Original Content Language is the language in which the client originally created the order content.
+
+It is preserved as a business signal.
+
+The localized title rule remains approved:
+
+- main bold title is shown in the selected UI language;
+- original client title is shown as secondary small text only if it meaningfully differs from the localized title;
+- if translation is missing or identical, the original title is not duplicated.
+
+This rule preserves original meaning and helps the platform understand the client communication context.
+
+### Spoken Languages
+
+Spoken Languages describe which languages a user can communicate in.
+
+They are used for communication compatibility between client and master.
+
+### Matching Rule
+
+The platform should prefer masters who share at least one spoken language with the client.
+
+Shared spoken language may improve:
+- offer ranking;
+- master recommendation;
+- chat quality;
+- conversion to selected master;
+- completion quality;
+- review quality;
+- dispute prevention.
+
+### Business Principle
+
+Translation helps users understand content.
+
+Language matching helps users communicate.
+
+These are different platform responsibilities.
+
+### Future Product Usage
+
+Language compatibility may later affect:
+- master ranking;
+- badges in master profile;
+- offer sorting;
+- admin quality analytics;
+- dispute analytics;
+- onboarding recommendations.
+
+---
+## Language Matching Ranking Rule
+
+Status: APPROVED ✅
+
+### Decision
+
+Language Matching is a ranking signal, not a hard filter.
+
+The platform should prefer masters who share at least one spoken language with the client, but it must not hide other eligible masters.
+
+### Rule
+
+If a client and master share a spoken language:
+- the master may receive ranking preference;
+- communication quality is expected to improve;
+- dispute risk may be reduced.
+
+If no shared spoken language exists:
+- the master may still be shown;
+- the master may still apply;
+- the client may still select that master.
+
+### Business Reason
+
+Helpy should improve communication quality without artificially limiting marketplace supply.
+
+This is especially important in Pattaya, where masters and clients may speak different combinations of:
+- RU;
+- EN;
+- TH;
+- other regional languages.
+
+### Implementation Principle
+
+Language compatibility may affect:
+- offer ordering;
+- master recommendation;
+- profile badges;
+- admin analytics.
+
+Language compatibility must not be used as the only eligibility rule unless a future explicit business rule is approved.
+
