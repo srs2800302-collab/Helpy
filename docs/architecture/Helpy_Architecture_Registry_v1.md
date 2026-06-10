@@ -2268,3 +2268,93 @@ Recorded Technical Debt:
 - Preferred future name: `owner_user_id` or `uploaded_by_user_id`.
 - Rename must be done only after read-only usage audit across backend, mobile, admin, migrations and live D1 data.
 - Do not rename this field as an isolated quick patch.
+
+---
+
+## Order Entry Price / Final Price Contract
+
+Status: APPROVED ✅
+
+### Platform Entry Price
+
+For each order, the platform assigns a single Entry Price.
+
+Entry Price is calculated by the platform based on the average market price of the selected work type, category, subcategory, client answers and approved pricing rules.
+
+Entry Price:
+- is shown to the client during order creation and order review;
+- is shown to masters in Marketplace;
+- is the starting price of the order;
+- is part of the permanent order history;
+- is not the final legally significant order price;
+- is not used for final commission calculation after master price revision.
+
+### Master One-Time Price Revision
+
+After reviewing the order scope and communicating with the client, the master may change the Entry Price only once.
+
+Price revision is allowed only before the client selects the master.
+
+Price revision requires:
+- clear explanation from the master;
+- client agreement with the reason;
+- client confirmation of the revised price in chat.
+
+The system must store:
+- original Entry Price;
+- revised master price;
+- price change reason;
+- confirmation timestamp;
+- master user id;
+- client confirmation evidence.
+
+Repeated price changes are forbidden for normal users.
+
+Exceptions are allowed only through admin-controlled business rules.
+
+### Final Master Application
+
+After the revised price is agreed and confirmed, the master sends a final application to the client.
+
+The client selects the master based on this confirmed final price.
+
+At the moment of selection, the platform fixes:
+- selected master;
+- final agreed price;
+- selected offer/application;
+- commission base amount.
+
+### Commission Rule
+
+Platform commission is calculated only from Final Agreed Price.
+
+Deposit = Final Agreed Price × 30%
+
+### Post-Selection Work Lifecycle
+
+After client selects the master:
+- chat is used for arrival coordination;
+- master presses Start Work after arriving on site;
+- Start Work creates job_events.work_started;
+- master uploads evidence photos;
+- client confirms completion;
+- order can proceed to review or dispute.
+
+### Admin Visibility
+
+Admin Order Timeline must show:
+- platform Entry Price;
+- master revised price if changed;
+- price change reason;
+- client confirmation evidence;
+- final agreed price;
+- payment method;
+- deposit amount;
+- commission payer;
+- chat history;
+- work_started event;
+- evidence photos;
+- completion;
+- review;
+- dispute state.
+
