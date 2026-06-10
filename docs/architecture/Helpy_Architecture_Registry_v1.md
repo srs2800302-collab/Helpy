@@ -2196,11 +2196,10 @@ Current backend reads:
 
 ### Current DB Domain Coverage
 
-Current migration `0004_job_events_timeline.sql` already supports:
+Current migration `0004_job_events_timeline.sql` already supports active canonical/runtime event types:
 - deposit_paid;
 - master_selected;
 - work_started;
-- work_completed_by_master;
 - completion_confirmed_by_client;
 - job_completed;
 - dispute_opened;
@@ -2211,8 +2210,13 @@ Current migration `0004_job_events_timeline.sql` already supports:
 - admin_intervention;
 - price_adjustment_requested;
 - price_adjustment_approved;
-- evidence_uploaded;
+- evidence_uploaded.
+
+Current migration also still supports legacy/reserved DB-domain event types:
+- work_completed_by_master;
 - attachment_policy_changed.
+
+Runtime must not emit legacy/reserved event types unless a future approved migration/runtime contract explicitly reactivates them.
 
 ### Known Domain Gap
 
