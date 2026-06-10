@@ -154,7 +154,7 @@ Target:
 Current:
 - Financial foundation exists in migration 0003.
 - Runtime still includes card/mock/Stripe-oriented flows.
-- createDeposit depends on selected_offer_price and deposit_amount.
+- createDeposit currently depends on selected_offer_price and deposit_amount as legacy compatibility fields.
 
 Gap:
 - No mobile-facing financial settings endpoint.
