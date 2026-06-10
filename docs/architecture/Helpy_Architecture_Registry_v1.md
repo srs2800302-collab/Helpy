@@ -2358,3 +2358,126 @@ Admin Order Timeline must show:
 - review;
 - dispute state.
 
+
+---
+
+## Communication Layer / Business Timeline Contract
+
+Status: APPROVED ✅
+
+### Core Principle
+
+Human communication and business lifecycle events must be stored and treated as separate layers.
+
+Chat messages are user communication.
+
+Job events are the immutable business timeline of the order.
+
+This separation is required to prevent business-rule drift, protect dispute evidence and support the future Admin Panel.
+
+### Human Chat Layer
+
+Human chat is stored in `chat_messages`.
+
+Human chat is used for:
+- pre-selection communication;
+- order scope clarification;
+- price discussion;
+- arrival coordination;
+- normal participant communication;
+- supporting evidence context.
+
+Human chat may contain messages, replies and attachments.
+
+Human chat must not be used as the only source of legally significant lifecycle state.
+
+### Business Timeline Layer
+
+Business lifecycle events are stored in `job_events`.
+
+`job_events` is the append-only platform timeline.
+
+Timeline events include:
+- price_adjustment_requested;
+- price_adjustment_approved;
+- master_selected;
+- deposit_paid;
+- work_started;
+- evidence_uploaded;
+- completion_confirmed_by_client;
+- job_completed;
+- review_submitted;
+- dispute_opened;
+- dispute_resolved;
+- refund_issued;
+- admin_intervention.
+
+Business state changes must be represented as timeline events, not only as chat text.
+
+### Price Negotiation Evidence Rule
+
+Price negotiation may happen in chat.
+
+However, the legally significant result of price negotiation must be stored as timeline events.
+
+When a master changes the Entry Price:
+- the explanation may be discussed in chat;
+- the client confirmation may happen in chat;
+- the platform must also record the confirmed business result in `job_events`.
+
+Required events:
+- price_adjustment_requested;
+- price_adjustment_approved.
+
+The chat provides human context.
+
+The timeline provides the business proof.
+
+### Admin Chat Access Rule
+
+Admin must be able to access any order chat from the Admin Panel.
+
+Admin chat access is required for:
+- dispute review;
+- quality control;
+- evidence review;
+- operational support;
+- fraud prevention;
+- business-rule enforcement.
+
+Admin access to chat must be read-only by default unless an explicit admin action is recorded as `admin_intervention`.
+
+### Timeline Immutability Rule
+
+Normal users must not edit, delete or hide `job_events`.
+
+Admin must not rewrite business history.
+
+If admin action is required, it must be recorded as a new `admin_intervention` event.
+
+### Chat Evidence Rule
+
+After an order reaches master selection or dispute-related stages, chat becomes part of the evidence package.
+
+Disputes must use:
+- chat history;
+- job_events timeline;
+- payment state;
+- evidence photos;
+- completion state;
+- review state.
+
+### Admin Order Timeline Requirement
+
+Admin Order Timeline must combine:
+- human chat context from `chat_messages`;
+- lifecycle events from `job_events`;
+- payment/deposit state;
+- evidence photos;
+- selected master;
+- completion;
+- review;
+- dispute state.
+
+The Admin Panel must present these layers together while keeping their data responsibilities separate.
+
