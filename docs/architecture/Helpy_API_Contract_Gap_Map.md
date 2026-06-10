@@ -30,31 +30,17 @@ Current implemented endpoints relevant to the new business flow:
 
 ## Core API Gap
 
-The current API supports the old flow:
+Current API still exposes parts of the old offer/payment flow.
 
-Open Job
-→ Active Offer
-→ Select Offer
-→ Deposit
-→ Chat
-→ Start Work
-→ Evidence
-→ Completion
+Registry Reference:
+- Order Entry Price / Final Price Contract
+- Offer Lifecycle Architecture Decision
+- Final Price Architecture Decision
+- Helpy Canonical Order Lifecycle Contract
+- Communication Layer / Business Timeline Contract
+- Thailand Payment Runtime Architecture Decision
 
-The approved Registry requires the new flow:
-
-Platform Entry Price
-→ Initial Master Offer
-→ Pre-selection Chat
-→ Optional One-Time Price Revision
-→ Final Master Application
-→ Client Selects Master
-→ Final Agreed Price Fixed
-→ Deposit / Commission Flow
-→ Work Chat
-→ Start Work
-→ Evidence
-→ Completion
+API Gap Map must describe implementation gaps only and must not redefine the canonical business flow.
 
 ---
 
@@ -101,21 +87,17 @@ Gap:
 - No final application state.
 - Select offer is allowed directly from active offer.
 
-Target:
-- API must support offer lifecycle:
-  - initial_offer_sent;
-  - price_revision_requested;
-  - price_revision_approved;
-  - final_application_sent;
-  - selected;
-  - rejected;
-  - cancelled.
+Registry Reference:
+- Offer Lifecycle Architecture Decision
+- Order Entry Price / Final Price Contract
+- Communication Layer / Business Timeline Contract
 
-Required business actions:
-- create initial offer;
-- request one-time price revision;
-- send final application;
-- select master only from final application.
+API Consequence:
+- API must expose actions/endpoints for initial offer creation.
+- API must expose one-time price revision request/confirmation flow.
+- API must expose final application submission.
+- API must enforce that master selection is allowed only after final application exists.
+- API must write related job_events for immutable business proof.
 
 ---
 
@@ -142,8 +124,10 @@ Target:
 - Admin:
   - read-only access to any order chat via Admin Panel.
 
-Required API design question:
-- Whether pre-selection chat should be keyed by job_id + offer_id, or by job_id with offer participant authorization.
+Approved Direction:
+- Phase 1 compatibility may use job_id + offer ownership authorization.
+- Canonical target remains chat_threads.
+- API must not enable open-status chat globally without offer/work authorization.
 
 ---
 
@@ -179,18 +163,16 @@ Gap:
 - Bank Transfer / Wallet / Cards are not represented as availability states for mobile.
 - Card flow exists but should be future/disabled by settings.
 
-Target:
-- API must expose platform financial settings:
-  - promptpay_enabled;
-  - cash_enabled;
-  - bank_transfer_enabled;
-  - wallet_enabled;
-  - card_enabled;
-  - default_deposit_percent;
-  - commission payer rules.
-- Deposit creation must respect selected payment method.
-- Cash flow must record that client pays master directly and platform later collects commission from master.
-- PromptPay QR must be primary deposit flow.
+Registry Reference:
+- Thailand Payment Runtime Architecture Decision
+- Final Price Architecture Decision
+
+API Consequence:
+- API must expose mobile-facing platform financial settings.
+- API must expose payment method availability from platform_financial_settings.
+- Deposit creation must respect selected payment method and fixed financial snapshot.
+- Cash flow must create commission obligation state, not client deposit-paid state.
+- Disabled payment methods must not be exposed as available mobile actions.
 
 ---
 
