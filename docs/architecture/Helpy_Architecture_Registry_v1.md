@@ -3100,6 +3100,20 @@ Using only jobs would lose price evolution.
 
 Using only offers would couple financial execution to negotiation records.
 
+### Final Price Ownership Rule
+
+`offers.final_agreed_price` is offer-scoped negotiation history.
+
+It preserves the final price submitted by a specific master in a specific final application.
+
+Multiple offers for the same job may have different `offers.final_agreed_price` values before master selection.
+
+`jobs.final_agreed_price` is the order-level immutable financial snapshot.
+
+It is copied from the selected offer/application at master selection time and becomes the source for commission, deposit, payment method and dispute evidence.
+
+After master selection, `jobs.final_agreed_price` must not be recalculated from offers.
+
 ### Canonical Rule
 
 When a master is selected:
