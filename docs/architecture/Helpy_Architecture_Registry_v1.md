@@ -2556,3 +2556,49 @@ Chat threads must not replace `job_events`.
 
 `job_events` must not be stored as fake chat messages.
 
+
+---
+
+## Offer Lifecycle Architecture Decision
+
+Status: APPROVED ✅
+
+### Decision
+
+Helpy will use `offers.status` + offer lifecycle fields + `job_events` for offer lifecycle state, facts and immutable history.
+
+### Responsibility Split
+
+`offers.status` stores current operational state.
+
+Offer lifecycle fields store business facts:
+- initial_offer_price;
+- revised_offer_price;
+- price_revision_reason;
+- price_revision_requested_at;
+- price_revision_confirmed_at;
+- final_application_sent_at;
+- final_agreed_price.
+
+`job_events` stores immutable business history:
+- price_adjustment_requested;
+- price_adjustment_approved;
+- final_application_sent;
+- master_selected.
+
+### Why
+
+Status alone is not enough because it does not preserve price amounts, reason, confirmation time and evidence.
+
+Fields alone are not enough because they make current state ambiguous and complicate UI/API business rules.
+
+`job_events` alone is not enough because operational screens need current state and direct facts without rebuilding state from the full timeline.
+
+### Business Rule
+
+Master selection is allowed only after a final application exists.
+
+Final agreed price must be fixed before deposit/commission calculation.
+
+Repeated master price revision is forbidden for normal users unless an admin-controlled business rule explicitly allows it.
+

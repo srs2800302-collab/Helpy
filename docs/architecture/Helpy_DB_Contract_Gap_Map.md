@@ -134,16 +134,13 @@ Gap:
 - No status for negotiation/final application.
 
 Target:
-- Add or map offer lifecycle states:
-  - initial_offer_sent;
-  - price_revision_requested;
-  - price_revision_approved;
-  - final_application_sent;
-  - selected;
-  - rejected;
-  - cancelled.
+- APPROVED Decision: use offers.status + lifecycle fields + job_events.
 
-DB design must avoid ambiguous status meanings.
+Reason:
+- offers.status stores current operational state.
+- Offer lifecycle fields store price facts, reason and timestamps.
+- job_events stores immutable business history.
+- Master selection is allowed only after final_application_sent.
 
 ---
 

@@ -132,9 +132,8 @@ Every schema migration must include:
    - Reason: chat is part of workflow, business logic, evidence and Admin Panel control.
 
 2. Offer lifecycle storage:
-   - extend offers.status;
-   - add separate offer lifecycle fields;
-   - both.
+   - APPROVED: offers.status + lifecycle fields + job_events.
+   - Reason: status gives current state, fields store business facts, job_events stores immutable history.
 
 3. Final price source:
    - jobs.final_agreed_price;
