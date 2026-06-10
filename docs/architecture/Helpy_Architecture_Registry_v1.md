@@ -4078,3 +4078,515 @@ Flutter renders guidance records.
 Flutter does not own guidance content.
 
 Flutter does not duplicate business rules inside widgets.
+
+### Guidance API Contract Completion Addendum
+
+Status: APPROVED ✅
+
+Purpose:
+Close the remaining Guidance API contract gaps before implementation.
+
+This addendum is part of the Guidance API Contract.
+It does not create a migration by itself.
+It defines the required API and data contract for future implementation.
+
+### Required Guidance Record Identity
+
+Every guidance record returned by API must include:
+
+- id;
+- guidance_key;
+- version;
+- published_at;
+- slot;
+- role;
+- context;
+- title;
+- body;
+- severity;
+- dismissible.
+
+Rules:
+- `id` is the internal record identifier.
+- `guidance_key` is the stable business key used by mobile, admin, analytics and dismiss tracking.
+- `version` identifies the published content version.
+- `published_at` identifies the exact published revision visible to users.
+- Mobile must not treat translated text as identity.
+- Mobile must not derive identity from title or body.
+
+### Guidance Key Rule
+
+`guidance_key` must be stable across languages.
+
+Allowed format:
+- lowercase;
+- snake_case;
+- scoped by product area where useful.
+
+Examples:
+- create_order_plumbing_faucet_photo_tip;
+- offer_review_price_change_warning;
+- work_started_evidence_photo_reminder;
+- completion_confirm_review_notice.
+
+Changing text must not require changing `guidance_key`.
+
+Changing business meaning should create a new `guidance_key` or increment version according to Admin publishing rules.
+
+### Version Rule
+
+Guidance records must support versioning.
+
+Version is required for:
+- audit;
+- rollback;
+- dismiss behavior;
+- analytics;
+- Admin Preview comparison.
+
+Mobile must receive the currently published version.
+
+If a dismissed guidance record is republished with a new version, dismiss behavior depends on dismiss scope.
+
+### Published At Rule
+
+`published_at` must be returned for every Published guidance record.
+
+Purpose:
+- prove which guidance version was visible at runtime;
+- support admin audit;
+- support dispute and quality review if guidance behavior is questioned.
+
+Draft records returned by Admin Preview may use `draft_updated_at` instead of `published_at`.
+
+### Severity Rule
+
+Supported severity values for MVP:
+
+- info;
+- warning;
+- critical.
+
+Meaning:
+- `info` is normal contextual help.
+- `warning` is risk prevention or important workflow guidance.
+- `critical` is reserved for safety, payment, dispute, compliance or irreversible workflow risk.
+
+Rules:
+- `critical` guidance must be short and action-oriented.
+- `critical` guidance must not be dismissible by default unless explicitly approved.
+- Mobile rendering may visually emphasize severity, but business permissions remain backend-owned.
+- Severity must not be used as a substitute for backend validation.
+
+### Dismissible Rule
+
+`dismissible` controls whether the user may hide a guidance record from the current UI.
+
+Rules:
+- `dismissible = true` means user may hide the record according to its dismiss scope.
+- `dismissible = false` means mobile must show the record whenever returned by API.
+- Payment, dispute, safety and irreversible workflow guidance should default to `dismissible = false`.
+- Routine hints and educational guidance may be dismissible.
+
+### Dismiss Scope Rule
+
+Guidance dismiss behavior must support explicit scope.
+
+Supported dismiss scopes:
+
+- session;
+- user;
+- job;
+- job_stage;
+- guidance_version.
+
+Meaning:
+- `session`: hidden until app/session refresh.
+- `user`: hidden for the user until guidance version changes.
+- `job`: hidden only for this job.
+- `job_stage`: hidden only for this job and workflow stage.
+- `guidance_version`: hidden for this exact guidance_key + version.
+
+Default MVP scope:
+- `guidance_version`.
+
+Rules:
+- Mobile must not invent dismiss scope.
+- API response must include dismiss metadata when dismissible is true.
+- Dismissed records must not disappear from Admin Preview.
+- Dismiss tracking must not delete the guidance record.
+
+### Slot Return Limit Rule
+
+Guidance API must limit records per slot.
+
+MVP default:
+- maximum 1 primary guidance record per slot.
+
+Future reserved:
+- API may return up to 3 records per slot only if mobile component supports stacked rendering.
+
+Rules:
+- API must order records before returning them.
+- Mobile must render records in API order.
+- Mobile must not choose the best guidance locally.
+- If more records match than the slot limit allows, API decides by priority and sort order.
+
+### Response Shape Addendum
+
+Each item in `data.items` must support:
+
+{
+  "id": "...",
+  "guidance_key": "...",
+  "version": 1,
+  "published_at": "...",
+  "slot": "...",
+  "role": "...",
+  "context": "...",
+  "title": "...",
+  "body": "...",
+  "severity": "info",
+  "dismissible": true,
+  "dismiss_scope": "guidance_version",
+  "cta": null,
+  "analytics": {
+    "impression_event": "guidance_impression",
+    "dismiss_event": "guidance_dismissed",
+    "cta_event": "guidance_cta_clicked"
+  }
+}
+
+### Analytics Event Rule
+
+Guidance API contract reserves analytics events.
+
+MVP implementation may log server-side only first.
+
+Required analytics event names:
+
+- guidance_impression;
+- guidance_dismissed;
+- guidance_cta_clicked.
+
+Required event dimensions:
+
+- guidance_key;
+- version;
+- role;
+- screen;
+- slot;
+- language;
+- category;
+- subcategory;
+- workflow_stage;
+- event_type;
+- job_id when available.
+
+Rules:
+- Analytics must not contain message text or private chat content.
+- Analytics must not become a permission source.
+- Analytics must support Admin quality review later.
+
+### API Responsibility Rule
+
+Guidance API is responsible for:
+- matching records;
+- filtering unpublished records;
+- applying actor/context visibility;
+- sorting by priority;
+- enforcing slot limits;
+- returning identity/version/dismiss metadata.
+
+Flutter is responsible only for:
+- requesting guidance with context;
+- rendering returned records;
+- sending dismiss / analytics actions when supported.
+
+Flutter must not:
+- hardcode guidance text;
+- hardcode business conditions for guidance visibility;
+- locally rank guidance records;
+- silently generate guidance when API returns empty items.
+
+### Contract Closure Rule
+
+Guidance API Contract is considered Closed for MVP only when it defines:
+
+- identity;
+- guidance_key;
+- version;
+- published_at;
+- severity rules;
+- dismissible rules;
+- dismiss scope;
+- slot limits;
+- analytics events;
+- API/mobile responsibility boundary.
+
+Implementation is still a separate step.
+No DB migration should be written from this addendum alone.
+
+## Mobile Guidance Component Contract
+
+Status: APPROVED ✅
+
+### Purpose
+
+Mobile Guidance Component defines how Flutter renders structured guidance records returned by Guidance API.
+
+This contract closes the gap between:
+- Guidance API Contract;
+- Mobile Guidance Slots Contract;
+- Guided Job Flow;
+- Flutter screen implementation.
+
+Flutter must render guidance records consistently without owning business guidance content.
+
+### Source Of Truth
+
+Guidance text, severity, dismiss behavior, CTA metadata and record priority come from Guidance API.
+
+Flutter owns only:
+- layout;
+- visual rendering;
+- user interaction dispatch;
+- loading and empty-state behavior.
+
+Flutter must not:
+- hardcode business guidance text;
+- hardcode service rules;
+- locally decide which guidance is more important;
+- create fallback guidance when API returns no items.
+
+### Component Name
+
+Canonical mobile component name:
+
+`GuidanceCard`
+
+Reserved supporting components:
+- `GuidanceSlot`;
+- `GuidanceCtaButton`;
+- `GuidanceDismissButton`.
+
+Implementation may choose exact Flutter class names later, but architecture must preserve these responsibilities.
+
+### Input Contract
+
+The component receives already matched guidance records from API.
+
+Required item fields:
+- id;
+- guidance_key;
+- version;
+- published_at;
+- slot;
+- role;
+- context;
+- title;
+- body;
+- severity;
+- dismissible;
+- dismiss_scope;
+- cta;
+- analytics.
+
+The component must not require Markdown parsing.
+
+Body text must be plain localized text for MVP.
+
+### Slot Rendering Rule
+
+A mobile screen renders guidance only inside approved guidance slots.
+
+Rules:
+- each slot requests or receives guidance by slot key;
+- slot placement is screen-owned;
+- record content is API-owned;
+- empty slots render nothing;
+- empty slots must not leave blank cards, loaders or layout gaps;
+- mobile must not show guidance outside declared slots.
+
+### Card Layout Rule
+
+GuidanceCard MVP layout:
+
+- optional severity icon;
+- title;
+- body;
+- optional CTA button;
+- optional dismiss action if dismissible is true.
+
+Rules:
+- title should be short;
+- body should be concise and action-oriented;
+- card must not block the main flow unless backend permissions block the action;
+- card must not replace form validation, payment validation or backend authorization.
+
+### Severity UI Rule
+
+Supported severity values:
+- info;
+- warning;
+- critical.
+
+Rendering rules:
+- info: neutral contextual help;
+- warning: visible risk-prevention hint;
+- critical: high-attention message for safety, payment, dispute, compliance or irreversible workflow risk.
+
+Rules:
+- severity changes presentation only;
+- severity must not change backend permissions;
+- critical guidance should remain visible when dismissible is false;
+- mobile must gracefully render unknown severity as info and report the mismatch when analytics/logging exists.
+
+### CTA Rendering Rule
+
+Guidance CTA is presentation metadata.
+
+Supported MVP CTA types:
+- open_chat;
+- pay_deposit;
+- upload_evidence_photos;
+- confirm_completion;
+- complete_order;
+- leave_review;
+- open_dispute.
+
+Rules:
+- CTA button may navigate or call an existing screen action;
+- CTA must not bypass backend permissions;
+- if CTA target is unavailable, card remains visible without crashing;
+- mobile may hide unsupported CTA button but must still render guidance text;
+- CTA labels come from API/localization contract, not hardcoded business text.
+
+### Dismiss UX Rule
+
+If `dismissible = true`, GuidanceCard may show a dismiss action.
+
+Rules:
+- dismiss action must use API-provided `guidance_key`, `version` and `dismiss_scope`;
+- mobile must not invent dismiss scope;
+- dismissing hides only according to dismiss scope;
+- dismissing must not delete local or server guidance content;
+- non-dismissible guidance must not show a dismiss action.
+
+MVP may store dismiss locally only if backend dismiss endpoint is not implemented yet.
+When backend support exists, dismiss must be sent to API.
+
+### Loading Rule
+
+Guidance loading must not block the main screen.
+
+Rules:
+- screen must remain usable while guidance loads;
+- no full-screen loader for guidance;
+- no screen-level flicker when guidance refreshes;
+- stale guidance may remain until fresh response arrives;
+- failed guidance request must not block job creation, offer submission, chat, payment or completion.
+
+### Error Rule
+
+Guidance errors are non-fatal for MVP.
+
+Rules:
+- user-facing red error banners must not be shown for guidance loading failure;
+- technical errors may be logged;
+- screen continues normally with no guidance items;
+- backend validation errors for the actual business action are separate and may still be shown.
+
+### Analytics Dispatch Rule
+
+Component must reserve hooks for:
+- guidance_impression;
+- guidance_dismissed;
+- guidance_cta_clicked.
+
+Rules:
+- impression should fire only when a card is actually rendered;
+- dismiss event should include guidance_key, version, slot and dismiss_scope;
+- CTA event should include guidance_key, version, slot and cta.type;
+- analytics must not include body text, private chat content or uploaded photo content.
+
+### Accessibility / Localization Rule
+
+GuidanceCard must support:
+- RU;
+- EN;
+- TH;
+- longer translated text;
+- multiline body;
+- dynamic text scaling.
+
+Rules:
+- card must not assume equal text length across languages;
+- Thai text must not be truncated in a way that hides action meaning;
+- CTA label must remain readable;
+- mobile must not duplicate original guidance text in another language unless API explicitly returns it.
+
+### Reuse Rule
+
+GuidanceCard must be reusable across:
+- create order flow;
+- offer review;
+- payment/deposit;
+- chat/work coordination;
+- evidence upload;
+- completion;
+- review;
+- dispute prevention;
+- master workflow.
+
+Each screen owns placement.
+The component owns rendering.
+The API owns content and matching.
+
+### No Overlay Rule
+
+Guidance must not be implemented as magic overlays wrapped around screens.
+
+Rules:
+- no global surprise popups for normal guidance;
+- no screen-covering guidance layer for MVP;
+- no blocking modal unless future contract explicitly approves it;
+- guidance belongs inside declared slots.
+
+### Mobile Responsibility Boundary
+
+Flutter may:
+- request guidance;
+- render cards;
+- navigate from supported CTA;
+- send dismiss and analytics events;
+- cache last successful guidance response if needed.
+
+Flutter must not:
+- derive lifecycle state from guidance;
+- decide business permissions from guidance;
+- emit job_events from guidance;
+- create or modify guidance records;
+- read raw Markdown docs;
+- rank competing guidance records locally.
+
+### Done Criteria
+
+Mobile Guidance Component Contract is Closed for MVP when it defines:
+
+- component responsibility;
+- input fields;
+- slot rendering;
+- card layout;
+- severity rendering;
+- CTA behavior;
+- dismiss UX;
+- loading behavior;
+- error behavior;
+- analytics hooks;
+- localization/accessibility;
+- no-overlay rule;
+- Flutter/API responsibility boundary.
+
+Implementation is still a separate step.
+No Flutter code should be written from this contract until Mobile Timeline Contract and Guided Job Flow Screen Architecture are also closed.
