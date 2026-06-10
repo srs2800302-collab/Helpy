@@ -3760,3 +3760,54 @@ Language compatibility may affect:
 
 Language compatibility must not be used as the only eligibility rule unless a future explicit business rule is approved.
 
+---
+## Master Ranking Signal Hierarchy
+
+Status: APPROVED ✅
+
+### Decision
+
+Master ranking signals are applied in the following conceptual order:
+
+1. shared_spoken_language
+2. work_quality_rating
+3. reliability_ratio
+4. completed_jobs_count
+5. review_count
+
+### Signal Meaning
+
+shared_spoken_language
+- communication compatibility signal;
+- ranking signal only;
+- must not hide other eligible masters.
+
+work_quality_rating
+- average star rating from submitted reviews;
+- represents quality of completed work.
+
+reliability_ratio
+- represents adherence to agreements;
+- includes punctuality and communication quality;
+- uses the approved Helpy reliability icon;
+- calculated only from actual submitted reviews.
+
+completed_jobs_count
+- represents accumulated experience;
+- does not imply quality or reliability by itself.
+
+review_count
+- confidence/trust signal;
+- increases confidence in other metrics;
+- does not represent quality independently.
+
+### Business Principle
+
+Helpy should prioritize:
+- effective communication;
+- quality of work;
+- reliability;
+- practical experience;
+- confidence in statistics.
+
+No single signal should become an absolute eligibility filter unless explicitly approved by future business rules.
