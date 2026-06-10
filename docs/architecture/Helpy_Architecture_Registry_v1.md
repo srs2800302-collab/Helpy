@@ -2893,3 +2893,146 @@ Canonical Rules:
 - Client selection of the master constitutes acceptance of Final Price.
 - Financial snapshots become immutable after fixation.
 - Commission and deposit are always based on Final Price.
+---
+## Guided Job Flow Foundation
+
+Status: APPROVED ✅
+
+### Definition
+
+Helpy is a Guided Job Flow platform.
+
+Helpy is not a traditional service marketplace.
+
+The primary responsibility of the platform is to guide an order through a controlled lifecycle from entry conditions to a verified outcome.
+
+### Central Object
+
+The order is the center of the system.
+
+Not masters.
+Not clients.
+Not chat.
+Not payments.
+
+All other components exist to support the successful completion of the order lifecycle.
+
+### Purpose
+
+Guided Job Flow exists to help participants safely and predictably complete a job.
+
+The platform guides participants through:
+
+- structured questions;
+- required photos;
+- service playbooks;
+- contextual guidance;
+- business rules;
+- pricing safeguards;
+- evidence protection;
+- dispute prevention;
+- operational controls.
+
+### Structured Scope Principle
+
+Entry Price is always defined by platform/admin pricing rules.
+
+Structured forms do not calculate Entry Price.
+
+Structured questions and required photos exist to:
+
+- form the initial job scope;
+- allow masters to validate the scope;
+- allow one justified price increase when necessary;
+- protect all participants through evidence;
+- support transparent Final Price formation.
+
+### Canonical Lifecycle
+
+Admin / Platform
+↓
+sets Entry Price
+
+Client
+↓
+sees Entry Price
+↓
+agrees to enter under this price
+↓
+answers structured questions
+↓
+uploads required photos
+↓
+forms the initial structured job scope
+↓
+publishes the order
+
+Master
+↓
+reviews the structured job scope
+↓
+either accepts Entry Price
+↓
+or performs ONE justified price increase
+↓
+explains the reason in chat
+↓
+stores price_revision_reason
+↓
+submits an application with Final Price
+
+Client
+↓
+selects the master
+↓
+thereby officially accepts Final Price
+
+System
+↓
+creates immutable financial snapshot
+↓
+calculates commission from Final Price
+↓
+calculates deposit from Final Price
+
+Then
+↓
+Start Work
+↓
+Evidence Photos
+↓
+Client Completion Confirmation
+↓
+Master Complete Order
+↓
+Review / Dispute
+
+### Canonical Rules
+
+- Entry Price is defined by platform/admin pricing rules.
+- Initial job scope is formed through structured questions and required photos.
+- Masters may revise Entry Price only once.
+- Price revision must be justified against the structured job scope.
+- Chat contains human explanation and agreements.
+- Structured fields and job_events contain business facts.
+- Client selection of the master constitutes acceptance of Final Price.
+- Financial snapshots become immutable after fixation.
+- Commission and deposit are always based on Final Price.
+- Evidence Photos and Completion are mandatory parts of the lifecycle.
+- Disputes use the complete evidence package.
+
+### Product Positioning
+
+Traditional marketplaces answer:
+
+"Who should I hire?"
+
+Guided Job Flow answers:
+
+"How do we safely and predictably guide this job to a successful outcome?"
+
+### Governance Rule
+
+All future decisions regarding categories, screens, APIs, databases, admin capabilities and business logic must be evaluated against Guided Job Flow principles.
+
+If a future decision contradicts Guided Job Flow, the contradiction must be explicitly justified and approved before implementation.
