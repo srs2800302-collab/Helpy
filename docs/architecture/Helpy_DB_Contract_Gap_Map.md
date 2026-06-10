@@ -221,10 +221,12 @@ Gap:
 - PromptPay QR and cash collection state are not fully modelled in payments.
 
 Target:
-- Keep card columns/tables as future expansion.
+- APPROVED: PromptPay QR is primary client-to-platform deposit method.
+- APPROVED: Cash creates master-to-platform commission obligation, not client deposit.
+- APPROVED: Bank Transfer MVP may use simple pending → paid admin/verified flow.
+- APPROVED: Wallet/TrueMoney remains configurable through platform_financial_settings.
+- Keep card columns/tables as future expansion while card_enabled is false.
 - Do not delete Stripe/card structures blindly.
-- Add runtime/API behavior controlled by platform_financial_settings.
-- Cash commission collection should be represented explicitly in payment/payment event records when implemented.
 
 ---
 

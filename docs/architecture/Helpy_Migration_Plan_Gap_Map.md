@@ -141,9 +141,11 @@ Every schema migration must include:
    - both.
 
 4. Thailand payment runtime:
-   - PromptPay QR data model;
-   - cash commission collection records;
-   - bank transfer proof state.
+   - APPROVED: PromptPay QR = client-to-platform deposit.
+   - APPROVED: Cash = master-to-platform commission obligation.
+   - APPROVED: Bank Transfer MVP = simple pending → paid admin/verified flow.
+   - APPROVED: Wallet/TrueMoney = configurable setting.
+   - APPROVED: Cards = future rollout, hidden while card_enabled is false.
 
 ---
 

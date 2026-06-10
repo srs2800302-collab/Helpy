@@ -2602,3 +2602,76 @@ Final agreed price must be fixed before deposit/commission calculation.
 
 Repeated master price revision is forbidden for normal users unless an admin-controlled business rule explicitly allows it.
 
+
+---
+
+## Thailand Payment Runtime Architecture Decision
+
+Status: APPROVED ✅
+
+### Decision
+
+Helpy payment runtime must follow Thailand-first payment behavior.
+
+### PromptPay QR
+
+PromptPay QR is the primary deposit payment method.
+
+For PromptPay:
+- client pays platform;
+- payment type is deposit;
+- deposit equals 30% of Final Agreed Price;
+- commission payer is client;
+- payment status must support pending, paid, failed and expired.
+
+### Cash
+
+Cash is a mandatory option.
+
+For Cash:
+- client pays the full Final Agreed Price directly to the master;
+- platform does not receive client deposit immediately;
+- platform creates a master commission obligation;
+- commission payer is master;
+- commission obligation equals 30% of Final Agreed Price.
+
+Cash must not be modelled as client deposit paid to platform.
+
+### Bank Transfer
+
+Bank Transfer is an alternative method for larger customers.
+
+MVP model may be simple:
+- client transfers deposit to platform bank account;
+- payment starts as pending;
+- admin or verified process marks payment as paid;
+- proof workflow may be added later.
+
+### Wallet / TrueMoney
+
+Wallets, including TrueMoney, are reserved as configurable payment methods.
+
+Wallet availability must be controlled by platform financial settings.
+
+### Cards
+
+Cards are reserved for later market rollout.
+
+Card-related schema may remain for future expansion, but runtime/mobile must not expose cards while card_enabled is false.
+
+### Canonical Rule
+
+Payment method determines payment obligation:
+
+PromptPay:
+- client → platform;
+- deposit/commission.
+
+Cash:
+- master → platform;
+- commission obligation.
+
+Bank Transfer:
+- client → platform;
+- deposit with manual/verified confirmation.
+
