@@ -7,24 +7,27 @@ Status: APPROVED GAP MAP ✅
 - Order Entry Price / Final Price Contract
 - Communication Layer / Business Timeline Contract
 - Job Events / Order Timeline Contract
-- Financial Policy Foundation
+- Timeline API Contract
+- Chat Threads Architecture Decision
+- Offer Lifecycle Architecture Decision
+- Thailand Payment Runtime Architecture Decision
+- Final Price Architecture Decision
+- Guided Job Flow Foundation
+- Mobile Guidance Slots Contract
 
-## Core Target Flow
+## Core Screen Gap
 
-Platform Entry Price
-→ Open Order
-→ Initial Master Offer
-→ Pre-selection Chat
-→ Optional One-Time Price Revision
-→ Final Master Application
-→ Client Selects Master
-→ Final Agreed Price Fixed
-→ Deposit / Commission Flow
-→ Arrival Coordination Chat
-→ Start Work
-→ Evidence Photos
-→ Completion
-→ Review / Dispute
+Screen Gap Map must describe UI gaps and screen consequences only.
+
+Registry Reference:
+- Helpy Canonical Order Lifecycle Contract
+- Guided Job Flow Foundation
+- Order Entry Price / Final Price Contract
+- Offer Lifecycle Architecture Decision
+- Communication Layer / Business Timeline Contract
+- Thailand Payment Runtime Architecture Decision
+
+Screen Gap Map must not redefine the canonical business flow.
 
 ---
 
@@ -46,7 +49,7 @@ Gap:
 - No required price revision reason.
 - No final application action.
 
-Target:
+Screen Consequence:
 - Show Platform Entry Price.
 - Send Initial Offer.
 - Show master price as Initial Offer Price.
@@ -70,7 +73,7 @@ Gap:
 - No final application state.
 - Select Master is available too early.
 
-Target:
+Screen Consequence:
 - Show Entry Price.
 - Show Initial Master Offer.
 - Show revised price if present.
@@ -95,7 +98,7 @@ Gap:
 - No price confirmation evidence UI.
 - Work controls are mixed into the only chat screen.
 
-Target:
+Screen Consequence:
 - Support chat modes:
   - pre_selection;
   - work;
@@ -127,7 +130,7 @@ Gap:
 - Client cannot negotiate with offering master before selection.
 - Admin read access is not part of current chat access function.
 
-Target:
+Screen Consequence:
 - Before selection:
   - client_user_id can access pre-selection chat;
   - master_user_id can access only if active offer exists for that job.
@@ -138,25 +141,25 @@ Target:
 
 ---
 
-### 5. Offer Contract
+### 5. Offer Lifecycle Screen Dependency
 
 Current:
-- Offer statuses: active, selected, rejected, cancelled.
-- Offer stores price/message/comment.
-- No final application state.
+- Offer-related screens still depend on active/selected/rejected/cancelled status and generic price/message/comment fields.
+- No screen currently has a proven final application state.
 
 Gap:
-- No price revision history.
-- No one-time revision enforcement.
-- No client selection-as-final-price-acceptance rule.
-- No final application state.
+- Screen layer cannot yet render the approved offer lifecycle clearly.
+- Screen layer cannot yet separate initial offer, price revision, final application and selected state.
 
-Target:
-- Preserve initial offer.
-- Add one-time price revision state.
-- Store reason and final application evidence.
-- Add final application state.
-- Select master only from final application.
+Registry Reference:
+- Offer Lifecycle Architecture Decision
+- Order Entry Price / Final Price Contract
+- Final Price Architecture Decision
+
+Screen Consequence:
+- Offer-related screens must display offer lifecycle states returned by API.
+- Offer-related screens must not decide lifecycle state locally.
+- Select Master action must be rendered only when API exposes final application availability.
 
 ### 6. ClientJobDetailsScreen
 
@@ -174,7 +177,7 @@ Gap:
 - No screen-level explanation of why deposit exists.
 - No pre-selection chat entry point from offer context.
 
-Target:
+Screen Consequence:
 - Display Platform Entry Price as historical starting price.
 - Display Final Agreed Price only after final application / selection.
 - Display deposit as 30% of Final Agreed Price.
@@ -199,7 +202,7 @@ Gap:
 - No pre-selection chat access after initial offer.
 - No final application action.
 
-Target:
+Screen Consequence:
 - Display Platform Entry Price.
 - Explain that offer starts from Entry Price context.
 - After initial offer, show Pre-selection Chat CTA.
@@ -221,7 +224,7 @@ Gap:
 - No action to continue pre-selection negotiation.
 - No action to send final application.
 
-Target:
+Screen Consequence:
 - Show offer lifecycle:
   - Initial Offer Sent;
   - Pre-selection Chat;
@@ -248,7 +251,7 @@ Gap:
 - Bank Transfer / Wallet / Card states are not separated by MVP availability.
 - Deposit is not explicitly shown as 30% of Final Agreed Price.
 
-Target:
+Screen Consequence:
 - Show Final Agreed Price.
 - Show Deposit = 30% of Final Agreed Price.
 - Primary option: PromptPay QR.
