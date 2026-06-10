@@ -2296,6 +2296,61 @@ Client and master timelines show only user-facing events.
 
 Internal/system events may be hidden from mobile while remaining visible to Admin.
 
+### Timeline Visibility Matrix
+
+| event_type | Client | Master | Admin | Mobile Timeline | Internal Only |
+|---|---:|---:|---:|---:|---:|
+| order_created | yes | no | yes | yes | no |
+| job_published | yes | if eligible / active offer | yes | yes | no |
+| job_cancelled | yes | if participant | yes | yes | no |
+| initial_offer_sent | yes | owner master | yes | yes | no |
+| price_adjustment_requested | yes | owner master | yes | yes | no |
+| price_adjustment_approved | yes | owner master | yes | yes | no |
+| final_application_sent | yes | owner master | yes | yes | no |
+| master_selected | yes | selected master | yes | yes | no |
+| financial_snapshot_created | no | no | yes | no | yes |
+| deposit_created | yes | selected master | yes | yes | no |
+| deposit_paid | yes | selected master | yes | yes | no |
+| commission_obligation_created | no | selected master | yes | yes | no |
+| refund_issued | yes | if affected | yes | yes | no |
+| work_started | yes | selected master | yes | yes | no |
+| evidence_uploaded | yes | selected master | yes | yes | no |
+| completion_confirmed_by_client | yes | selected master | yes | yes | no |
+| job_completed | yes | selected master | yes | yes | no |
+| review_submitted | yes | selected master | yes | yes | no |
+| dispute_opened | yes | selected master | yes | yes | no |
+| dispute_resolved | yes | selected master | yes | yes | no |
+| admin_intervention | no | no | yes | no | yes |
+
+### Visibility Rules By Role
+
+Client can see:
+- own order lifecycle events;
+- selected master lifecycle events;
+- offer/price events for offers visible to the client;
+- payment/deposit/refund events affecting the client.
+
+Master can see:
+- own offer events;
+- selected work lifecycle events after selection;
+- commission obligation events affecting the master;
+- dispute/review events related to selected work.
+
+Admin can see:
+- all events;
+- internal-only events;
+- legacy/reserved events;
+- malformed payload warnings when implemented.
+
+### Mobile Timeline Filter Rule
+
+Mobile Timeline must render only events where `Mobile Timeline = yes`.
+
+Mobile must not locally override visibility.
+
+Timeline API is responsible for filtering events according to actor role and relationship to the order.
+
+
 ### Default Sorting
 
 Timeline events are returned in ascending chronological order by default.
