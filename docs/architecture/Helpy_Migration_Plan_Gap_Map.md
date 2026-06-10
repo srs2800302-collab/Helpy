@@ -136,9 +136,8 @@ Every schema migration must include:
    - Reason: status gives current state, fields store business facts, job_events stores immutable history.
 
 3. Final price source:
-   - jobs.final_agreed_price;
-   - offers.final_agreed_price + job snapshot;
-   - both.
+   - APPROVED: offers.final_agreed_price + jobs financial snapshot.
+   - Reason: offers preserve negotiation history, jobs preserve financial execution.
 
 4. Thailand payment runtime:
    - APPROVED: PromptPay QR = client-to-platform deposit.

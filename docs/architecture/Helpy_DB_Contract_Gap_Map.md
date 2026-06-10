@@ -159,14 +159,10 @@ Gap:
 - Deposit is calculated before the full new lifecycle is represented.
 
 Target:
-- Store immutable financial snapshot at selection:
-  - final_agreed_price;
-  - commission_base_amount;
-  - deposit_percent;
-  - deposit_amount;
-  - payment_method;
-  - commission_payer.
-- Existing selected_offer_price may be preserved as compatibility alias only if documented.
+- APPROVED: offers.final_agreed_price preserves negotiation outcome.
+- APPROVED: jobs store immutable financial snapshot.
+- APPROVED: selected_offer_price may remain as compatibility alias during migration.
+- Financial snapshots must not be rewritten after fixation.
 
 ---
 

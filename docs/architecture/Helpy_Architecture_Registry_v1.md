@@ -2675,3 +2675,58 @@ Bank Transfer:
 - client → platform;
 - deposit with manual/verified confirmation.
 
+
+---
+
+## Final Price Architecture Decision
+
+Status: APPROVED ✅
+
+### Decision
+
+Helpy will use offer-level final price history together with a job-level financial snapshot.
+
+### Responsibility Split
+
+Offer lifecycle preserves negotiation history:
+
+- initial_offer_price;
+- revised_offer_price;
+- final_agreed_price.
+
+Jobs preserve the immutable financial result of the order:
+
+- final_agreed_price;
+- commission_base_amount;
+- deposit_percent;
+- deposit_amount;
+- payment_method;
+- commission_payer.
+
+### Why
+
+Offer data answers:
+
+> How did the parties arrive at this price?
+
+Job data answers:
+
+> Which financial conditions became part of the order?
+
+Using only jobs would lose price evolution.
+
+Using only offers would couple financial execution to negotiation records.
+
+### Canonical Rule
+
+When a master is selected:
+
+- jobs.final_agreed_price becomes the financial snapshot;
+- commission_base_amount is fixed;
+- deposit_percent is fixed;
+- deposit_amount is fixed;
+- payment_method is fixed;
+- commission_payer is fixed.
+
+Later negotiations must not rewrite historical financial snapshots.
+
