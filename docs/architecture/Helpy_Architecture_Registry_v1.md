@@ -3059,6 +3059,36 @@ Bank Transfer:
 - deposit with manual/verified confirmation.
 
 
+### Financial Event Creation Rule
+
+After `master_selected`, the platform must first create the immutable job financial snapshot.
+
+Required event:
+- financial_snapshot_created.
+
+Then payment method determines the next financial event:
+
+PromptPay:
+- create deposit payment state;
+- emit deposit_created;
+- later emit deposit_paid only after confirmed payment.
+
+Bank Transfer:
+- create pending manual/verified deposit payment state;
+- emit deposit_created;
+- later emit deposit_paid only after admin/verified confirmation.
+
+Cash:
+- do not create client deposit-paid state;
+- create master commission obligation state;
+- emit commission_obligation_created.
+
+Rule:
+- deposit_created and commission_obligation_created are mutually exclusive for the selected payment method.
+- deposit_paid must never be emitted for Cash unless a future approved cash-collection contract explicitly changes this rule.
+- financial_snapshot_created is internal/admin-visible proof that payment/commission was calculated from fixed Final Agreed Price.
+
+
 ---
 
 ## Final Price Architecture Decision
