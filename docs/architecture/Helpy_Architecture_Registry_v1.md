@@ -3036,3 +3036,248 @@ Guided Job Flow answers:
 All future decisions regarding categories, screens, APIs, databases, admin capabilities and business logic must be evaluated against Guided Job Flow principles.
 
 If a future decision contradicts Guided Job Flow, the contradiction must be explicitly justified and approved before implementation.
+---
+## Contextual Guidance Knowledge System
+
+Status: APPROVED ✅
+
+### Definition
+
+Helpy does not treat documents as passive reference materials.
+
+Helpy transforms accumulated platform knowledge into contextual guidance shown exactly when participants need it.
+
+This system is a core part of Guided Job Flow.
+
+### Core Principle
+
+Users should not search for knowledge.
+
+The platform delivers the right knowledge at the right moment.
+
+### Guidance Levels
+
+Level 1 — Structured Scope Formation
+
+The platform gathers objective facts through:
+- category;
+- subcategory;
+- scenario branch;
+- structured questions;
+- client answers;
+- required photos.
+
+Purpose:
+- reduce chaos;
+- improve initial job scope quality;
+- support transparent Final Price formation.
+
+Level 2 — Client Guidance
+
+Clients receive contextual prompts while creating and managing orders.
+
+Examples:
+- do not open equipment packaging before master arrival;
+- prepare the work area before arrival;
+- review the completed work before confirmation.
+
+Level 3 — Master Guidance
+
+Masters receive contextual prompts relevant to the current order.
+
+Examples:
+- study photos before applying;
+- verify equipment compatibility before opening packaging;
+- justify hidden work through chat if a price revision is required.
+
+Level 4 — Workflow Guidance
+
+Guidance depends on the current lifecycle stage.
+
+Examples:
+
+After Master Selection:
+- client coordinates arrival through chat;
+- master coordinates arrival through chat.
+
+In Progress:
+- master records hidden defects and work stages using evidence photos;
+- client reviews results before confirmation.
+
+Before Completion:
+- client is informed that confirmation closes the order;
+- master is informed that completion becomes available only after client confirmation.
+
+Level 5 — Living Knowledge Base
+
+Client Docs, Master Docs, Service Playbooks and Admin Rules become structured knowledge sources.
+
+They are not passive documents.
+
+### Knowledge Flow
+
+Client Docs
+      ↓
+Master Docs
+      ↓
+Service Playbooks
+      ↓
+Admin Rules
+      ↓
+Guidance Records
+      ↓
+API
+      ↓
+Mobile UI
+
+### Runtime Rule
+
+Mobile applications must never read Markdown documents directly.
+
+Mobile applications consume only structured guidance records delivered by API.
+
+Example structure:
+
+{
+  "context": "before_offer",
+  "role": "master",
+  "category": "plumbing",
+  "subcategory": "faucet_replace",
+  "text": "Do not open equipment packaging before compatibility verification."
+}
+
+### Guidance Context Dimensions
+
+Guidance may depend on:
+- role;
+- category;
+- subcategory;
+- scenario branch;
+- workflow stage;
+- form step;
+- language.
+
+### Governance
+
+Guidance Records must support:
+- Draft / Published;
+- Audit Log;
+- Preview;
+- RU / EN / TH localization;
+- publication without APK rebuild.
+
+### Business Outcome
+
+As Helpy grows, the platform scales accumulated experience.
+
+Expected effects:
+- fewer client mistakes;
+- fewer master mistakes;
+- fewer disputes;
+- higher quality job scopes;
+- faster onboarding of new masters;
+- continuous platform improvement without mobile releases.
+
+### Relationship With Guided Job Flow
+
+Guidance is not FAQ.
+
+Guidance is an operational component of Guided Job Flow.
+
+Guided Job Flow answers:
+
+"How does the order progress?"
+
+Contextual Guidance answers:
+
+"How does accumulated platform experience help participants succeed at each stage of the order?"
+---
+## Mobile Guidance Slots Contract
+
+Status: APPROVED ✅
+
+### Purpose
+
+Mobile screens must not contain hardcoded business knowledge, service rules or contextual guidance.
+
+Mobile screens must contain guidance slots: stable UI placement points where contextual guidance from API can be displayed.
+
+### Core Rule
+
+Flutter UI does not own platform knowledge.
+
+Flutter UI only renders structured guidance records returned by API.
+
+### Why
+
+This prevents business-rule drift between:
+- Registry;
+- Admin Panel;
+- API;
+- Mobile UI;
+- Client Docs;
+- Master Docs;
+- Service Playbooks.
+
+### Required Guidance Slots
+
+Mobile screens must reserve guidance slots for key Guided Job Flow stages:
+
+- Create Job;
+- photo upload;
+- offer creation;
+- offer review;
+- pre-selection chat;
+- price revision;
+- master selection;
+- deposit/payment;
+- work chat;
+- start work;
+- evidence photos;
+- client completion confirmation;
+- master complete order;
+- review;
+- dispute.
+
+### Slot Context
+
+Each guidance request must be able to include:
+- role;
+- screen;
+- category;
+- subcategory;
+- scenario branch;
+- form step;
+- job status;
+- workflow stage;
+- language.
+
+### Runtime Rule
+
+If API returns guidance records, the screen displays them in the matching slot.
+
+If API returns no guidance records, the screen must remain clean and continue normally.
+
+No screen should add local fallback business advice unless explicitly approved.
+
+### Implementation Rule
+
+When changing or creating mobile screens, developers must check whether the screen needs a guidance slot.
+
+If guidance is required, add a generic reusable guidance rendering component.
+
+Do not add hardcoded instructional text as a quick patch.
+
+Do not wrap screens later with magic guidance overlays.
+
+Do not duplicate business knowledge inside Flutter widgets.
+
+### Admin Rule
+
+Guidance content must be managed through Admin/Guidance Builder with:
+- Draft / Published lifecycle;
+- Audit Log;
+- RU / EN / TH localization;
+- Preview;
+- publication without APK rebuild.
+
