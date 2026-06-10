@@ -1,6 +1,6 @@
 # Helpy API Contract Gap Map
 
-Status: DRAFT FOR REVIEW
+Status: APPROVED GAP MAP ✅
 
 ## Source Documents
 
@@ -47,7 +47,6 @@ Platform Entry Price
 → Initial Master Offer
 → Pre-selection Chat
 → Optional One-Time Price Revision
-→ Client Price Confirmation
 → Final Master Application
 → Client Selects Master
 → Final Agreed Price Fixed
@@ -79,7 +78,6 @@ Target:
   - revised_offer_price;
   - final_agreed_price;
   - price_revision_reason;
-  - price_revision_confirmed_at;
   - deposit_amount;
   - deposit_percent;
   - commission_payer;
@@ -99,7 +97,7 @@ Current:
 
 Gap:
 - No state for price revision.
-- No state for client price confirmation.
+- No explicit rule that selecting master accepts Final Price.
 - No final application state.
 - Select offer is allowed directly from active offer.
 
@@ -116,7 +114,6 @@ Target:
 Required business actions:
 - create initial offer;
 - request one-time price revision;
-- confirm or reject revised price;
 - send final application;
 - select master only from final application.
 

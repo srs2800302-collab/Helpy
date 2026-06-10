@@ -1,6 +1,6 @@
 # Helpy Migration Plan Gap Map
 
-Status: DRAFT FOR REVIEW
+Status: APPROVED GAP MAP ✅
 
 ## Source Documents
 
@@ -44,7 +44,6 @@ Offers:
 - revised_offer_price;
 - price_revision_reason;
 - price_revision_requested_at;
-- price_revision_confirmed_at;
 - final_application_sent_at;
 - final_agreed_price.
 
@@ -125,7 +124,7 @@ Every schema migration must include:
 
 ---
 
-## Open Decisions Before SQL
+## Approved Decisions Before SQL
 
 1. Pre-selection chat storage model:
    - APPROVED: chat_threads.
@@ -152,6 +151,6 @@ Every schema migration must include:
 
 This document is not a migration.
 
-No SQL should be written until open decisions are resolved and approved.
+No SQL should be written until a concrete migration plan is approved.
 
 Next approved output must be a concrete migration plan with exact chain ownership and rollback-safe steps.

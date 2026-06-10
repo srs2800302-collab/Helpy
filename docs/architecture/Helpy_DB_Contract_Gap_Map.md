@@ -1,6 +1,6 @@
 # Helpy DB Contract Gap Map
 
-Status: DRAFT FOR REVIEW
+Status: APPROVED GAP MAP ✅
 
 ## Source Documents
 
@@ -108,7 +108,6 @@ Gap:
 - No final_agreed_price field.
 - No price_revision_reason field.
 - No price_revision_requested_at field.
-- No price_revision_confirmed_at field.
 - No final_application_sent_at field.
 - No enforcement data for one-time price revision.
 
@@ -116,7 +115,7 @@ Target:
 - Preserve initial offer price.
 - Store one-time revised price separately.
 - Store reason separately from general comment.
-- Store client confirmation timestamp/evidence.
+- Store final application timestamp/evidence.
 - Store final application timestamp.
 - Keep final agreed price available for selection and payment.
 
@@ -177,7 +176,7 @@ Gap:
 - Pre-selection chat requires access by active/negotiating offer participant.
 - One job may have multiple offers and therefore multiple pre-selection conversations.
 
-Target Design Question:
+Approved Target:
 - APPROVED Decision: introduce chat_threads for job/offer scoped conversations.
 
 Reason:

@@ -1,6 +1,6 @@
 # Helpy Screen Contract Gap Map
 
-Status: DRAFT FOR REVIEW
+Status: APPROVED GAP MAP ✅
 
 ## Source Registry Contracts
 
@@ -16,7 +16,6 @@ Platform Entry Price
 → Initial Master Offer
 → Pre-selection Chat
 → Optional One-Time Price Revision
-→ Client Price Confirmation
 → Final Master Application
 → Client Selects Master
 → Final Agreed Price Fixed
@@ -76,7 +75,7 @@ Target:
 - Show Initial Master Offer.
 - Show revised price if present.
 - Show price revision reason if present.
-- Show whether client confirmed revised price.
+- Show that client selects master to accept Final Price.
 - Show final application status.
 - Enable Select Master only when final application is available.
 
@@ -149,13 +148,13 @@ Current:
 Gap:
 - No price revision history.
 - No one-time revision enforcement.
-- No client price confirmation.
+- No client selection-as-final-price-acceptance rule.
 - No final application state.
 
 Target:
 - Preserve initial offer.
 - Add one-time price revision state.
-- Store reason and confirmation evidence.
+- Store reason and final application evidence.
 - Add final application state.
 - Select master only from final application.
 

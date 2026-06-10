@@ -2591,7 +2591,6 @@ Offer lifecycle fields store business facts:
 - revised_offer_price;
 - price_revision_reason;
 - price_revision_requested_at;
-- price_revision_confirmed_at;
 - final_application_sent_at;
 - final_agreed_price.
 
