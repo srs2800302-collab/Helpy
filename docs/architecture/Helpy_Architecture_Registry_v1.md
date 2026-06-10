@@ -2745,3 +2745,75 @@ When a master is selected:
 
 Later negotiations must not rewrite historical financial snapshots.
 
+
+---
+
+## Structured Job Scope / Price Justification Contract
+
+Status: APPROVED ✅
+
+### Structured Job Scope
+
+A Helpy order scope is not free text.
+
+Initial job scope is formed from:
+- category;
+- subcategory;
+- selected service branch;
+- dynamic question flow;
+- client answers;
+- required photos;
+- category business rules;
+- category photo rules;
+- category service playbook rules.
+
+The Plumbing category is the reference standard for structured scope formation.
+
+### Scope Formation Rule
+
+Client answers and required photos form the initial technical assignment for the order.
+
+The form collects the initial scope and closes the visual part of the scope.
+
+The chat completes the textual clarification part of the scope.
+
+Masters must not request additional photos in chat when required photos were already defined by the form.
+
+### Entry Price Rule
+
+Platform Entry Price is calculated from the structured job scope and approved pricing rules.
+
+Entry Price is not based only on free-text description.
+
+### Price Justification Rule
+
+If a master changes the Entry Price, the master must justify the change against the structured job scope.
+
+The justification must explain what was not covered by the initial scope, client answers, required photos or visible conditions.
+
+Examples:
+- hidden work discovered from required photos;
+- access limitation visible from photos;
+- additional material length or connection distance;
+- equipment mismatch;
+- condition that changes work complexity;
+- missing required equipment on site when the selected branch requires it.
+
+`price_revision_reason` is a structured business field, not only a chat comment.
+
+Chat may contain discussion, but the final price justification must be stored in offer lifecycle data and represented in `job_events`.
+
+### Admin Visibility
+
+Admin must be able to compare:
+- structured job scope;
+- client answers;
+- required photos;
+- Entry Price;
+- master price justification;
+- revised price;
+- client confirmation;
+- Final Agreed Price;
+- related chat context;
+- related job_events.
+
