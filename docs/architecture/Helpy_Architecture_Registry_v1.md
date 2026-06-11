@@ -1535,7 +1535,7 @@ Decision Summary:
 - Legacy GAP has been aligned with current approved decisions.
 - No unresolved architecture decisions remain at the Plumbing root level.
 
-## Plumbing
+### Plumbing Registry Content
 
 Plumbing
 ├── Кран / Смеситель
