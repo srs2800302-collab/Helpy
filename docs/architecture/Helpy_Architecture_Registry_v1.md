@@ -61,7 +61,15 @@ Client describes the problem.
 Platform determines the required specialist.
 
 ## 4. Core Business Model
-Status: APPROVED ✅
+Status: CLOSED
+
+Decision Summary:
+- 30% is the default platform commission value.
+- Platform commission value is editable from Admin Panel without application release.
+- Commission source depends on selected payment method.
+- Thailand Payment Runtime Architecture Decision has priority.
+- No unresolved architecture decisions remain in this contract.
+
 
 Canonical business flow is defined by:
 - Helpy Canonical Order Lifecycle Contract;
