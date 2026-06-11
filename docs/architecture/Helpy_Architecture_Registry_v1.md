@@ -1523,6 +1523,18 @@ GAP:
 - Требуется перенос на актуальный шаблон Helpy.
 - Требуется повторный аудит по утвержденному процессу.
 
+## 24. Service Architecture Registry — Plumbing
+Status: CLOSED — STORED + DOCS VERIFIED
+
+Decision Summary:
+- Plumbing is fully recovered and verified.
+- Registry evidence exists in approved documentation and stored archives.
+- Faucet/Mixer, Blockage and Toilet branches are complete.
+- Electric Shower installation and replacement branches remain approved.
+- Electric Shower repair scenarios were later excluded by the approved Electrical Shower Policy contract.
+- Legacy GAP has been aligned with current approved decisions.
+- No unresolved architecture decisions remain at the Plumbing root level.
+
 ## Plumbing
 
 Plumbing
@@ -1910,9 +1922,13 @@ Root Question:
 Approved Branches:
 - Установить новый ✅ STORED + DOCS
 - Заменить существующий ✅ STORED + DOCS
-- Плохо греет воду 🟨 RE-AUDIT
-- Протекает 🟨 RE-AUDIT
-- Выбивает автомат / отключается электричество 🟨 RE-AUDIT
+- Плохо греет воду ❌ EXCLUDED FROM MVP
+- Протекает ❌ EXCLUDED FROM MVP
+- Выбивает автомат / отключается электричество ❌ EXCLUDED FROM MVP
+
+Alignment Note:
+- Excluded according to the approved Electrical Shower Policy contract.
+- Electric shower repair scenarios do not return to MVP discussion before launch.
 
 Naming Decision:
 - Название категории изменено с «Проточный водонагреватель» на «Электрический душ (водонагреватель)».
