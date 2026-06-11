@@ -192,9 +192,15 @@ Minimum Architecture Standard:
 
 Rule:
 - Категория считается завершённой только после достижения уровня детализации Plumbing.
-## Specialized Reference Categories
+## 9. Specialized Reference Categories
+Status: CLOSED
 
-Status: APPROVED ✅
+Decision Summary:
+- Cleaning and Furniture Assembly use specialized business logic.
+- Specialized categories are not required to replicate Plumbing structure.
+- Specialized categories must not provide a lower level of detail than Plumbing.
+- Specialized categories may diverge in form, but never in completeness.
+- No unresolved architecture decisions remain in this contract.
 
 Categories:
 - Cleaning
@@ -206,7 +212,6 @@ Definition:
 
 Rule:
 - Уровень детализации не может быть ниже Plumbing.
-
 ## Electrical Shower Policy
 
 Status: APPROVED ✅
