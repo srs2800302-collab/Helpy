@@ -261,8 +261,17 @@ Reason:
 
 Rule:
 - Deferred categories may be reconsidered only after collecting real marketplace statistics following launch.
-## 8. Knowledge Base Engine
-Status: APPROVED ✅
+## 12. Knowledge Base Engine
+Status: PARTIALLY CLOSED
+
+Decision Summary:
+- Knowledge Base Engine is required for every category.
+- Category knowledge must include Client Guidance, Master Guidance, Platform Notes, Safety Notes, and Premium Recommendations.
+- Users must not keep category rules in their heads.
+- Guidance must be integrated into client and master screens.
+- Guidance visibility depends on user role and order stage.
+- Exact guidance trigger matrix and mobile screen placement are defined by downstream guidance contracts.
+- This contract cannot be CLOSED until the downstream guidance contracts are reviewed and aligned.
 
 Every category must support:
 - Client Guidance
@@ -274,7 +283,6 @@ Every category must support:
 Purpose:
 Users should not keep rules in their heads.
 System must display information at the correct stage of the order.
-
 ## 9. Dynamic Form Engine
 Status: APPROVED ✅
 
