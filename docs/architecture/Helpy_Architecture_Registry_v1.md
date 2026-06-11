@@ -1179,10 +1179,18 @@ Future Admin Panel must support:
 - Rule visibility.
 - Master eligibility rules.
 ---
-## 17. Service Architecture Registry — Cleaning
-Status: APPROVED ✅
-Registry Status: STORED + DOCS ✅
+## 21. Service Architecture Registry — Cleaning
+Status: CLOSED — STORED + DOCS VERIFIED
 
+Decision Summary:
+- Cleaning is fully recovered and verified.
+- Registry evidence exists in approved documentation and stored archives.
+- Cleaning is a specialized reference category with its own business logic.
+- Regular Cleaning, Deep Cleaning and Post-Repair Cleaning retain their individual historical statuses.
+- Internal category contracts remain unchanged.
+- No unresolved architecture decisions remain at the Cleaning root level.
+
+Registry Status: STORED + DOCS VERIFIED ✅
 ### Root Category
 Cleaning
 
