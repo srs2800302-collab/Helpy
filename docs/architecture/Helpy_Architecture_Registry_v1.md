@@ -283,8 +283,18 @@ Every category must support:
 Purpose:
 Users should not keep rules in their heads.
 System must display information at the correct stage of the order.
-## 9. Dynamic Form Engine
-Status: APPROVED ✅
+## 13. Dynamic Form Engine
+Status: PARTIALLY CLOSED
+
+Decision Summary:
+- Create Job Screen must be generated dynamically.
+- Admin Panel is the source of form structure.
+- API delivers form structure to the Mobile Application.
+- Mobile Application renders categories, subcategories, questions, photo requirements, rules, and guidance blocks from data.
+- No category-specific hardcoded create-job forms are allowed.
+- Pure dynamic form engine is the current target architecture.
+- Hybrid shell approach may be reconsidered only after the full roadmap and all MVP categories are completed.
+- This contract cannot be CLOSED until the final pure dynamic vs hybrid implementation decision is made.
 
 Create Job Screen must be generated dynamically.
 
@@ -300,7 +310,6 @@ Generated Elements:
 - Guidance Blocks
 
 No hardcoded forms.
-
 ## 10. Premium Services
 Status: APPROVED ✅
 
