@@ -236,15 +236,31 @@ Reason:
 - Helpy MVP ориентирован на установку и замену оборудования.
 - Диагностика и ремонт электрических душей не являются приоритетом запуска.
 - Замена устройства обычно проще и дешевле ремонта.
-## 7. Deferred Categories
-Status: RESERVED ✅
+## 11. Deferred Categories
+Status: CLOSED
 
+Decision Summary:
+- Handyman is excluded from MVP launch.
+- Handyman will not return to MVP discussion before launch.
+- Home Appliances is no longer a deferred category.
+- Home Appliances has been promoted into the MVP roadmap as the final category before launch.
+- Deferred categories do not block MVP launch.
+- No unresolved architecture decisions remain in this contract.
+
+Deferred Categories:
 - Handyman
-- Home Appliances
+
+Promoted Category:
+- Appliance Installation & Connection
+- Установка и подключение бытовой техники
 
 Reason:
-Specialized categories are completed first.
+- Specialized categories are completed first.
+- Handyman is too broad and low-value for Helpy MVP.
+- Profile categories, chat negotiation, and fixed-price flows cover most handyman-like scenarios during MVP.
 
+Rule:
+- Deferred categories may be reconsidered only after collecting real marketplace statistics following launch.
 ## 8. Knowledge Base Engine
 Status: APPROVED ✅
 
