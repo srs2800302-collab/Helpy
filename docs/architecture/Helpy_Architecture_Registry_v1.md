@@ -133,9 +133,16 @@ Next Category Required Before Final Closure:
 - Appliance Installation & Connection
 - Установка и подключение бытовой техники
 
-## Category Governance
+## 7. Category Governance
+Status: PARTIALLY CLOSED
 
-Status: APPROVED ✅
+Decision Summary:
+- Category governance is aligned with the Approved Root Categories contract.
+- Six MVP root categories are currently closed.
+- One final MVP root category remains to be finalized before launch.
+- No additional categories may be added before MVP launch.
+- Category scaling starts only after real marketplace statistics are collected.
+- Final database architecture and Admin Panel must support at least 20 root categories without schema redesign or application rewrite.
 
 Helpy Categories
 
@@ -147,13 +154,13 @@ Helpy Categories
 6. Furniture Assembly
 
 Future Launch Category:
-- Home Appliances
+- Appliance Installation & Connection
+- Установка и подключение бытовой техники
 
 Rules:
-- Home Appliances проектируется последней категорией перед MVP Launch.
+- Appliance Installation & Connection is designed as the final category before MVP Launch.
 - До запуска платформы новые категории не добавляются.
 - Масштабирование категорий начинается только после получения реальной статистики.
-
 ## Reference Category Standard
 
 Status: APPROVED ✅
