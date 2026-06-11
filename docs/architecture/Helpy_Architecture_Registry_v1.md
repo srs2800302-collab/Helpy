@@ -3104,7 +3104,13 @@ Rule:
 
 ## Final Price Architecture Decision
 
-Status: APPROVED ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: offer-level negotiation history + immutable job financial snapshot.
+- IMPLEMENTED: selected_offer_price copied to jobs and deposit_amount calculated during selection.
+- GAP_APPROVED: initial_offer_price, revised_offer_price, offers.final_agreed_price, jobs.final_agreed_price, commission_base_amount, price_change_reason, confirmation_timestamp, client_confirmation_evidence.
+- CURRENT GAP: runtime and schema do not preserve final price evolution.
 
 ### Decision
 
