@@ -7,7 +7,7 @@ Canonical database architecture for Helpy MVP.
 The schema must be dictated by the MVP business flow:
 
 client creates job
-→ pays/records 40% deposit
+→ pays/records 30% deposit
 → job becomes open
 → masters create offers
 → client selects master
