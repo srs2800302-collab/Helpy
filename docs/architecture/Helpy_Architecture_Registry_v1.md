@@ -1374,7 +1374,19 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 - Исполнитель не отвечает за новую пыль после завершения работ.
 
 
-## Air Conditioning
+## 22. Service Architecture Registry — Air Conditioning
+Status: OPEN — RE-AUDIT REQUIRED
+
+Decision Summary:
+- Air Conditioning is a historically approved root category.
+- Legacy category structure is stored for re-audit.
+- Legacy decisions must not be treated as final current Registry content until re-audited.
+- Air Conditioning must be migrated to the current Helpy Registry template.
+- Repair is removed from Air Conditioning for launch.
+- Preventive maintenance is not a separate launch subcategory and is treated as cleaning from the client perspective.
+- Relocation remains disabled on launch.
+- Categories and subcategories must support independent enabled/disabled status.
+- This contract cannot be CLOSED until Air Conditioning is migrated and re-audited against the current Helpy Registry standard.
 
 Registry Status: 🟨 STORED FOR RE-AUDIT
 
