@@ -92,7 +92,16 @@ Commission source depends on selected payment method.
 Core Business Model must not override the Thailand Payment Runtime Architecture Decision.
 
 ## 5. Chat Governance
-Status: APPROVED ✅
+Status: CLOSED
+
+Decision Summary:
+- Chat is mandatory for the order workflow.
+- Chat stores agreements between client and master.
+- Chat messages are evidence.
+- Photos shared in chat are evidence.
+- Admin can access any chat for moderation, support, and dispute resolution.
+- Disputes must consider chat history.
+- No unresolved architecture decisions remain in this contract.
 
 - Chat is mandatory.
 - Chat stores agreements.
