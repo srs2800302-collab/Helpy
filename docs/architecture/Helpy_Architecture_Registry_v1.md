@@ -111,7 +111,15 @@ Decision Summary:
 - Disputes must consider chat history.
 
 ## 6. Approved Root Categories
-Status: APPROVED ✅
+Status: PARTIALLY CLOSED
+
+Decision Summary:
+- MVP root category set is not fully closed yet.
+- The currently approved closed root categories are listed below.
+- One required MVP root category remains to be finalized before this contract can be CLOSED.
+- Root categories are client work/problem entry points, not master profession selectors.
+- Root categories are used for routing, marketplace visibility, and admin control.
+- Final database architecture and Admin Panel must support at least 20 root categories without schema redesign or application rewrite.
 
 Closed Categories:
 - Cleaning
@@ -120,6 +128,10 @@ Closed Categories:
 - Electrical
 - Locks
 - Furniture Assembly
+
+Next Category Required Before Final Closure:
+- Appliance Installation & Connection
+- Установка и подключение бытовой техники
 
 ## Category Governance
 
