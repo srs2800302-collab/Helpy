@@ -1375,65 +1375,406 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 
 
 ## 22. Service Architecture Registry — Air Conditioning
-Status: OPEN — RE-AUDIT REQUIRED
+Status: CLOSED — APPROVED / STORED + DOCS VERIFIED
 
 Decision Summary:
-- Air Conditioning is a historically approved root category.
-- Legacy category structure is stored for re-audit.
-- Legacy decisions must not be treated as final current Registry content until re-audited.
-- Air Conditioning must be migrated to the current Helpy Registry template.
+- Air Conditioning is an approved Helpy MVP root category.
 - Repair is removed from Air Conditioning for launch.
-- Preventive maintenance is not a separate launch subcategory and is treated as cleaning from the client perspective.
+- Preventive maintenance is not a separate launch subcategory and is treated as Cleaning from the client perspective.
 - Relocation remains disabled on launch.
 - Categories and subcategories must support independent enabled/disabled status.
-- This contract cannot be CLOSED until Air Conditioning is migrated and re-audited against the current Helpy Registry standard.
+- No unresolved architecture decisions remain at the Air Conditioning root level.
 
-Registry Status: 🟨 STORED FOR RE-AUDIT
+Registry Status: APPROVED / STORED + DOCS VERIFIED ✅
+
+### Root Category
+Air Conditioning
+
+### Subcategories
+Enabled on launch:
+- Cleaning.
+- Not Cooling.
+- Leaking.
+- Installation.
+- Removal.
+- Remote Control Issues.
+
+Disabled on launch:
+- Relocation.
+
+Removed from MVP:
+- Repair.
 
 Reason:
-- Первая полноценно проработанная категория Helpy.
-- Содержит исторические решения и требует приведения к текущему шаблону Registry.
+- For Pattaya MVP, repair is high-variance and often less practical than replacement.
+- Preventive maintenance is perceived by clients as cleaning.
+- Relocation requires combined removal, installation and technical risk, so it remains disabled for launch.
 
-Approved Legacy Structure:
+---
 
-ROOT: Air Conditioning
+### 22.1 Cleaning
+Status: APPROVED / CLOSED / STORED + DOCS ✅
 
-- Чистка кондиционера;
-- Кондиционер не холодит;
-- Кондиционер течет;
-- Установка кондиционера;
-- Демонтаж кондиционера;
-- Пульт управления кондиционером;
-- Перенос кондиционера (disabled на запуске).
+#### Client Questions
+1. Air conditioner type:
+   - Wall split.
+   - Cassette.
+   - Floor standing.
+   - I do not know.
 
-Removed:
-- Ремонт кондиционера.
+2. Quantity:
+   - 1 unit.
+   - 2 units.
+   - 3 units.
+   - More than 3 units.
 
-Reason:
-- Для рынка Паттайи чаще выгоднее заменить оборудование, чем ремонтировать его.
+3. Approximate BTU / size:
+   - 9,000–12,000 BTU.
+   - 18,000 BTU.
+   - 24,000 BTU.
+   - I do not know.
 
-Legacy Rules:
-- Демонтаж ≠ утилизация.
-- Дополнительные работы согласуются через чат.
-- Профилактическое обслуживание отдельно не выделяется и воспринимается клиентом как чистка.
-- Каждая подкатегория должна иметь собственные вопросы, фотографии и правила.
-- Категории и подкатегории должны иметь независимый enabled/disabled статус.
+4. Is the indoor unit accessible?
+   - Yes.
+   - No.
+   - I do not know.
 
-Open For Re-Audit:
-- Финальные вопросы.
-- Финальные фото.
-- Pricing.
-- Client Rules.
-- Master Rules.
-- Service Playbook.
-- Business Rules.
-- Admin Dependencies.
-- FAO.
+5. Is the outdoor unit accessible?
+   - Yes.
+   - No.
+   - Balcony access.
+   - Requires ladder / difficult access.
+   - I do not know.
 
-GAP:
-- Требуется перенос на актуальный шаблон Helpy.
-- Требуется повторный аудит по утвержденному процессу.
+#### Required Photos
+- Indoor unit front view.
+- Indoor unit side / installation area.
+- Outdoor unit access photo if available.
+- Drain hose / water outlet area if visible.
 
+#### Client Rules
+- Client provides access to indoor unit.
+- Client provides access to outdoor unit if required.
+- If outdoor access is unsafe or unavailable, master may clean indoor unit only after agreement in chat.
+- Additional chemical cleaning or hard-access work is agreed through chat.
+
+#### Master Rules
+- Verify indoor and outdoor access before confirming scope.
+- Do not perform unsafe height work without explicit agreement and proper equipment.
+- Record unavailable access or visible damage in platform chat before work starts.
+- Explain to client if cleaning cannot solve cooling problems.
+
+#### Pricing
+- Cleaning Base Price: editable from Admin Panel.
+- Multi-unit discount: editable from Admin Panel.
+- Difficult access surcharge: agreed through chat.
+
+---
+
+### 22.2 Not Cooling
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Client Questions
+1. What happens?
+   - Blows warm air.
+   - Weak cooling.
+   - Works then stops cooling.
+   - Error light / error code.
+   - I do not know.
+
+2. When was the last cleaning?
+   - Less than 3 months ago.
+   - 3–6 months ago.
+   - More than 6 months ago.
+   - I do not know.
+
+3. Is the outdoor unit running?
+   - Yes.
+   - No.
+   - I do not know.
+
+4. Is there an error code?
+   - Yes, client enters text/photo.
+   - No.
+   - I do not know.
+
+#### Required Photos
+- Indoor unit front view.
+- Outdoor unit photo if accessible.
+- Remote display / error code if visible.
+- General installation area.
+
+#### Client Rules
+- This subcategory is diagnostics-first.
+- Final repair scope and parts are agreed through chat.
+- If replacement is more practical than repair, master must explain before work continues.
+
+#### Master Rules
+- Diagnose before offering repair work.
+- Do not promise refrigerant refill, compressor repair or PCB repair before inspection.
+- High-risk or major repair can be refused for MVP scope.
+- Record diagnosis and recommended next step in chat.
+
+#### Pricing
+- Diagnostics Base Price: editable from Admin Panel.
+- Additional repair / parts are outside base price and agreed through chat.
+
+---
+
+### 22.3 Leaking
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Client Questions
+1. Where is water leaking?
+   - From indoor unit.
+   - From drain hose.
+   - From outdoor unit.
+   - I do not know.
+
+2. When does it leak?
+   - Immediately after turning on.
+   - After some time.
+   - Constantly.
+   - Only sometimes.
+
+3. Was the unit recently cleaned or serviced?
+   - Yes.
+   - No.
+   - I do not know.
+
+#### Required Photos
+- Leak location.
+- Indoor unit front view.
+- Drain hose / drain area if visible.
+- Wall/floor damage area if present.
+
+#### Client Rules
+- Client should stop using the unit if water may damage electrical points or furniture.
+- Water damage repair is not included.
+- Drain cleaning, cleaning and additional work are agreed through chat if outside base scope.
+
+#### Master Rules
+- Check drain blockage, indoor unit slope and visible installation issues.
+- Do not open walls or perform construction work under this subcategory.
+- Record likely cause and next step in chat.
+
+#### Pricing
+- Leak Diagnostics Base Price: editable from Admin Panel.
+- Drain cleaning surcharge: editable from Admin Panel or agreed through chat.
+
+---
+
+### 22.4 Installation
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Client Questions
+1. Is the air conditioner new or used?
+   - New.
+   - Used.
+   - I do not know.
+
+2. Is there an existing installation point?
+   - Yes.
+   - No.
+   - I do not know.
+
+3. Approximate BTU / size:
+   - 9,000–12,000 BTU.
+   - 18,000 BTU.
+   - 24,000 BTU.
+   - More than 24,000 BTU.
+   - I do not know.
+
+4. Wall type:
+   - Concrete.
+   - Brick.
+   - Drywall / gypsum.
+   - I do not know.
+
+5. Outdoor unit location:
+   - Balcony.
+   - Ground level.
+   - Wall bracket.
+   - Roof / difficult access.
+   - I do not know.
+
+#### Required Photos
+- Indoor installation place.
+- Outdoor unit installation place.
+- Existing wall hole / piping route if present.
+- Electrical point / socket / breaker area if visible.
+- Air conditioner label / box / specification if available.
+
+#### Client Rules
+- Air conditioner and parts must be on site before master arrives.
+- Electrical relocation, new wiring, breaker work and wall construction are not included by default.
+- Additional pipe length, brackets, drain hose, cable and materials are agreed through chat.
+- Platform does not participate in materials purchase.
+
+#### Master Rules
+- Verify safe indoor and outdoor installation points.
+- Verify wall type and outdoor access.
+- Do not perform unsafe height work without proper equipment and agreement.
+- Materials and extra work must be confirmed in chat before work starts.
+
+#### Pricing
+- Installation Base Price by BTU range: editable from Admin Panel.
+- Extra pipe / drain / bracket / difficult access surcharge: agreed through chat or Admin baseline.
+
+---
+
+### 22.5 Removal
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Client Questions
+1. What should be removed?
+   - Indoor and outdoor units.
+   - Indoor unit only.
+   - Outdoor unit only.
+   - I do not know.
+
+2. Should the old unit be preserved?
+   - Yes.
+   - No.
+   - I do not know.
+
+3. Is disposal required?
+   - Yes.
+   - No.
+
+4. Is outdoor unit accessible?
+   - Yes.
+   - No.
+   - Balcony access.
+   - Difficult access.
+   - I do not know.
+
+#### Required Photos
+- Indoor unit.
+- Outdoor unit if accessible.
+- Pipe route / wall hole if visible.
+- Access area.
+
+#### Client Rules
+- Removal does not automatically include disposal.
+- Wall repair, repainting and finishing are not included.
+- Preservation of removed unit must be agreed before work starts.
+
+#### Master Rules
+- Confirm whether unit must be preserved.
+- Protect client property during removal.
+- Place removed parts in agreed area.
+- Record existing wall damage or access risk in chat before work starts.
+
+#### Pricing
+- Removal Base Price: editable from Admin Panel.
+- Disposal surcharge: editable from Admin Panel or agreed through chat.
+- Difficult access surcharge: agreed through chat.
+
+---
+
+### 22.6 Remote Control Issues
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+
+#### Client Questions
+1. What is the issue?
+   - Remote does not turn on.
+   - Remote display works but AC does not respond.
+   - Some buttons do not work.
+   - Remote is lost.
+   - I do not know.
+
+2. Are batteries replaced?
+   - Yes.
+   - No.
+   - I do not know.
+
+3. Is there another remote / mobile control?
+   - Yes.
+   - No.
+   - I do not know.
+
+#### Required Photos
+- Remote control front.
+- Remote display if visible.
+- Air conditioner model label if available.
+- Indoor unit front view.
+
+#### Client Rules
+- Batteries are checked by client before visit if possible.
+- Replacement remote purchase is not handled by platform.
+- Compatibility and purchase options are agreed through chat.
+
+#### Master Rules
+- Verify batteries, remote signal and unit receiver if possible.
+- Do not promise remote replacement availability before model check.
+- Record model and recommendation in chat.
+
+#### Pricing
+- Remote Diagnostics Base Price: editable from Admin Panel.
+- Replacement remote/materials are outside platform base price.
+
+---
+
+### 22.7 Relocation
+Status: APPROVED / DISABLED ON LAUNCH / STORED + DOCS ✅
+
+#### Scope
+Relocation combines removal and installation of the same air conditioner in a new place.
+
+#### Launch Decision
+- Disabled on launch.
+- Can be enabled later from Admin Panel after operational validation.
+
+#### Reason
+- Requires removal, installation, material calculation and access risk in one order.
+- Higher chance of hidden extra work.
+- Better handled after installation/removal flows are proven.
+
+---
+
+### Business Rules
+- Client chooses the problem, not the profession.
+- Preventive maintenance is not a separate subcategory for launch.
+- Repair is removed from Air Conditioning MVP.
+- Materials and additional work are agreed between client and master through chat.
+- Platform does not participate in materials purchase.
+- Each subcategory has independent enabled/disabled status.
+- High-risk work may be refused by master if unsafe or outside MVP scope.
+
+### Service Playbook
+1. Client selects Air Conditioning subcategory.
+2. Client answers structured questions.
+3. Client uploads required photos.
+4. Master reviews access, unit type and risk.
+5. Master sends offer or asks clarifying questions in chat.
+6. Extra materials or additional work are confirmed in chat.
+7. Work result and exceptions are recorded in chat before completion.
+
+### Admin Dependencies
+- Air Conditioning category enabled/disabled.
+- Independent subcategory enabled/disabled.
+- Cleaning Base Price.
+- Diagnostics Base Price.
+- Leak Diagnostics Base Price.
+- Installation Base Price by BTU range.
+- Removal Base Price.
+- Remote Diagnostics Base Price.
+- Multi-unit discount.
+- Disposal surcharge.
+- Difficult access surcharge.
+- Required photos management.
+- Question management.
+- Rule visibility.
+
+### FAQ
+- Repair is not a launch subcategory.
+- Preventive maintenance is shown to clients as Cleaning.
+- Disposal is separate from Removal.
+- Materials are not included automatically.
+- Platform deposit is platform income and does not cover materials.
+- Relocation is approved but disabled on launch.
+---
 ## 23. Service Architecture Registry — Electrical
 Status: OPEN — RE-AUDIT REQUIRED
 
