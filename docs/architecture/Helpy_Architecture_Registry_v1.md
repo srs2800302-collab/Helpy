@@ -2275,7 +2275,13 @@ Admin timelines must preserve the complete event history.
 
 ## Timeline API Contract
 
-Status: APPROVED ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: role-aware Timeline API over job_events.
+- IMPLEMENTED: job_events storage and partial event emission.
+- GAP_APPROVED: client timeline endpoint, master timeline endpoint, admin timeline endpoint, visibility filtering, event enrichment.
+- CURRENT GAP: no runtime Timeline API endpoints exist.
 
 ### Purpose
 
