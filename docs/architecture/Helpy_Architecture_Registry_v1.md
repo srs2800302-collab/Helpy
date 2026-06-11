@@ -1800,9 +1800,12 @@ Approved Legacy Structure:
 
 ROOT: Electrical
 
-Enabled:
-- Розетки и выключатели;
-- Диагностика неисправности;
+Root Question:
+Что нужно сделать?
+
+Approved Branches:
+- Розетки и выключатели.
+- Диагностика неисправности.
 
 See Contract 11:
 - Appliance Installation & Connection.
