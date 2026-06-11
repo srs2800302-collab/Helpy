@@ -3769,6 +3769,8 @@ When a master is selected:
 - jobs.final_agreed_price becomes the financial snapshot;
 - commission_base_amount is fixed;
 - deposit_percent is fixed;
+- jobs.deposit_percent хранит процент депозита / комиссии, установленный в Admin Panel и действовавший в момент выбора мастера;
+- Последующие изменения процента в Admin Panel не должны пересчитывать исторические финансовые снимки заказов.
 - deposit_amount is fixed;
 - payment_method is fixed;
 - commission_payer is fixed.
