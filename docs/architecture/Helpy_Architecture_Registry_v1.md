@@ -2969,7 +2969,13 @@ Chat threads must not replace `job_events`.
 
 ## Offer Lifecycle Architecture Decision
 
-Status: APPROVED ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: full offer lifecycle with negotiation history.
+- IMPLEMENTED: offers.status and simple offer.price flow.
+- GAP_APPROVED: initial_offer_price, revised_offer_price, price_revision_reason, price_revision_requested_at, final_application_sent_at, final_agreed_price.
+- CURRENT GAP: runtime does not preserve approved offer lifecycle facts and history.
 
 ### Decision
 
