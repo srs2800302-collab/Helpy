@@ -3272,7 +3272,13 @@ Admin must be able to compare:
 ---
 ## Helpy Canonical Order Lifecycle Contract
 
-Status: APPROVED ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: complete canonical guided order lifecycle.
+- IMPLEMENTED: structured job creation, master selection, work_started, evidence flow, completion flow.
+- GAP_APPROVED: final price lifecycle, immutable financial snapshot, full payment timeline, complete offer negotiation lifecycle.
+- CURRENT GAP: runtime implements only part of the approved lifecycle.
 
 Admin / Platform
 ↓
