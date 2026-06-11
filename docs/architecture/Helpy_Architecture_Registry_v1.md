@@ -161,9 +161,15 @@ Rules:
 - Appliance Installation & Connection is designed as the final category before MVP Launch.
 - До запуска платформы новые категории не добавляются.
 - Масштабирование категорий начинается только после получения реальной статистики.
-## Reference Category Standard
+## 8. Reference Category Standard
+Status: CLOSED
 
-Status: APPROVED ✅
+Decision Summary:
+- Plumbing is the reference category standard for Helpy.
+- Every category must reach Plumbing-level detail before it can be considered complete.
+- The required minimum architecture sections are fixed in this contract.
+- This contract defines the quality gate for all category work.
+- No unresolved architecture decisions remain in this contract.
 
 Reference Category:
 - Plumbing
@@ -186,7 +192,6 @@ Minimum Architecture Standard:
 
 Rule:
 - Категория считается завершённой только после достижения уровня детализации Plumbing.
-
 ## Specialized Reference Categories
 
 Status: APPROVED ✅
