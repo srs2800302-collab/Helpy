@@ -212,9 +212,16 @@ Definition:
 
 Rule:
 - Уровень детализации не может быть ниже Plumbing.
-## Electrical Shower Policy
+## 10. Electrical Shower Policy
+Status: CLOSED
 
-Status: APPROVED ✅
+Decision Summary:
+- Helpy MVP supports installation and replacement scenarios for electric showers.
+- Diagnostic and repair scenarios are intentionally excluded from the Electrical domain.
+- Repair scenarios are already covered by Plumbing reference flows where applicable.
+- In the Thailand market, replacement is generally more economical than repair.
+- Electric shower repair will not return to MVP discussion before launch.
+- No unresolved architecture decisions remain in this contract.
 
 Enabled:
 - Install New Electric Shower
@@ -228,10 +235,7 @@ Disabled On Launch:
 Reason:
 - Helpy MVP ориентирован на установку и замену оборудования.
 - Диагностика и ремонт электрических душей не являются приоритетом запуска.
-
-Future:
-- Может быть включено после анализа реальных заказов.
-
+- Замена устройства обычно проще и дешевле ремонта.
 ## 7. Deferred Categories
 Status: RESERVED ✅
 
