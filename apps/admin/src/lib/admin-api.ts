@@ -65,7 +65,7 @@ export async function fetchAdminJobs(status?: string): Promise<AdminJobRow[]> {
   const query = new URLSearchParams();
   if (status) query.set('status', status);
 
-  const url = `${baseUrl}/jobs/admin/all${query.toString() ? `?${query}` : ''}`;
+  const url = `${baseUrl}/admin/jobs${query.toString() ? `?${query}` : ''}`;
 
   try {
     const response = await fetch(url, {
@@ -90,7 +90,7 @@ export async function fetchAdminPayments(status?: string): Promise<AdminPaymentR
   const query = new URLSearchParams();
   if (status) query.set('status', status);
 
-  const url = `${baseUrl}/payments/admin/all${query.toString() ? `?${query}` : ''}`;
+  const url = `${baseUrl}/admin/payments${query.toString() ? `?${query}` : ''}`;
 
   try {
     const response = await fetch(url, {
@@ -115,7 +115,7 @@ export async function fetchAdminDisputes(status?: string): Promise<AdminDisputeR
   const query = new URLSearchParams();
   if (status) query.set('status', status);
 
-  const url = `${baseUrl}/disputes/admin/all${query.toString() ? `?${query}` : ''}`;
+  const url = `${baseUrl}/admin/disputes${query.toString() ? `?${query}` : ''}`;
 
   try {
     const response = await fetch(url, {
