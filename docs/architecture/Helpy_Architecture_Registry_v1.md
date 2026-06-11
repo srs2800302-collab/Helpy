@@ -2087,7 +2087,14 @@ Business Principles:
 
 ## Job Events / Order Timeline Contract
 
-Status: APPROVED CANONICAL ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: full append-only business timeline.
+- IMPLEMENTED: master_selected, work_started, evidence_uploaded, completion_confirmed_by_client, job_completed.
+- PARTIAL: payment lifecycle exists but timeline coverage is incomplete.
+- GAP_APPROVED: order_created, job_published, initial_offer_sent, price_adjustment_requested, price_adjustment_approved, final_application_sent, financial_snapshot_created, deposit_created, deposit_paid, commission_obligation_created, dispute_opened, dispute_resolved, refund_issued, review_submitted, admin_intervention.
+- CURRENT GAP: runtime does not emit the full approved canonical timeline.
 
 ### Purpose
 
