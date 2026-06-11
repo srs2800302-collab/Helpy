@@ -2900,7 +2900,13 @@ The Admin Panel must present these layers together while keeping their data resp
 
 ## Chat Threads Architecture Decision
 
-Status: APPROVED ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: chat_threads as canonical chat context model.
+- IMPLEMENTED: chat_messages linked directly to jobs.
+- GAP_APPROVED: chat_threads table, thread lifecycle, thread visibility rules, admin thread aggregation.
+- CURRENT GAP: runtime does not implement chat_threads.
 
 ### Decision
 
