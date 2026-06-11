@@ -2753,7 +2753,13 @@ Admin Order Timeline must show:
 
 ## Communication Layer / Business Timeline Contract
 
-Status: APPROVED ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: complete separation of chat context and immutable business timeline.
+- IMPLEMENTED: chat_messages separated from job_events; partial timeline event emission.
+- GAP_APPROVED: full price negotiation evidence, financial timeline evidence, admin evidence aggregation.
+- CURRENT GAP: runtime does not emit and expose the complete approved communication timeline.
 
 ### Core Principle
 
