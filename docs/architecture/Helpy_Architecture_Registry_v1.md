@@ -898,10 +898,18 @@ Approved Recovery Sources:
 Purpose:
 Recover approved architecture rather than recreate it.
 ---
-## 16. Service Architecture Registry — Furniture Assembly
-Status: APPROVED ✅
-Registry Status: STORED + DOCS ✅
+## 20. Service Architecture Registry — Furniture Assembly
+Status: CLOSED — STORED + DOCS VERIFIED
 
+Decision Summary:
+- Furniture Assembly is fully recovered and verified.
+- Registry evidence exists in approved documentation and stored archives.
+- Furniture Assembly has reached the approved Helpy reference level of detail.
+- Kitchen Assembly, Cabinet Furniture and Built-in Furniture retain their individual historical statuses.
+- Internal category contracts remain unchanged.
+- No unresolved architecture decisions remain at the Furniture Assembly root level.
+
+Registry Status: STORED + DOCS VERIFIED ✅
 ### Root Category
 Furniture Assembly
 
