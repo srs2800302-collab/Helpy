@@ -22,7 +22,14 @@ Decision Summary:
 - Business Model: Marketplace of household services
 
 ## 2. Long-Term Architecture Principle
-Status: APPROVED ✅
+Status: CLOSED
+
+Decision Summary:
+- MVP may simplify or postpone complex features.
+- MVP must preserve future expansion points.
+- Architecture must not introduce dead ends or require full platform rewrite later.
+- Business logic requiring admin control must not be hardcoded.
+- No unresolved architecture decisions remain in this contract.
 
 MVP must not block future platform development.
 
