@@ -1803,7 +1803,10 @@ ROOT: Electrical
 Enabled:
 - Розетки и выключатели;
 - Диагностика неисправности;
-- Подключение бытовой техники.
+
+See Contract 11:
+- Appliance Installation & Connection.
+- Установка и подключение бытовой техники.
 
 Disabled on launch:
 - Освещение;
@@ -1839,15 +1842,11 @@ Electrical Diagnostics:
 - Не знаю.
 - Другое.
 
-Appliance Connection:
-- Варочная панель.
-- Духовой шкаф.
-- Вытяжка.
-- Другое.
-
-TECH DEBT:
-- Расширить бытовую технику позже при реальном спросе.
-- Возможные будущие элементы: микроволновая печь, измельчитель отходов, встроенный холодильник, винный шкаф, кофемашина, ледогенератор, другая кухонная техника.
+Appliance Connection Historical Notes:
+- Not part of Electrical launch scope.
+- Governed by Contract 11: Appliance Installation & Connection / Установка и подключение бытовой техники.
+- Historical launch candidates preserved for Contract 11 category work: варочная панель, духовой шкаф, вытяжка, другое.
+- Historical future expansion candidates preserved for Contract 11 category work: микроволновая печь, измельчитель отходов, встроенный холодильник, винный шкаф, кофемашина, ледогенератор, другая кухонная техника.
 
 Open For Re-Audit:
 - Финальные вопросы.
