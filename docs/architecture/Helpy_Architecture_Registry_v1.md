@@ -2024,9 +2024,19 @@ GAP:
 - Завершить аудит ветки «Протекает».
 - Завершить аудит ветки «Выбивает автомат / отключается электричество».
 
-## Locks
+## 25. Service Architecture Registry — Locks
+Status: CLOSED — STORED + DOCS VERIFIED
 
-Registry Status: ✅ STORED + DOCS
+Decision Summary:
+- Locks is fully recovered and verified.
+- Registry evidence exists in approved documentation and stored archives.
+- Locks remains a standalone Helpy root category.
+- Locks is not moved into Handyman.
+- Internal category contracts remain unchanged.
+- The current Registry Review completes the previous final audit GAP.
+- No unresolved architecture decisions remain at the Locks root level.
+
+Registry Status: STORED + DOCS VERIFIED ✅
 
 Root Category:
 Locks (Замки)
@@ -2061,11 +2071,6 @@ Business Rules:
 - Установка = монтаж нового элемента без демонтажа существующего.
 - Клиент выбирает результат, а не технологию выполнения работ.
 - Технические детали определяет мастер.
-
-Future Architecture Note:
-- После завершения Furniture Assembly, Cleaning и Handyman провести отдельный аудит Locks vs Handyman.
-- Предварительная гипотеза: Locks может стать подкатегорией внутри Handyman.
-- Решение не утверждено до проектирования Handyman.
 
 ### Locks → Замена замка межкомнатной двери
 
@@ -2203,7 +2208,7 @@ Marketplace Safety Rule:
 - Примеры: вскрытие упаковки, нарушение пломб, потеря возможности возврата или обмена.
 
 GAP:
-- Финальный общий аудит всех категорий выполняется позже перед переносом в Client Docs / Master Docs / Admin Rules.
+- Нет. Корневая категория Locks завершена и верифицирована в рамках текущего Registry Review.
 
 ## Global Rule → Chat Lifecycle Rules
 
