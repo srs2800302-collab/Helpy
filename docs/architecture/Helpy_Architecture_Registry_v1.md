@@ -1434,7 +1434,20 @@ GAP:
 - Требуется перенос на актуальный шаблон Helpy.
 - Требуется повторный аудит по утвержденному процессу.
 
-## Electrical
+## 23. Service Architecture Registry — Electrical
+Status: OPEN — RE-AUDIT REQUIRED
+
+Decision Summary:
+- Electrical is a historically approved root category.
+- Legacy category structure is stored for re-audit.
+- Legacy decisions must not be treated as final current Registry content until re-audited.
+- Electrical must be migrated to the current Helpy Registry template.
+- High-risk electrical work is excluded from MVP.
+- Lighting and ceiling fans remain disabled on launch.
+- Appliance connection inside Electrical must be re-audited against the future Appliance Installation & Connection root category.
+- Materials and additional work are agreed between client and master through chat.
+- Platform does not participate in materials purchase.
+- This contract cannot be CLOSED until Electrical is migrated and re-audited against the current Helpy Registry standard.
 
 Registry Status: 🟨 STORED FOR RE-AUDIT
 
