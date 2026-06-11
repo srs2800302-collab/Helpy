@@ -2256,8 +2256,7 @@ GAP:
 - Нет. Подкатегория завершена.
 
 ### Plumbing → Электрический душ (водонагреватель)
-
-Registry Status: 🟨 STORED PARTIALLY
+Registry Status: ✅ STORED + DOCS
 
 Root Question:
 Что нужно сделать?
@@ -2265,19 +2264,21 @@ Root Question:
 Approved Branches:
 - Установить новый ✅ STORED + DOCS
 - Заменить существующий ✅ STORED + DOCS
-- Плохо греет воду ❌ EXCLUDED FROM MVP
-- Протекает ❌ EXCLUDED FROM MVP
-- Выбивает автомат / отключается электричество ❌ EXCLUDED FROM MVP
+
+Excluded From MVP:
+- Плохо греет воду
+- Протекает
+- Выбивает автомат / отключается электричество
 
 Alignment Note:
-- Excluded according to the approved Electrical Shower Policy contract.
+- Repair scenarios are excluded according to the approved Electrical Shower Policy contract.
 - Electric shower repair scenarios do not return to MVP discussion before launch.
+- The previous partial storage GAP is closed because excluded repair branches are no longer required for MVP completion.
 
 Naming Decision:
 - Название категории изменено с «Проточный водонагреватель» на «Электрический душ (водонагреватель)».
 - Причина: клиенту понятнее бытовое название, но технический термин сохраняется в скобках.
 - Внутри категории ветки начинаются с действия или проблемы, без повторения названия оборудования.
-
 ### Plumbing → Электрический душ (водонагреватель) → Установить новый
 
 Registry Status: ✅ STORED + DOCS
@@ -2363,9 +2364,7 @@ Global Rules:
 - Не требовать от клиента небезопасных фотографий.
 
 GAP:
-- Завершить аудит ветки «Плохо греет воду».
-- Завершить аудит ветки «Протекает».
-- Завершить аудит ветки «Выбивает автомат / отключается электричество».
+- Нет. Подкатегория завершена.
 
 ## 25. Service Architecture Registry — Locks
 Status: CLOSED — STORED + DOCS VERIFIED
