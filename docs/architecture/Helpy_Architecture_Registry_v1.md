@@ -241,7 +241,15 @@ Confirmed Rules:
 Detailed texts to be attached during category migration.
 
 ## 13. Admin Panel Architecture
-Status: FOUNDATION COMPLETE ✅
+Status: GAP_APPROVED
+
+Implementation State:
+- TARGET_APPROVED: Admin Panel as Business Logic Builder.
+- IMPLEMENTED: basic Admin dashboard shell, Jobs list, Payments list, Disputes list, Translation Tasks admin endpoints, reset endpoints.
+- GAP_APPROVED: Category Builder, Subcategory Builder, Question Builder, Photo Requirement Builder, Pricing Builder, Guidance Builder, Platform Settings Center, Audit Log, Rollback, Rules Simulator, Impact Analysis, Registry Coverage, Sandbox Mode, Notification Center, Admin Order Timeline / Evidence Screen.
+- CURRENT GAP: Admin frontend API client still references legacy admin URLs while backend exposes /api/v1/admin/* routes.
+- DEFERRED: advanced admin roles, bulk operations, import/export, search everywhere.
+- DRAFT: final DB baseline vs 0005 migration strategy.
 
 Admin Panel is not a list of orders.
 
