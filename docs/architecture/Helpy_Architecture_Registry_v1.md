@@ -7,6 +7,14 @@ Approved By:
 - Arthur ✅
 
 ## 1. Project Identity
+Status: CLOSED
+
+Decision Summary:
+- Project identity is fixed for MVP.
+- Helpy is an Android-first household services marketplace for Pattaya, Thailand.
+- Supported product languages are RU / EN / TH.
+- No unresolved architecture decisions remain in this contract.
+
 - Project Name: Helpy
 - Region: Pattaya, Thailand
 - Platform: Android First
