@@ -343,8 +343,17 @@ Complexity Access:
 
 Purpose:
 Control access to complex furniture projects.
-## 12. Global Platform Rules
-Status: APPROVED ✅
+## 16. Global Platform Rules
+Status: OPEN — RECOVERY REQUIRED
+
+Decision Summary:
+- Global Platform Rules Registry exists.
+- Seven global platform rules were previously approved.
+- The rules apply across client, master, and platform workflows.
+- The detailed texts of Rule #1–Rule #7 are currently missing from the registry.
+- The absence of rule texts is treated as a recovery problem, not as an unresolved business decision.
+- Possible recovery sources include category documentation, Service Playbooks, and reference categories.
+- No replacement texts may be invented without documentary evidence.
 
 Platform Rules Registry exists.
 
@@ -357,8 +366,8 @@ Confirmed Rules:
 - Rule #6
 - Rule #7
 
-Detailed texts to be attached during category migration.
-
+Recovery Note:
+Detailed texts to be recovered from approved documentation and category migrations.
 ## 13. Admin Panel Architecture
 Status: GAP_APPROVED
 
