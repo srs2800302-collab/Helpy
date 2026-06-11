@@ -869,13 +869,19 @@ Prepare the platform architecture for future expansion without redesign.
 Scope:
 - Not MVP.
 - Not required before launch.
-## 15. Registry Expansion Plan
-Status: APPROVED ✅
+## 19. Registry Expansion Plan
+Status: CLOSED — RECOVERY METHODOLOGY APPROVED
 
-Next stage:
-Service Architecture Registry
+Decision Summary:
+- Service Architecture Registry defines the approved recovery methodology.
+- Categories are recovered and expanded only as needed.
+- Recovery follows a fixed category template.
+- Approved chat history and future DOCX archives are approved recovery sources.
+- The purpose of this methodology is to restore architecture quickly instead of redesigning it.
+- No replacement architecture may be invented without evidence from approved sources.
+- No unresolved architecture decisions remain in this contract.
 
-For each approved category:
+Recovery Template:
 - Subcategories
 - Client Questions
 - Required Photos
@@ -885,11 +891,13 @@ For each approved category:
 - Pricing Rules
 - Admin Dependencies
 
-Source of truth:
-Approved chat history + future DOCX archives.
+Approved Recovery Sources:
+- Approved chat history
+- Future DOCX archives
 
+Purpose:
+Recover approved architecture rather than recreate it.
 ---
-
 ## 16. Service Architecture Registry — Furniture Assembly
 Status: APPROVED ✅
 Registry Status: STORED + DOCS ✅
