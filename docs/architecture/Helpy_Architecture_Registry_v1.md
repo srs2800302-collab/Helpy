@@ -44,7 +44,16 @@ Forbidden:
 - decisions requiring full platform rewrite later.
 
 ## 3. Core Product Principle
-Status: APPROVED ✅
+Status: CLOSED
+
+Decision Summary:
+- Client does not choose a master profession directly.
+- Client chooses the work type.
+- Client answers system-defined questions for the selected work type.
+- Client adds the photos required by the system for assessment and routing.
+- Platform uses category, answers, and photo requirements to route the job to relevant masters.
+- Category exists for platform routing and master visibility, not as a profession selector for the client.
+- No unresolved architecture decisions remain in this contract.
 
 Client chooses problem, not profession.
 
