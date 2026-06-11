@@ -368,8 +368,18 @@ Confirmed Rules:
 
 Recovery Note:
 Detailed texts to be recovered from approved documentation and category migrations.
-## 13. Admin Panel Architecture
-Status: GAP_APPROVED
+## 17. Admin Panel Architecture
+Status: PARTIALLY CLOSED — GAP APPROVED
+
+Decision Summary:
+- Admin Panel is a Business Logic Builder, not a simple order-management dashboard.
+- Admin Panel is the source of truth for categories, subcategories, questions, photo requirements, pricing, guidance, platform settings, rules, evidence, reviews, translations and operational control.
+- Mobile app must consume Admin-managed business logic through structured API contracts.
+- Runtime Markdown document parsing is not allowed for mobile guidance.
+- Draft / Published lifecycle, Audit Log, Preview, Rollback, Health Check and Sandbox Mode are required governance primitives.
+- Implementation is not complete: multiple approved builders and roadmap modules remain GAP_APPROVED.
+- Final DB baseline vs migration strategy remains DRAFT.
+- This contract cannot be CLOSED until Admin builders, platform settings, guidance, rules, evidence, review and DB baseline strategy are aligned.
 
 Implementation State:
 - TARGET_APPROVED: Admin Panel as Business Logic Builder.
