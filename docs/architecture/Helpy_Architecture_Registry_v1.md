@@ -845,8 +845,17 @@ Purpose:
 - Reduce APK rebuilds.
 - Centralize business logic management.
 
-## 14. Future Business Direction
-Status: RESERVED FOR FUTURE EXPANSION ✅
+## 18. Future Business Direction
+Status: PARTIALLY CLOSED — FUTURE STRATEGY APPROVED
+
+Decision Summary:
+- Future Business Direction is strategically approved.
+- Design, Production, Logistics and Installation are confirmed post-MVP expansion directions.
+- These directions must influence current architecture decisions.
+- MVP implementation is not required.
+- Database architecture, Admin Panel and business logic systems must support future expansion without redesign.
+- Detailed workflows for these directions remain out of scope until post-MVP planning.
+- This contract cannot be CLOSED until dedicated architecture contracts are created for these future verticals.
 
 Helpy Projects:
 - Design
@@ -854,9 +863,12 @@ Helpy Projects:
 - Logistics
 - Installation
 
-Future platform expansion.
-Not MVP.
+Purpose:
+Prepare the platform architecture for future expansion without redesign.
 
+Scope:
+- Not MVP.
+- Not required before launch.
 ## 15. Registry Expansion Plan
 Status: APPROVED ✅
 
