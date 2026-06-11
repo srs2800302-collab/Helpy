@@ -320,17 +320,29 @@ Confirmed Premium Services:
 Purpose:
 Reduce installation risks before work begins.
 
-## 11. Furniture Skill Levels
-Status: APPROVED ✅
+## 15. Furniture Skill Levels
+Status: CLOSED
+
+Decision Summary:
+- Furniture skill levels are manually assigned by the platform.
+- A master may be confirmed by the platform or by a more experienced master.
+- Skill level controls access to furniture projects by complexity.
+- Unconfirmed masters must not access higher-complexity furniture jobs.
+- The goal is to prevent masters from learning on the client site and creating avoidable problems.
+- No unresolved architecture decisions remain in this contract.
 
 Levels:
 - Basic
 - Intermediate
 - Advanced
 
+Complexity Access:
+- Basic: simple cabinet furniture.
+- Intermediate: kitchen furniture projects.
+- Advanced: complex built-in furniture projects.
+
 Purpose:
 Control access to complex furniture projects.
-
 ## 12. Global Platform Rules
 Status: APPROVED ✅
 
