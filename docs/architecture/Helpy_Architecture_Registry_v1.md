@@ -229,6 +229,24 @@ Next Milestone After Unfreeze:
 - Produce Final Roadmap.
 - Design the new clean database.
 
+Execution Order:
+1. Extract Plumbing Category Development Methodology.
+2. Audit Contract 23 Electrical against Plumbing Standard.
+3. Close Contract 23.
+4. Complete Appliance Installation & Connection.
+5. Close Contract 6 and Contract 7.
+6. Reconcile Contract 16 against DOCX/TXT evidence.
+7. Unfreeze Lifecycle Architecture Group.
+8. Close Contracts 26/32/33/34/36/38.
+9. Produce Final Roadmap.
+10. Design the new clean database.
+
+Process Rule:
+- Work must follow the approved execution order.
+- Earlier frozen milestones cannot be reopened without documentary evidence.
+- Later milestones cannot start before prerequisite milestones are closed.
+- Chat context degradation must not be used as justification to bypass the approved sequence.
+
 ---
 
 ## 1. Project Identity
