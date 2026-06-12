@@ -6,6 +6,189 @@ Approved By:
 - Roman ✅
 - Arthur ✅
 
+## Contract Map / Architecture Groups
+Status: APPROVED ✅
+
+Purpose:
+- Provide a logical navigation layer over the Architecture Registry.
+- Preserve the historical recovery order of contracts.
+- Group contracts by architectural responsibility without physically moving existing sections.
+- Support closure planning before final Roadmap and new database design.
+
+Rule:
+- This map does not replace or rewrite existing contracts.
+- Physical regrouping is deferred until Registry v2.
+- Contract closure decisions must still be made inside the source contracts.
+- New Registry changes should be written in Russian by default.
+- English remains allowed for API paths, database entities, enum values, code identifiers and migration names.
+
+### Group A — Foundation / Product Identity
+Scope:
+- Product identity.
+- Long-term architecture principles.
+- Core product and business model.
+- Chat governance.
+- Reference standards.
+- Deferred categories.
+- Future business direction.
+- Recovery methodology.
+- Guided Job Flow foundation.
+
+Contracts:
+- Contract 1 — Project Identity — CLOSED.
+- Contract 2 — Long-Term Architecture Principle — CLOSED.
+- Contract 3 — Core Product Principle — CLOSED.
+- Contract 4 — Core Business Model — CLOSED.
+- Contract 5 — Chat Governance — CLOSED.
+- Contract 8 — Reference Category Standard — CLOSED.
+- Contract 9 — Specialized Reference Categories — CLOSED.
+- Contract 10 — Electrical Shower Policy — CLOSED.
+- Contract 11 — Deferred Categories — CLOSED.
+- Contract 18 — Future Business Direction — PARTIALLY CLOSED — FUTURE STRATEGY APPROVED.
+- Contract 19 — Registry Expansion Plan — CLOSED — RECOVERY METHODOLOGY APPROVED.
+- Contract 39 — Guided Job Flow Foundation — APPROVED ✅.
+
+Closure Notes:
+- Foundation is architecturally aligned.
+- Future verticals remain post-MVP and require dedicated future contracts.
+
+### Group B — Service Registry / Categories
+Scope:
+- Root categories.
+- Category governance.
+- Reference category completion.
+- Service-specific question flows, photos, rules, playbooks and admin dependencies.
+
+Contracts:
+- Contract 6 — Approved Root Categories — PARTIALLY CLOSED.
+- Contract 7 — Category Governance — PARTIALLY CLOSED.
+- Contract 20 — Furniture Assembly — CLOSED — STORED + DOCS VERIFIED.
+- Contract 21 — Cleaning — CLOSED — STORED + DOCS VERIFIED.
+- Contract 22 — Air Conditioning — CLOSED — APPROVED / STORED + DOCS VERIFIED.
+- Contract 23 — Electrical — OPEN — RE-AUDIT REQUIRED.
+- Contract 24 — Plumbing — CLOSED — STORED + DOCS VERIFIED.
+- Contract 25 — Locks — CLOSED — STORED + DOCS VERIFIED.
+
+Closure Notes:
+- Electrical must be migrated to the current Plumbing-level Registry template.
+- Appliance Installation & Connection remains the final required MVP root category before root category closure.
+- Categories must support future expansion without schema redesign.
+
+### Group C — Admin / Dynamic Forms / Knowledge / Guidance
+Scope:
+- Admin as Business Logic Builder.
+- Dynamic Form Engine.
+- Knowledge Base Engine.
+- Guidance Builder.
+- Guidance API.
+- Mobile guidance slots and rendering.
+
+Contracts:
+- Contract 12 — Knowledge Base Engine — PARTIALLY CLOSED.
+- Contract 13 — Dynamic Form Engine — PARTIALLY CLOSED.
+- Contract 17 — Admin Panel Architecture — PARTIALLY CLOSED — GAP APPROVED.
+- Contract 40 — Contextual Guidance Knowledge System — APPROVED ✅.
+- Contract 41 — Mobile Guidance Slots Contract — APPROVED ✅.
+- Contract 46 — Guidance API Contract — APPROVED ✅.
+- Contract 47 — Mobile Guidance Component Contract — APPROVED ✅.
+
+Closure Notes:
+- Dynamic Form Engine closure depends on final pure dynamic vs hybrid decision.
+- Admin Panel closure depends on builders, platform settings, guidance, rules, evidence, review and DB baseline strategy alignment.
+- Guidance implementation requires future DB/API/mobile implementation planning, not direct migration from contract text alone.
+
+### Group D — Order Lifecycle / Timeline / Chat / Evidence
+Scope:
+- Chat lifecycle.
+- Immutable job_events timeline.
+- Timeline API.
+- Communication layer separation.
+- Chat threads.
+- Evidence photos.
+- Canonical order lifecycle.
+
+Contracts:
+- Contract 26 — Chat Lifecycle Rules / Job Events / Timeline API — APPROVED GLOBAL RULE ✅ + GAP_APPROVED timeline sections.
+- Contract 30 — Chat Evidence Photos & Job Details Photo Ownership — APPROVED ✅.
+- Contract 32 — Communication Layer / Business Timeline Contract — GAP_APPROVED.
+- Contract 33 — Chat Threads Architecture Decision — GAP_APPROVED.
+- Contract 37 — Structured Job Scope / Price Justification Contract — APPROVED ✅.
+- Contract 38 — Helpy Canonical Order Lifecycle Contract — GAP_APPROVED.
+
+Closure Notes:
+- Runtime must emit the full canonical timeline before timeline-related contracts can close.
+- chat_threads must become the canonical chat context model in the future database.
+- job_events remains the immutable lifecycle source of truth.
+
+### Group E — Offers / Pricing / Payments / Financial Snapshot
+Scope:
+- Entry Price.
+- Final Agreed Price.
+- Offer lifecycle.
+- Payment runtime for Thailand.
+- Immutable financial snapshot.
+
+Contracts:
+- Contract 31 — Order Entry Price / Final Price Contract — APPROVED ✅.
+- Contract 34 — Offer Lifecycle Architecture Decision — GAP_APPROVED.
+- Contract 35 — Thailand Payment Runtime Architecture Decision — APPROVED ✅.
+- Contract 36 — Final Price Architecture Decision — GAP_APPROVED.
+
+Closure Notes:
+- Canonical default deposit / commission percent is 30% of Final Agreed Price.
+- 40% is rejected as incorrect legacy Chain 0001 value.
+- Deposit / commission percent must be configurable from Admin Panel.
+- jobs.deposit_percent stores the Admin-configured percent active at master selection.
+- Historical financial snapshots must not be recalculated after Admin changes.
+- Offer lifecycle and financial snapshot must be implemented in the future clean database/runtime design.
+
+### Group F — Reviews / Reputation / Ranking / Language Matching
+Scope:
+- Reviews.
+- Reputation metrics.
+- Language matching.
+- Master ranking.
+- Client choice model.
+
+Contracts:
+- Contract 29 — Reviews & Reputation System — APPROVED ✅.
+- Contract 42 — Language Matching Principle — APPROVED ✅.
+- Contract 43 — Language Matching Ranking Rule — APPROVED ✅.
+- Contract 44 — Master Ranking Signal Hierarchy — APPROVED ✅.
+- Contract 45 — Master Ranking Hybrid Model Contract — APPROVED ✅.
+
+Closure Notes:
+- Reviews require admin moderation and anti-abuse rules before full closure.
+- Ranking separates eligibility, ordering and client choice.
+- Language matching is a ranking signal, not a hard eligibility filter.
+
+### Group G — Recovery / Global Rules
+Scope:
+- Lost approved global platform rules.
+- Recovery from approved sources.
+
+Contracts:
+- Contract 16 — Global Platform Rules — OPEN — BLOCKER — RECOVERY REQUIRED.
+
+Closure Notes:
+- Seven global rules were previously approved, but their detailed texts are missing.
+- Rules must be recovered from approved documentation, service playbooks, category records and approved history.
+- Replacement rules must not be invented without evidence.
+
+### Critical Closure Path
+1. Recover Contract 16 Global Platform Rules.
+2. Re-audit Contract 23 Electrical.
+3. Finalize Appliance Installation & Connection.
+4. Close Contract 6 and Contract 7 root category governance.
+5. Close Contract 13 Dynamic Form Engine decision.
+6. Align Contract 17 Admin Panel Architecture.
+7. Close canonical runtime/database group: Contracts 26, 32, 33, 34, 36 and 38.
+8. Define Review moderation and anti-abuse rules for Contract 29.
+9. Produce final Roadmap.
+10. Design new clean database from the completed Roadmap and closed architecture contracts.
+
+---
+
 ## 1. Project Identity
 Status: CLOSED
 
