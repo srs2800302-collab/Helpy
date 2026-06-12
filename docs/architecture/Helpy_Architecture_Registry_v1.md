@@ -2145,7 +2145,185 @@ Approved Legacy Rules:
 - Платформа не участвует в покупке материалов.
 - Каждая подкатегория должна иметь собственные вопросы, фото, правила и enabled/disabled статус.
 
+
+Electrical Re-Audit Decisions:
+Status: APPROVED ✅
+
+Point-Based Mini Scope Pattern:
+- Electrical uses Point-Based Mini Scope Pattern.
+- One physical work point equals one mini technical assignment.
+- A mini assignment groups all data related to that point.
+
+Mini Scope contains:
+- work type;
+- point-specific parameters;
+- required photos for that point.
+
+Approved Launch Structure:
+Electrical
+├─ Установить розетку/выключатель
+├─ Заменить розетку/выключатель
+└─ Перенести розетку/выключатель
+
+Reason:
+- Clients think in terms of "do work here" rather than electrical device taxonomy.
+- Point grouping naturally links photos to the correct work location.
+- The approach simplifies UX and scales to multiple work points.
+
+Boundary:
+- Detailed question flows remain OPEN until full Contract 23 closure.
+- Client/Master Rules remain OPEN.
+- Service Playbook remains OPEN.
+- Pricing remains OPEN.
+- Admin Dependencies remain OPEN.
+
+
+### Electrical → Установить розетку/выключатель
+Registry Status: 🟨 PARTIALLY APPROVED
+
+Definition:
+- Установка = монтаж новой розетки или выключателя без демонтажа существующего изделия.
+- Ветка использует Point-Based Mini Scope Pattern.
+- Одна точка установки = одно мини-ТЗ.
+
+Question / Photo Flow:
+1. Новые изделия уже есть на объекте?
+   - Да
+   - Нет
+
+2. Что нужно установить?
+
+For each work point:
+- Что устанавливаем?
+  - Розетка
+  - Выключатель
+- Тип установки:
+  - Накладная
+  - Внутренняя
+- Фото места установки:
+  - required
+
+Add More Rule:
+- Клиент может добавить одну или несколько точек через кнопку «Добавить ещё».
+- Количество точек не задаётся отдельным вопросом.
+- Количество точек определяется количеством созданных мини-ТЗ.
+
+Photo Rule:
+- 1 точка = 1 обязательная фотография места установки.
+- Фото привязано к конкретной точке.
+- Отдельный общий блок фотографий для этой ветки не требуется.
+- Клиент не обязан фотографировать щит, провода, автоматы или выполнять небезопасные действия.
+
+Chat Completion Rule:
+- Если тип установки, посадочное место, материалы или сложность работ требуют уточнения, мастер уточняет это через чат.
+- Эти уточнения могут повлиять на Final Agreed Price до выбора мастера.
+
+GAP:
+- Client Rules remain OPEN.
+- Master Rules remain OPEN.
+- Service Playbook remains OPEN.
+- Business Rules remain OPEN.
+- Admin Dependencies remain OPEN.
+
+
+### Electrical → Заменить розетку/выключатель
+Registry Status: 🟨 PARTIALLY APPROVED
+
+Definition:
+- Замена = демонтаж существующего изделия + установка нового изделия.
+- Ветка использует Point-Based Mini Scope Pattern.
+- Одна точка замены = одно мини-ТЗ.
+
+Question / Photo Flow:
+1. Новые изделия уже есть на объекте?
+   - Да
+   - Нет
+
+2. Что нужно заменить?
+
+For each work point:
+- Что заменяем?
+  - Розетка
+  - Выключатель
+- Тип установки:
+  - Накладная
+  - Внутренняя
+- Фото существующего места установки:
+  - required
+
+Add More Rule:
+- Клиент может добавить одну или несколько точек через кнопку «Добавить ещё».
+- Количество точек не задаётся отдельным вопросом.
+- Количество точек определяется количеством созданных мини-ТЗ.
+
+Photo Rule:
+- 1 точка = 1 обязательная фотография существующего изделия.
+- Фото привязано к конкретной точке.
+- Отдельный общий блок фотографий для этой ветки не требуется.
+- Клиент не обязан разбирать изделия, фотографировать щит, провода или выполнять небезопасные действия.
+
+Chat Completion Rule:
+- Если совместимость изделий, материалы, посадочные особенности или сложность работ требуют уточнения, мастер уточняет это через чат.
+- Эти уточнения могут повлиять на Final Agreed Price до выбора мастера.
+
+GAP:
+- Client Rules remain OPEN.
+- Master Rules remain OPEN.
+- Service Playbook remains OPEN.
+- Business Rules remain OPEN.
+- Admin Dependencies remain OPEN.
+
+
+### Electrical → Перенести розетку/выключатель
+Registry Status: 🟨 PARTIALLY APPROVED
+
+Definition:
+- Перенос = демонтаж существующего изделия + изменение расположения + установка изделия в новом месте.
+- Ветка использует Point-Based Mini Scope Pattern.
+- Одна точка переноса = одно мини-ТЗ.
+
+Question / Photo Flow:
+
+For each work point:
+- Что переносим?
+  - Розетка
+  - Выключатель
+
+- Фото текущего места:
+  - required
+
+- Фото нового места:
+  - required
+
+Add More Rule:
+- Клиент может добавить одну или несколько точек через кнопку «Добавить ещё».
+- Количество точек определяется количеством созданных мини-ТЗ.
+
+Photo Rule:
+- 1 точка = 2 обязательные фотографии.
+- Фото текущего места привязано к конкретной точке.
+- Фото нового места привязано к конкретной точке.
+- Клиент не обязан фотографировать щит, провода, автоматы или выполнять небезопасные действия.
+
+Decoration Rule:
+- Перенос не включает восстановление декоративной отделки по умолчанию.
+- Покраска, штукатурка, плитка, обои и иные отделочные работы не входят в базовую услугу.
+
+Chat Completion Rule:
+- Дополнительные работы по декоративной отделке могут обсуждаться через чат.
+- Эти работы не входят в базовую стоимость по умолчанию.
+- Уточнения могут повлиять на Final Agreed Price до выбора мастера.
+
+GAP:
+- Client Rules remain OPEN.
+- Master Rules remain OPEN.
+- Service Playbook remains OPEN.
+- Business Rules remain OPEN.
+- Admin Dependencies remain OPEN.
+
 Electrical Diagnostics:
+Status: HISTORICAL — MOVED TO FUTURE GLOBAL DIAGNOSTICS
+
 - Не работает розетка.
 - Не работает выключатель.
 - Нет света.
@@ -2153,6 +2331,11 @@ Electrical Diagnostics:
 - Искрит.
 - Не знаю.
 - Другое.
+
+Decision:
+- Diagnostics is not part of Electrical launch scope.
+- Diagnostics must be re-audited as a future global platform capability.
+- Historical diagnostic answers are preserved here as source material only.
 
 Appliance Connection Historical Notes:
 - Not part of Electrical launch scope.
