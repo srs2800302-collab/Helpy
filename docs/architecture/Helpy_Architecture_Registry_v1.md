@@ -396,6 +396,41 @@ Helpy Categories
 5. Locks
 6. Furniture Assembly
 
+Electrical Category Launch Structure:
+Status: APPROVED ✅
+
+Purpose:
+- Provide a short category-level reference for Create Job screen design.
+- Avoid searching Contract 23 during UI/form architecture work.
+- Keep category navigation aligned with Electrical Re-Audit decisions.
+
+Launch Branches:
+- Установить розетку/выключатель.
+- Заменить розетку/выключатель.
+- Перенести розетку/выключатель.
+
+Form Pattern:
+- Electrical uses Point-Based Mini Scope Pattern.
+- One physical work point equals one mini technical assignment.
+- Quantity is determined by the number of added mini scopes, not by a separate quantity question.
+
+Photo Pattern:
+- Electrical uses Visual Coverage Principle.
+- Photos must visually cover the work points.
+- One photo may cover multiple points if they are clearly identifiable.
+- Total photo limit per order remains 10.
+
+Equipment Verification:
+- If new items are already on site, client adds a general photo of those items.
+- Equipment photos do not replace work-front photos.
+- Equipment verification helps the master assess compatibility before Final Agreed Price.
+
+Historical / Future:
+- Диагностика неисправности is moved to future Global Diagnostics.
+- Освещение is disabled on launch.
+- Потолочные вентиляторы are disabled on launch.
+- Appliance connection belongs to Appliance Installation & Connection.
+
 Future Launch Category:
 - Appliance Installation & Connection
 - Установка и подключение бытовой техники
