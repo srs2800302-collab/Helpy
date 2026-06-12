@@ -2120,21 +2120,28 @@ Relocation combines removal and installation of the same air conditioner in a ne
 - Relocation is approved but disabled on launch.
 ---
 ## 23. Service Architecture Registry — Electrical
-Status: OPEN — RE-AUDIT REQUIRED
+Status: CLOSED ✅
 
 Decision Summary:
 - Electrical is a historically approved root category.
-- Legacy category structure is stored for re-audit.
-- Legacy decisions must not be treated as final current Registry content until re-audited.
-- Electrical must be migrated to the current Helpy Registry template.
+- Legacy category structure has been reconciled against the current Registry standard.
+- Legacy decisions have been reconciled and incorporated into the final Electrical Registry.
+- Electrical has been migrated to the current Helpy Registry template.
 - High-risk electrical work is excluded from MVP.
 - Lighting and ceiling fans remain disabled on launch.
 - Appliance connection inside Electrical must be re-audited against the future Appliance Installation & Connection root category.
 - Materials and additional work are agreed between client and master through chat.
 - Platform does not participate in materials purchase.
-- This contract cannot be CLOSED until Electrical is migrated and re-audited against the current Helpy Registry standard.
+- Electrical is fully aligned with the current Helpy Registry standard.
 
-Registry Status: 🟨 STORED FOR RE-AUDIT
+Registry Status: CLOSED ✅
+
+Closure Notes:
+- No Electrical-specific GAP remained after full audit.
+- Existing Helpy Global Rules fully cover Electrical business scenarios.
+- Electrical reached Plumbing-level completeness through inheritance and approved category-specific decisions.
+- Electrical launch scope is finalized and approved.
+
 
 Reason:
 - Категория №2 после Air Conditioning.
