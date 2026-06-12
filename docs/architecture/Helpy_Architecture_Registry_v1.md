@@ -867,9 +867,9 @@ Decision Summary:
 - Seven global platform rules were previously approved.
 - The rules apply across client, master, and platform workflows.
 - Rule #1–Rule #7 are recovered from verified closed category sources: Furniture Assembly, Plumbing and Locks.
-- Electrical is not used as a recovery source because Contract 23 remains OPEN — RE-AUDIT REQUIRED.
+- Electrical was reviewed after Contract 23 closure and confirms Rule #1–Rule #7 without introducing new Global Rules.
 - Appliance Installation & Connection may add or duplicate global rules before final closure.
-- The absence of rule texts is no longer a full blocker, but this contract remains partially closed until the final category audit is completed.
+- Electrical no longer blocks Contract 16 because its closed category architecture is covered by existing Global Platform Rules.
 - No replacement texts may be invented without documentary evidence.
 
 Platform Rules Registry exists.
@@ -947,6 +947,8 @@ Evidence:
 
 Recovery Note:
 - Rule #1–Rule #7 recovered from verified category contracts and approved architecture contracts.
+- Electrical confirms the existing Global Platform Rules and introduces zero new global rules.
+- Electrical evidence is stored in Contract 23 and in the Electrical Category Architecture block.
 - Final closure requires review after Appliance Installation & Connection is completed.
 - If the future appliance category introduces overlapping global rules, this contract must be reconciled before being marked CLOSED.
 
