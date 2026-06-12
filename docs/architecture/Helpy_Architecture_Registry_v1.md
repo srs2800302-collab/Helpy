@@ -168,7 +168,7 @@ Scope:
 - Recovery from approved sources.
 
 Contracts:
-- Contract 16 — Global Platform Rules — OPEN — BLOCKER — RECOVERY REQUIRED.
+- Contract 16 — Global Platform Rules — PARTIALLY CLOSED — RECOVERED FROM VERIFIED CATEGORY SOURCES.
 
 Closure Notes:
 - Seven global rules were previously approved, but their detailed texts are missing.
@@ -186,6 +186,48 @@ Closure Notes:
 8. Define Review moderation and anti-abuse rules for Contract 29.
 9. Produce final Roadmap.
 10. Design new clean database from the completed Roadmap and closed architecture contracts.
+
+---
+
+## Architecture Freeze Decision
+Status: APPROVED ✅
+
+Purpose:
+- Preserve the agreed critical path.
+- Prevent premature work on lifecycle architecture.
+- Allow category completion without reopening already stabilized decisions.
+- Provide a deterministic restart point if chat context is degraded.
+
+Frozen Contracts:
+- Contract 13 — Dynamic Form Engine.
+- Contract 16 — Global Platform Rules.
+- Contract 26/32/33/34/36/38 — Lifecycle Architecture Group.
+
+Frozen Scope:
+- Timeline.
+- Chat Threads.
+- Offer Lifecycle.
+- Final Price Snapshot.
+- Canonical Lifecycle.
+- Clean Database Design.
+
+Active Scope:
+- Contract 23 — Electrical Re-Audit.
+- Appliance Installation & Connection.
+- Closure of Contract 6.
+- Closure of Contract 7.
+
+Unfreeze Conditions:
+1. Electrical reaches CLOSED.
+2. Appliance Installation & Connection reaches CLOSED.
+3. Contract 6 reaches CLOSED.
+4. Contract 7 reaches CLOSED.
+5. Contract 16 is reconciled against DOCX/TXT evidence.
+
+Next Milestone After Unfreeze:
+- Close Lifecycle Architecture Group.
+- Produce Final Roadmap.
+- Design the new clean database.
 
 ---
 
@@ -527,30 +569,96 @@ Complexity Access:
 Purpose:
 Control access to complex furniture projects.
 ## 16. Global Platform Rules
-Status: OPEN — RECOVERY REQUIRED
+Status: PARTIALLY CLOSED — RECOVERED FROM VERIFIED CATEGORY SOURCES
 
 Decision Summary:
 - Global Platform Rules Registry exists.
 - Seven global platform rules were previously approved.
 - The rules apply across client, master, and platform workflows.
-- The detailed texts of Rule #1–Rule #7 are currently missing from the registry.
-- The absence of rule texts is treated as a recovery problem, not as an unresolved business decision.
-- Possible recovery sources include category documentation, Service Playbooks, and reference categories.
+- Rule #1–Rule #7 are recovered from verified closed category sources: Furniture Assembly, Plumbing and Locks.
+- Electrical is not used as a recovery source because Contract 23 remains OPEN — RE-AUDIT REQUIRED.
+- Appliance Installation & Connection may add or duplicate global rules before final closure.
+- The absence of rule texts is no longer a full blocker, but this contract remains partially closed until the final category audit is completed.
 - No replacement texts may be invented without documentary evidence.
 
 Platform Rules Registry exists.
 
 Confirmed Rules:
-- Rule #1
-- Rule #2
-- Rule #3
-- Rule #4
-- Rule #5
-- Rule #6
-- Rule #7
+
+### Rule #1 — Client-Safe Scope Rule
+Клиент отвечает только на вопросы, которые он объективно может понять.
+Платформа не должна требовать от клиента технической диагностики, разборки оборудования, действий с электричеством или иных действий, которые могут быть небезопасны или ухудшить его положение.
+
+Evidence:
+- Plumbing: клиент отвечает только на объективно понятные вопросы.
+- Plumbing Electric Shower: клиент не разбирает розетки, автоматы или проводку и не выполняет действий, связанных с электричеством.
+- Locks: платформа не должна заставлять клиента выполнять действия, которые могут ухудшить его положение как покупателя оборудования.
+
+### Rule #2 — Equipment Packaging Protection Rule
+Если клиент уже приобрёл новое оборудование самостоятельно, Helpy не требует вскрытия упаковки до проверки совместимости мастером.
+Фотографии упаковки должны позволять увидеть модель, характеристики, размеры и комплектацию, если они указаны производителем.
+Клиент должен сохранять право на возврат, обмен и гарантийное обслуживание.
+
+Evidence:
+- Plumbing: клиент не должен вскрывать упаковку оборудования для создания заказа.
+- Plumbing: при фотографировании упаковки клиент предоставляет упаковку со всей информацией на ней.
+- Locks: платформа не требует вскрывать упаковку, нарушать заводские пломбы, раскладывать комплектующие или извлекать оборудование из коробки.
+
+### Rule #3 — Equipment Compatibility Before Demolition Rule
+Если работа предполагает замену оборудования, мастер обязан проверить новое оборудование до демонтажа существующего.
+Проверка включает совместимость, комплектность, целостность и возможность установки.
+Только после проверки мастер приступает к демонтажу.
+
+Evidence:
+- Plumbing faucet replacement: мастер проверяет совместимость до демонтажа.
+- Plumbing toilet/electric shower replacement: новое оборудование должно быть проверено до работ.
+- Locks: проверка нового оборудования до демонтажа существующего закреплена как Global Equipment Verification Rule.
+
+### Rule #4 — Structured Scope Before Chat Rule
+Форма заказа собирает первоначальное техническое задание и закрывает визуальную часть ТЗ.
+Чат завершает текстовую часть ТЗ, уточняет скрытые работы, материалы, доступ и фиксирует окончательную стоимость.
+Чат не заменяет структурированную форму заказа.
+
+Evidence:
+- Plumbing: форма собирает первоначальное ТЗ и закрывает визуальную часть.
+- Plumbing: чат завершает текстовую часть ТЗ и фиксирует окончательную стоимость.
+- Structured Job Scope Contract: Initial job scope is formed from structured questions, answers and required photos.
+
+### Rule #5 — No Extra Photo Requests In Chat Rule
+Мастер не может запрашивать дополнительные фотографии в чате, если обязательные фотографии уже определены формой заказа.
+Фото-ТЗ должно формироваться через approved photo requirements.
+Исключения возможны только через будущие утверждённые правила жизненного цикла чата.
+
+Evidence:
+- Plumbing faucet/mixer: мастер не может запрашивать фотографии в чате.
+- Plumbing blockage: мастер не может запрашивать дополнительные фотографии в чате.
+- Plumbing electric shower: мастер не может запрашивать дополнительные фотографии в чате.
+
+### Rule #6 — One-Time Final Price Rule
+Окончательная стоимость заказа может быть изменена мастером только один раз до выбора мастера.
+Изменение требует обоснования, обсуждения с клиентом и согласования.
+После согласования клиентом и выбора мастера Final Agreed Price становится неизменяемым финансовым фактом заказа.
+
+Evidence:
+- Plumbing: окончательная цена фиксируется мастером один раз и после согласования становится неизменяемой.
+- Order Entry Price / Final Price Contract: master may change Entry Price only once before selection.
+- Final Price Architecture Decision: job-level financial snapshot is immutable after master selection.
+
+### Rule #7 — Platform Boundary / Ownership Rule
+Helpy не включает в услугу действия, которые не утверждены как часть сервиса платформы.
+Материалы, дополнительные работы, утилизация, вынос демонтированного оборудования, личные вещи клиента, транспортировка, хранение, публичные зоны и вопросы собственности/права доступа не входят в платформенную ответственность, если отдельный контракт явно не утверждает обратное.
+
+Evidence:
+- Furniture: master does not move, sort or store client belongings.
+- Plumbing: демонтированное оборудование остаётся собственностью клиента; вынос/утилизация не являются услугой Helpy.
+- Locks: Helpy не работает с вопросами собственности, аренды и права доступа.
+- Air Conditioning: материалы и дополнительные работы согласуются через чат; платформа не участвует в покупке материалов.
 
 Recovery Note:
-Detailed texts to be recovered from approved documentation and category migrations.
+- Rule #1–Rule #7 recovered from verified category contracts and approved architecture contracts.
+- Final closure requires review after Appliance Installation & Connection is completed.
+- If the future appliance category introduces overlapping global rules, this contract must be reconciled before being marked CLOSED.
+
 ## 17. Admin Panel Architecture
 Status: PARTIALLY CLOSED — GAP APPROVED
 
