@@ -736,8 +736,9 @@ Decision Summary:
 - Appliance Installation & Connection remains the final unresolved MVP root category before root category closure.
 - The category must be designed around the client's real-life scenario, not around technical installation taxonomy.
 - MVP launch scope is intentionally narrow and works only with new equipment scenarios.
-- Work with used / previously owned household appliances is excluded from MVP launch because of hidden defects, unclear condition, warranty risk and dispute risk.
-- Used appliance scenarios may be re-audited after launch based on real market demand and operational data.
+- Work with used / previously owned household appliances is disabled on launch because of hidden defects, unclear condition, warranty risk and dispute risk.
+- Used appliance scenarios are architecturally supported as disabled / future branches.
+- Used appliance scenarios may be enabled later through Admin Panel after market demand audit, risk review and operational validation.
 
 MVP Architecture:
 Appliance Installation & Connection
@@ -790,12 +791,14 @@ Mandatory Guided Transition:
   [Да, продолжить]
   [Нет, позже]
 
-Future / Disabled:
+Future / Disabled / Admin-Configurable:
 - Подключить имеющуюся технику.
 - Used / previously owned appliance connection.
 - Appliance diagnostics.
 - Appliance repair / malfunction scenarios.
-- These scenarios require separate market audit, risk review and dispute rules before being enabled.
+- These scenarios are not enabled on launch.
+- These scenarios must remain architecturally supported as disabled branches.
+- Admin Panel must be able to enable them later after separate market audit, risk review, dispute rule review and operational validation.
 
 Closure Note:
 - This roadmap decision stores the approved Appliance architecture direction.
