@@ -2411,6 +2411,29 @@ GAP:
 - Business Rules remain OPEN.
 - Admin Dependencies remain OPEN.
 
+### Electrical → Admin Dependencies
+Registry Status: CLOSED ✅
+
+Decision:
+- Electrical does not introduce new admin modules beyond approved Helpy Admin / Dynamic Form capabilities.
+- Electrical inherits the existing category, subcategory, question, photo requirement, pricing, rule visibility and guidance administration model.
+
+Required Admin Capabilities:
+- Electrical category enabled/disabled.
+- Electrical launch branches enabled/disabled.
+- Disabled future branches remain configurable but hidden from launch UI.
+- Point-Based Mini Scope Pattern support.
+- Question management for install, replace and relocate branches.
+- Visual Coverage photo requirement management.
+- Equipment Verification photo requirement management.
+- Total photo limit enforcement.
+- Pricing management for launch branches.
+- Rule visibility for client/master guidance.
+- Future Global Diagnostics must remain hidden from Electrical launch flow until approved.
+
+Conclusion:
+- No unresolved Electrical-specific Admin Dependencies remain.
+
 ### Electrical → Client Rules
 Registry Status: CLOSED ✅
 
