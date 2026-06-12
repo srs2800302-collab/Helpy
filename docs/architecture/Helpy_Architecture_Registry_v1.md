@@ -728,6 +728,80 @@ Definition:
 
 Rule:
 - Уровень детализации не может быть ниже Plumbing.
+## Roadmap Decision → Appliance Installation & Connection Architecture
+
+Status: GAP_APPROVED / ROADMAP STORED ✅
+
+Decision Summary:
+- Appliance Installation & Connection remains the final unresolved MVP root category before root category closure.
+- The category must be designed around the client's real-life scenario, not around technical installation taxonomy.
+- MVP launch scope is intentionally narrow and works only with new equipment scenarios.
+- Work with used / previously owned household appliances is excluded from MVP launch because of hidden defects, unclear condition, warranty risk and dispute risk.
+- Used appliance scenarios may be re-audited after launch based on real market demand and operational data.
+
+MVP Architecture:
+Appliance Installation & Connection
+├─ Установить новую технику
+└─ Заменить существующую технику
+
+MVP Scenario Rules:
+- Установить новую технику means the client has new equipment on site and needs installation / connection.
+- Заменить существующую технику means the client has new equipment on site and existing equipment must be removed before the new equipment is installed.
+- Replacement includes removal / dismantling of existing equipment.
+- Separate appliance dismantling is not an MVP launch branch.
+- Подключить имеющуюся технику is not an MVP launch branch because it usually means used / previously installed equipment.
+- If new equipment was physically placed by another party but still requires connection, the scenario remains Установить новую технику.
+
+MVP Equipment List Rule:
+- MVP uses a fixed short equipment list plus Другая бытовая техника.
+- The goal is to avoid a large catalogue before launch and collect real demand after launch.
+- Current MVP candidates:
+  - Стиральная машина.
+  - Посудомоечная машина.
+  - Измельчитель пищевых отходов / Waste disposer.
+  - Другая бытовая техника.
+
+Built-in Classification Rule:
+- Built-in is not a client-facing appliance type.
+- Built-in is a technical work-mode classification.
+- The client must not be asked whether the appliance is built-in if the master can determine it from the task description and photos.
+- The platform must not use client-facing questions that make the client feel technically incompetent.
+- The master determines built-in relevance from photos, equipment packaging, installation place and task context.
+
+Kitchen Built-in Appliances Direction:
+- Kitchen Built-in Appliances is a Phase 2 branch inside Appliance Installation & Connection, not a separate root category.
+- Kitchen Built-in Appliances covers more complex kitchen-related appliance installation scenarios.
+- It exists because these scenarios intersect with Kitchen Assembly, niches, furniture, water, drainage, ventilation and electrical readiness.
+- Kitchen Built-in Appliances may use mini-scope / add-more architecture similar to Electrical point-based flows when multiple appliances are involved.
+
+Linked Jobs Rule:
+- Kitchen Assembly and Kitchen Built-in Appliances must remain separate jobs.
+- For the client, they may be presented as one connected kitchen project.
+- For the platform, they keep separate deposits, statuses, disputes, reviews and completion logic.
+- The system should support a logical Linked Jobs Group between related orders.
+
+Mandatory Guided Transition:
+- Kitchen Assembly must be able to guide the client into Kitchen Built-in Appliances.
+- Appliance flows must also be able to guide the client into Kitchen Built-in Appliances when built-in work is identified.
+- Client-facing prompt pattern:
+  Хотите сразу создать заказ
+  на установку встроенной техники?
+
+  [Да, продолжить]
+  [Нет, позже]
+
+Future / Disabled:
+- Подключить имеющуюся технику.
+- Used / previously owned appliance connection.
+- Appliance diagnostics.
+- Appliance repair / malfunction scenarios.
+- These scenarios require separate market audit, risk review and dispute rules before being enabled.
+
+Closure Note:
+- This roadmap decision stores the approved Appliance architecture direction.
+- Final closure still requires detailed question flows, photo requirements, client rules, master rules, business rules, service playbook, pricing and admin dependencies.
+
+---
 ## 10. Electrical Shower Policy
 Status: CLOSED
 
