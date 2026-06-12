@@ -396,40 +396,278 @@ Helpy Categories
 5. Locks
 6. Furniture Assembly
 
-Electrical Category Launch Structure:
-Status: APPROVED ✅
+Electrical Category Architecture:
+Status: CLOSED ✅
 
 Purpose:
-- Provide a short category-level reference for Create Job screen design.
-- Avoid searching Contract 23 during UI/form architecture work.
-- Keep category navigation aligned with Electrical Re-Audit decisions.
+- Provide the category-level source of truth for Create Job screen design.
+- Keep Electrical category navigation, form architecture, photo rules, client/master rules and admin dependencies in one place.
+- Contract 23 remains the audit/history source; this category block is the practical implementation reference.
+
+Root Category:
+Electrical
+
+Root Question:
+Что нужно сделать?
 
 Launch Branches:
 - Установить розетку/выключатель.
 - Заменить розетку/выключатель.
 - Перенести розетку/выключатель.
 
+Excluded From MVP:
+- Автоматы / электрощит.
+- Прокладка проводки.
+- Замена проводки.
+- Аварийная электрика.
+
+Disabled On Launch:
+- Освещение.
+- Потолочные вентиляторы.
+
+Moved / Future:
+- Диагностика неисправности is moved to future Global Diagnostics.
+- Appliance connection belongs to Appliance Installation & Connection.
+
 Form Pattern:
 - Electrical uses Point-Based Mini Scope Pattern.
 - One physical work point equals one mini technical assignment.
+- A mini assignment groups all data related to that point.
 - Quantity is determined by the number of added mini scopes, not by a separate quantity question.
+
+Mini Scope Contains:
+- work type;
+- point-specific parameters;
+- required photos for that point.
 
 Photo Pattern:
 - Electrical uses Visual Coverage Principle.
 - Photos must visually cover the work points.
 - One photo may cover multiple points if they are clearly identifiable.
 - Total photo limit per order remains 10.
+- Equipment photos do not replace work-front photos.
 
 Equipment Verification:
 - If new items are already on site, client adds a general photo of those items.
-- Equipment photos do not replace work-front photos.
+- One photo may cover multiple identical items if the master can identify type, model and quantity.
 - Equipment verification helps the master assess compatibility before Final Agreed Price.
 
-Historical / Future:
-- Диагностика неисправности is moved to future Global Diagnostics.
-- Освещение is disabled on launch.
-- Потолочные вентиляторы are disabled on launch.
-- Appliance connection belongs to Appliance Installation & Connection.
+### Electrical Category → Установить розетку/выключатель
+Status: CLOSED ✅
+
+Definition:
+- Установка = монтаж новой розетки или выключателя без демонтажа существующего изделия.
+- Одна точка установки = одно мини-ТЗ.
+
+Question / Photo Flow:
+1. Новые изделия уже есть на объекте?
+   - Да
+   - Нет
+
+2. Что нужно установить?
+
+For each work point:
+- Что устанавливаем?
+  - Розетка
+  - Выключатель
+
+- Тип установки:
+  - Накладная
+  - Внутренняя
+
+- Фото места установки:
+  - required
+
+Add More Rule:
+- Клиент может добавить одну или несколько точек через кнопку «Добавить ещё».
+- Количество точек не задаётся отдельным вопросом.
+- Количество точек определяется количеством созданных мини-ТЗ.
+
+Photo Rule:
+- Фотографии должны обеспечивать визуальное покрытие всех точек установки.
+- Каждая точка установки должна быть однозначно идентифицируема мастером.
+- Одно фото может покрывать несколько точек, если они хорошо различимы.
+- Общий лимит фотографий заказа — 10.
+- Клиент не обязан фотографировать щит, провода, автоматы или выполнять небезопасные действия.
+
+Equipment Verification Rule:
+- Если новые изделия уже есть на объекте, клиент добавляет фото общего вида этих изделий.
+- Фото оборудования не заменяет фото фронта работ.
+- Одно фото может покрывать несколько одинаковых изделий, если мастер видит тип, модель и количество.
+
+Chat Completion Rule:
+- Если тип установки, посадочное место, материалы или сложность работ требуют уточнения, мастер уточняет это через чат.
+- Эти уточнения могут повлиять на Final Agreed Price до выбора мастера.
+
+### Electrical Category → Заменить розетку/выключатель
+Status: CLOSED ✅
+
+Definition:
+- Замена = демонтаж существующего изделия + установка нового изделия.
+- Одна точка замены = одно мини-ТЗ.
+
+Question / Photo Flow:
+1. Новые изделия уже есть на объекте?
+   - Да
+   - Нет
+
+2. Что нужно заменить?
+
+For each work point:
+- Что заменяем?
+  - Розетка
+  - Выключатель
+
+- Тип установки:
+  - Накладная
+  - Внутренняя
+
+- Фото существующего места установки:
+  - required
+
+Add More Rule:
+- Клиент может добавить одну или несколько точек через кнопку «Добавить ещё».
+- Количество точек не задаётся отдельным вопросом.
+- Количество точек определяется количеством созданных мини-ТЗ.
+
+Photo Rule:
+- Фотографии должны обеспечивать визуальное покрытие всех точек замены.
+- Существующие изделия должны быть однозначно идентифицируемы мастером.
+- Одно фото может покрывать несколько точек, если они хорошо различимы.
+- Общий лимит фотографий заказа — 10.
+- Клиент не обязан разбирать изделия, фотографировать щит, провода или выполнять небезопасные действия.
+
+Equipment Verification Rule:
+- Если новые изделия уже есть на объекте, клиент добавляет фото общего вида этих изделий.
+- Фото оборудования не заменяет фото существующих точек замены.
+- Одно фото может покрывать несколько одинаковых изделий, если мастер видит тип, модель и количество.
+
+Demolished Equipment Rule:
+- Демонтированное изделие является собственностью клиента.
+- Демонтированное изделие остаётся на объекте по умолчанию.
+- Утилизация или вынос возможны только по отдельной договорённости через чат.
+
+Chat Completion Rule:
+- Если совместимость изделий, материалы, посадочные особенности или сложность работ требуют уточнения, мастер уточняет это через чат.
+- Эти уточнения могут повлиять на Final Agreed Price до выбора мастера.
+
+### Electrical Category → Перенести розетку/выключатель
+Status: CLOSED ✅
+
+Definition:
+- Перенос = демонтаж существующего изделия + изменение расположения + установка изделия в новом месте.
+- По умолчанию при переносе используется существующее изделие.
+- Если клиент предоставляет новое изделие, мастер устанавливает новое изделие вместо существующего.
+- Одна точка переноса = одно мини-ТЗ.
+
+Question / Photo Flow:
+For each work point:
+- Что переносим?
+  - Розетка
+  - Выключатель
+
+- Фото текущего места:
+  - required
+
+- Фото нового места:
+  - required
+
+Add More Rule:
+- Клиент может добавить одну или несколько точек через кнопку «Добавить ещё».
+- Количество точек определяется количеством созданных мини-ТЗ.
+
+Photo Rule:
+- Фотографии должны обеспечивать визуальное покрытие текущего и нового расположения всех точек переноса.
+- Для каждой точки мастер должен понимать, откуда переносится изделие и куда оно переносится.
+- Одно фото может покрывать несколько точек, если соответствие между текущим и новым местом остаётся очевидным.
+- Общий лимит фотографий заказа — 10.
+- Клиент не обязан фотографировать щит, провода, автоматы или выполнять небезопасные действия.
+
+Equipment Verification Rule:
+- Если новые изделия уже есть на объекте, клиент добавляет фото общего вида этих изделий.
+- Фото оборудования не заменяет фото текущего и нового места переноса.
+- Одно фото может покрывать несколько одинаковых изделий, если мастер видит тип, модель и количество.
+
+Demolished Equipment Rule:
+- Демонтированное изделие является собственностью клиента.
+- Демонтированное изделие остаётся на объекте по умолчанию.
+- Утилизация или вынос возможны только по отдельной договорённости через чат.
+
+Decoration Rule:
+- Перенос не включает восстановление декоративной отделки по умолчанию.
+- Покраска, штукатурка, плитка, обои и иные отделочные работы не входят в базовую услугу.
+- Дополнительные работы по декоративной отделке могут обсуждаться через чат.
+
+Chat Completion Rule:
+- Дополнительные работы, материалы, сложность переноса и декоративная отделка могут обсуждаться через чат.
+- Эти работы не входят в базовую стоимость по умолчанию.
+- Уточнения могут повлиять на Final Agreed Price до выбора мастера.
+
+### Electrical Category → Client Rules
+Status: CLOSED ✅
+
+- Клиент отвечает только на вопросы, которые объективно понимает.
+- Клиент не обязан обладать специальными знаниями в электрике.
+- Клиент не обязан выполнять действия, связанные с электричеством.
+- Клиент не обязан открывать электрощит.
+- Клиент не обязан разбирать изделия.
+- Клиент не обязан фотографировать автоматы, проводку и внутренние соединения.
+- Если ветка требует новое изделие, новое изделие должно быть на объекте до создания заказа.
+- Если новое изделие отсутствует, создание заказа по данной ветке невозможно.
+- Фотографии должны обеспечивать визуальное покрытие фронта работ.
+- Общий лимит фотографий заказа составляет 10.
+- Одно фото может покрывать несколько точек, если они хорошо различимы.
+- Фото оборудования не заменяют фотографии фронта работ.
+- Дополнительные детали и материалы уточняются через чат.
+- Личные вещи клиента перемещает только клиент; мастер не обязан и не должен перемещать, сортировать или убирать личные вещи клиента.
+
+### Electrical Category → Master Rules
+Status: CLOSED ✅
+
+Before Work:
+- Мастер оценивает достаточность информации.
+- При необходимости мастер запрашивает уточнения через чат.
+- Мастер предупреждает клиента о несовместимости оборудования или необходимости дополнительных материалов.
+- Изменение Final Agreed Price должно быть согласовано до выбора мастера клиентом.
+- Мастер не принимает работы, выходящие за рамки MVP или связанные с запрещёнными высокорисковыми операциями.
+
+During Work:
+- Работы под напряжением запрещены.
+- Перед началом работ мастер обязан отключить электропитание соответствующего участка.
+
+After Work:
+- Мастер обязан проверить работоспособность выполненных работ.
+- Проверка выполняется без применения специализированного диагностического оборудования, если иное не согласовано отдельно между клиентом и мастером.
+- Мастер обязан убедиться в качестве выполненного монтажа.
+- Мастер обязан оставить рабочее место в чистом и безопасном состоянии.
+
+Safety Escalation:
+- При обнаружении опасного состояния существующей электропроводки, оборудования или условий эксплуатации мастер обязан сообщить об этом клиенту.
+- Обнаружение опасности не обязывает мастера выполнять работы вне MVP или вне своей квалификации.
+- Мастер вправе отказаться от продолжения работ, если дальнейшее выполнение создаёт угрозу жизни, здоровью или имуществу.
+
+### Electrical Category → Admin Dependencies
+Status: CLOSED ✅
+
+Decision:
+- Electrical does not introduce new admin modules beyond approved Helpy Admin / Dynamic Form capabilities.
+- Electrical inherits the existing category, subcategory, question, photo requirement, pricing, rule visibility and guidance administration model.
+
+Required Admin Capabilities:
+- Electrical category enabled/disabled.
+- Electrical launch branches enabled/disabled.
+- Disabled future branches remain configurable but hidden from launch UI.
+- Point-Based Mini Scope Pattern support.
+- Question management for install, replace and relocate branches.
+- Visual Coverage photo requirement management.
+- Equipment Verification photo requirement management.
+- Total photo limit enforcement.
+- Pricing management for launch branches.
+- Rule visibility for client/master guidance.
+- Future Global Diagnostics must remain hidden from Electrical launch flow until approved.
+
+Conclusion:
+- No unresolved Electrical-specific Admin Dependencies remain.
 
 Future Launch Category:
 - Appliance Installation & Connection
