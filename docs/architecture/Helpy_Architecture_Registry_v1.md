@@ -763,11 +763,15 @@ MVP Equipment List Rule:
   - Другая бытовая техника.
 
 Built-in Classification Rule:
-- Built-in is not a client-facing appliance type.
-- Built-in is a technical work-mode classification.
-- The client must not be asked whether the appliance is built-in if the master can determine it from the task description and photos.
-- The platform must not use client-facing questions that make the client feel technically incompetent.
-- The master determines built-in relevance from photos, equipment packaging, installation place and task context.
+- Built-in remains a technical work-mode classification, not a separate root category.
+- The client is asked one simple routing question after selecting the appliance type:
+  Техника встроенная?
+  - Да
+  - Нет
+- If the client selects Да, the flow redirects to Kitchen Built-in Appliances.
+- If the client selects Нет, the flow continues inside the standard Appliance Installation & Connection scenario.
+- The purpose of this question is routing and mistake prevention, not collecting technical specifications.
+- The question must not include Не знаю because that option creates weak UX and may make the client feel incompetent.
 
 Kitchen Built-in Appliances Direction:
 - Kitchen Built-in Appliances is a Phase 2 branch inside Appliance Installation & Connection, not a separate root category.
@@ -783,8 +787,15 @@ Linked Jobs Rule:
 
 Mandatory Guided Transition:
 - Kitchen Assembly must be able to guide the client into Kitchen Built-in Appliances.
-- Appliance flows must also be able to guide the client into Kitchen Built-in Appliances when built-in work is identified.
-- Client-facing prompt pattern:
+- Appliance flows must route the client into Kitchen Built-in Appliances through the approved routing question:
+  Техника встроенная?
+  - Да
+  - Нет
+- If the client selects Да, the system shows:
+  Для встроенной техники используется отдельный сценарий заказа.
+
+  [Продолжить]
+- Kitchen Assembly prompt pattern:
   Хотите сразу создать заказ
   на установку встроенной техники?
 
