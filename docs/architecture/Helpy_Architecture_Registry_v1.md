@@ -806,68 +806,75 @@ Mandatory Guided Transition:
 
 Status: APPROVED / STORED ✅
 
-Question Flow:
+Вопросы:
+
 1. Стиральная машина находится на объекте?
-   - Да → continue form.
-   - Нет → stop form.
+- Да → продолжить оформление заказа.
+- Нет → оформление заказа невозможно до момента фактического нахождения оборудования на объекте.
 
 2. Техника встроенная?
-   - Да → redirect to Kitchen Built-in Appliances.
-   - Нет → continue standard Appliance flow.
+- Да.
+- Нет.
 
-Built-in Redirect Message:
+Если клиент выбирает «Да», система показывает сообщение:
+
 Для встроенной техники используется отдельный сценарий заказа.
 
 [Продолжить]
 
-Required Photos:
-- Фото упаковки оборудования со всей информацией на ней.
-- If packaging does not contain enough information, the client may provide the purchased product card with technical characteristics.
+и переводит клиента в Kitchen Built-in Appliances.
+
+Обязательные фотографии:
+- Фото упаковки оборудования со всей информацией на ней;
+или
+- Карточка приобретённого товара с технической информацией.
 - Фото самого оборудования внутри упаковки.
 - Общий вид места установки.
-- Фото зоны подключения / слива.
+- Фото зоны подключения.
 
-Connection Zone Rule:
-- The photo must allow assessment of water connection and drain organization.
-- One photo may be used if both are clearly visible.
+Правило фотографии зоны подключения:
+- Фотография должна позволять оценить место подключения воды и организацию слива.
+- Допускается одна фотография, если обе зоны хорошо различимы.
 
-Optional Photos:
+Необязательные фотографии:
 - Фото ближайшей розетки.
 
-Client Rules:
+Правила для клиента:
 - Клиент не обязан извлекать оборудование из упаковки.
 - Клиент не обязан выполнять действия, связанные с электричеством.
 - Клиент не обязан производить измерения.
 - Клиент не обязан понимать технические характеристики оборудования.
 - Клиент не обязан демонтировать транспортировочные элементы.
 
-Inherited Rules:
+Наследуемые правила:
 - Packaging Inspection Rules.
 - Damage Escalation Rules.
 - Chat Evidence Rules.
 
-Master Service Playbook:
-Before final installation:
-- visually inspect equipment;
-- verify absence of obvious mechanical damage;
-- connect equipment to power;
-- verify control panel activation;
-- remove transport bolts;
-- remove internal fixing sleeves and transport elements;
-- verify all transport elements are removed.
+Правила выполнения работ мастером:
 
-After connection:
-- perform first start;
-- verify short-cycle operation;
-- verify water intake;
-- verify drain operation;
-- verify absence of leaks;
-- verify absence of abnormal vibration and noise;
-- confirm correct equipment operation.
+До окончательной установки мастер обязан:
+- выполнить визуальный осмотр оборудования;
+- убедиться в отсутствии очевидных механических повреждений;
+- подключить оборудование к электропитанию;
+- убедиться, что панель управления включается и реагирует на команды;
+- снять транспортировочные болты, если они предусмотрены производителем;
+- извлечь внутренние фиксирующие втулки и иные транспортировочные элементы, удерживающие барабан;
+- убедиться, что все транспортировочные элементы полностью удалены.
 
-Service Quality Rule:
-- First start is mandatory.
-- Installation is incomplete until operation is verified.
+После подключения мастер обязан:
+- выполнить первый запуск оборудования;
+- проверить работу машины на короткой программе или минимальном цикле;
+- убедиться в корректном наборе воды;
+- убедиться в корректной работе слива;
+- убедиться в отсутствии протечек;
+- убедиться в отсутствии нехарактерных вибраций и посторонних шумов;
+- подтвердить корректную работу оборудования.
+
+Правило качества услуги:
+- Первый запуск является обязательной частью услуги установки.
+- Установка не считается завершённой до подтверждения базовой работоспособности оборудования.
+- Неполное удаление транспортировочных элементов считается нарушением правил установки и может привести к повреждению оборудования.
 
 Future / Disabled / Admin-Configurable:
 - Подключить имеющуюся технику.
@@ -883,6 +890,52 @@ Closure Note:
 - Final closure still requires detailed question flows, photo requirements, client rules, master rules, business rules, service playbook, pricing and admin dependencies.
 
 ---
+## Registry Language Standard
+Status: APPROVED / STORED ✅
+
+Decision Summary:
+- Регистр Helpy использует два языка в зависимости от уровня ответственности.
+- Настоящий стандарт обязателен для всех последующих изменений регистра.
+
+English:
+- code;
+- directories;
+- database objects;
+- table names;
+- column names;
+- enum values;
+- slug values;
+- API routes;
+- DTO names;
+- config keys;
+- internal statuses;
+- contract names;
+- rule names;
+- technical identifiers.
+
+Русский:
+- UX;
+- бизнес-логика;
+- правила клиента;
+- правила мастера;
+- Question Flow;
+- Photo Requirements;
+- Service Playbook;
+- причины принятия решений;
+- описания сценариев.
+
+Пример:
+
+Наследуемые правила:
+- Packaging Inspection Rules.
+- Damage Escalation Rules.
+- Chat Evidence Rules.
+
+Closure Note:
+- Все последующие изменения регистра должны соответствовать данному стандарту.
+
+---
+
 ## Global Diagnostics Pattern
 Status: APPROVED / ROADMAP STORED ✅
 
