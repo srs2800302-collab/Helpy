@@ -802,6 +802,73 @@ Mandatory Guided Transition:
   [Да, продолжить]
   [Нет, позже]
 
+### Appliance → Установить новую технику → Стиральная машина
+
+Status: APPROVED / STORED ✅
+
+Question Flow:
+1. Стиральная машина находится на объекте?
+   - Да → continue form.
+   - Нет → stop form.
+
+2. Техника встроенная?
+   - Да → redirect to Kitchen Built-in Appliances.
+   - Нет → continue standard Appliance flow.
+
+Built-in Redirect Message:
+Для встроенной техники используется отдельный сценарий заказа.
+
+[Продолжить]
+
+Required Photos:
+- Фото упаковки оборудования со всей информацией на ней.
+- If packaging does not contain enough information, the client may provide the purchased product card with technical characteristics.
+- Фото самого оборудования внутри упаковки.
+- Общий вид места установки.
+- Фото зоны подключения / слива.
+
+Connection Zone Rule:
+- The photo must allow assessment of water connection and drain organization.
+- One photo may be used if both are clearly visible.
+
+Optional Photos:
+- Фото ближайшей розетки.
+
+Client Rules:
+- Клиент не обязан извлекать оборудование из упаковки.
+- Клиент не обязан выполнять действия, связанные с электричеством.
+- Клиент не обязан производить измерения.
+- Клиент не обязан понимать технические характеристики оборудования.
+- Клиент не обязан демонтировать транспортировочные элементы.
+
+Inherited Rules:
+- Packaging Inspection Rules.
+- Damage Escalation Rules.
+- Chat Evidence Rules.
+
+Master Service Playbook:
+Before final installation:
+- visually inspect equipment;
+- verify absence of obvious mechanical damage;
+- connect equipment to power;
+- verify control panel activation;
+- remove transport bolts;
+- remove internal fixing sleeves and transport elements;
+- verify all transport elements are removed.
+
+After connection:
+- perform first start;
+- verify short-cycle operation;
+- verify water intake;
+- verify drain operation;
+- verify absence of leaks;
+- verify absence of abnormal vibration and noise;
+- confirm correct equipment operation.
+
+Service Quality Rule:
+- First start is mandatory.
+- Installation is incomplete until operation is verified.
+
 Future / Disabled / Admin-Configurable:
 - Подключить имеющуюся технику.
 - Used / previously owned appliance connection.
