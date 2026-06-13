@@ -816,6 +816,52 @@ Closure Note:
 - Final closure still requires detailed question flows, photo requirements, client rules, master rules, business rules, service playbook, pricing and admin dependencies.
 
 ---
+## Global Diagnostics Pattern
+Status: APPROVED / ROADMAP STORED ✅
+
+Decision Summary:
+- Diagnostics is not a root category.
+- Diagnostics is not a separate marketplace vertical.
+- Diagnostics is a reusable category-level branch pattern.
+- The client first selects the problem domain/category.
+- Inside the category, the client may choose a diagnostic flow when they do not know the exact work required.
+- Diagnostic branches are independently enabled or disabled per category.
+- Diagnostic branches remain disabled until explicitly approved for that category.
+
+Diagnostics UI Placement Rule:
+- Diagnostics lives only inside Create Job flows.
+- Diagnostics does not introduce separate application screens.
+- Diagnostics does not create a separate marketplace entry mode.
+- Diagnostics is implemented using the existing category → subcategory architecture.
+- The dynamic form engine requires no special diagnostics support.
+
+Approved Navigation Pattern:
+
+Create Job
+↓
+Category
+↓
+Action Branch / Diagnostic Branch
+↓
+Question Flow
+↓
+Photo Flow
+↓
+Preview
+↓
+Deposit
+
+Reason:
+- Clients usually understand the problem domain.
+- Clients often do not understand the exact work required.
+- The uncertainty exists inside the category, not above it.
+
+Closure Note:
+- Future Global Diagnostics is governed by this pattern.
+- Root-level diagnostics and entry-mode diagnostics are rejected architectural approaches.
+
+---
+
 ## 10. Electrical Shower Policy
 Status: CLOSED
 
