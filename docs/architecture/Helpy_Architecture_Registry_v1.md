@@ -1043,8 +1043,10 @@ Future / Disabled / Admin-Configurable:
 - Appliance diagnostics.
 - Appliance repair / malfunction scenarios.
 - These scenarios are not enabled on launch.
+- Данные ограничения относятся ко всей категории Appliance независимо от типа оборудования и способа установки.
 - These scenarios must remain architecturally supported as disabled branches.
-- Admin Panel must be able to enable them later after separate market audit, risk review, dispute rule review and operational validation.
+- Future Admin Panel must manage these scenarios through enable/disable feature toggles without requiring architectural changes.
+- Включение таких сценариев допускается только после отдельного market audit, risk review, dispute rule review и operational validation.
 
 Closure Note:
 - This roadmap decision stores the approved Appliance architecture direction.
