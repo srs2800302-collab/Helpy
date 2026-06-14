@@ -3237,6 +3237,38 @@ Boundary:
 
 
 
+### Electrical Re-Audit Note → Mixed Work Types Inside Mini Scope
+
+Status: TECH_DEBT / FUTURE FULL CATEGORY AUDIT
+
+Decision Summary:
+- Current Electrical MVP uses separate branches for install, replace and relocate scenarios.
+- Each branch uses Point-Based Mini Scope Pattern, where one physical work point equals one mini technical assignment.
+- During Kitchen Built-in Appliances design, a stronger mini-scope pattern was identified: work type can be stored inside each mini technical assignment.
+
+Current Limitation:
+- Current Electrical architecture does not allow one Electrical order to contain mixed work types inside the same order.
+- Example real-life scenario:
+  - install two new sockets;
+  - replace one existing socket;
+  - relocate one existing socket.
+
+Future Audit Rule:
+- During full category audit, Electrical must be re-audited for mixed work type support inside mini scopes.
+- The future target pattern should be evaluated as:
+  - one Electrical order;
+  - multiple mini technical assignments;
+  - each mini technical assignment contains its own work type:
+    - install;
+    - replace;
+    - relocate, if applicable.
+
+Boundary:
+- This note does not change the approved Electrical MVP implementation.
+- No current Electrical branch should be rewritten from this note alone.
+- Any change requires separate full Electrical re-audit, UX review, pricing review, implementation impact review and approval.
+
+
 ### Electrical → Установить розетку/выключатель
 Registry Status: 🟨 PARTIALLY APPROVED
 
