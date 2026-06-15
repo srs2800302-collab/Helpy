@@ -1312,6 +1312,13 @@ Future / Disabled / Admin-Configurable:
 - Future Admin Panel must manage these scenarios through enable/disable feature toggles without requiring architectural changes.
 - Включение таких сценариев допускается только после отдельного market audit, risk review, dispute rule review и operational validation.
 
+Kitchen Built-in Boundary Decisions:
+- The Kitchen Built-in equipment selection screen uses a scrollable checklist optimised for Android-first UX.
+- Gas cooktops, gas ovens, gas connections and LPG cylinder work are excluded from MVP scope due to Thailand operational risks and are not supported by Helpy launch architecture.
+- Kitchen tap and kitchen mixer are treated as separate scenarios because they represent different water supply schemes commonly found in Thailand.
+- Instant water heater remains an independent kitchen scenario and must not be merged with kitchen tap or kitchen mixer logic because it uses its own connection pattern and may include manufacturer-specific components.
+
+
 Kitchen Built-in Appliances MVP Detailing:
 - Kitchen Built-in Appliances uses Mini Scope Pattern.
 - One order may contain multiple mini technical assignments.
