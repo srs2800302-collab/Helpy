@@ -1312,6 +1312,33 @@ Future / Disabled / Admin-Configurable:
 - Future Admin Panel must manage these scenarios through enable/disable feature toggles without requiring architectural changes.
 - Включение таких сценариев допускается только после отдельного market audit, risk review, dispute rule review и operational validation.
 
+Kitchen Built-in Appliances MVP Detailing:
+- Kitchen Built-in Appliances uses Mini Scope Pattern.
+- One order may contain multiple mini technical assignments.
+- Each mini technical assignment contains its own work type:
+  - Install new equipment;
+  - Replace existing equipment.
+- If replacement is selected but equipment is not installed, the work type is converted to installation within the same mini technical assignment without changing branches.
+- The client first selects all required kitchen equipment from a scrollable checklist and then completes each mini technical assignment sequentially.
+- The approved Kitchen Built-in MVP equipment list:
+  - Electric hob;
+  - Electric oven;
+  - Cooker hood;
+  - Built-in refrigerator;
+  - Microwave oven;
+  - Washing machine;
+  - Dishwasher;
+  - Waste disposer;
+  - Kitchen sink;
+  - Kitchen tap;
+  - Kitchen mixer;
+  - Instant water heater;
+  - Other built-in equipment.
+- Other built-in equipment remains the only free-text option and serves as a future demand signal.
+- Existing approved playbooks must be reused whenever possible.
+- Kitchen Built-in Appliances acts primarily as an orchestration layer over existing approved contracts rather than a completely new standalone category.
+
+
 Closure Note:
 - This roadmap decision stores the approved Appliance architecture direction.
 - Final closure still requires detailed question flows, photo requirements, client rules, master rules, business rules, service playbook, pricing and admin dependencies.
