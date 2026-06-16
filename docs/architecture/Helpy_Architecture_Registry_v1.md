@@ -6092,81 +6092,193 @@ Admin must be able to compare:
 
 Status: GAP_APPROVED
 
-Implementation State:
-- TARGET_APPROVED: complete canonical guided order lifecycle.
-- IMPLEMENTED: structured job creation, master selection, work_started, evidence flow, completion flow.
-- GAP_APPROVED: final price lifecycle, immutable financial snapshot, full payment timeline, complete offer negotiation lifecycle.
-- CURRENT GAP: runtime implements only part of the approved lifecycle.
+### Назначение
+
+Контракт определяет канонический жизненный цикл заказа Helpy.
+
+Helpy является Guided Job Flow платформой: заказ проходит через управляемые этапы от создания технического задания до подтверждённого результата, отзыва или спора.
+
+### Текущее состояние
+
+TARGET_APPROVED:
+- полный канонический жизненный цикл заказа;
+- разделение business lifecycle, chat, financial route и evidence;
+- поддержка PromptPay QR, Cash, Bank Transfer и будущих платёжных маршрутов.
+
+IMPLEMENTED:
+- structured job creation;
+- master selection;
+- work_started;
+- evidence flow;
+- completion flow.
+
+GAP_APPROVED:
+- full offer lifecycle;
+- immutable financial snapshot;
+- payment method route;
+- master Safety Gate;
+- arrival coordination;
+- commission collection для Cash;
+- полный timeline через job_events.
+
+CURRENT GAP:
+- runtime реализует только часть утверждённого lifecycle;
+- старые runtime-фрагменты не должны считаться каноническим источником бизнес-логики.
+
+### Канонический жизненный цикл заказа
 
 Admin / Platform
 ↓
-sets Entry Price
-
+задаёт Entry Price через pricing rules / Admin Panel
+↓
 Client
 ↓
-sees Entry Price
+видит Entry Price
 ↓
-agrees to enter under this price
+создаёт заказ через structured questions и required photos
 ↓
-answers structured questions
+формирует initial structured job scope
 ↓
-uploads required photos
+публикует заказ
 ↓
-forms the initial structured job scope
-↓
-publishes the order
-
 Master
 ↓
-reviews the structured job scope
+изучает structured job scope
 ↓
-either accepts Entry Price
+отправляет initial offer
 ↓
-or performs ONE justified price increase
+при необходимости выполняет ONE justified price increase
 ↓
-explains the reason in chat
+объясняет причину в чате
 ↓
-stores `price_revision_reason`
+сохраняет price_revision_reason
 ↓
-submits an application with Final Price
-
+отправляет final application с Final Agreed Price
+↓
 Client
 ↓
-selects the master
+выбирает мастера
 ↓
-thereby officially accepts Final Price
-
+Safety Gate
+↓
+если мастер проходит обязательные safety requirements:
+- фиксируется master_selected;
+если мастер отказывается от обязательных safety requirements:
+- заказ возвращается в open;
+- фиксируется отказ;
+- увеличивается счётчик отказов мастера;
+- мастер получает предупреждение;
+- после третьего такого случая мастер переводится в suspended до решения администрации.
+↓
 System
 ↓
-creates immutable financial snapshot
+создаёт immutable financial snapshot
 ↓
-calculates commission from Final Price
+фиксирует:
+- selected master;
+- selected offer/application;
+- Final Agreed Price;
+- commission base amount;
+- deposit_percent / commission_percent;
+- payment_method;
+- commission_payer.
 ↓
-calculates deposit from Final Price
+Payment Method Route
+↓
+PromptPay QR:
+- deposit_created;
+- client pays platform deposit;
+- deposit_paid после подтверждения оплаты.
+↓
+Bank Transfer:
+- deposit_created;
+- client pays platform deposit manually / verified;
+- deposit_paid после admin / verified confirmation.
+↓
+Cash:
+- client pays full Final Agreed Price directly to master;
+- platform creates commission_obligation_created;
+- master owes platform commission;
+- after platform receives commission, event commission_collected closes the financial obligation.
+↓
+TrueMoney / Wallets:
+- reserved configurable route for local wallet payments;
+- exact runtime route requires separate approval before launch.
+↓
+Cards:
+- reserved for later market rollout;
+- runtime/mobile must not expose cards until approved and enabled.
+↓
+Arrival Coordination
+↓
+Для PromptPay QR / Bank Transfer / future deposit-to-platform routes:
+- arrival coordination starts only after deposit_paid.
 
-Then
+Для Cash:
+- arrival coordination starts only after commission_obligation_created.
+
+Системное уведомление мастеру для депозитных методов:
+"Депозит успешно внесён. Свяжитесь с клиентом в чате и согласуйте время прибытия на объект."
+
+Системное уведомление мастеру для Cash:
+"Заказ подтверждён. Свяжитесь с клиентом в чате и согласуйте время прибытия на объект."
+
+System event:
+- arrival_coordination_requested.
 ↓
-Start Work
+Work Lifecycle
 ↓
-Evidence Photos
+мастер прибывает на объект
 ↓
-Client Completion Confirmation
+мастер нажимает Start Work
 ↓
-Master Complete Order
+work_started
+↓
+мастер выполняет работу
+↓
+мастер загружает evidence photos
+↓
+evidence_uploaded
+↓
+клиент проверяет результат
+↓
+клиент подтверждает завершение работ
+↓
+completion_confirmed_by_client
+↓
+только после подтверждения клиента мастеру доступна кнопка Complete Order
+↓
+мастер нажимает Complete Order
+↓
+job_completed
 ↓
 Review / Dispute
 
-Canonical Rules:
-- Entry Price is defined by platform/admin pricing rules.
-- Initial job scope is formed through structured questions and required photos.
-- Masters may revise Entry Price only once.
-- Price revision must be justified against the structured job scope.
-- Chat contains human explanation.
-- Structured fields and `job_events` contain business facts.
-- Client selection of the master constitutes acceptance of Final Price.
-- Financial snapshots become immutable after fixation.
-- Commission and deposit are always based on Final Price.
----
+### Канонические правила
+
+- Entry Price задаётся platform/admin pricing rules.
+- Initial job scope формируется через structured questions и required photos.
+- Мастер может изменить Entry Price только один раз.
+- Price revision должен быть обоснован через structured job scope.
+- Chat содержит human explanation.
+- Structured fields и job_events содержат business facts.
+- Client selection of the master constitutes acceptance of Final Price and selected master.
+- master_selected создаётся только после прохождения Safety Gate.
+- Financial snapshot становится immutable после фиксации.
+- Commission и deposit / commission obligation всегда считаются от Final Agreed Price.
+- Deposit не является универсальным обязательным этапом для всех payment methods.
+- Cash must not be modelled as client deposit paid to platform.
+- Для Cash финансовый цикл не закрывается событием job_completed.
+- Для Cash финансовый цикл закрывается только после commission_collected.
+- Arrival coordination запускается только после финансовой фиксации маршрута оплаты.
+- Для депозитных методов arrival coordination запрещён до deposit_paid.
+- Для Cash arrival coordination разрешён после commission_obligation_created.
+- Master Complete Order доступен только после completion_confirmed_by_client.
+- Chat не является единственным источником юридически значимого lifecycle state.
+- job_events остаётся источником бизнес-истории заказа.
+
+----
+
 ## Guided Job Flow Foundation
 
 Status: APPROVED ✅
