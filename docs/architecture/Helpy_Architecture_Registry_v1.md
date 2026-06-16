@@ -6388,7 +6388,7 @@ creates immutable financial snapshot
 ↓
 calculates commission from Final Price
 ↓
-calculates deposit from Final Price
+determines Payment Method Route and related financial obligations
 
 Then
 ↓
@@ -6412,7 +6412,7 @@ Review / Dispute
 - Structured fields and job_events contain business facts.
 - Client selection of the master constitutes acceptance of Final Price.
 - Financial snapshots become immutable after fixation.
-- Commission and deposit are always based on Final Price.
+- Commission and deposit / commission obligation are always based on Final Price.
 - Evidence Photos and Completion are mandatory parts of the lifecycle.
 - Disputes use the complete evidence package.
 
