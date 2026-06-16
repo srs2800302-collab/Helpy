@@ -21,6 +21,12 @@ Rule:
 - Contract closure decisions must still be made inside the source contracts.
 - New Registry changes should be written in Russian by default.
 - English remains allowed for API paths, database entities, enum values, code identifiers and migration names.
+- Registry is considered architecturally mature and largely finalized.
+- Future changes must prioritize audit, reconciliation and closure of approved decisions.
+- New architecture decisions require a proven GAP, contradiction between contracts or a new approved business model.
+- Business logic, scenarios and explanatory text are written in Russian.
+- Technical identifiers remain in English, including API paths, database entities, enum values, event_type, DTO, migrations, slugs and file names.
+- Approved contracts must be strengthened through synchronization rather than rewritten without evidence.
 
 ### Group A — Foundation / Product Identity
 Scope:
