@@ -1713,6 +1713,40 @@ Closure Note:
 - Final closure still requires detailed question flows, photo requirements, client rules, master rules, business rules, service playbook, pricing and admin dependencies.
 
 ---
+
+## Pre-Build Decision Gate → Entry Price Architecture
+
+Status: STORED ⚠️ REQUIRED BEFORE DB / MVP / ADMIN PRICING DESIGN
+
+Decision Summary:
+- Источник первой цены заказа намеренно не закрыт до начала проектирования БД, MVP и Admin.
+- Текущие рабочие варианты:
+  1. Platform Entry Price — платформа задаёт входную стоимость.
+  2. Client Expected Price — клиент указывает ожидаемую стоимость работ.
+- Для Client Expected Price допускается минимальный порог входа по категории / подкатегории.
+- Минимальный порог входа не является рыночной ценой услуги и не является рекомендацией стоимости.
+- Минимальный порог нужен только для защиты платформы от заведомо нереалистичных заявок.
+- Мастер после общения с клиентом через чат может один раз изменить стоимость работ с обоснованием.
+- После согласования клиентом и выбора мастера формируется Final Agreed Price.
+- Депозит и комиссия платформы рассчитываются только от Final Agreed Price.
+
+Build Gate:
+- Перед созданием pricing-related DB structures это решение должно быть явно пересмотрено и закрыто.
+- Перед проектированием Admin pricing settings это решение должно быть явно пересмотрено и закрыто.
+- Перед реализацией pricing flow в MVP это решение должно быть явно пересмотрено и закрыто.
+- Нельзя начинать реализацию pricing logic с неявным предположением, что Entry Price задаёт платформа.
+
+Boundary:
+- Existing Final Agreed Price contracts remain valid.
+- Existing One-Time Final Price Rule remains valid.
+- Existing Commission Rule remains valid.
+- Existing Global Materials Separation Rule remains valid.
+- This block does not change current category mini-ТЗ work.
+
+Status Effect:
+- BLOCKS PRICING IMPLEMENTATION.
+- MUST RESURFACE BEFORE DB / MVP / ADMIN PRICING DESIGN.
+
 ## Global Materials Separation Rule
 Status: APPROVED / STORED ✅
 
