@@ -7562,4 +7562,3 @@ No Flutter code should be written from this contract until Mobile Timeline Contr
 • отображение клиенту термина Guided Job Flow;
 • передача контактов между клиентом и мастером;
 • использование одного аккаунта несколькими людьми.
-
