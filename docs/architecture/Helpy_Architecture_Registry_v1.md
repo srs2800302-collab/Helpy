@@ -4865,6 +4865,8 @@ If correction or intervention is required, it must be recorded as a new event.
 - system.
 
 ### Canonical Event Types
+Этот раздел перечисляет технические `event_type`, которые используются в `job_events`.
+Названия событий не переводятся, потому что они являются частью будущей схемы БД, API и runtime-логики.
 
 #### Order / Scope
 
@@ -4886,12 +4888,14 @@ If correction or intervention is required, it must be recorded as a new event.
 - deposit_created;
 - deposit_paid;
 - commission_obligation_created;
+- commission_collected;
 - refund_issued.
 
 #### Work / Evidence / Completion
 
 - work_started;
 - evidence_uploaded;
+- arrival_coordination_requested;
 - completion_confirmed_by_client;
 - job_completed.
 
@@ -4957,7 +4961,9 @@ Missing canonical event types:
 - final_application_sent;
 - financial_snapshot_created;
 - deposit_created;
-- commission_obligation_created.
+- commission_obligation_created;
+- commission_collected;
+- arrival_coordination_requested.
 
 Deprecated / legacy event types:
 - work_completed_by_master.
