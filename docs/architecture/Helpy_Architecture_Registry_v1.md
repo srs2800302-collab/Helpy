@@ -5065,7 +5065,9 @@ Internal/system events may be hidden from mobile while remaining visible to Admi
 | deposit_created | yes | selected master | yes | yes | no |
 | deposit_paid | yes | selected master | yes | yes | no |
 | commission_obligation_created | no | selected master | yes | yes | no |
+| commission_collected | no | selected master | yes | no | yes |
 | refund_issued | yes | if affected | yes | yes | no |
+| arrival_coordination_requested | yes | selected master | yes | yes | no |
 | work_started | yes | selected master | yes | yes | no |
 | evidence_uploaded | yes | selected master | yes | yes | no |
 | completion_confirmed_by_client | yes | selected master | yes | yes | no |
@@ -5132,6 +5134,8 @@ Timeline events may trigger guidance lookup by:
 | deposit_created | yes | selected master | no | explain deposit/payment obligation |
 | deposit_paid | yes | selected master | no | explain next step after payment |
 | commission_obligation_created | no | selected master | no | explain master platform commission obligation for cash flow |
+| commission_collected | no | selected master | no | explain master commission obligation has been collected |
+| arrival_coordination_requested | yes | selected master | yes | guide chat-based arrival coordination after financial route is fixed |
 | work_started | yes | selected master | yes | guide evidence photos and work process |
 | evidence_uploaded | yes | selected master | yes | explain evidence review / continue work |
 | completion_confirmed_by_client | yes | selected master | yes | unlock master complete order guidance |
