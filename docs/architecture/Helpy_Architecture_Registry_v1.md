@@ -21,12 +21,12 @@ Rule:
 - Contract closure decisions must still be made inside the source contracts.
 - New Registry changes should be written in Russian by default.
 - English remains allowed for API paths, database entities, enum values, code identifiers and migration names.
-- Registry is considered architecturally mature and largely finalized.
-- Future changes must prioritize audit, reconciliation and closure of approved decisions.
-- New architecture decisions require a proven GAP, contradiction between contracts or a new approved business model.
-- Business logic, scenarios and explanatory text are written in Russian.
-- Technical identifiers remain in English, including API paths, database entities, enum values, event_type, DTO, migrations, slugs and file names.
-- Approved contracts must be strengthened through synchronization rather than rewritten without evidence.
+- Реестр считается архитектурно зрелым и в основном финализированным.
+- Будущие изменения должны в первую очередь выполнять аудит, синхронизацию и закрытие уже утверждённых решений.
+- Новые архитектурные решения допускаются только при доказанном GAP, противоречии между контрактами или новой утверждённой бизнес-модели.
+- Бизнес-логика, сценарии и пояснительный текст оформляются на русском языке.
+- Технические идентификаторы остаются на английском языке, включая API paths, database entities, enum values, event_type, DTO, migrations, slugs и file names.
+- Утверждённые контракты усиливаются через синхронизацию, а не переписываются без доказательств.
 
 ### Group A — Foundation / Product Identity
 Scope:
@@ -6110,19 +6110,19 @@ Helpy является Guided Job Flow платформой: заказ прох
 
 ### Текущее состояние
 
-TARGET_APPROVED:
+ЦЕЛЕВОЕ СОСТОЯНИЕ:
 - полный канонический жизненный цикл заказа;
 - разделение business lifecycle, chat, financial route и evidence;
 - поддержка PromptPay QR, Cash, Bank Transfer и будущих платёжных маршрутов.
 
-IMPLEMENTED:
+УЖЕ РЕАЛИЗОВАНО:
 - structured job creation;
 - master selection;
 - work_started;
 - evidence flow;
 - completion flow.
 
-GAP_APPROVED:
+УТВЕРЖДЁННЫЙ GAP:
 - full offer lifecycle;
 - immutable financial snapshot;
 - payment method route;
@@ -6131,7 +6131,7 @@ GAP_APPROVED:
 - commission collection для Cash;
 - полный timeline через job_events.
 
-CURRENT GAP:
+ТЕКУЩИЙ GAP:
 - runtime реализует только часть утверждённого lifecycle;
 - старые runtime-фрагменты не должны считаться каноническим источником бизнес-логики.
 
@@ -6141,7 +6141,7 @@ Admin / Platform
 ↓
 задаёт Entry Price через pricing rules / Admin Panel
 ↓
-Client
+Клиент
 ↓
 видит Entry Price
 ↓
@@ -6151,7 +6151,7 @@ Client
 ↓
 публикует заказ
 ↓
-Master
+Мастер
 ↓
 изучает structured job scope
 ↓
@@ -6180,7 +6180,7 @@ Safety Gate
 - мастер получает предупреждение;
 - после третьего такого случая мастер переводится в suspended до решения администрации.
 ↓
-System
+Система
 ↓
 создаёт immutable financial snapshot
 ↓
@@ -6197,35 +6197,35 @@ Payment Method Route
 ↓
 PromptPay QR:
 - deposit_created;
-- client pays platform deposit;
+- клиент оплачивает депозит платформе;
 - deposit_paid после подтверждения оплаты.
 ↓
 Bank Transfer:
 - deposit_created;
-- client pays platform deposit manually / verified;
+- клиент оплачивает депозит платформе вручную / через подтверждённый процесс;
 - deposit_paid после admin / verified confirmation.
 ↓
 Cash:
-- client pays full Final Agreed Price directly to master;
-- platform creates commission_obligation_created;
-- master owes platform commission;
-- after platform receives commission, event commission_collected closes the financial obligation.
+- клиент оплачивает весь Final Agreed Price напрямую мастеру;
+- платформа создаёт commission_obligation_created;
+- у мастера возникает обязательство оплатить комиссию платформе;
+- после получения комиссии платформой событие commission_collected закрывает финансовое обязательство.
 ↓
 TrueMoney / Wallets:
-- reserved configurable route for local wallet payments;
-- exact runtime route requires separate approval before launch.
+- зарезервированный настраиваемый маршрут для локальных wallet-платежей;
+- точный runtime route требует отдельного утверждения перед запуском.
 ↓
 Cards:
-- reserved for later market rollout;
-- runtime/mobile must not expose cards until approved and enabled.
+- зарезервировано для более позднего выхода на рынок.
+- runtime/mobile не должны показывать карты до утверждения и включения.
 ↓
-Arrival Coordination
+Координация прибытия
 ↓
 Для PromptPay QR / Bank Transfer / future deposit-to-platform routes:
-- arrival coordination starts only after deposit_paid.
+- координация прибытия начинается только после deposit_paid.
 
 Для Cash:
-- arrival coordination starts only after commission_obligation_created.
+- координация прибытия начинается только после commission_obligation_created.
 
 Системное уведомление мастеру для депозитных методов:
 "Депозит успешно внесён. Свяжитесь с клиентом в чате и согласуйте время прибытия на объект."
@@ -6242,13 +6242,13 @@ Arrival Coordination
 System event:
 - arrival_coordination_requested.
 
-Financial Closure Rule:
+Правило финансового закрытия:
 - для PromptPay QR / Bank Transfer / future deposit-to-platform routes финансовый цикл считается закрытым после deposit_paid;
 - для Cash финансовый цикл заказа не считается закрытым после job_completed;
 - для Cash после job_completed обязательство мастера перед платформой остаётся pending до commission_collected;
 - commission_collected фиксирует, что платформа получила комиссию мастера.
 ↓
-Work Lifecycle
+Рабочий lifecycle
 ↓
 мастер прибывает на объект
 ↓
@@ -6284,15 +6284,15 @@ Review / Dispute
 - Price revision должен быть обоснован через structured job scope.
 - Chat содержит human explanation.
 - Structured fields и job_events содержат business facts.
-- Client selection of the master constitutes acceptance of Final Price and selected master.
+- Выбор мастера клиентом означает принятие Final Price и выбранного мастера.
 - master_selected создаётся только после прохождения Safety Gate.
 - Financial snapshot становится immutable после фиксации.
 - Commission и deposit / commission obligation всегда считаются от Final Agreed Price.
 - Deposit не является универсальным обязательным этапом для всех payment methods.
-- Cash must not be modelled as client deposit paid to platform.
+- Cash не должен моделироваться как клиентский депозит, оплаченный платформе.
 - Для Cash финансовый цикл не закрывается событием job_completed.
 - Для Cash финансовый цикл закрывается только после commission_collected.
-- Arrival coordination запускается только после финансовой фиксации маршрута оплаты.
+- Координация прибытия запускается только после финансовой фиксации маршрута оплаты.
 - Для депозитных методов arrival coordination запрещён до deposit_paid.
 - Для Cash arrival coordination разрешён после commission_obligation_created.
 - Master Complete Order доступен только после completion_confirmed_by_client.
@@ -6305,30 +6305,30 @@ Review / Dispute
 
 Status: APPROVED ✅
 
-### Definition
+### Определение
 
-Helpy is a Guided Job Flow platform.
+Helpy является Guided Job Flow платформой.
 
-Helpy is not a traditional service marketplace.
+Helpy не является обычным маркетплейсом услуг.
 
-The primary responsibility of the platform is to guide an order through a controlled lifecycle from entry conditions to a verified outcome.
+Главная ответственность платформы — провести заказ через управляемый жизненный цикл: от входных условий до проверенного результата.
 
-### Central Object
+### Центральный объект
 
-The order is the center of the system.
+Центральный объект системы — заказ.
 
-Not masters.
-Not clients.
-Not chat.
-Not payments.
+Не мастер.
+Не клиент.
+Не чат.
+Не платежи.
 
-All other components exist to support the successful completion of the order lifecycle.
+Все остальные компоненты существуют для того, чтобы поддержать успешное завершение жизненного цикла заказа.
 
-### Purpose
+### Назначение
 
-Guided Job Flow exists to help participants safely and predictably complete a job.
+Guided Job Flow помогает клиенту и мастеру безопасно и предсказуемо довести заказ до результата.
 
-The platform guides participants through:
+Платформа ведёт участников через:
 
 - structured questions;
 - required photos;
@@ -6340,69 +6340,69 @@ The platform guides participants through:
 - dispute prevention;
 - operational controls.
 
-### Structured Scope Principle
+### Принцип structured scope
 
-Entry Price is always defined by platform/admin pricing rules.
+Entry Price всегда задаётся platform/admin pricing rules.
 
-Structured forms do not calculate Entry Price.
+Structured forms не рассчитывают Entry Price.
 
-Structured questions and required photos exist to:
+Structured questions и required photos нужны для того, чтобы:
 
-- form the initial job scope;
-- allow masters to validate the scope;
-- allow one justified price increase when necessary;
-- protect all participants through evidence;
-- support transparent Final Price formation.
+- сформировать initial job scope;
+- дать мастеру возможность проверить объём работ;
+- разрешить одно обоснованное изменение цены при необходимости;
+- защитить участников через evidence;
+- поддержать прозрачное формирование Final Price.
 
-### Canonical Lifecycle
+### Канонический жизненный цикл
 
 Admin / Platform
 ↓
-sets Entry Price
+задаёт Entry Price
+↓
+Клиент
+↓
+видит Entry Price
+↓
+соглашается войти в заказ с этим Entry Price
+↓
+отвечает на structured questions
+↓
+загружает required photos
+↓
+формирует initial structured job scope
+↓
+публикует заказ
+↓
+Мастер
+↓
+изучает structured job scope
+↓
+принимает Entry Price
+↓
+или выполняет ONE justified price increase
+↓
+объясняет причину в чате
+↓
+сохраняет price_revision_reason
+↓
+отправляет final application с Final Price
+↓
+Клиент
+↓
+выбирает мастера
+↓
+официально принимает Final Price
+↓
+Система
+↓
+создаёт immutable financial snapshot
+↓
+рассчитывает commission от Final Price
+↓
+определяет Payment Method Route и связанные финансовые обязательства
 
-Client
-↓
-sees Entry Price
-↓
-agrees to enter under this price
-↓
-answers structured questions
-↓
-uploads required photos
-↓
-forms the initial structured job scope
-↓
-publishes the order
-
-Master
-↓
-reviews the structured job scope
-↓
-either accepts Entry Price
-↓
-or performs ONE justified price increase
-↓
-explains the reason in chat
-↓
-stores price_revision_reason
-↓
-submits an application with Final Price
-
-Client
-↓
-selects the master
-↓
-thereby officially accepts Final Price
-
-System
-↓
-creates immutable financial snapshot
-↓
-calculates commission from Final Price
-↓
-determines Payment Method Route and related financial obligations
-
-Then
+Далее
 ↓
 Start Work
 ↓
@@ -6414,36 +6414,37 @@ Master Complete Order
 ↓
 Review / Dispute
 
-### Canonical Rules
+### Канонические правила
 
-- Entry Price is defined by platform/admin pricing rules.
-- Initial job scope is formed through structured questions and required photos.
-- Masters may revise Entry Price only once.
-- Price revision must be justified against the structured job scope.
-- Chat contains human explanation and agreements.
-- Structured fields and job_events contain business facts.
-- Client selection of the master constitutes acceptance of Final Price.
-- Financial snapshots become immutable after fixation.
-- Commission and deposit / commission obligation are always based on Final Price.
-- Evidence Photos and Completion are mandatory parts of the lifecycle.
-- Disputes use the complete evidence package.
+- Entry Price задаётся platform/admin pricing rules.
+- Initial job scope формируется через structured questions и required photos.
+- Мастер может изменить Entry Price только один раз.
+- Price revision должен быть обоснован через structured job scope.
+- Chat содержит human explanation и agreements.
+- Structured fields и job_events содержат business facts.
+- Выбор мастера клиентом означает принятие Final Price.
+- Financial snapshots становятся immutable после фиксации.
+- Commission и deposit / commission obligation всегда считаются от Final Price.
+- Evidence Photos и Completion являются обязательными частями lifecycle.
+- Disputes используют полный evidence package.
 
 ### Product Positioning
 
-Traditional marketplaces answer:
+Обычный маркетплейс отвечает:
 
-"Who should I hire?"
+"Кого нанять?"
 
-Guided Job Flow answers:
+Guided Job Flow отвечает:
 
-"How do we safely and predictably guide this job to a successful outcome?"
+"Как безопасно и предсказуемо провести этот заказ к успешному результату?"
 
 ### Governance Rule
 
-All future decisions regarding categories, screens, APIs, databases, admin capabilities and business logic must be evaluated against Guided Job Flow principles.
+Все будущие решения по categories, screens, APIs, databases, admin capabilities и business logic должны оцениваться через принципы Guided Job Flow.
 
-If a future decision contradicts Guided Job Flow, the contradiction must be explicitly justified and approved before implementation.
----
+Если будущее решение противоречит Guided Job Flow, противоречие должно быть явно обосновано и утверждено до реализации.
+
+----
 ## Contextual Guidance Knowledge System
 
 Status: APPROVED ✅
