@@ -6605,21 +6605,21 @@ Contextual Guidance отвечает:
 
 Status: APPROVED ✅
 
-### Purpose
+### Назначение
 
-Mobile screens must not contain hardcoded business knowledge, service rules or contextual guidance.
+Mobile screens не должны содержать hardcoded business knowledge, service rules или contextual guidance.
 
-Mobile screens must contain guidance slots: stable UI placement points where contextual guidance from API can be displayed.
+Mobile screens должны содержать guidance slots: стабильные UI-точки, где может отображаться contextual guidance, полученное через API.
 
-### Core Rule
+### Основное правило
 
-Flutter UI does not own platform knowledge.
+Flutter UI не владеет знаниями платформы.
 
-Flutter UI only renders structured guidance records returned by API.
+Flutter UI только отображает structured guidance records, возвращённые API.
 
-### Why
+### Причина
 
-This prevents business-rule drift between:
+Это предотвращает business-rule drift между:
 - Registry;
 - Admin Panel;
 - API;
@@ -6630,7 +6630,7 @@ This prevents business-rule drift between:
 
 ### Required Guidance Slots
 
-Mobile screens must reserve guidance slots for key Guided Job Flow stages:
+Mobile screens должны резервировать guidance slots для ключевых этапов Guided Job Flow:
 
 - Create Job;
 - photo upload;
@@ -6650,7 +6650,7 @@ Mobile screens must reserve guidance slots for key Guided Job Flow stages:
 
 ### Slot Context
 
-Each guidance request must be able to include:
+Каждый guidance request должен уметь включать:
 - role;
 - screen;
 - category;
@@ -6663,27 +6663,27 @@ Each guidance request must be able to include:
 
 ### Runtime Rule
 
-If API returns guidance records, the screen displays them in the matching slot.
+Если API возвращает guidance records, экран отображает их в соответствующем slot.
 
-If API returns no guidance records, the screen must remain clean and continue normally.
+Если API не возвращает guidance records, экран остаётся чистым и продолжает работать штатно.
 
-No screen should add local fallback business advice unless explicitly approved.
+Экран не должен добавлять локальные fallback business advice без явного утверждения.
 
 ### Implementation Rule
 
-When changing or creating mobile screens, developers must check whether the screen needs a guidance slot.
+При изменении или создании mobile screens разработчики должны проверить, нужен ли экрану guidance slot.
 
-If guidance is required, add a generic reusable guidance rendering component.
+Если guidance требуется, нужно добавить generic reusable guidance rendering component.
 
-Do not add hardcoded instructional text as a quick patch.
+Нельзя добавлять hardcoded instructional text как быстрый patch.
 
-Do not wrap screens later with magic guidance overlays.
+Нельзя позже оборачивать screens магическими guidance overlays.
 
-Do not duplicate business knowledge inside Flutter widgets.
+Нельзя дублировать business knowledge внутри Flutter widgets.
 
 ### Admin Rule
 
-Guidance content must be managed through Admin/Guidance Builder with:
+Guidance content должно управляться через Admin/Guidance Builder с поддержкой:
 - Draft / Published lifecycle;
 - Audit Log;
 - RU / EN / TH localization;
