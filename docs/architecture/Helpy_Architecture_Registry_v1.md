@@ -7694,6 +7694,26 @@ No Flutter code should be written from this contract until Mobile Timeline Contr
 5. Подтверждение условий
 6. Активировать аккаунт
 
+### Client Registration Screen Contract
+
+Экран 1
+
+Phone *
+Email *
+Email OTP *
+
+[Продолжить]
+
+↓
+
+Экран 2
+
+Display Name *
+
+☐ Я подтверждаю условия
+
+[Активировать аккаунт]
+
 ### Not Used
 
 • SMS OTP;
