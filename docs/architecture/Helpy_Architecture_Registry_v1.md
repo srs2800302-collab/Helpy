@@ -6449,25 +6449,25 @@ Guided Job Flow отвечает:
 
 Status: APPROVED ✅
 
-### Definition
+### Определение
 
-Helpy does not treat documents as passive reference materials.
+Helpy не рассматривает документы как пассивные справочные материалы.
 
-Helpy transforms accumulated platform knowledge into contextual guidance shown exactly when participants need it.
+Helpy превращает накопленные знания платформы в contextual guidance, которое показывается участникам именно в нужный момент.
 
-This system is a core part of Guided Job Flow.
+Эта система является частью Guided Job Flow.
 
-### Core Principle
+### Основной принцип
 
-Users should not search for knowledge.
+Клиент и мастер не должны искать знания самостоятельно.
 
-The platform delivers the right knowledge at the right moment.
+Платформа доставляет нужное знание в нужный момент.
 
-### Guidance Levels
+### Уровни Guidance
 
 Level 1 — Structured Scope Formation
 
-The platform gathers objective facts through:
+Платформа собирает объективные факты через:
 - category;
 - subcategory;
 - scenario branch;
@@ -6475,52 +6475,52 @@ The platform gathers objective facts through:
 - client answers;
 - required photos.
 
-Purpose:
-- reduce chaos;
-- improve initial job scope quality;
-- support transparent Final Price formation.
+Назначение:
+- уменьшить хаос;
+- повысить качество initial job scope;
+- поддержать прозрачное формирование Final Price.
 
 Level 2 — Client Guidance
 
-Clients receive contextual prompts while creating and managing orders.
+Клиент получает contextual prompts во время создания и управления заказом.
 
-Examples:
-- do not open equipment packaging before master arrival;
-- prepare the work area before arrival;
-- review the completed work before confirmation.
+Примеры:
+- не вскрывать упаковку оборудования до прибытия мастера;
+- подготовить рабочую зону до прибытия;
+- проверить выполненную работу перед подтверждением.
 
 Level 3 — Master Guidance
 
-Masters receive contextual prompts relevant to the current order.
+Мастер получает contextual prompts, связанные с текущим заказом.
 
-Examples:
-- study photos before applying;
-- verify equipment compatibility before opening packaging;
-- justify hidden work through chat if a price revision is required.
+Примеры:
+- изучить фотографии до отклика;
+- проверить совместимость оборудования до вскрытия упаковки;
+- обосновать скрытые работы через чат, если требуется price revision.
 
 Level 4 — Workflow Guidance
 
-Guidance depends on the current lifecycle stage.
+Guidance зависит от текущего lifecycle stage.
 
-Examples:
+Примеры:
 
 After Master Selection:
-- client coordinates arrival through chat;
-- master coordinates arrival through chat.
+- клиент согласует прибытие через чат;
+- мастер согласует прибытие через чат.
 
 In Progress:
-- master records hidden defects and work stages using evidence photos;
-- client reviews results before confirmation.
+- мастер фиксирует скрытые дефекты и этапы работы через evidence photos;
+- клиент проверяет результат перед подтверждением.
 
 Before Completion:
-- client is informed that confirmation closes the order;
-- master is informed that completion becomes available only after client confirmation.
+- клиенту объясняется, что подтверждение закрывает заказ;
+- мастеру объясняется, что completion становится доступен только после подтверждения клиента.
 
 Level 5 — Living Knowledge Base
 
-Client Docs, Master Docs, Service Playbooks and Admin Rules become structured knowledge sources.
+Client Docs, Master Docs, Service Playbooks и Admin Rules становятся structured knowledge sources.
 
-They are not passive documents.
+Они не являются пассивными документами.
 
 ### Knowledge Flow
 
@@ -6540,7 +6540,7 @@ Mobile UI
 
 ### Runtime Rule
 
-Mobile applications must never read Markdown documents directly.
+Mobile applications не должны напрямую читать Markdown documents.
 
 Mobile applications consume only structured guidance records delivered by API.
 
@@ -6556,7 +6556,7 @@ Example structure:
 
 ### Guidance Context Dimensions
 
-Guidance may depend on:
+Guidance может зависеть от:
 - role;
 - category;
 - subcategory;
@@ -6567,7 +6567,7 @@ Guidance may depend on:
 
 ### Governance
 
-Guidance Records must support:
+Guidance Records должны поддерживать:
 - Draft / Published;
 - Audit Log;
 - Preview;
@@ -6576,29 +6576,30 @@ Guidance Records must support:
 
 ### Business Outcome
 
-As Helpy grows, the platform scales accumulated experience.
+По мере роста Helpy платформа масштабирует накопленный опыт.
 
-Expected effects:
-- fewer client mistakes;
-- fewer master mistakes;
-- fewer disputes;
-- higher quality job scopes;
-- faster onboarding of new masters;
-- continuous platform improvement without mobile releases.
+Ожидаемые эффекты:
+- меньше ошибок клиентов;
+- меньше ошибок мастеров;
+- меньше споров;
+- более качественные job scopes;
+- более быстрый onboarding новых мастеров;
+- постоянное улучшение платформы без mobile releases.
 
 ### Relationship With Guided Job Flow
 
-Guidance is not FAQ.
+Guidance не является FAQ.
 
-Guidance is an operational component of Guided Job Flow.
+Guidance является операционным компонентом Guided Job Flow.
 
-Guided Job Flow answers:
+Guided Job Flow отвечает:
 
-"How does the order progress?"
+"Как движется заказ?"
 
-Contextual Guidance answers:
+Contextual Guidance отвечает:
 
-"How does accumulated platform experience help participants succeed at each stage of the order?"
+"Как накопленный опыт платформы помогает участникам успешно пройти каждый этап заказа?"
+
 ---
 ## Mobile Guidance Slots Contract
 
