@@ -1653,6 +1653,7 @@ Status: APPROVED / STORED ✅
 ### Kitchen Built-in Appliances → Духовой шкаф
 
 Status: APPROVED / STORED ✅
+Standard Compliance: Built-in Appliance Architecture Standard ✅
 
 Назначение:
 - Этот mini-ТЗ описывает установку, подключение и замену встроенного духового шкафа внутри Kitchen Built-in Appliances.
