@@ -4612,6 +4612,13 @@ Terminology Normalization Rule:
 - Mobile Guidance Slots Contract.
 - Contextual Guidance Knowledge System.
 
+Architecture Notes:
+- Cleaning Mini-TZ Standard является service-flow стандартом и не наследует terminology rules equipment-flow категорий.
+- Каждая Cleaning-сущность должна оставаться самодостаточной формой для клиента, мастера и будущей Dart-модели.
+- Вопросы и required photos внутри Cleaning дополняют друг друга и вместе формируют полноценное initial structured job scope.
+- Cross-category terminology changes запрещены без ограничения диапазона редактирования конкретной категорией или сущностью.
+- Cleaning wording не должен попадать в Appliance, Plumbing, Locks или другие equipment-flow категории.
+
 ### 17.1 Regular Cleaning
 
 Status: APPROVED / STORED ✅
