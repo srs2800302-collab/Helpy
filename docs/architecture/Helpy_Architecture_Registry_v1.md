@@ -3428,6 +3428,13 @@ English:
 - Damage Escalation Rules.
 - Chat Evidence Rules.
 
+Registry Editing Safety Rule:
+- Cross-category terminology changes are prohibited unless the edit range is explicitly limited to the target category, standard or entity.
+- Mass replacements must not be executed across the full registry without domain-context validation.
+- A term approved for one service-flow or equipment-flow category must not automatically propagate into other category architectures.
+- Before committing terminology changes, the diff must be checked for accidental leakage into unrelated categories.
+- If leakage is detected after commit, it must be fixed by a separate corrective commit with clear proof.
+
 Closure Note:
 - Все последующие изменения регистра должны соответствовать данному стандарту.
 
