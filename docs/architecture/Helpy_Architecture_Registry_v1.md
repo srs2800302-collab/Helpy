@@ -4773,33 +4773,28 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 ---
 
-### Furniture Disassembly
-ARCHITECTURE REVIEW PENDING
+### 16.4 Furniture Disassembly
+Status: DRAFT / IN_PROGRESS
+Standard Compliance: Furniture Assembly Mini-TZ Standard
 
-Статус:
-- Решение отложено до завершения полного аудита Furniture Assembly.
+#### Состав категории
 
-Текущая гипотеза:
-- Furniture Disassembly может стать отдельной сущностью внутри Furniture Assembly.
+Категория включает разборку мебели:
 
-Возможные варианты:
-1. Отдельная ветка Furniture Disassembly.
-2. Дополнительный сценарий внутри существующих веток.
-3. Гибридный вариант после анализа всех мебельных сценариев.
+- корпусной мебели;
+- кухонной мебели;
+- встроенной мебели;
+- мебельных комплектов;
+- иной мебели.
 
-Причина переноса решения:
-- Требуется завершить аудит Kitchen Assembly.
-- Требуется завершить аудит Cabinet Furniture.
-- Требуется завершить аудит Built-in Furniture.
-- Требуется проверить пересечения с Furniture Platform Boundaries.
-- Требуется проверить сценарии демонтажа с сохранением.
+Категория не включает:
 
-До принятия финального решения:
-- Правило «Демонтаж мебели является отдельной услугой» считается временным архитектурным вопросом.
-- Финальное решение принимается после завершения рефакторинга всей категории Furniture Assembly.
+- демонтаж элементов помещения;
+- вынос, перевозку, хранение или утилизацию мебели;
+- сортировку, упаковку, хранение и перемещение личных вещей клиента.
 
 ---
-### 16.4 Furniture Skill Levels
+### 16.5 Furniture Skill Levels
 Status: APPROVED ✅
 
 Базовый уровень (Basic):
@@ -4815,7 +4810,7 @@ Status: APPROVED ✅
 - Управление доступом мастеров к мебельным заказам в зависимости от уровня сложности работ.
 
 ---
-### 16.5 Furniture Admin Settings
+### 16.6 Furniture Admin Settings
 Status: APPROVED ✅
 
 Future Admin Panel must support:
