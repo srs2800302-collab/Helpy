@@ -4598,16 +4598,19 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 
 #### Required Photos
 
-1. Внешняя схема изделия с размерами.
+1. Проект изделия с размерами.
 - 1 обязательный документ или фотография.
 
-2. Внутренняя схема / схема наполнения с размерами.
+2. Внутренняя схема наполнения с размерами.
 - 1 обязательный документ или фотография.
 
 3. Фото места установки.
 - 1 обязательная фотография.
 
-4. Комплектовочный лист / спецификация поставщика.
+4. Фото мебели, комплектующих и фурнитуры на объекте.
+- 1 обязательная фотография.
+
+5. Комплектовочный лист или спецификация поставщика.
 - Если есть.
 
 #### Niche Measurement Table
@@ -4635,14 +4638,11 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 - сверху слева
 - сверху справа
 
-#### Client Guidance
-- Client provides exterior scheme, internal layout, niche measurements and installation place photo.
-- Packing list/specification is provided if available.
-- Client must disclose if existing furniture must be dismantled.
-- Client must disclose if existing furniture must be preserved.
-- Furniture and components must be delivered to the installation area before master arrives.
-- Workspace must be prepared by the client.
-- Personal belongings must be removed by the client.
+#### Правила для клиента
+
+- Мебель, комплектующие и фурнитура должны находиться на объекте до приезда мастера.
+
+- Клиент не обязан самостоятельно определять соответствие размеров ниши и необходимость доработок по месту.
 
 #### Master Guidance
 - Verify niche dimensions against project.
