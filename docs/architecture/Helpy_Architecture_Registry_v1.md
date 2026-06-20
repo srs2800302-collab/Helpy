@@ -4722,15 +4722,19 @@ ARCHITECTURE REVIEW PENDING
 ### 16.4 Furniture Skill Levels
 Status: APPROVED ✅
 
-- Basic: Cabinet Furniture.
-- Intermediate: Kitchen Assembly.
-- Advanced: Built-in Furniture.
+Базовый уровень (Basic):
+- Cabinet Furniture.
 
-Purpose:
-Control master access to complex furniture orders.
+Средний уровень (Intermediate):
+- Kitchen Assembly.
+
+Продвинутый уровень (Advanced):
+- Built-in Furniture.
+
+Назначение:
+- Управление доступом мастеров к мебельным заказам в зависимости от уровня сложности работ.
 
 ---
-
 ### 16.5 Furniture Admin Settings
 Status: APPROVED ✅
 
