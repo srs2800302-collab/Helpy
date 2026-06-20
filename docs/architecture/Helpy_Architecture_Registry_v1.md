@@ -4558,47 +4558,82 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 Встроенная мебель не относится к Cabinet Furniture и не должна смешиваться с корпусной мебелью.
 
 #### Client Questions
-1. Is existing furniture disassembly required before installation?
-   - No
-   - Yes, disposal
-   - Yes, preserve
 
-2. Who performed the room measurement before ordering?
-   - Client
-   - Furniture manufacturer
+1. Требуется ли демонтаж установленной мебели перед установкой?
 
-3. Niche measurement table:
-   - Width: bottom outside, bottom inside, middle outside, middle inside, top outside, top inside.
-   - Height: left, right.
-   - Depth: bottom left, bottom right, middle left, middle right, top left, top right.
+- Да
+- Нет
 
-4. What material are the installation walls made of?
-   - Concrete
-   - Brick
-   - Aerated concrete
-   - Drywall / gypsum board, specify number of layers
-   - Other, client describes
+2. Кто выполнял замер помещения перед заказом мебели?
 
-5. Is there a stretch ceiling in the installation area?
-   - Yes
-   - No
-   - I do not know
+- Поставщик мебели
+- Самостоятельный замер
 
-If yes:
-- Are reinforcements prepared?
-  - Yes
-  - No
-  - I do not know
+3. Из какого материала выполнены стены в месте установки?
 
-6. Does the project include lighting or electrical connections?
-   - Yes
-   - No
+- Бетон
+- Кирпич
+- Газобетон
+- Гипсокартон, указать количество слоёв
+- Другое, указать
+
+4. Есть ли натяжной потолок в зоне установки?
+
+- Да
+- Нет
+- Не знаю
+
+Если выбрано «Да»:
+
+5. Подготовлены ли закладные элементы?
+
+- Да
+- Нет
+- Не знаю
+
+6. Предусмотрены ли в проекте освещение или электрические подключения?
+
+- Да
+- Нет
 
 #### Required Photos
-- Exterior scheme of the item with dimensions.
-- Internal layout / filling scheme with dimensions.
-- Installation place photo.
-- Packing list / supplier specification, if available.
+
+1. Внешняя схема изделия с размерами.
+- 1 обязательный документ или фотография.
+
+2. Внутренняя схема / схема наполнения с размерами.
+- 1 обязательный документ или фотография.
+
+3. Фото места установки.
+- 1 обязательная фотография.
+
+4. Комплектовочный лист / спецификация поставщика.
+- Если есть.
+
+#### Niche Measurement Table
+
+Ширина:
+
+- снизу снаружи
+- снизу внутри
+- по центру снаружи
+- по центру внутри
+- сверху снаружи
+- сверху внутри
+
+Высота:
+
+- слева
+- справа
+
+Глубина:
+
+- снизу слева
+- снизу справа
+- по центру слева
+- по центру справа
+- сверху слева
+- сверху справа
 
 #### Client Guidance
 - Client provides exterior scheme, internal layout, niche measurements and installation place photo.
