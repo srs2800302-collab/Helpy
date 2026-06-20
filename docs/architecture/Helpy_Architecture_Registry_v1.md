@@ -4560,9 +4560,20 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 - Количество строк не ограничено.
 
 #### Required Photos
-- General view of boxes.
-- Image/photo/screenshot of finished product if available.
-- Installation place photo.
+
+1. Фото мебели, комплектующих и фурнитуры на объекте.
+- 1 обязательная фотография.
+- До 1 дополнительной фотографии.
+
+2. Фото помещения, где будет установлена мебель.
+- 1 обязательная фотография.
+- До 7 дополнительных фотографий.
+
+#### Лимит фотографий
+
+- Обязательные: 2 фотографии.
+- Дополнительные: до 8 фотографий.
+- Всего: до 10 из 10 фотографий.
 
 #### Client Guidance
 - Furniture must be on site before master arrives.
