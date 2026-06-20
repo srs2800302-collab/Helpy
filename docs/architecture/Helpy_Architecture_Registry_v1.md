@@ -4635,26 +4635,10 @@ If yes:
 - Master does not organize transport, lifting, storage or logistics.
 - Master does not pack furniture for moving.
 - Furniture disassembly is a separate service.
-- Furniture disassembly with preservation: 50% of installation price.
 - Hardware/fittings are collected into one bag/box.
 - Transport, storage, packing and removal are outside the service scope.
 
-#### Pricing
-- Built-in Furniture Base Price: from 3,500 THB.
-- Furniture disassembly: 50% of installation price.
-- Control measurement and completeness verification: 500 THB.
-- Prices are MVP baselines and must be editable from Admin Panel.
-
-#### Premium Services
-- Control measurement.
-- Completeness verification.
-- Recommended, not mandatory.
-- Especially useful for kitchens, built-in furniture and complex furniture projects.
-
 #### Admin Dependencies
-- Built-in Furniture Base Price.
-- Furniture Disassembly Percent.
-- Inspection Service Price.
 - Dynamic niche measurement table.
 - Required photos management.
 - Master eligibility by Advanced furniture skill level.
