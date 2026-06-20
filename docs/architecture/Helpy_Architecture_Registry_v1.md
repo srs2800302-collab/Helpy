@@ -4262,6 +4262,64 @@ Furniture Assembly
 
 ---
 
+## Furniture Assembly Mini-TZ Standard
+
+Status: APPROVED / STORED ✅
+
+Назначение:
+- Этот стандарт применяется к Furniture Assembly mini-ТЗ внутри Service Architecture Registry — Furniture Assembly.
+- Furniture Assembly использует customer-facing mini-TZ сущности и governing blocks.
+- Mini-scope архитектура внутри Furniture Assembly не используется.
+- Initial structured job scope формируется через выбранную mini-TZ сущность, structured questions, client answers и required photos.
+- Каждая Furniture Assembly mini-TZ сущность должна содержать полный набор вопросов, фотографий, правил клиента и правил мастера внутри собственной ветки.
+- Смысловое наследование между Furniture Assembly сценариями допускается, но не заменяет явное описание формы внутри конкретной сущности.
+
+Mini-TZ Entity Rule:
+- Kitchen Assembly, Cabinet Furniture и Built-in Furniture являются customer-facing mini-TZ сущностями.
+- Mini-TZ сущность должна описывать назначение, вопросы, required photos, правила клиента, правила мастера, platform boundaries, admin dependencies и inherited rules.
+- Mini-TZ сущность должна быть достаточной для формирования initial structured job scope без перехода в другую сущность.
+- Вопросы и required photos дополняют друг друга и вместе формируют полноценное initial structured job scope.
+- Furniture Assembly mini-TZ не должен превращаться в свободную диагностику мебели или помещения.
+
+Governing Blocks Rule:
+- Furniture Skill Levels, Furniture Admin Settings, Pricing, Premium Services и Admin Dependencies являются governing blocks.
+- Governing blocks не являются customer-facing услугами.
+- Governing blocks управляют доступом мастеров, настройками админ-панели, ценовыми параметрами, premium checks и правилами видимости.
+- Governing blocks не заменяют явное описание вопросов, фотографий и правил внутри customer-facing mini-TZ сущностей.
+
+Service-Flow Rule:
+- Furniture Assembly является service-flow категорией с physical-product constraints.
+- Furniture Assembly описывает сборку, установку, подготовку зоны работ, комплектность, доступность, безопасность крепления и ограничения выполнения работ.
+- Furniture Assembly не включает подключение бытовой техники, перенос сантехники, перенос электрики, транспортировку, хранение или логистику мебели.
+- Furniture Assembly не включает сортировку, упаковку, хранение или перемещение личных вещей клиента.
+- Furniture Assembly может включать демонтаж мебели только там, где это явно утверждено сценарием или pricing rule.
+
+Terminology Normalization Rule:
+- Используется термин «сборка мебели» для cabinet/corpus furniture.
+- Используется термин «установка встроенной мебели» для Built-in Furniture.
+- Используется термин «кухонная сборка» для Kitchen Assembly.
+- Используется термин «зона сборки / установки», если речь идёт о месте выполнения работ.
+- Используется термин «комплектность», если речь идёт о наличии штатных деталей, крепежа, фурнитуры и элементов мебели.
+- Термин «mini-scope» не используется для Furniture Assembly сущностей; governing blocks не являются mini-scope сущностями.
+- Формулировка «диагностика мебели» не используется для Furniture Assembly сценариев.
+- Формулировка «мастер может попросить дополнительные фото» не используется.
+- Формулировка «клиент должен подготовить объект полностью» не используется без конкретного действия.
+
+Применение:
+- Kitchen Assembly должен быть приведён к Furniture Assembly Mini-TZ Standard.
+- Cabinet Furniture должен быть приведён к Furniture Assembly Mini-TZ Standard.
+- Built-in Furniture должен быть приведён к Furniture Assembly Mini-TZ Standard.
+- Furniture Skill Levels и Furniture Admin Settings остаются governing blocks.
+- Future Furniture Assembly branches должны проектироваться по Furniture Assembly Mini-TZ Standard, если не утверждено отдельное исключение.
+
+Наследуемые правила:
+- Global Completion Evidence Rule.
+- Global Service Quality Rule.
+- Chat Evidence Rules.
+- Mobile Guidance Slots Contract.
+- Contextual Guidance Knowledge System.
+- Registry Editing Safety Rule.
+
 ### 16.1 Kitchen Assembly
 Status: APPROVED / CLOSED / STORED + DOCS ✅
 
