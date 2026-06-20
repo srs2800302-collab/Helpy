@@ -4739,15 +4739,23 @@ Status: APPROVED ✅
 Status: APPROVED ✅
 
 Future Admin Panel must support:
+- Required photo management.
+- Question management.
+- Rule visibility.
+- Master eligibility rules.
+
+Removed legacy settings:
 - Kitchen Assembly Base Price.
 - Cabinet Furniture Base Price.
 - Built-in Furniture Base Price.
 - Furniture Disassembly Percent.
 - Inspection Service Price.
-- Required photo management.
-- Question management.
-- Rule visibility.
-- Master eligibility rules.
+
+Причина:
+- Фиксированные базовые цены не используются в текущей модели ценообразования.
+- Решение по Furniture Disassembly находится в статусе ARCHITECTURE REVIEW PENDING.
+- Inspection Service / Premium Services удалены из MVP scope Furniture Assembly.
+
 ---
 ## 21. Service Architecture Registry — Cleaning
 Status: CLOSED — STORED + DOCS VERIFIED
