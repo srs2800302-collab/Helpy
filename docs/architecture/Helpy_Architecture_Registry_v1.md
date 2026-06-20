@@ -4618,7 +4618,7 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 Status: APPROVED / CLOSED / STORED + DOCS ✅
 Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
-#### Architecture
+#### Архитектура
 
 Встроенная мебель является отдельной технологией установки.
 
@@ -4765,9 +4765,11 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 - Освещение и электрические подключения могут влиять на сложность установки.
 
 #### Admin Dependencies
-- Dynamic niche measurement table.
-- Required photos management.
-- Master eligibility by Advanced furniture skill level.
+
+- Управление таблицей замеров ниши.
+- Управление обязательными фотографиями.
+- Управление отображением правил.
+- Управление правилами допуска мастеров по уровню Advanced furniture skill.
 
 ---
 
