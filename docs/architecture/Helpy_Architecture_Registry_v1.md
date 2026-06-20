@@ -4524,6 +4524,7 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 ### 16.2 Cabinet Furniture
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 #### Scope
 Includes new corpus/cabinet furniture:
