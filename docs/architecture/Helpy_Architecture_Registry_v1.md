@@ -4548,6 +4548,7 @@ Default:
 
 ### 16.3 Built-in Furniture
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 #### Architecture
 
