@@ -3735,6 +3735,18 @@ Admin Panel is not a list of orders.
 
 Admin Panel is a Business Logic Builder.
 
+### Related Orders Admin Visibility
+
+Status: GAP_APPROVED
+
+Назначение:
+- Admin Panel должна отображать группы связанных заказов.
+- Admin Panel должна показывать, какие заказы входят в связанную группу.
+- Admin Panel должна показывать исполнителя по каждому связанному заказу.
+- Admin Panel должна показывать Final Agreed Price и комиссию платформы по каждому связанному заказу.
+- При оплате наличными комиссия платформы удерживается с мастера отдельно по каждому заказу.
+- Связка заказов не объединяет финансовые обязательства, evidence, dispute scope и completion flow.
+
 ### Category Builder
 - Enable Category
 - Disable Category
@@ -9084,6 +9096,30 @@ Helpy является Guided Job Flow платформой: заказ прох
 ТЕКУЩИЙ GAP:
 - runtime реализует только часть утверждённого lifecycle;
 - старые runtime-фрагменты не должны считаться каноническим источником бизнес-логики.
+
+### Related Orders
+
+Status: GAP_APPROVED
+
+Furniture ↔ Appliance Related Orders Rule:
+- Клиент может связать заказ Furniture Assembly с заказами Home Appliances Installation & Connection.
+
+Связка может включать до 3 заказов:
+
+1. Основной мебельный заказ:
+   - Kitchen Assembly или Built-in Furniture.
+
+2. Связанный заказ на встроенную кухонную технику:
+   - Kitchen Built-in Appliances.
+
+3. Связанный заказ на отдельно стоящую технику:
+   - Appliance Installation & Connection.
+
+- После выбора связанного сценария клиент переходит на экран Home Appliances Installation & Connection и выбирает нужную ветку техники.
+- Связанные заказы остаются отдельными заказами с отдельными mini-TZ, чатами, финальными ценами, оплатами, evidence, dispute scope и completion flow.
+- Платформа должна отдавать приоритет мастерам, способным выполнить все связанные заказы.
+- Если один мастер не может выполнить все связанные заказы, платформа может показать мастеров по каждому заказу отдельно.
+- Admin Panel должна отображать группу связанных заказов, исполнителя по каждому заказу и комиссию платформы по каждому Final Agreed Price.
 
 ### Канонический жизненный цикл заказа
 
