@@ -4444,25 +4444,43 @@ Furniture Mini-TZ Template:
 Status: APPROVED / CLOSED / STORED + DOCS ✅
 Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
-#### Client Questions
-- Is there a kitchen layout / scheme with dimensions?
-  - Yes
-  - No
-
 #### Required Photos
-- Kitchen layout / scheme with dimensions.
-- Supplier specification / комплектовочный лист.
-- Front view of installation place.
-- Water outputs with tape measure from corner/floor.
-- Sockets with tape measure from corner/floor.
-- Ventilation opening with tape measure if present.
-- General view of furniture boxes.
 
-#### Client Guidance
-- Furniture must be on site before master arrives.
-- Client provides access and prepared workspace.
-- Client provides layout and dimensions if available.
-- Appliance connection is separate.
+1. Фото мебели, комплектующих и фурнитуры на объекте.
+- 1 обязательная фотография.
+
+2. Проект кухонной мебели с размерами.
+- 1 обязательная фотография.
+
+3. Комплектовочный лист или спецификация поставщика.
+- 1 необязательная фотография.
+
+4. Фото места установки спереди.
+- 1 обязательная фотография.
+
+5. Фото выводов воды и водоотвода с рулеткой от угла или пола.
+- 1 обязательная фотография.
+
+6. Фото центра электрических точек с рулеткой от угла или пола.
+- 2 обязательные фотографии.
+- До 2 дополнительных фотографий.
+
+7. Фото воздуховода.
+- 1 необязательная фотография.
+
+#### Лимит фотографий
+
+- Обязательные: 6 фотографий.
+- Дополнительные: до 4 фотографий.
+- Всего: до 10 из 10 фотографий.
+
+#### Правила для клиента
+
+- Мебель, комплектующие и фурнитура должны находиться на объекте до приезда мастера.
+- Клиент обеспечивает доступ к месту выполнения работ.
+- Личные вещи должны быть убраны из зоны выполнения работ до начала установки.
+- Установка кухонной мебели не включает установку и подключение встроенной бытовой техники.
+- Для установки и подключения встроенной бытовой техники необходимо создать отдельный заказ в соответствующей категории.
 
 #### Master Guidance
 - Verify modules, countertop, fittings and basic completeness.
