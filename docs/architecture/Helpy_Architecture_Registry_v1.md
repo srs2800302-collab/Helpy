@@ -4548,6 +4548,7 @@ Default:
 
 ### 16.3 Built-in Furniture
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 #### Architecture
 
@@ -4612,6 +4613,12 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 
 5. Комплектовочный лист или спецификация поставщика.
 - Если есть.
+
+#### Лимит фотографий
+
+- Обязательные: 4 фотографии / документа.
+- Дополнительные: до 1 фотографии / документа.
+- Всего: до 5 из 10 фотографий.
 
 #### Niche Measurement Table
 
