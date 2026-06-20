@@ -4515,10 +4515,10 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 - Если условия выполнения работ являются небезопасными, мастер вправе отказаться от выполнения работ до устранения причины.
 
 #### Admin Dependencies
-- Required photos management.
-- Question management.
-- Rule visibility.
-- Master eligibility rules.
+
+- Управление обязательными фотографиями.
+- Управление отображением правил.
+- Управление правилами допуска мастеров.
 
 ---
 
