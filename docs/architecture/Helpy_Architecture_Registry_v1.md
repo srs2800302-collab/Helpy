@@ -4316,60 +4316,96 @@ Furniture Mini-TZ Template:
 - Что входит в initial structured job scope.
 - Чем сценарий не является.
 
-3. Вопросы:
+3. Scope / Architecture:
+- Что входит в сценарий.
+- Что не входит в сценарий.
+- Технологический тип работ.
+- Ограничения сценария.
+- Для встроенной мебели указывается workflow: measurement → project → installation.
+- Для cabinet/corpus furniture указывается список поддерживаемых типов мебели без создания отдельных подкатегорий по product names.
+
+4. Вопросы:
 - Полный набор вопросов формы.
 - Условные вопросы указываются явно.
 - Табличные вопросы описываются как структура данных формы.
+- Measurement / dimensions / niche tables описываются как структурированные поля.
+- Safety questions указываются явно: wall fastening, children, stretch ceiling, reinforcements, lighting / electrical elements.
+- Disassembly questions указываются явно: no / disposal / preserve.
 
-4. Правила вопросов:
+5. Правила вопросов:
 - Какие ответы формируют scope.
 - Какие вопросы являются safety / access / completeness questions.
 - Что клиент не обязан определять самостоятельно.
 - Какие детали оцениваются по required photos и при необходимости уточняются через чат.
+- Какие ответы влияют на сложность, цену, eligibility или необходимость отдельного согласования.
 
-5. Обязательные фотографии:
+6. Обязательные фотографии:
 - Фото должны закрывать визуальную часть initial structured job scope.
 - Каждое фото указывается отдельно.
 - Для каждой позиции указывается обязательность и количество.
+- Для схем, layouts, specifications, packing lists и карточек товара указывается, являются ли они обязательными или optional if available.
 
-6. Дополнительные фотографии:
+7. Дополнительные фотографии:
 - Дополнительные фотографии указываются отдельно от обязательных.
 - Дополнительные фотографии не должны ломать общий лимит фотографий.
 
-7. Лимит фотографий:
+8. Лимит фотографий:
 - Обязательные.
 - Дополнительные.
 - Всего: до 10 из 10 фотографий, если для конкретной ветки не утверждён иной лимит.
 
-8. Правила для клиента:
+9. Правила для клиента:
 - Доступ к зоне сборки / установки.
-- Наличие мебели и комплектующих на объекте.
+- Наличие мебели, коробок, комплектующих и документации на объекте.
 - Подготовка зоны работ конкретными действиями.
-- Личные вещи, ценности и ответственность клиента.
+- Освобождение личных вещей и ценностей из зоны работ.
+- Раскрытие ограничений: демонтаж, сохранение старой мебели, стены, потолок, освещение, электрика, высота потолка.
 - Границы того, что клиент не обязан определять самостоятельно.
 
-9. Правила выполнения работ мастером:
+10. Правила выполнения работ мастером:
 - Проверка initial structured job scope.
 - Проверка мебели / комплектующих / упаковки.
+- Фиксация повреждений упаковки, мебели или деталей до начала работ через чат платформы.
 - Проверка зоны сборки / установки.
+- Проверка комплектности.
+- Проверка safety constraints: wall/base safety, wall fastening, ceiling height, stretch ceiling, reinforcements, lighting / electrical elements.
 - Выполнение сборки / установки.
 - Проверка результата.
 - Ограничения и действия при повреждениях, нехватке деталей или небезопасных условиях.
+- Если мебель или детали повреждены, но клиент подтверждает продолжение работ, подтверждение клиента и фото становятся частью evidence заказа.
 
-10. Platform boundaries:
+11. Platform boundaries:
 - Что не входит в услугу.
 - Какие работы являются отдельными услугами.
 - Какие действия требуют согласования через чат.
+- Transport, lifting, storage, logistics, packing for moving and removal are outside Furniture Assembly scope unless separately approved.
+- Appliance connection, plumbing relocation and electrical relocation are outside Furniture Assembly scope unless separately approved.
+- Мастер не перемещает, не сортирует, не хранит и не упаковывает личные вещи клиента.
 
-11. Admin Dependencies:
+12. Pricing:
+- Base price.
+- Percent rules.
+- Premium inspection service price.
+- Disassembly percent.
+- MVP baseline prices must be editable from Admin Panel.
+
+13. Premium Services:
+- Control measurement.
+- Completeness verification.
+- Premium services are recommended, not mandatory, unless separately approved.
+- Premium services do not replace the customer-facing mini-TZ.
+
+14. Admin Dependencies:
 - Base price.
 - Percent rules.
 - Dynamic questions.
+- Dynamic tables.
 - Required photos management.
 - Rule visibility.
+- Premium inspection service settings.
 - Master eligibility rules.
 
-12. Наследуемые правила:
+15. Наследуемые правила:
 - Global Completion Evidence Rule.
 - Global Service Quality Rule.
 - Chat Evidence Rules.
