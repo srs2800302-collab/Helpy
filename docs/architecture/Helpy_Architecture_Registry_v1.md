@@ -4605,20 +4605,12 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 - Мастер проверяет результат сборки, работу фурнитуры и надёжность устойчивости мебели.
 
-#### Platform Rules
-- Category is based on assembly technology, not product names.
-- Do not create separate subcategories for шкаф / кровать / комод / стол.
-- Master does not move, sort or store client belongings.
-- Furniture disassembly with preservation is allowed as a separate service.
-- Disassembly for large furniture: 50% of assembly/installation price.
-
 #### Admin Dependencies
-- Dynamic furniture table.
-- Wall fastening question.
-- Children safety question.
-- Required photos management.
-- Furniture Disassembly Percent.
-- Cabinet Furniture Base Price.
+
+- Управление перечнем мебели для сборки.
+- Управление обязательными фотографиями.
+- Управление отображением правил.
+- Управление правилами допуска мастеров.
 
 ---
 
@@ -4634,7 +4626,7 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 Встроенная мебель не относится к Cabinet Furniture и не должна смешиваться с корпусной мебелью.
 
-#### Client Questions
+#### Вопросы клиенту
 
 1. Требуется ли демонтаж установленной мебели перед установкой?
 
@@ -4690,7 +4682,7 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 5. Комплектовочный лист или спецификация поставщика.
 - Если есть.
 
-#### Niche Measurement Table
+#### Таблица замеров ниши
 
 Ширина:
 
