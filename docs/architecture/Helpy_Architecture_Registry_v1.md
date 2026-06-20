@@ -4514,18 +4514,11 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 - Если повреждённые детали допускают продолжение работ, выполнение возможно только после согласования с клиентом через чат платформы.
 - Если условия выполнения работ являются небезопасными, мастер вправе отказаться от выполнения работ до устранения причины.
 
-#### Platform Rules
-- Kitchen assembly does not include plumbing, electrical relocation or appliance connection.
-- Future root category: Home Appliances Installation & Connection.
-- Disassembly of old kitchen: 50% of installation price.
-- Launch baseline: from 5,000 THB.
-
 #### Admin Dependencies
-- Kitchen Assembly Base Price.
-- Furniture Disassembly Percent.
 - Required photos management.
+- Question management.
 - Rule visibility.
-- Premium inspection service.
+- Master eligibility rules.
 
 ---
 
