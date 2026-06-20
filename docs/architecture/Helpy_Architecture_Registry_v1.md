@@ -4644,32 +4644,46 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 
 - Клиент не обязан самостоятельно определять соответствие размеров ниши и необходимость доработок по месту.
 
-#### Master Guidance
-- Verify niche dimensions against project.
-- Verify wall material and safe fastening independently.
-- Verify stretch ceiling and reinforcements before installation.
-- Verify electrical connection point if lighting/electrical elements are included.
-- Verify packaging and completeness before installation.
-- Record packaging damage or part damage in platform chat before work starts.
-- If preserved furniture is dismantled, place parts in agreed area and collect fittings in one bag/box.
+#### Правила выполнения работ мастером
 
-#### Built-in Furniture Rules
-- Main document is the product scheme with dimensions and construction.
-- After the scheme, the most important data is installation place/niche dimensions.
-- Niche dimensions must match project dimensions or construction tolerances.
-- Installation complexity is determined not only by external size, but also by internal filling.
-- Client measurements are treated as higher risk than manufacturer measurements.
-- Master independently verifies safe fastening.
-- Stretch ceiling and reinforcements must be checked before installation.
-- Lighting/electrical connections increase installation complexity and must be considered.
+1. Проверка на соответствие.
 
-#### Furniture Rules Stored Inside Built-in Furniture
-- Furniture must be delivered before installation.
-- Master does not organize transport, lifting, storage or logistics.
-- Master does not pack furniture for moving.
-- Furniture disassembly is a separate service.
-- Hardware/fittings are collected into one bag/box.
-- Transport, storage, packing and removal are outside the service scope.
+- Мастер сверяет проект изделия, схему наполнения, размеры ниши, фотографии и ответы клиента перед началом работ.
+
+2. Проверка мебели и комплектующих.
+
+- Мастер проверяет наличие мебели, комплектующих и фурнитуры перед началом работ.
+- Мастер проверяет видимую комплектность поставки перед началом работ.
+- Мастер фиксирует повреждения упаковки, мебели или деталей в чате платформы до начала работ.
+
+3. Проверка места установки.
+
+- Мастер самостоятельно проверяет материал стен для подбора нужного крепления.
+- При наличии натяжного потолка мастер проверяет наличие закладных элементов.
+- Мастер проверяет точку подключения, если проект предусматривает освещение или электрические подключения.
+
+4. Выполнение установки.
+
+- Мастер выполняет установку встроенной мебели в пределах согласованного объёма работ.
+- Если выполняется демонтаж установленной мебели с сохранением, демонтированные элементы размещаются в согласованном месте, а фурнитура собирается отдельно.
+
+5. Проверка результата.
+
+- Мастер проверяет результат установки и надёжность крепления мебели.
+
+6. Ограничения и действия при повреждениях, нехватке деталей или небезопасных условиях.
+
+- При выявлении повреждений, нехватки комплектующих или иных препятствий мастер фиксирует информацию в чате платформы до продолжения работ.
+- Если повреждённые детали допускают продолжение работ, выполнение возможно только после согласования с клиентом через чат платформы.
+- Если условия выполнения работ являются небезопасными, мастер вправе отказаться от выполнения работ до устранения причины.
+
+#### Правила встроенной мебели
+
+- Основным документом проекта являются схема изделия и схема внутреннего наполнения с размерами.
+- После проекта изделия наиболее важными данными являются размеры места установки и ниши.
+- Размеры ниши должны соответствовать проекту изделия или допустимым монтажным допускам.
+- Сложность установки определяется не только внешними размерами изделия, но и внутренним наполнением.
+- Освещение и электрические подключения могут влиять на сложность установки.
 
 #### Admin Dependencies
 - Dynamic niche measurement table.
@@ -4678,6 +4692,32 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 
 ---
 
+### Furniture Disassembly
+ARCHITECTURE REVIEW PENDING
+
+Статус:
+- Решение отложено до завершения полного аудита Furniture Assembly.
+
+Текущая гипотеза:
+- Furniture Disassembly может стать отдельной сущностью внутри Furniture Assembly.
+
+Возможные варианты:
+1. Отдельная ветка Furniture Disassembly.
+2. Дополнительный сценарий внутри существующих веток.
+3. Гибридный вариант после анализа всех мебельных сценариев.
+
+Причина переноса решения:
+- Требуется завершить аудит Kitchen Assembly.
+- Требуется завершить аудит Cabinet Furniture.
+- Требуется завершить аудит Built-in Furniture.
+- Требуется проверить пересечения с Furniture Platform Boundaries.
+- Требуется проверить сценарии демонтажа с сохранением.
+
+До принятия финального решения:
+- Правило «Демонтаж мебели является отдельной услугой» считается временным архитектурным вопросом.
+- Финальное решение принимается после завершения рефакторинга всей категории Furniture Assembly.
+
+---
 ### 16.4 Furniture Skill Levels
 Status: APPROVED ✅
 
