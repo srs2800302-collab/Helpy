@@ -4550,14 +4550,12 @@ Default:
 Status: APPROVED / CLOSED / STORED + DOCS ✅
 
 #### Architecture
-Built-in furniture is a separate work technology.
 
-Workflow:
-Measurement → Project → Installation
+Встроенная мебель является отдельной технологией установки.
 
-Built-in furniture is assembled element-by-element directly in the niche/place of installation.
+Установка встроенной мебели выполняется непосредственно в нише или месте установки изделия.
 
-It is not Cabinet Furniture.
+Встроенная мебель не относится к Cabinet Furniture и не должна смешиваться с корпусной мебелью.
 
 #### Client Questions
 1. Is existing furniture disassembly required before installation?
