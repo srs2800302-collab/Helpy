@@ -4546,25 +4546,18 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 - встроенную мебель;
 - кухонную мебель.
 
-#### Client Questions
-1. Furniture list table:
-   - Furniture type
-   - Quantity
-   - Dimensions (W × H × D)
+#### Перечень мебели для сборки
 
-Default:
-- 3 rows.
-- Button: Add furniture.
-- Rows are not limited by platform architecture.
+Таблица:
 
-2. Does the item require wall fastening?
-   - Yes
-   - No
-   - I do not know
+- Тип мебели.
+- Количество.
+- Размеры (Ш × В × Г).
 
-3. Do children live in the property?
-   - Yes
-   - No
+По умолчанию:
+- 3 строки.
+- Кнопка «Добавить мебель».
+- Количество строк не ограничено.
 
 #### Required Photos
 - General view of boxes.
