@@ -4575,12 +4575,12 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 - Дополнительные: до 8 фотографий.
 - Всего: до 10 из 10 фотографий.
 
-#### Client Guidance
-- Furniture must be on site before master arrives.
-- Client prepares access and workspace.
-- Client clears personal belongings.
-- For large cabinet furniture, enough space is required to assemble the carcass lying down.
-- For tall cabinet furniture, ceiling height must exceed furniture height by at least 10 cm.
+#### Правила для клиента
+
+- Клиент обеспечивает доступ к месту выполнения работ.
+- Личные вещи должны быть убраны из зоны выполнения работ до начала сборки.
+- Для крупногабаритной мебели клиент должен обеспечить достаточное свободное пространство для сборки.
+- Для высокой мебели высота потолка должна превышать высоту мебели не менее чем на 10 см.
 
 #### Master Guidance
 - Verify packaging before opening.
