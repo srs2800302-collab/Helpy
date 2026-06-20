@@ -4430,6 +4430,7 @@ Furniture Mini-TZ Template:
 
 ### 16.1 Kitchen Assembly
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 #### Client Questions
 - Is there a kitchen layout / scheme with dimensions?
