@@ -4526,20 +4526,25 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 Status: APPROVED / CLOSED / STORED + DOCS ✅
 Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
-#### Scope
-Includes new corpus/cabinet furniture:
-- wardrobes;
-- non-built-in sliding wardrobes;
-- dressers;
-- cabinets;
-- shelves;
-- beds;
-- tables;
-- chairs;
-- furniture sets;
-- similar corpus furniture.
+#### Состав категории
 
-Does not include built-in furniture.
+Категория включает сборку новой корпусной мебели:
+
+- шкафов;
+- шкафов-купе;
+- комодов;
+- тумб;
+- полок;
+- кроватей;
+- столов;
+- стульев;
+- мебельных комплектов;
+- иной корпусной мебели.
+
+Категория не включает:
+
+- встроенную мебель;
+- кухонную мебель.
 
 #### Client Questions
 1. Furniture list table:
