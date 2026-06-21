@@ -9172,38 +9172,54 @@ Recorded Technical Debt:
 
 ---
 
-## Order Entry Price / Final Price Contract
+## Client Expected Price / Final Price Contract
 
 Status: APPROVED ✅
 
-### Platform Entry Price
+### Client Expected Price
 
-For each order, the platform assigns a single Entry Price.
+For each order, the client enters an expected price for the work.
 
-Entry Price is calculated by the platform based on the average market price of the selected work type, category, subcategory, client answers and approved pricing rules.
-
-Entry Price:
-- is shown to the client during order creation and order review;
+Client Expected Price:
+- is entered by the client during order creation;
 - is shown to masters in Marketplace;
-- is the starting price of the order;
+- is the client's expected starting price;
 - is part of the permanent order history;
+- is not a platform price recommendation;
 - is not the final legally significant order price;
-- is not used for final commission calculation after master price revision.
+- is not used for final commission, deposit or commission obligation calculation.
 
-### Master One-Time Price Revision
+### Minimum Threshold
 
-After reviewing the order scope and communicating with the client, the master may change the Entry Price only once.
+The platform sets only a minimum threshold for the selected category, subcategory or scenario.
 
-Price revision is allowed only before the client selects the master.
+Minimum threshold:
+- prevents accidental input errors;
+- prevents obviously unrealistic orders;
+- reduces orders with no market interest;
+- is lower than the expected lower market price where appropriate;
+- is not a recommended price;
+- is not shown as the market price;
+- is not used for commission, deposit or commission obligation calculation.
 
-Price revision requires:
+The client cannot publish an order below the minimum threshold.
+
+### Master One-Time Price Change
+
+After reviewing structured scope, client answers, required photos and Client Expected Price, the master may either:
+- submit a final application with the same price;
+- request one price change before the client selects a master.
+
+Price change is allowed only once and only before master selection.
+
+Price change requires:
 - clear explanation from the master;
-- client agreement with the reason;
-- client confirmation of the revised price in chat.
+- discussion with the client in chat;
+- preliminary client agreement with the new price.
 
 The system must store:
-- original Entry Price;
-- revised master price;
+- original Client Expected Price;
+- proposed master price;
 - price change reason;
 - confirmation timestamp;
 - master user id;
@@ -9215,11 +9231,11 @@ Exceptions are allowed only through admin-controlled business rules.
 
 ### Final Master Application
 
-After the revised price is agreed and confirmed, the master sends a final application to the client.
+After the price is accepted or changed and preliminarily agreed, the master sends a final application to the client.
 
-The client selects the master based on this confirmed final price.
+The client selects the master based on the agreed price.
 
-At the moment of selection, the platform fixes:
+At the moment of master selection, the agreed price becomes Final Agreed Price and the platform fixes:
 - selected master;
 - final agreed price;
 - selected offer/application;
@@ -9760,21 +9776,26 @@ The chat completes the textual clarification part of the scope.
 
 Masters must not request additional photos in chat when required photos were already defined by the form.
 
-### Entry Price Rule
+### Client Expected Price Rule
 
-Platform Entry Price is assigned by platform/admin pricing rules for the selected service type before the final job scope is completed.
+The client enters Client Expected Price during order creation.
 
-The client enters the order under this Entry Price.
+The platform may apply a minimum threshold for the selected category, subcategory or scenario.
 
-Structured job scope allows the master to validate the scope, accept the Entry Price or justify a one-time price increase.
+Structured job scope allows the master to validate the scope, accept Client Expected Price or justify one price change before master selection.
 
-Entry Price is not based only on free-text description.
+Client Expected Price is not based only on free-text description.
+
+Minimum threshold:
+- is a publishing safeguard;
+- is not a platform price recommendation;
+- is not used for commission, deposit or commission obligation calculation.
 
 ### Price Justification Rule
 
-If a master changes the Entry Price, the master must justify the change against the structured job scope.
+If a master changes Client Expected Price, the master must justify the change against the structured job scope.
 
-The justification must explain what was not covered by the initial scope, client answers, required photos or visible conditions.
+The justification must explain what was not covered by the initial scope, client answers, required photos, visible conditions or expected price.
 
 Examples:
 - hidden work discovered from required photos;
@@ -9782,7 +9803,8 @@ Examples:
 - additional material length or connection distance;
 - equipment mismatch;
 - condition that changes work complexity;
-- missing required equipment on site when the selected branch requires it.
+- missing required equipment on site when the selected branch requires it;
+- expected price is below the real work scope after clarification.
 
 `price_revision_reason` is a structured business field, not only a chat comment.
 
@@ -9794,9 +9816,10 @@ Admin must be able to compare:
 - structured job scope;
 - client answers;
 - required photos;
-- Entry Price;
+- Client Expected Price;
+- minimum threshold active at order creation;
 - master price justification;
-- revised price;
+- proposed master price;
 - client confirmation;
 - Final Agreed Price;
 - related chat context;
@@ -9866,13 +9889,15 @@ Furniture ↔ Appliance Related Orders Rule:
 
 ### Канонический жизненный цикл заказа
 
-Admin / Platform
-↓
-задаёт Entry Price через pricing rules / Admin Panel
-↓
 Клиент
 ↓
-видит Entry Price
+указывает Client Expected Price
+↓
+Система
+↓
+проверяет minimum threshold по категории / подкатегории / сценарию
+↓
+Клиент
 ↓
 создаёт заказ через structured questions и required photos
 ↓
@@ -9882,11 +9907,11 @@ Admin / Platform
 ↓
 Мастер
 ↓
-изучает structured job scope
+изучает structured job scope, required photos and Client Expected Price
 ↓
-отправляет initial offer
+если expected price устраивает — отправляет final application без изменения цены
 ↓
-при необходимости выполняет ONE justified price increase
+если expected price не устраивает — выполняет ONE justified price change
 ↓
 объясняет причину в чате
 ↓
