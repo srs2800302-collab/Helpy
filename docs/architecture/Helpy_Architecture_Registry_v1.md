@@ -9802,9 +9802,11 @@ Client Docs, Master Docs, Service Playbooks и Admin Rules становятся 
 
 ### Knowledge Flow
 
-Client Docs
+Approved Category Architecture
       ↓
-Master Docs
+Client Rules / Master Rules / Scenario Rules
+      ↓
+Client Docs / Master Docs
       ↓
 Service Playbooks
       ↓
