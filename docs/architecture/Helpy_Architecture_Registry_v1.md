@@ -3841,7 +3841,7 @@ Future Roadmap:
 - Guidance Builder must be connected to Dynamic Form Engine.
 - Guidance Builder must be connected to Knowledge Base Engine.
 - Guidance Builder must be connected to Category Health Check.
-- Guidance Builder must allow Admin to attach hints to category, subcategory, question, photo and workflow stages.
+- Guidance Builder must allow Admin to attach hints to category, subcategory, structured scope, question, photo requirement, client rules, master rules, role-based guidance and workflow stages.
 
 ### Draft / Published
 Changes are prepared in Draft.
