@@ -3804,6 +3804,15 @@ Guidance Targets:
 - completion guidance;
 - dispute-prevention guidance.
 
+Rule-Based Role Guidance:
+- Client rules and master rules from approved mini-TZ documents must be available as role-based contextual guidance.
+- Client rules must be shown only to clients.
+- Master rules must be shown only to masters.
+- Guidance must be attached to the relevant category, subcategory, scenario, screen, form step, photo step, order status or workflow action.
+- Mobile app must show role-specific guidance at the step where the rule is relevant, not as a static document dump.
+- Admin Panel must allow preview of role-specific guidance separately for Client View and Master View.
+- Rule-based guidance must not contradict the approved mini-TZ, Service Playbooks, Client Docs or Master Docs.
+
 Trigger Context:
 - role;
 - screen;
