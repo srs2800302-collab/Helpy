@@ -4043,10 +4043,16 @@ Purpose:
 
 Registry Coverage:
 Admin can see readiness coverage per category/subcategory:
+- category structure;
+- structured scope;
 - questions;
 - photo requirements;
 - pricing rules;
+- client rules;
+- master rules;
+- scenario rules;
 - guidance;
+- role-based guidance;
 - translations;
 - client docs;
 - master docs;
