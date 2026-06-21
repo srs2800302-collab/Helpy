@@ -3775,10 +3775,30 @@ Category Builder must not bypass specialized builders.
 Question Builder, Photo Requirement Builder, Pricing Builder, Guidance Builder, Global Rules Builder and Platform Settings Center remain specialized editors for their own domains.
 
 ### Subcategory Builder
-- Enable
-- Disable
-- Add
-- Sort
+
+Subcategory Builder is the second-level category architecture container.
+
+Admin can manage:
+- enable / disable subcategory;
+- add subcategory;
+- archive subcategory instead of physical deletion;
+- sort subcategories;
+- change subcategory name;
+- change subcategory localizations;
+- change subcategory launch state;
+- manage subcategory structured scope model;
+- manage subcategory scenario architecture;
+- manage subcategory client rules;
+- manage subcategory master rules;
+- manage subcategory scenario rules;
+- manage subcategory required photo architecture;
+- manage subcategory guidance bindings;
+- manage subcategory master eligibility bindings.
+
+Subcategory Builder must inherit category-level rules unless explicitly overridden by approved subcategory architecture.
+
+Subcategory Builder must not bypass specialized builders.
+Question Builder, Photo Requirement Builder, Pricing Builder, Guidance Builder and Global Rules Builder remain specialized editors for their own domains.
 
 ### Question Builder
 - Enable
