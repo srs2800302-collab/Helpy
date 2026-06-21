@@ -3863,10 +3863,18 @@ Create test orders before publishing.
 
 ### Category Health Check
 Verify:
+- category structure;
+- structured scope;
 - questions;
-- photos;
+- photo requirements;
 - localizations;
 - pricing;
+- client rules;
+- master rules;
+- scenario rules;
+- guidance;
+- role-based guidance;
+- admin dependencies;
 - dependencies.
 
 ### Audit Log
