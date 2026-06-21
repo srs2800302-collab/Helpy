@@ -3748,13 +3748,31 @@ Status: GAP_APPROVED
 - Связка заказов не объединяет финансовые обязательства, evidence, dispute scope и completion flow.
 
 ### Category Builder
-- Enable Category
-- Disable Category
-- Add Category
-- Change Category Order
-- Change Category Name
-- Change Localizations
-- Change Icons
+
+Category Builder is the top-level category architecture container.
+
+Admin can manage:
+- enable / disable category;
+- add category;
+- archive category instead of physical deletion;
+- change category order;
+- change category name;
+- change category localizations;
+- change category icons;
+- manage category launch state;
+- manage category structure;
+- manage structured scope model;
+- manage scenario architecture;
+- manage client rules;
+- manage master rules;
+- manage scenario rules;
+- manage required photo architecture;
+- manage admin dependencies;
+- manage guidance bindings;
+- manage master eligibility bindings.
+
+Category Builder must not bypass specialized builders.
+Question Builder, Photo Requirement Builder, Pricing Builder, Guidance Builder, Global Rules Builder and Platform Settings Center remain specialized editors for their own domains.
 
 ### Subcategory Builder
 - Enable
