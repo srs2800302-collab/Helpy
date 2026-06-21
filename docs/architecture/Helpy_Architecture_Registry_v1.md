@@ -4026,7 +4026,7 @@ Nice-To-Have Roadmap:
 - Import / Export.
 
 Rules Simulator:
-Admin can simulate what the client or master will see for a selected role, category, subcategory, form step, language, pricing rule, guidance rule, photo requirement and workflow state.
+Admin can simulate what the client or master will see for a selected role, category, subcategory, structured scope, form step, language, pricing rule, photo requirement, client rules, master rules, guidance rule, role-based guidance and workflow state.
 
 Purpose:
 - Prove behavior before publication.
