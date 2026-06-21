@@ -4560,7 +4560,8 @@ Furniture Mini-TZ Template:
 - Мастер не перемещает, не сортирует, не хранит и не упаковывает личные вещи клиента.
 
 12. Pricing:
-- Base price.
+- Client Expected Price Model.
+- Minimum threshold rules.
 - Percent rules.
 - Premium inspection service price.
 - Disassembly percent.
@@ -4573,7 +4574,8 @@ Furniture Mini-TZ Template:
 - Premium services do not replace the customer-facing mini-TZ.
 
 14. Admin Dependencies:
-- Base price.
+- Minimum threshold settings.
+- Commission percent settings.
 - Percent rules.
 - Dynamic questions.
 - Dynamic tables.
