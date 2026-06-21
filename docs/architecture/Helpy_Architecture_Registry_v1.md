@@ -3993,7 +3993,35 @@ Internal notes.
 Not visible to users.
 
 ### Master Eligibility Rules
-Control access by skill level.
+
+Master Eligibility Rules define whether a master may participate in a specific order.
+
+Eligibility is a yes/no gate and must not be mixed with ranking.
+
+Admin can manage eligibility bindings for:
+- category;
+- subcategory;
+- scenario;
+- required skill level;
+- required verification;
+- launch state;
+- safety restrictions;
+- platform restrictions.
+
+Eligibility rules may depend on approved category architecture and master profile state.
+
+Examples:
+- master profile is active;
+- master is not blocked;
+- master supports the selected category/subcategory;
+- category/subcategory/scenario is enabled;
+- master meets required skill or verification rules if applicable.
+
+Ineligible masters must not be shown as available for the order.
+
+Eligible masters may still be ranked differently by the Master Ranking Hybrid Model.
+
+Category Health Check must verify that category and subcategory master eligibility bindings are configured before publishing.
 
 ### Translation Review Workflow
 Languages:
