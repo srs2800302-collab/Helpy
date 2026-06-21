@@ -5651,8 +5651,7 @@ Status: APPROVED / STORED ✅
 7. Лимит фотографий.
 8. Правила для клиента.
 9. Правила выполнения работ мастером.
-10. Pricing.
-11. Admin Dependencies.
+10. Admin Dependencies.
 
 Общие правила вопросов:
 - Вопросы должны формировать structured scope без свободного описания проблемы клиентом.
@@ -5688,11 +5687,20 @@ Status: APPROVED / STORED ✅
 - Если базовый сценарий не решает проблему клиента, мастер объясняет следующий шаг через чат.
 - Все дополнительные работы, материалы и price revision должны быть согласованы через чат до фиксации Final Agreed Price.
 
-Pricing:
-- Air Conditioning pricing управляется через Pricing Builder и Platform Settings where applicable.
-- Base Price может зависеть от сценария, количества units, BTU range и approved premium/surcharge rules.
-- Difficult access surcharge, extra materials, disposal surcharge and additional work must be agreed through chat or Admin-managed pricing rules before Final Agreed Price.
-- Commission is calculated from Final Agreed Price.
+Client Expected Price Rule:
+- Клиент указывает ожидаемую стоимость работ и размещает заказ.
+- Платформа устанавливает только minimum threshold по категории / подкатегории / сценарию.
+- Minimum threshold не является рекомендацией цены.
+- Minimum threshold не участвует в расчёте комиссии платформы.
+- Minimum threshold нужен для защиты от опечаток, заведомо нереалистичных заявок и заказов без рыночного интереса.
+- После публикации заказа мастер изучает structured scope, ответы клиента, фотографии и expected price клиента.
+- Если expected price устраивает мастера, мастер подаёт заявку без изменения цены.
+- Если expected price не устраивает мастера, мастер может подать заявку на изменение цены только один раз.
+- Причины изменения цены обсуждаются и предварительно согласуются с клиентом в чате.
+- После согласования мастер отправляет финальную заявку.
+- Клиент выбирает мастера по согласованной цене.
+- В момент выбора мастера согласованная цена становится Final Agreed Price.
+- Commission / deposit / commission obligation are calculated only from Final Agreed Price.
 
 Admin Dependencies:
 - Category Builder.
@@ -5714,7 +5722,15 @@ Admin Dependencies:
 Status: APPROVED / CLOSED / STORED + DOCS ✅
 Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
-#### Client Questions
+Назначение:
+- Этот mini-ТЗ описывает чистку кондиционера внутри Air Conditioning.
+- Cleaning применяется для обслуживания indoor unit и, если доступно и безопасно, outdoor unit.
+- Preventive maintenance с точки зрения клиента относится к Cleaning и не является отдельной launch subcategory.
+- Cleaning не является ремонтом кондиционера, диагностикой Not Cooling, устранением протечки, установкой, демонтажем или relocation.
+- Initial structured job scope формируется через тип кондиционера, количество units, approximate BTU / size, доступность indoor unit, доступность outdoor unit и required photos.
+
+#### Вопросы клиенту
+
 1. Air conditioner type:
    - Wall split.
    - Cassette.
@@ -5745,35 +5761,89 @@ Standard Compliance: Air Conditioning Mini-TZ Standard ✅
    - Requires ladder / difficult access.
    - I do not know.
 
+#### Правила вопросов
+
+- Клиент выбирает тип кондиционера и количество units.
+- Approximate BTU / size используется для оценки сложности и цены, но клиент может выбрать «I do not know».
+- Indoor unit accessibility уточняется всегда.
+- Outdoor unit accessibility уточняется всегда, но клиент не обязан выполнять опасные действия для проверки доступа.
+- Cleaning не должен превращаться в скрытый repair или Not Cooling diagnostics.
+- Если клиент описывает, что кондиционер плохо охлаждает, сценарий должен быть routed to Not Cooling, а не Cleaning.
+
 #### Required Photos
-- Indoor unit front view.
-- Indoor unit side / installation area.
-- Outdoor unit access photo if available.
-- Drain hose / water outlet area if visible.
 
-#### Client Rules
-- Client provides access to indoor unit.
-- Client provides access to outdoor unit if required.
-- If outdoor access is unsafe or unavailable, master may clean indoor unit only after agreement in chat.
-- Additional chemical cleaning or hard-access work is agreed through chat.
+1. Indoor unit front view.
+- 1 обязательная фотография.
 
-#### Master Rules
-- Verify indoor and outdoor access before confirming scope.
-- Do not perform unsafe height work without explicit agreement and proper equipment.
-- Record unavailable access or visible damage in platform chat before work starts.
-- Explain to client if cleaning cannot solve cooling problems.
+2. Indoor unit side / installation area.
+- 1 обязательная фотография.
 
-#### Pricing
-- Cleaning Base Price: editable from Admin Panel.
-- Multi-unit discount: editable from Admin Panel.
-- Difficult access surcharge: agreed through chat.
+3. Outdoor unit access photo if available.
+- До 1 дополнительной фотографии.
+
+4. Drain hose / water outlet area if visible.
+- До 1 дополнительной фотографии.
+
+#### Лимит фотографий
+
+- Обязательные: 2 фотографии.
+- Дополнительные: до 2 фотографий.
+- Всего: до 4 из 10 фотографий.
+
+#### Правила для клиента
+
+- Клиент обеспечивает доступ к indoor unit.
+- Клиент обеспечивает доступ к outdoor unit только если это безопасно и возможно.
+- Клиент не обязан выполнять опасные действия для фотографирования или доступа к outdoor unit.
+- Если outdoor access unsafe or unavailable, мастер может выполнить только indoor cleaning после согласования с клиентом через чат.
+- Additional chemical cleaning, hard-access work or multi-unit changes are agreed through chat before Final Agreed Price.
+- Cleaning не гарантирует устранение cooling problems, если причина не связана с загрязнением.
+
+#### Правила выполнения работ мастером
+
+1. Проверка initial structured job scope.
+- Мастер изучает тип кондиционера, количество units, approximate BTU / size, доступность indoor/outdoor unit и required photos до отклика.
+- Мастер проверяет indoor and outdoor access перед подтверждением scope.
+
+2. Выполнение cleaning.
+- Мастер выполняет cleaning в пределах согласованного объёма работ.
+- Мастер не выполняет unsafe height work без подходящего оборудования и согласования.
+- Если outdoor access unsafe or unavailable, мастер фиксирует ограничение в чате до начала работ.
+- Additional chemical cleaning or hard-access work must be agreed through chat before Final Agreed Price.
+
+3. Проверка результата.
+- Мастер проверяет результат cleaning в пределах выполненного scope.
+- Если cleaning не может решить cooling problem, мастер объясняет клиенту следующий шаг через чат.
+
+#### Admin Dependencies
+
+- Question Builder.
+- Photo Requirement Builder.
+- Pricing Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
 
 ---
 
 ### 22.2 Not Cooling
-Status: APPROVED / CLOSED / STORED + DOCS ✅
+Status: APPROVED / DISABLED ON LAUNCH / MOVED TO FUTURE DIAGNOSTICS BRANCH / STORED ✅
+Standard Compliance: Air Conditioning Mini-TZ Standard — disabled diagnostics branch
 
-#### Client Questions
+Назначение:
+- Этот блок сохранён как source material для будущей diagnostic branch внутри Air Conditioning.
+- Not Cooling не является active launch subcategory.
+- Not Cooling требует диагностики причины неисправности и может привести к repair, refrigerant refill, PCB repair, compressor repair or replacement recommendation.
+- Repair removed from Air Conditioning MVP.
+- Diagnostic branches remain disabled until explicitly approved for that category.
+- Для launch MVP клиент не должен создавать обычный Air Conditioning заказ через Not Cooling.
+- Будущая версия должна быть повторно спроектирована по Global Diagnostics Pattern.
+
+#### Historical Client Questions
 1. What happens?
    - Blows warm air.
    - Weak cooling.
@@ -5797,33 +5867,56 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
    - No.
    - I do not know.
 
-#### Required Photos
+#### Historical Required Photos
 - Indoor unit front view.
 - Outdoor unit photo if accessible.
 - Remote display / error code if visible.
 - General installation area.
 
-#### Client Rules
+#### Historical Client Rules
 - This subcategory is diagnostics-first.
 - Final repair scope and parts are agreed through chat.
 - If replacement is more practical than repair, master must explain before work continues.
 
-#### Master Rules
+#### Historical Master Rules
 - Diagnose before offering repair work.
 - Do not promise refrigerant refill, compressor repair or PCB repair before inspection.
 - High-risk or major repair can be refused for MVP scope.
 - Record diagnosis and recommended next step in chat.
 
-#### Pricing
-- Diagnostics Base Price: editable from Admin Panel.
-- Additional repair / parts are outside base price and agreed through chat.
+#### Historical Pricing Notes
+- Historical diagnostics pricing references are preserved as source material only.
+- No active Base Price or Diagnostics Base Price is approved for launch.
+- Future diagnostics pricing must follow Client Expected Price Model and Global Diagnostics Pattern.
+
+#### Admin Dependencies
+- Global Diagnostics Pattern.
+- Question Builder.
+- Photo Requirement Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
 
 ---
 
 ### 22.3 Leaking
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
-#### Client Questions
+Назначение:
+- Этот mini-ТЗ описывает ограниченный problem-flow по протечке воды из кондиционера внутри Air Conditioning.
+- Leaking применяется, когда клиент видит воду из indoor unit, drain hose, outdoor unit или рядом с зоной кондиционера.
+- Leaking не является ремонтом кондиционера, ремонтом стен, пола, мебели, электрики или последствий затопления.
+- Leaking не включает вскрытие стен, строительные работы, electrical work или complex repair.
+- Repair removed from Air Conditioning MVP and must not return as hidden scope inside Leaking.
+- Initial structured job scope формируется через место протечки, время появления протечки, факт недавней чистки/сервиса и required photos.
+
+#### Вопросы клиенту
+
 1. Where is water leaking?
    - From indoor unit.
    - From drain hose.
@@ -5835,42 +5928,106 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
    - After some time.
    - Constantly.
    - Only sometimes.
+   - I do not know.
 
 3. Was the unit recently cleaned or serviced?
    - Yes.
    - No.
    - I do not know.
 
+#### Правила вопросов
+
+- Клиент указывает видимое место протечки.
+- Если клиент не знает источник воды, он выбирает «I do not know».
+- Время появления протечки помогает мастеру оценить вероятный bounded cause, но не превращает сценарий в repair diagnostics.
+- Вопрос про недавнюю чистку/сервис нужен для оценки возможной связи с drain blockage, загрязнением или ошибкой обслуживания.
+- Клиент не обязан самостоятельно определять техническую причину протечки.
+- Если проблема требует complex repair, вскрытия стен, electrical work or construction work, такой scope не входит в Leaking MVP.
+
 #### Required Photos
-- Leak location.
-- Indoor unit front view.
-- Drain hose / drain area if visible.
-- Wall/floor damage area if present.
 
-#### Client Rules
-- Client should stop using the unit if water may damage electrical points or furniture.
+1. Leak location.
+- 1 обязательная фотография.
+
+2. Indoor unit front view.
+- 1 обязательная фотография.
+
+3. Drain hose / drain area if visible.
+- До 1 дополнительной фотографии.
+
+4. Wall/floor damage area if present.
+- До 1 дополнительной фотографии.
+
+#### Лимит фотографий
+
+- Обязательные: 2 фотографии.
+- Дополнительные: до 2 фотографий.
+- Всего: до 4 из 10 фотографий.
+
+#### Правила для клиента
+
+- Клиент должен прекратить использование кондиционера, если вода может повредить electrical points, мебель, стены или пол.
+- Клиент обеспечивает безопасный доступ к indoor unit и видимой зоне протечки.
+- Клиент не обязан вскрывать панели, стены или выполнять техническую диагностику.
 - Water damage repair is not included.
-- Drain cleaning, cleaning and additional work are agreed through chat if outside base scope.
+- Wall repair, floor repair, furniture repair, repainting, electrical repair and construction work are not included.
+- Drain cleaning, cleaning or additional bounded work may be agreed through chat before Final Agreed Price.
+- Leaking не гарантирует устранение скрытой неисправности, если причина требует repair removed from MVP.
 
-#### Master Rules
-- Check drain blockage, indoor unit slope and visible installation issues.
-- Do not open walls or perform construction work under this subcategory.
-- Record likely cause and next step in chat.
+#### Правила выполнения работ мастером
 
-#### Pricing
-- Leak Diagnostics Base Price: editable from Admin Panel.
-- Drain cleaning surcharge: editable from Admin Panel or agreed through chat.
+1. Проверка initial structured job scope.
+- Мастер изучает место протечки, время появления протечки, факт недавней чистки/сервиса и required photos до отклика.
+- Мастер проверяет видимый drain area, indoor unit position, доступность зоны работы и возможные visible installation issues.
+
+2. Выполнение bounded leaking work.
+- Мастер выполняет работы только в пределах согласованного Leaking scope.
+- Мастер может проверить drain blockage, visible drain hose issues, visible indoor unit slope and visible installation issues.
+- Мастер не выполняет complex repair, refrigerant work, PCB repair, compressor repair, electrical repair, wall opening or construction work.
+- Мастер не открывает стены и не выполняет ремонт повреждений от воды.
+- Если scope выходит за пределы Leaking MVP, мастер фиксирует причину и следующий шаг в чате.
+
+3. Проверка результата.
+- Мастер проверяет результат в пределах выполненного bounded scope.
+- Если причина протечки не может быть устранена в рамках Leaking MVP, мастер объясняет клиенту следующий шаг через чат.
+
+#### Admin Dependencies
+
+- Question Builder.
+- Photo Requirement Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
 
 ---
 
 ### 22.4 Installation
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
-#### Client Questions
-1. Is the air conditioner new or used?
-   - New.
-   - Used.
+Назначение:
+- Этот mini-ТЗ описывает установку нового кондиционера внутри Air Conditioning.
+- Installation применяется только для нового кондиционера, который находится на объекте клиента.
+- Installation не применяется к used / previously installed кондиционерам.
+- Installation не является repair, relocation, removal, Not Cooling diagnostics или Leaking.
+- Electrical relocation, new wiring, breaker work, wall construction, wall repair and finishing are not included by default.
+- Initial structured job scope формируется через new equipment confirmation, existing installation point, approximate BTU / size, wall type, outdoor unit location и required photos.
+
+#### Вопросы клиенту
+
+1. Is the air conditioner new?
+   - Yes, new.
+   - No, used / previously installed.
    - I do not know.
+
+Если выбрано «No, used / previously installed» или «I do not know», система показывает сообщение:
+- Helpy поддерживает установку только нового кондиционера. Установка used / previously installed кондиционеров не входит в MVP.
+
+[Понятно]
 
 2. Is there an existing installation point?
    - Yes.
@@ -5897,28 +6054,79 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
    - Roof / difficult access.
    - I do not know.
 
-#### Required Photos
-- Indoor installation place.
-- Outdoor unit installation place.
-- Existing wall hole / piping route if present.
-- Electrical point / socket / breaker area if visible.
-- Air conditioner label / box / specification if available.
+#### Правила вопросов
 
-#### Client Rules
-- Air conditioner and parts must be on site before master arrives.
-- Electrical relocation, new wiring, breaker work and wall construction are not included by default.
-- Additional pipe length, brackets, drain hose, cable and materials are agreed through chat.
+- Вопрос про новое оборудование является stop-condition.
+- Если кондиционер used / previously installed или клиент не уверен, установка не создаётся в launch MVP.
+- Existing installation point помогает оценить scope, но не гарантирует совместимость.
+- Approximate BTU / size используется для оценки сложности установки и возможных материалов.
+- Wall type влияет на сложность крепления и риски монтажа.
+- Outdoor unit location уточняется для оценки доступа и safety risk.
+- Клиент не обязан самостоятельно определять скрытое состояние стены, электрики или трассы.
+- Материалы, extra pipe length, brackets, drain hose, cable and hard-access work согласуются через чат до Final Agreed Price.
+
+#### Required Photos
+
+1. Indoor installation place.
+- 1 обязательная фотография.
+
+2. Outdoor unit installation place.
+- 1 обязательная фотография, если место безопасно доступно для клиента.
+
+3. Existing wall hole / piping route if present.
+- До 1 дополнительной фотографии.
+
+4. Electrical point / socket / breaker area if visible.
+- 1 обязательная фотография.
+
+5. Air conditioner label / box / specification.
+- 1 обязательная фотография.
+
+#### Лимит фотографий
+
+- Обязательные: 4 фотографии.
+- Дополнительные: до 1 фотографии.
+- Всего: до 5 из 10 фотографий.
+
+#### Правила для клиента
+
+- Кондиционер и основные комплектующие должны быть на объекте до прибытия мастера.
+- Клиент не должен вскрывать упаковку, если это может повлиять на проверку комплектации или спор.
+- Клиент обеспечивает доступ к indoor installation place и outdoor unit installation place, если это безопасно.
+- Клиент не обязан выполнять опасные действия для фотографирования outdoor unit location.
+- Electrical relocation, new wiring, breaker work, wall construction, wall repair and finishing are not included by default.
+- Extra pipe length, brackets, drain hose, cable, consumables and additional materials are agreed through chat before Final Agreed Price.
 - Platform does not participate in materials purchase.
 
-#### Master Rules
-- Verify safe indoor and outdoor installation points.
-- Verify wall type and outdoor access.
-- Do not perform unsafe height work without proper equipment and agreement.
-- Materials and extra work must be confirmed in chat before work starts.
+#### Правила выполнения работ мастером
 
-#### Pricing
-- Installation Base Price by BTU range: editable from Admin Panel.
-- Extra pipe / drain / bracket / difficult access surcharge: agreed through chat or Admin baseline.
+1. Проверка initial structured job scope.
+- Мастер изучает installation place, outdoor unit location, approximate BTU / size, wall type, electrical point and equipment specification до отклика.
+- Мастер проверяет совместимость indoor/outdoor installation points, wall type, access and visible electrical readiness до начала работ.
+- Мастер проверяет, что оборудование новое и находится на объекте.
+
+2. Выполнение installation.
+- Мастер выполняет установку только в пределах согласованного Installation scope.
+- Мастер не выполняет unsafe height work без подходящего оборудования и согласования.
+- Мастер не выполняет electrical relocation, new wiring, breaker work, wall construction, wall repair or finishing as part of base Installation scope.
+- Extra pipe length, brackets, drain hose, cable, consumables, hard-access work and additional materials must be agreed through chat before Final Agreed Price.
+- Если условия установки небезопасны или несовместимы, мастер фиксирует причину в чате до начала работ.
+
+3. Проверка результата.
+- Мастер проверяет результат установки в пределах выполненного scope.
+- Если после проверки выявлены ограничения, не входящие в Installation MVP, мастер объясняет следующий шаг через чат.
+
+#### Admin Dependencies
+
+- Question Builder.
+- Photo Requirement Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
 
 ---
 
