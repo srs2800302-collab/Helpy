@@ -3801,10 +3801,30 @@ Subcategory Builder must not bypass specialized builders.
 Question Builder, Photo Requirement Builder, Pricing Builder, Guidance Builder and Global Rules Builder remain specialized editors for their own domains.
 
 ### Question Builder
-- Enable
-- Disable
-- Add
-- Sort
+
+Question Builder is the specialized editor for structured client questions.
+
+Admin can manage:
+- enable / disable question;
+- add question;
+- archive question instead of physical deletion;
+- sort questions;
+- change question text;
+- change question localizations;
+- manage question type;
+- manage answer options;
+- manage required / optional state;
+- manage conditional visibility;
+- manage branching logic;
+- manage dependency rules between questions;
+- manage question impact on structured scope;
+- manage question impact on scenario selection;
+- manage question impact on required photo requirements;
+- manage question-specific guidance bindings;
+- manage role-based guidance bindings for answers.
+
+Question Builder must not define category architecture directly.
+Question impact must be validated through Category Health Check, Rules Simulator and Impact Analysis before publishing.
 
 ### Photo Requirement Builder
 - Enable
