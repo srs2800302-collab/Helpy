@@ -9840,7 +9840,14 @@ Guidance может зависеть от:
 - role;
 - category;
 - subcategory;
+- structured scope;
 - scenario branch;
+- question;
+- answer;
+- photo requirement;
+- client rule;
+- master rule;
+- scenario rule;
 - workflow stage;
 - form step;
 - language.
