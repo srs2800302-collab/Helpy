@@ -10287,11 +10287,11 @@ Mobile applications must not hardcode business guidance text.
 Guidance API reads published Guidance Records managed through Admin / Guidance Builder.
 
 Guidance content is derived from:
-- Client Docs;
-- Master Docs;
+- Approved Category Architecture;
+- Client Rules / Master Rules / Scenario Rules;
+- Client Docs / Master Docs;
 - Service Playbooks;
 - Admin Rules;
-- approved category rules;
 - approved workflow rules.
 
 ### Endpoints
