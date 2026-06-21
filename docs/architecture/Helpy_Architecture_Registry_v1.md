@@ -4034,7 +4034,7 @@ Purpose:
 - Prevent broken category/form/pricing/guidance combinations.
 
 Impact Analysis:
-Admin can see what depends on a category, subcategory, question, photo requirement, pricing rule, guidance rule, feature flag or workflow rule before changing, disabling, archiving or publishing it.
+Admin can see what depends on a category, subcategory, structured scope, question, photo requirement, pricing rule, client rules, master rules, guidance rule, role-based guidance, admin dependencies, feature flag or workflow rule before changing, disabling, archiving or publishing it.
 
 Purpose:
 - Prevent accidental breakage.
