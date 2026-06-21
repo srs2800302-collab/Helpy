@@ -4774,8 +4774,8 @@ Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 ---
 
 ### 16.4 Furniture Disassembly
-Status: DRAFT / IN_PROGRESS
-Standard Compliance: Furniture Assembly Mini-TZ Standard
+Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Furniture Assembly Mini-TZ Standard ✅
 
 #### Состав категории
 
