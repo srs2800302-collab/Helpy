@@ -128,14 +128,14 @@ Closure Notes:
 
 ### Group E — Offers / Pricing / Payments / Financial Snapshot
 Scope:
-- Entry Price.
+- Client Expected Price.
 - Final Agreed Price.
 - Offer lifecycle.
 - Payment runtime for Thailand.
 - Immutable financial snapshot.
 
 Contracts:
-- Contract 31 — Order Entry Price / Final Price Contract — APPROVED ✅.
+- Contract 31 — Client Expected Price / Final Price Contract — APPROVED ✅.
 - Contract 34 — Offer Lifecycle Architecture Decision — GAP_APPROVED.
 - Contract 35 — Thailand Payment Runtime Architecture Decision — APPROVED ✅.
 - Contract 36 — Final Price Architecture Decision — GAP_APPROVED.
@@ -322,7 +322,7 @@ Decision Summary:
 
 Canonical business flow is defined by:
 - Helpy Canonical Order Lifecycle Contract;
-- Order Entry Price / Final Price Contract;
+- Client Expected Price / Final Price Contract;
 - Thailand Payment Runtime Architecture Decision.
 
 Default Platform Commission:
@@ -3268,38 +3268,37 @@ Standard Compliance: Built-in Appliance Architecture Standard ✅
 - Global Service Quality Rule.
 - Chat Evidence Rules.
 
-## Pre-Build Decision Gate → Entry Price Architecture
+## Pre-Build Decision Gate → Client Expected Price Architecture
 
-Status: STORED ⚠️ REQUIRED BEFORE DB / MVP / ADMIN PRICING DESIGN
+Status: CLOSED ✅
 
 Decision Summary:
-- Источник первой цены заказа намеренно не закрыт до начала проектирования БД, MVP и Admin.
-- Текущие рабочие варианты:
-  1. Platform Entry Price — платформа задаёт входную стоимость.
-  2. Client Expected Price — клиент указывает ожидаемую стоимость работ.
-- Для Client Expected Price допускается минимальный порог входа по категории / подкатегории.
-- Минимальный порог входа не является рыночной ценой услуги и не является рекомендацией стоимости.
-- Минимальный порог нужен только для защиты платформы от заведомо нереалистичных заявок.
-- Мастер после общения с клиентом через чат может один раз изменить стоимость работ с обоснованием.
-- После согласования клиентом и выбора мастера формируется Final Agreed Price.
-- Депозит и комиссия платформы рассчитываются только от Final Agreed Price.
+- Источник первой цены заказа закрыт в пользу Client Expected Price Model.
+- Клиент указывает ожидаемую стоимость работ при создании заказа.
+- Платформа устанавливает только minimum threshold по категории / подкатегории / сценарию.
+- Minimum threshold не является рыночной ценой услуги и не является рекомендацией стоимости.
+- Minimum threshold нужен для защиты от опечаток, заведомо нереалистичных заявок и заказов без рыночного интереса.
+- Minimum threshold не участвует в расчёте комиссии, депозита или commission obligation.
+- Мастер после изучения structured scope, ответов клиента, required photos и Client Expected Price может принять цену или один раз предложить изменение цены.
+- Изменение цены должно быть предварительно обсуждено и согласовано с клиентом в чате до выбора мастера.
+- После выбора мастера согласованная цена становится Final Agreed Price.
+- Депозит, комиссия платформы и commission obligation рассчитываются только от Final Agreed Price.
 
 Build Gate:
-- Перед созданием pricing-related DB structures это решение должно быть явно пересмотрено и закрыто.
-- Перед проектированием Admin pricing settings это решение должно быть явно пересмотрено и закрыто.
-- Перед реализацией pricing flow в MVP это решение должно быть явно пересмотрено и закрыто.
-- Нельзя начинать реализацию pricing logic с неявным предположением, что Entry Price задаёт платформа.
+- Pricing-related DB structures должны проектироваться от Client Expected Price, minimum threshold, proposed master price и Final Agreed Price.
+- Admin pricing settings должны управлять minimum threshold и финансовыми настройками, но не должны навязывать клиенту рекомендованную цену услуги.
+- MVP pricing flow должен использовать Client Expected Price Model.
 
 Boundary:
 - Existing Final Agreed Price contracts remain valid.
 - Existing One-Time Final Price Rule remains valid.
 - Existing Commission Rule remains valid.
 - Existing Global Materials Separation Rule remains valid.
-- This block does not change current category mini-ТЗ work.
+- Category mini-ТЗ должны исключать legacy Base Price / Platform Entry Price модель, если нет отдельного утверждённого исключения.
 
 Status Effect:
-- BLOCKS PRICING IMPLEMENTATION.
-- MUST RESURFACE BEFORE DB / MVP / ADMIN PRICING DESIGN.
+- DOES NOT BLOCK PRICING IMPLEMENTATION.
+- REQUIRES DB / MVP / ADMIN PRICING DESIGN TO FOLLOW CLIENT EXPECTED PRICE MODEL.
 
 
 
@@ -3697,7 +3696,7 @@ Evidence:
 
 Evidence:
 - Plumbing: окончательная цена фиксируется мастером один раз и после согласования становится неизменяемой.
-- Order Entry Price / Final Price Contract: master may change Entry Price only once before selection.
+- Client Expected Price / Final Price Contract: мастер может один раз предложить изменение цены до выбора мастера.
 - Final Price Architecture Decision: job-level financial snapshot is immutable after master selection.
 
 ### Rule #7 — Platform Boundary / Ownership Rule
@@ -5886,7 +5885,7 @@ Standard Compliance: Air Conditioning Mini-TZ Standard — disabled diagnostics 
 
 #### Historical Pricing Notes
 - Historical diagnostics pricing references are preserved as source material only.
-- No active Base Price or Diagnostics Base Price is approved for launch.
+- Для launch MVP не утверждена активная диагностика Not Cooling и не утверждены отдельные diagnostic pricing rules.
 - Future diagnostics pricing must follow Client Expected Price Model and Global Diagnostics Pattern.
 
 #### Admin Dependencies
@@ -9268,11 +9267,12 @@ After client selects the master:
 ### Admin Visibility
 
 Admin Order Timeline must show:
-- platform Entry Price;
-- master revised price if changed;
+- Client Expected Price;
+- minimum threshold active at order creation;
+- proposed master price if changed;
 - price change reason;
 - client confirmation evidence;
-- final agreed price;
+- Final Agreed Price;
 - payment method;
 - deposit amount;
 - commission payer;
@@ -9354,10 +9354,10 @@ Price negotiation may happen in chat.
 
 However, the legally significant result of price negotiation must be stored as timeline events.
 
-When a master changes the Entry Price:
-- the explanation may be discussed in chat;
-- the client confirmation may happen in chat;
-- the platform must also record the confirmed business result in `job_events`.
+When a master proposes a one-time price change:
+- причина изменения может обсуждаться в чате;
+- предварительное согласие клиента может быть зафиксировано в чате;
+- платформа должна также сохранить подтверждённый business result в `job_events`.
 
 Required events:
 - price_adjustment_requested;
@@ -9394,10 +9394,11 @@ If admin action is required, it must be recorded as a new `admin_intervention` e
 Chat has two different evidence meanings and they must not be mixed.
 
 Price justification evidence:
-- before the client selects a master, the master may explain why the Entry Price must change;
-- the explanation may happen in chat;
-- the client must understand and confirm the revised price before it becomes final;
-- the platform must record the confirmed price result in `job_events`;
+- до выбора мастера мастер может объяснить, почему Client Expected Price не покрывает реальный scope;
+- объяснение может происходить в чате;
+- клиент должен понять причину и предварительно согласовать proposed master price до выбора мастера;
+- выбор мастера клиентом фиксирует согласованную цену как Final Agreed Price;
+- платформа должна записать подтверждённый price result в `job_events`;
 - required timeline events: price_adjustment_requested and price_adjustment_approved.
 
 Completion evidence:
@@ -10032,9 +10033,10 @@ Review / Dispute
 
 ### Канонические правила
 
-- Entry Price задаётся platform/admin pricing rules.
+- Клиент указывает Client Expected Price при создании заказа.
+- Платформа проверяет minimum threshold, но не рекомендует цену услуги.
 - Initial job scope формируется через structured questions и required photos.
-- Мастер может изменить Entry Price только один раз.
+- Мастер может один раз предложить изменение цены до выбора мастера.
 - Price revision должен быть обоснован через structured job scope.
 - Chat содержит human explanation.
 - Structured fields и job_events содержат business facts.
@@ -10096,9 +10098,11 @@ Guided Job Flow помогает клиенту и мастеру безопас
 
 ### Принцип structured scope
 
-Entry Price всегда задаётся platform/admin pricing rules.
+Client Expected Price указывается клиентом при создании заказа.
 
-Structured forms не рассчитывают Entry Price.
+Платформа не рассчитывает и не рекомендует цену услуги.
+
+Structured forms не рассчитывают цену, а формируют initial job scope и проверяют minimum threshold.
 
 Structured questions и required photos нужны для того, чтобы:
 
@@ -10110,15 +10114,17 @@ Structured questions и required photos нужны для того, чтобы:
 
 ### Канонический жизненный цикл
 
-Admin / Platform
+Клиент
 ↓
-задаёт Entry Price
+указывает Client Expected Price
+↓
+Система
+↓
+проверяет minimum threshold
 ↓
 Клиент
 ↓
-видит Entry Price
-↓
-соглашается войти в заказ с этим Entry Price
+продолжает создание заказа, если цена не ниже minimum threshold
 ↓
 отвечает на structured questions
 ↓
@@ -10130,11 +10136,11 @@ Admin / Platform
 ↓
 Мастер
 ↓
-изучает structured job scope
+изучает structured job scope, required photos и Client Expected Price
 ↓
-принимает Entry Price
+принимает Client Expected Price
 ↓
-или выполняет ONE justified price increase
+или выполняет ONE justified price change
 ↓
 объясняет причину в чате
 ↓
@@ -10170,9 +10176,10 @@ Review / Dispute
 
 ### Канонические правила
 
-- Entry Price задаётся platform/admin pricing rules.
+- Клиент указывает Client Expected Price при создании заказа.
+- Платформа проверяет minimum threshold, но не рекомендует цену услуги.
 - Initial job scope формируется через structured questions и required photos.
-- Мастер может изменить Entry Price только один раз.
+- Мастер может один раз предложить изменение цены до выбора мастера.
 - Price revision должен быть обоснован через structured job scope.
 - Chat содержит human explanation и agreements.
 - Structured fields и job_events содержат business facts.
