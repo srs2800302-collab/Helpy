@@ -3827,10 +3827,30 @@ Question Builder must not define category architecture directly.
 Question impact must be validated through Category Health Check, Rules Simulator and Impact Analysis before publishing.
 
 ### Photo Requirement Builder
-- Enable
-- Disable
-- Add
-- Sort
+
+Photo Requirement Builder is the specialized editor for required photo architecture.
+
+Admin can manage:
+- enable / disable photo requirement;
+- add photo requirement;
+- archive photo requirement instead of physical deletion;
+- sort photo requirements;
+- change photo requirement text;
+- change photo requirement localizations;
+- manage required / optional state;
+- manage minimum required photo count;
+- manage maximum additional photo count;
+- manage total photo limits;
+- manage conditional visibility;
+- manage dependency rules from questions and answers;
+- manage scenario-specific photo requirements;
+- manage photo impact on structured scope;
+- manage photo impact on final job scope;
+- manage photo-specific guidance bindings;
+- manage role-based guidance bindings for photo steps.
+
+Photo Requirement Builder must not define category architecture directly.
+Photo requirement impact must be validated through Category Health Check, Rules Simulator and Impact Analysis before publishing.
 
 ### Pricing Builder
 - Pricing Rules
