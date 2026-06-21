@@ -3617,6 +3617,13 @@ Complexity Access:
 
 Purpose:
 Control access to complex furniture projects.
+
+Architecture Link:
+- Furniture Skill Levels are used as furniture-specific master eligibility bindings.
+- Furniture Skill Levels feed Master Eligibility Rules.
+- Furniture Skill Levels are eligibility gates, not ranking signals.
+- Eligible furniture masters may still be ranked by the Master Ranking Hybrid Model.
+
 ## 16. Global Platform Rules
 Status: PARTIALLY CLOSED — RECOVERED FROM VERIFIED CATEGORY SOURCES
 
@@ -5075,6 +5082,8 @@ Status: APPROVED ✅
 
 Назначение:
 - Управление доступом мастеров к мебельным заказам в зависимости от уровня сложности работ.
+- Furniture Skill Levels используются как furniture-specific master eligibility bindings.
+- Furniture Skill Levels являются eligibility gates, а не ranking signals.
 
 ---
 ### 16.6 Furniture Admin Settings
