@@ -5627,8 +5627,92 @@ Reason:
 
 ---
 
+## Air Conditioning Mini-TZ Standard
+Status: APPROVED / STORED ✅
+
+Назначение:
+- Этот стандарт описывает единый шаблон mini-TZ для customer-facing сценариев внутри Air Conditioning.
+- Стандарт применяется к enabled launch subcategories: Cleaning, Not Cooling, Leaking, Installation, Removal и Remote Control Issues.
+- Relocation остаётся disabled on launch и не используется как активный customer-facing сценарий до отдельного operational validation.
+- Repair removed from MVP and must not return as a hidden repair scope inside other Air Conditioning scenarios.
+- Initial structured job scope формируется через выбранный сценарий, structured questions, client answers и required photos.
+- Клиент выбирает проблему или действие, а не профессию мастера.
+- Финальная стоимость фиксируется после общения клиента и мастера в чате.
+- Комиссия платформы рассчитывается от Final Agreed Price.
+
+Обязательная структура каждой Air Conditioning mini-TZ сущности:
+
+1. Status.
+2. Standard Compliance.
+3. Назначение.
+4. Вопросы клиенту.
+5. Правила вопросов.
+6. Required Photos.
+7. Лимит фотографий.
+8. Правила для клиента.
+9. Правила выполнения работ мастером.
+10. Pricing.
+11. Admin Dependencies.
+
+Общие правила вопросов:
+- Вопросы должны формировать structured scope без свободного описания проблемы клиентом.
+- Вопросы должны отделять active launch scenario от disabled or removed scenario.
+- Вопросы должны уточнять тип кондиционера, количество, доступность indoor/outdoor unit и технические ограничения только там, где это влияет на scope.
+- Если клиент не знает технический параметр, должен быть вариант «Не знаю».
+- Сложные технические детали оцениваются мастером по ответам клиента, required photos и чату.
+- Вопросы не должны превращать диагностику в скрытый ремонт.
+- Вопросы не должны создавать обещание покупки материалов, запчастей или оборудования через платформу.
+
+Общие правила Required Photos:
+- Required photos должны подтверждать объект работ, доступность indoor/outdoor unit, видимые ограничения и техническую информацию, если она доступна.
+- Фото не должны требовать от клиента опасного доступа к outdoor unit.
+- Фото outdoor unit загружается только если оно доступно и безопасно для клиента.
+- Фото label / model / box / specification используется там, где это влияет на совместимость, диагностику или подбор remote/materials.
+- Лимит фотографий должен оставаться в пределах 10 фото.
+- Мастер не должен запрашивать дополнительные фотографии в чате вместо использования approved required photo flow.
+
+Общие правила для клиента:
+- Клиент обеспечивает доступ к месту выполнения работ.
+- Клиент не обязан выполнять опасные действия для фотографирования или доступа к outdoor unit.
+- Клиент не обязан самостоятельно диагностировать техническую неисправность.
+- Клиент должен указать известные данные через форму заказа.
+- Материалы, запчасти, дополнительная трасса, кронштейны, кабель, дренаж, disposal и hard-access work не входят в базовую услугу, если явно не указаны в конкретном сценарии.
+- Дополнительные работы и материалы согласуются через чат до фиксации Final Agreed Price.
+
+Общие правила выполнения работ мастером:
+- Мастер изучает structured scope, ответы клиента и required photos до отклика.
+- Мастер проверяет доступность indoor/outdoor unit и безопасность выполнения работ до начала работ.
+- Мастер не выполняет unsafe height work без подходящего оборудования и согласования.
+- Мастер фиксирует видимые повреждения, небезопасный доступ, недоступность outdoor unit или ограничения выполнения работ в чате до начала работ.
+- Мастер не обещает repair, refrigerant refill, PCB repair, compressor repair, replacement parts или remote replacement до проверки совместимости и scope.
+- Если базовый сценарий не решает проблему клиента, мастер объясняет следующий шаг через чат.
+- Все дополнительные работы, материалы и price revision должны быть согласованы через чат до фиксации Final Agreed Price.
+
+Pricing:
+- Air Conditioning pricing управляется через Pricing Builder и Platform Settings where applicable.
+- Base Price может зависеть от сценария, количества units, BTU range и approved premium/surcharge rules.
+- Difficult access surcharge, extra materials, disposal surcharge and additional work must be agreed through chat or Admin-managed pricing rules before Final Agreed Price.
+- Commission is calculated from Final Agreed Price.
+
+Admin Dependencies:
+- Category Builder.
+- Subcategory Builder.
+- Question Builder.
+- Photo Requirement Builder.
+- Pricing Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
+
+---
+
 ### 22.1 Cleaning
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
 #### Client Questions
 1. Air conditioner type:
