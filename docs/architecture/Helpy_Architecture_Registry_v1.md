@@ -10305,10 +10305,16 @@ Mobile guidance requests must be able to pass:
 - screen;
 - category;
 - subcategory;
+- structured_scope;
 - scenario_branch;
 - form_step;
 - question_key;
+- answer_key;
+- photo_requirement_key;
 - photo_step;
+- client_rule_key;
+- master_rule_key;
+- scenario_rule_key;
 - job_status;
 - workflow_stage;
 - event_type;
