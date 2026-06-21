@@ -6132,8 +6132,18 @@ Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
 ### 22.5 Removal
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
-#### Client Questions
+Назначение:
+- Этот mini-ТЗ описывает демонтаж кондиционера внутри Air Conditioning.
+- Removal применяется для демонтажа indoor unit, outdoor unit или обеих частей кондиционера.
+- Removal не является relocation, installation, repair, wall repair, repainting, finishing или disposal by default.
+- Демонтированное оборудование, parts, brackets, pipes and accessories remain client property unless separately agreed.
+- Disposal is not included automatically and must be agreed through chat before Final Agreed Price.
+- Initial structured job scope формируется через removal scope, preservation requirement, disposal request, outdoor unit accessibility и required photos.
+
+#### Вопросы клиенту
+
 1. What should be removed?
    - Indoor and outdoor units.
    - Indoor unit only.
@@ -6148,6 +6158,7 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
 3. Is disposal required?
    - Yes.
    - No.
+   - I do not know.
 
 4. Is outdoor unit accessible?
    - Yes.
@@ -6156,34 +6167,92 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
    - Difficult access.
    - I do not know.
 
+#### Правила вопросов
+
+- Клиент указывает, какие части кондиционера нужно демонтировать.
+- Если клиент не знает точный состав демонтажа, он выбирает «I do not know».
+- Preservation requirement уточняется до начала работ, потому что влияет на аккуратность демонтажа и handling.
+- Disposal уточняется отдельно, потому что не входит в Removal automatically.
+- Outdoor unit accessibility уточняется для оценки safety risk и hard-access work.
+- Клиент не обязан выполнять опасные действия для проверки outdoor unit access.
+- Wall repair, repainting, finishing, construction work and relocation не входят в Removal MVP.
+
 #### Required Photos
-- Indoor unit.
-- Outdoor unit if accessible.
-- Pipe route / wall hole if visible.
-- Access area.
 
-#### Client Rules
+1. Indoor unit.
+- 1 обязательная фотография.
+
+2. Outdoor unit if accessible.
+- До 1 дополнительной фотографии.
+
+3. Pipe route / wall hole if visible.
+- До 1 дополнительной фотографии.
+
+4. Access area.
+- 1 обязательная фотография.
+
+#### Лимит фотографий
+
+- Обязательные: 2 фотографии.
+- Дополнительные: до 2 фотографий.
+- Всего: до 4 из 10 фотографий.
+
+#### Правила для клиента
+
+- Клиент обеспечивает безопасный доступ к зоне демонтажа.
+- Клиент не обязан выполнять опасные действия для фотографирования outdoor unit.
 - Removal does not automatically include disposal.
-- Wall repair, repainting and finishing are not included.
-- Preservation of removed unit must be agreed before work starts.
+- Disposal must be agreed through chat before Final Agreed Price.
+- Wall repair, repainting, finishing and construction work are not included.
+- Демонтированное оборудование, parts, brackets, pipes and accessories remain client property unless separately agreed.
+- Если старый кондиционер нужно сохранить, клиент должен указать это в форме заказа.
 
-#### Master Rules
-- Confirm whether unit must be preserved.
-- Protect client property during removal.
-- Place removed parts in agreed area.
-- Record existing wall damage or access risk in chat before work starts.
+#### Правила выполнения работ мастером
 
-#### Pricing
-- Removal Base Price: editable from Admin Panel.
-- Disposal surcharge: editable from Admin Panel or agreed through chat.
-- Difficult access surcharge: agreed through chat.
+1. Проверка initial structured job scope.
+- Мастер изучает removal scope, preservation requirement, disposal request, outdoor unit accessibility and required photos до отклика.
+- Мастер проверяет safety risk, access area, visible wall condition and visible pipe route до начала работ.
+- Мастер подтверждает, нужно ли сохранить демонтированный кондиционер.
+
+2. Выполнение removal.
+- Мастер выполняет демонтаж только в пределах согласованного Removal scope.
+- Мастер защищает имущество клиента во время демонтажа.
+- Мастер не выполняет unsafe height work без подходящего оборудования и согласования.
+- Мастер не выполняет wall repair, repainting, finishing, construction work, installation or relocation as part of Removal scope.
+- Мастер размещает демонтированное оборудование и parts в согласованной зоне.
+- Disposal, difficult access and additional bounded work must be agreed through chat before Final Agreed Price.
+
+3. Проверка результата.
+- Мастер проверяет завершённость демонтажа в пределах agreed scope.
+- Мастер фиксирует existing wall damage, access risk or scope limitation в чате, если это влияет на результат.
+
+#### Admin Dependencies
+
+- Question Builder.
+- Photo Requirement Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
 
 ---
 
 ### 22.6 Remote Control Issues
 Status: APPROVED / CLOSED / STORED + DOCS ✅
+Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
-#### Client Questions
+Назначение:
+- Этот mini-ТЗ описывает ограниченный problem-flow по пульту управления кондиционером внутри Air Conditioning.
+- Remote Control Issues применяется для проблем с remote control, display, buttons, signal, lost remote or basic compatibility check.
+- Remote Control Issues не является ремонтом кондиционера, ремонтом receiver board, PCB repair, electrical repair или заменой внутренних компонентов кондиционера.
+- Replacement remote purchase is not handled by platform.
+- Initial structured job scope формируется через тип проблемы, battery check, наличие другого remote / mobile control и required photos.
+
+#### Вопросы клиенту
+
 1. What is the issue?
    - Remote does not turn on.
    - Remote display works but AC does not respond.
@@ -6201,25 +6270,72 @@ Status: APPROVED / CLOSED / STORED + DOCS ✅
    - No.
    - I do not know.
 
-#### Required Photos
-- Remote control front.
-- Remote display if visible.
-- Air conditioner model label if available.
-- Indoor unit front view.
+#### Правила вопросов
 
-#### Client Rules
-- Batteries are checked by client before visit if possible.
+- Клиент указывает видимую проблему с remote control.
+- Battery check уточняется для исключения простой причины.
+- Наличие другого remote / mobile control помогает оценить, проблема связана с remote, настройками или откликом indoor unit.
+- Клиент не обязан самостоятельно диагностировать receiver, PCB, wiring or internal unit failure.
+- Если проблема требует repair кондиционера или внутренних компонентов, такой scope не входит в Remote Control Issues MVP.
 - Replacement remote purchase is not handled by platform.
-- Compatibility and purchase options are agreed through chat.
 
-#### Master Rules
-- Verify batteries, remote signal and unit receiver if possible.
-- Do not promise remote replacement availability before model check.
-- Record model and recommendation in chat.
+#### Required Photos
 
-#### Pricing
-- Remote Diagnostics Base Price: editable from Admin Panel.
-- Replacement remote/materials are outside platform base price.
+1. Remote control front.
+- 1 обязательная фотография, если remote control есть у клиента.
+
+2. Remote display if visible.
+- До 1 дополнительной фотографии.
+
+3. Air conditioner model label if available.
+- 1 обязательная фотография.
+
+4. Indoor unit front view.
+- 1 обязательная фотография.
+
+#### Лимит фотографий
+
+- Обязательные: 3 фотографии.
+- Дополнительные: до 1 фотографии.
+- Всего: до 4 из 10 фотографий.
+
+#### Правила для клиента
+
+- Клиент проверяет batteries before visit, если это возможно и безопасно.
+- Если remote lost, клиент указывает это в форме заказа.
+- Клиент обеспечивает доступ к indoor unit и model label, если это безопасно.
+- Клиент не обязан вскрывать remote control, indoor unit или electrical components.
+- Replacement remote purchase is not handled by platform.
+- Compatibility and purchase options may be discussed through chat before Final Agreed Price.
+- Remote Control Issues не гарантирует repair кондиционера, receiver board, PCB or internal electronics.
+
+#### Правила выполнения работ мастером
+
+1. Проверка initial structured job scope.
+- Мастер изучает issue type, battery check, наличие другого remote / mobile control, model label and required photos до отклика.
+- Мастер проверяет batteries, visible remote condition, signal behavior and basic indoor unit response if possible.
+
+2. Выполнение bounded remote-control work.
+- Мастер выполняет работу только в пределах согласованного Remote Control Issues scope.
+- Мастер не выполняет PCB repair, receiver board repair, internal electronics repair, electrical repair or hidden unit repair.
+- Мастер не обещает replacement remote availability before model and compatibility check.
+- Replacement remote/materials must be discussed through chat before Final Agreed Price if applicable.
+
+3. Проверка результата.
+- Мастер фиксирует model, observed behavior and recommendation в чате.
+- Если проблема выходит за пределы Remote Control Issues MVP, мастер объясняет следующий шаг через чат.
+
+#### Admin Dependencies
+
+- Question Builder.
+- Photo Requirement Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
 
 ---
 
@@ -6261,18 +6377,15 @@ Relocation combines removal and installation of the same air conditioner in a ne
 ### Admin Dependencies
 - Air Conditioning category enabled/disabled.
 - Independent subcategory enabled/disabled.
-- Cleaning Base Price.
-- Diagnostics Base Price.
-- Leak Diagnostics Base Price.
-- Installation Base Price by BTU range.
-- Removal Base Price.
-- Remote Diagnostics Base Price.
-- Multi-unit discount.
-- Disposal surcharge.
-- Difficult access surcharge.
-- Required photos management.
-- Question management.
-- Rule visibility.
+- Question Builder.
+- Photo Requirement Builder.
+- Guidance Builder.
+- Global Rules Builder.
+- Master Eligibility Rules.
+- Category Health Check.
+- Rules Simulator.
+- Impact Analysis.
+- Registry Coverage.
 
 ### FAQ
 - Repair is not a launch subcategory.
