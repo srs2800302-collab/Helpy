@@ -3853,9 +3853,30 @@ Photo Requirement Builder must not define category architecture directly.
 Photo requirement impact must be validated through Category Health Check, Rules Simulator and Impact Analysis before publishing.
 
 ### Pricing Builder
-- Pricing Rules
-- Coefficients
-- Premium Services
+
+Pricing Builder is the specialized editor for category and scenario pricing logic.
+
+Admin can manage:
+- pricing rules;
+- category-level pricing configuration;
+- subcategory-level pricing configuration;
+- scenario-level pricing configuration;
+- coefficients;
+- premium services;
+- pricing visibility rules;
+- pricing guidance bindings;
+- pricing rule activation;
+- Draft / Published pricing lifecycle.
+
+Pricing Builder must use Final Agreed Price as the commission calculation basis.
+
+Pricing Builder must not own global commission percentage.
+Global commission percentage belongs to Platform Settings Center.
+
+Pricing Builder must not own payment method behavior.
+Payment method behavior belongs to payment and financial contracts.
+
+Pricing changes must be validated through Rules Simulator, Impact Analysis and Category Health Check before publishing.
 
 ### Guidance Builder
 
