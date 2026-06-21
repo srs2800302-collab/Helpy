@@ -5827,62 +5827,23 @@ Status: APPROVED / DISABLED ON LAUNCH / MOVED TO FUTURE DIAGNOSTICS BRANCH / STO
 Standard Compliance: Air Conditioning Mini-TZ Standard — disabled diagnostics branch
 
 Назначение:
-- Этот блок сохранён как source material для будущей diagnostic branch внутри Air Conditioning.
-- Not Cooling не является active launch subcategory.
-- Not Cooling требует диагностики причины неисправности и может привести к repair, refrigerant refill, PCB repair, compressor repair or replacement recommendation.
-- Repair removed from Air Conditioning MVP.
-- Diagnostic branches remain disabled until explicitly approved for that category.
-- Для launch MVP клиент не должен создавать обычный Air Conditioning заказ через Not Cooling.
+- Этот блок сохранён как исходный материал для будущей диагностической ветки внутри Air Conditioning.
+- Not Cooling не является активной launch-сущностью.
+- Not Cooling требует диагностики причины неисправности и может привести к ремонту, дозаправке хладагента, ремонту платы, ремонту компрессора или рекомендации замены оборудования.
+- Ремонт кондиционеров исключён из Air Conditioning MVP.
+- Диагностические ветки остаются отключёнными, пока они явно не утверждены для конкретной категории.
+- В launch MVP клиент не должен создавать обычный заказ Air Conditioning через Not Cooling.
 - Будущая версия должна быть повторно спроектирована по Global Diagnostics Pattern.
 
-#### Historical Client Questions
-1. What happens?
-   - Blows warm air.
-   - Weak cooling.
-   - Works then stops cooling.
-   - Error light / error code.
-   - I do not know.
+Historical Source Material:
+- Старые вопросы, фотографии, правила клиента, правила мастера и pricing notes по Not Cooling удалены из активного блока.
+- Историческая логика сохраняется только как архитектурное решение: сценарий требует диагностики и не входит в MVP.
+- Повторное проектирование возможно только после утверждения диагностической ветки для Air Conditioning.
 
-2. When was the last cleaning?
-   - Less than 3 months ago.
-   - 3–6 months ago.
-   - More than 6 months ago.
-   - I do not know.
-
-3. Is the outdoor unit running?
-   - Yes.
-   - No.
-   - I do not know.
-
-4. Is there an error code?
-   - Yes, client enters text/photo.
-   - No.
-   - I do not know.
-
-#### Historical Required Photos
-- Indoor unit front view.
-- Outdoor unit photo if accessible.
-- Remote display / error code if visible.
-- General installation area.
-
-#### Historical Client Rules
-- This subcategory is diagnostics-first.
-- Final repair scope and parts are agreed through chat.
-- If replacement is more practical than repair, master must explain before work continues.
-
-#### Historical Master Rules
-- Diagnose before offering repair work.
-- Do not promise refrigerant refill, compressor repair or PCB repair before inspection.
-- High-risk or major repair can be refused for MVP scope.
-- Record diagnosis and recommended next step in chat.
-
-#### Historical Pricing Notes
-- Historical diagnostics pricing references are preserved as source material only.
-- Для launch MVP не утверждена активная диагностика Not Cooling и не утверждены отдельные diagnostic pricing rules.
-- Future diagnostics pricing must follow Client Expected Price Model and Global Diagnostics Pattern.
-
-#### Admin Dependencies
+Admin Dependencies:
 - Global Diagnostics Pattern.
+- Category Builder.
+- Subcategory Builder.
 - Question Builder.
 - Photo Requirement Builder.
 - Guidance Builder.
