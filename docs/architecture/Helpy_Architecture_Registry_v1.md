@@ -3963,7 +3963,9 @@ Create test orders before publishing.
 ### Category Health Check
 Verify:
 - category structure;
+- subcategory structure;
 - structured scope;
+- scenario readiness;
 - questions;
 - photo requirements;
 - localizations;
@@ -3973,8 +3975,15 @@ Verify:
 - scenario rules;
 - guidance;
 - role-based guidance;
+- master eligibility bindings;
+- launch state;
 - admin dependencies;
+- builder consistency;
 - dependencies.
+
+Category Health Check is a publishing gate.
+
+Draft category changes must not be published if required health checks fail.
 
 ### Audit Log
 Store:
