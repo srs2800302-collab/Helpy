@@ -6152,6 +6152,14 @@ Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 - Проверка результата не является диагностикой скрытых неисправностей.
 - Если после проверки выявлены ограничения, не входящие в MVP-сценарий установки, мастер объясняет следующий шаг через чат.
 
+#### Наследуемые правила
+
+- Global Materials Separation Rule.
+- Global Electrical Readiness Rule.
+- Global Completion Evidence Rule.
+- Global Service Quality Rule.
+- Chat Evidence Rules.
+
 #### Admin Dependencies
 
 - Question Builder.
