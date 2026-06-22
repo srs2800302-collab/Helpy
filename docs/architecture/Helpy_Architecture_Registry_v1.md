@@ -6350,7 +6350,13 @@ Conservation Note:
 ---
 
 ### 22.7 Relocation
-Status: APPROVED / DISABLED ON LAUNCH / STORED + DOCS ✅
+Status: APPROVED / DISABLED ON LAUNCH / MOVED TO FUTURE RELOCATION BRANCH / STORED ✅
+
+Conservation Note:
+- Этот блок сохранён полностью как архитектурный материал для будущей ветки Relocation внутри Air Conditioning.
+- Relocation не является активной MVP-сущностью и не должен отображаться клиенту на launch.
+- Scope, Launch Decision и Reason ниже сохранены как исторический архитектурный материал.
+- Повторное проектирование возможно только после отдельного утверждения relocation branch.
 
 #### Scope
 Relocation combines removal and installation of the same air conditioner in a new place.
