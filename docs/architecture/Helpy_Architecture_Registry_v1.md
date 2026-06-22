@@ -6245,8 +6245,14 @@ Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 ---
 
 ### 22.6 Remote Control Issues
-Status: APPROVED / CLOSED / STORED + DOCS ✅
-Standard Compliance: Air Conditioning Mini-TZ Standard ✅
+Status: APPROVED / DISABLED ON LAUNCH / MOVED TO FUTURE DIAGNOSTICS BRANCH / STORED ✅
+Standard Compliance: Air Conditioning Mini-TZ Standard — disabled diagnostics branch
+
+Conservation Note:
+- Этот блок сохранён полностью как архитектурный материал для будущей диагностической ветки Air Conditioning.
+- Remote Control Issues не является активной MVP-сущностью и не должен отображаться клиенту на launch.
+- Вопросы, фотографии, правила клиента и правила мастера ниже сохранены как исторический материал, а не как активный customer-flow.
+- Повторное проектирование возможно только после утверждения диагностической ветки по Global Diagnostics Pattern.
 
 Назначение:
 - Этот mini-ТЗ описывает ограниченный problem-flow по пульту управления кондиционером внутри Air Conditioning.
