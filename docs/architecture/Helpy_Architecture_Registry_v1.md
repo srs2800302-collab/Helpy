@@ -5765,7 +5765,7 @@ Admin Dependencies:
 
 ---
 
-### 22.1 Обслуживание
+### 22.1 Service
 Status: APPROVED / STORED ✅
 Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
@@ -6047,7 +6047,7 @@ Conservation Note:
 
 ---
 
-### 22.4 Installation
+### 22.4 Install & Connect
 Status: APPROVED / STORED ✅
 Standard Compliance: Air Conditioning Mini-TZ Standard ✅
 
