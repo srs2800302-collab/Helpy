@@ -8246,15 +8246,19 @@ Stored Documentation — Правила выполнения работ маст
 
 ### Plumbing → Засор
 
-Status: APPROVED / DISABLED ON LAUNCH / STORED ✅
+Status: APPROVED / DISABLED ON LAUNCH / STORED + DOCS ✅
 Standard Compliance: Plumbing Mini-TZ Standard ✅
 
-Назначение:
-- Этот mini-ТЗ описывает bounded problem-flow сценарий устранения засора внутри Plumbing.
-- Засор не является install/replace сценарием и не использует terminology rules для оборудования.
-- Сценарий ограничен выбором места засора, симптома и required photos.
-- Сценарий не является свободной диагностикой Plumbing.
-- Подкатегория остаётся в MVP, потому что даёт быстрые недорогие заказы и может быть включена/отключена через Admin Panel после анализа реальной статистики.
+Launch Decision:
+- Сценарий «Засор» отключён на запуске MVP.
+- Может быть возвращён после анализа реальной статистики использования платформы.
+
+Reason:
+- Сценарий устранения засора относится к problem-flow, а не к install/replace логике MVP.
+- Может требовать диагностики причины засора, дополнительных работ и изменения объёма заказа.
+- Требует отдельной проработки после запуска основных сценариев Plumbing.
+
+Stored Documentation:
 
 Вопросы:
 
