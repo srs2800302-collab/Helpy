@@ -4356,6 +4356,130 @@ Reserved Admin Panel modules that reduce operational risk, prevent business-rule
 These modules are part of the Admin Panel roadmap.
 They do not require immediate MVP implementation, but the architecture must reserve space for them before Admin Panel development.
 
+#### Registry Studio / Registry Operations
+
+Status: PLANNED / ACTIVE DEVELOPMENT
+
+Registry Studio is an Admin Panel roadmap module for maintaining Helpy Registry as a structured source of truth.
+
+Purpose:
+- Navigate the Registry as an architecture tree.
+- Search Registry without losing hierarchy.
+- Support canonical translation and audit workflows.
+- Preserve checked phrase statuses between sessions.
+- Track Registry changes until the workspace returns to CLEAN state.
+- Support future Admin Panel operation without external tools.
+
+Core principle:
+- Studio analyzes, highlights risks and preserves context.
+- Final decisions remain the responsibility of the administrator.
+
+Required modules:
+- Registry Explorer.
+- Hierarchical Registry Search.
+- Translation Engine.
+- Canonical Audit.
+- Phrase Status Persistence.
+- Registry Health.
+- Change Workspace.
+- Impact Analysis.
+- Dependency Graph.
+- Registry Maintenance.
+- Registry Diff.
+- Registry Timeline.
+- Registry Snapshot.
+- Phrase Usage.
+- TODO Queue.
+- Favorites.
+- Recently Opened.
+- Cross References.
+- Dead Object Detection.
+- Duplicate Detector.
+- Global Rename with Impact Analysis.
+- Contract Validator.
+- Registry Statistics.
+- Registry CI.
+- Draft Workspace.
+- Session Recovery.
+- Admin Panel Integration.
+
+Design principles:
+- Registry is the source of truth.
+- Any Registry change must be traceable.
+- Any Registry change must expose its impact before application.
+- Any Registry change must finish in CLEAN state.
+- Studio must preserve work context between sessions.
+- Studio must help the administrator, not replace the administrator.
+- Studio must prevent hidden drift and unfinished work.
+- Studio must allow one administrator to continue another administrator's work without losing context.
+
+
+### Реализованные возможности
+
+На текущем этапе в Registry Studio реализованы следующие возможности.
+
+#### Навигация по Registry
+
+- Древовидное представление Registry.
+- Автоматическое построение дерева по структуре Markdown.
+- Загрузка актуального Registry напрямую из GitHub.
+- Выбор формулировки одним нажатием.
+- Передача выбранной формулировки в рабочее пространство перевода.
+
+#### Сохранение рабочего состояния
+
+- Сохранение состояния дерева между сессиями.
+- Сохранение положения прокрутки.
+- Сохранение статусов проверки формулировок.
+- Сохранение последнего рабочего контекста.
+- Сохранение последнего открытого раздела.
+- Сохранение последней выбранной формулировки.
+
+#### Поиск и навигация
+
+- Поиск по иерархии Registry.
+- Подсветка найденных совпадений.
+- Отображение полного пути до найденного элемента.
+- Отображение статистики результатов поиска.
+- Совместная работа поиска и фильтрации.
+
+#### Контроль проверки
+
+- Отображение статусов проверки формулировок.
+- Фильтрация Registry по статусам проверки.
+- Продолжение работы с последней сохранённой точки.
+
+### Практическое применение
+
+Registry Studio предназначен для сопровождения и развития Helpy Registry.
+
+Использование Registry Studio позволяет:
+
+- сократить время поиска необходимых разделов;
+- сократить количество повторных действий;
+- сохранять рабочий контекст между сессиями;
+- ускорить проверку канонических формулировок;
+- контролировать состояние проверки Registry;
+- снизить вероятность появления архитектурного дрейфа;
+- ускорить сопровождение и развитие Helpy Registry.
+
+### Развитие Registry Studio
+
+Registry Studio развивается одновременно с развитием Helpy Registry.
+
+Новые возможности определяются практической работой с Registry и добавляются в настоящий раздел после проверки в реальном рабочем процессе.
+
+Архитектура Registry Studio предусматривает постепенное расширение функциональности без нарушения ранее принятых архитектурных решений.
+
+
+Non-goals:
+- Studio must not silently change Registry.
+- Studio must not publish changes without administrator confirmation.
+- Studio must not resolve Drift automatically without review.
+- Studio must not perform mass changes without Impact Analysis.
+- Studio must not replace Git as the final version-control system.
+
+
 Must-Have Roadmap:
 - Rules Simulator;
 - Impact Analysis;
