@@ -4597,6 +4597,56 @@ Registry Studio boundaries:
 
 Registry Studio is authorized to modify the Registry only through the approved Registry Transaction Model.
 
+
+##### Registry Studio Domain Model
+
+Status: APPROVED
+
+Registry Studio domain model must scale through Registry data and contracts, not through artifact rebuilds.
+
+Core model:
+- Registry;
+- RegistryEntity;
+- RegistryEntityKind;
+- RegistryEntityPayload;
+- EngineeringAsset;
+- RegistryPath;
+- RegistryRelation;
+- RegistryDependency;
+- RegistrySnapshot.
+
+RegistryEntity defines what exists in Registry.
+
+RegistryEntityKind defines the semantic type of a RegistryEntity.
+
+RegistryEntityPayload contains strongly typed content for a specific RegistryEntityKind.
+
+EngineeringAsset wraps RegistryEntity for engineering lifecycle management.
+
+EngineeringAsset is responsible for:
+- lifecycle state;
+- Draft / Published participation;
+- dependency tracking;
+- validation state;
+- impact tracking;
+- risk tracking;
+- transaction participation;
+- engineering history;
+- decision context.
+
+RegistryEntity and EngineeringAsset must not duplicate responsibilities.
+
+RegistryEntity describes content and semantic meaning.
+
+EngineeringAsset describes engineering governance, lifecycle and change management.
+
+New Registry entity kinds must be added through domain contracts and typed payloads.
+
+Registry Studio must not rely on untyped dynamic payloads.
+
+Registry Studio must remain extensible as Registry grows to large-scale production size.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
