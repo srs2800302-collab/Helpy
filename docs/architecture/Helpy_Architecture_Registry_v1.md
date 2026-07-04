@@ -4715,6 +4715,59 @@ Rules:
 - RegistryEntityKind must be used by search, filtering, dependency analysis, impact analysis, validation and risk classification.
 
 
+
+##### RegistryRelation Model
+
+Status: APPROVED
+
+RegistryRelation defines canonical semantic relationships between RegistryEntity objects.
+
+RegistryRelation describes domain relationships.
+It does not describe engineering dependencies.
+
+RegistryRelation is a domain entity with:
+- source RegistryEntity;
+- target RegistryEntity;
+- relation kind;
+- optional relation metadata.
+
+RegistryRelation kinds:
+
+Structural:
+- contains;
+- parentOf;
+- childOf;
+- belongsTo.
+
+Architecture:
+- inherits;
+- overrides;
+- extends;
+- specializes.
+
+Reference:
+- references;
+- referencedBy.
+
+Binding:
+- bindsTo;
+- boundBy.
+
+Workflow:
+- triggers;
+- follows;
+- precedes.
+
+Rules:
+- RegistryRelation always connects exactly two RegistryEntity objects.
+- RegistryRelation has exactly one relation kind.
+- RegistryRelation is directional.
+- RegistryRelation must not be inferred from Markdown hierarchy alone.
+- RegistryRelation must be derived from approved Registry semantics.
+- Engineering dependency analysis may consume RegistryRelation but must not redefine it.
+- New RegistryRelation kinds require an approved domain contract before implementation.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
