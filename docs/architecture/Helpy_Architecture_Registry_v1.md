@@ -4567,6 +4567,85 @@ Engineering conclusions about implementation must be based on actual execution r
 If runtime evidence contradicts assumptions, runtime evidence always takes precedence.
 
 
+
+##### Registry Engineering Model
+
+Status: APPROVED
+
+Registry Studio is an engineering platform for the full Registry lifecycle.
+
+It is not a set of disconnected tools.
+
+Registry Studio responsibilities:
+- design Registry;
+- analyze Registry;
+- modify Registry;
+- verify Registry;
+- validate Registry;
+- preserve engineering context;
+- manage the engineering workflow;
+- apply approved changes through Registry Transaction Model.
+
+Registry Studio boundaries:
+- Registry Studio does not replace Admin Panel.
+- Registry Studio does not replace Git.
+- Registry Studio does not manage mobile runtime behavior.
+- Registry Studio does not manage orders, payments or users.
+- Registry Studio must not perform hidden Registry changes.
+- Registry Studio must not bypass Registry Transaction Model.
+- Registry Studio must not publish changes outside the approved transaction workflow.
+
+Registry Studio is authorized to modify the Registry only through the approved Registry Transaction Model.
+
+##### Engineering Change Analysis
+
+Status: APPROVED
+
+Engineering Change Analysis is not a file comparison tool.
+
+It is an engineering decision support model.
+
+Purpose:
+- detect changes;
+- restore engineering context;
+- identify dependencies;
+- evaluate impact;
+- classify risk;
+- highlight critical logic areas;
+- prepare verified information for engineering decisions.
+
+Registry Studio must provide the engineer with sufficient verified context to make safe engineering decisions.
+
+The system supports engineering decisions.
+It does not replace them.
+
+Registry Studio must not require the engineer to manually reconstruct Registry logic before making a decision.
+
+When sufficient verified information is available, Registry Studio must identify dependencies, classify risks and highlight critical logic areas.
+
+Mass changes must be context-aware and risk-classified.
+
+##### Risk Classification
+
+Status: APPROVED
+
+Registry Studio must classify proposed changes by engineering risk.
+
+Risk levels:
+- LOW;
+- MEDIUM;
+- HIGH;
+- CRITICAL;
+- BLOCKED.
+
+Risk classification must help the engineer understand where manual attention is required.
+
+Critical logic areas must be highlighted before changes are applied.
+
+Risk classification is advisory.
+Engineering decisions always remain the responsibility of the engineer.
+
+
 ### Реализованные возможности
 
 На текущем этапе в Registry Studio реализованы следующие возможности.
