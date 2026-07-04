@@ -4411,6 +4411,83 @@ Design principles:
 - Studio must allow one administrator to continue another administrator's work without losing context.
 
 
+
+##### Registry Transaction Model
+
+Status: APPROVED
+
+Registry Studio must treat Registry as a domain model, not as a Markdown file.
+
+Markdown is one possible storage backend.
+Registry Studio must not depend on Markdown implementation details.
+
+Future storage backends may include structured documents, databases, remote repositories or Admin Panel APIs without changing Registry Studio business logic.
+
+Purpose:
+- Define the lifecycle of every Registry modification.
+- Prevent silent Registry drift.
+- Prevent partial Registry publication.
+- Preserve dependency visibility before any change is applied.
+- Ensure every Registry change finishes in CLEAN state.
+
+Core principles:
+- Published Registry is immutable during editing.
+- All modifications must be performed inside Draft Workspace.
+- Draft Workspace is isolated from the published Registry.
+- Every change must be traceable.
+- Every change must expose dependency impact before publication.
+- Every publication must pass validation before application.
+- Every publication must finish in CLEAN state.
+- Silent Registry modification is prohibited.
+- Partial publication is prohibited.
+- Administrator confirmation is required before applying a Draft to Registry.
+
+Required lifecycle:
+
+Published Registry
+→ Create Draft
+→ Modify Draft
+→ Dependency Analysis
+→ Impact Analysis
+→ Validation
+→ Diff Preview
+→ Administrator Review
+→ CLEAN Verification
+→ Apply to Registry
+
+Forbidden:
+- Direct Registry editing from Registry Studio.
+- Background Registry modification.
+- Silent automatic replacement.
+- Automatic publication.
+- Publishing with unresolved dependencies.
+- Publishing with failed validation.
+- Publishing with NOT CLEAN state.
+- Partial application of a Draft.
+
+##### Registry Storage Independence
+
+Status: APPROVED
+
+- Registry Studio operates on Registry domain entities.
+- Markdown parsing belongs exclusively to the Data layer.
+- Domain, Application and Presentation layers must never depend on Markdown syntax.
+- RegistryRepository is the storage boundary.
+- Replacing Markdown with another storage implementation must not require changes to Registry Studio business logic.
+
+##### Registry Studio Clean Architecture Rule
+
+Status: APPROVED
+
+- Registry Studio must be designed through explicit domain models, use cases, repositories and presentation state.
+- Helpers, wrappers and temporary adapters must not replace domain modeling.
+- Shared logic must be promoted into the correct layer instead of being hidden in UI helpers.
+- Presentation layer must not contain Registry parsing, search, dependency analysis, validation or publication logic.
+- Data layer may adapt storage formats, but must not leak storage-specific details into Domain or Presentation.
+- Any temporary technical shortcut must be treated as technical debt and removed before the related module is considered complete.
+- Registry Studio architecture must prioritize long-term maintainability over fast local fixes.
+
+
 ### Реализованные возможности
 
 На текущем этапе в Registry Studio реализованы следующие возможности.
