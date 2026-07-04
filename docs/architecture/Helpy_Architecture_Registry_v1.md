@@ -4768,6 +4768,67 @@ Rules:
 - New RegistryRelation kinds require an approved domain contract before implementation.
 
 
+
+##### RegistryDependency Model
+
+Status: APPROVED
+
+RegistryDependency defines an engineering dependency derived from RegistryRelation and approved Registry semantics.
+
+RegistryDependency is not the same as RegistryRelation.
+
+RegistryRelation describes how RegistryEntity objects are semantically connected.
+
+RegistryDependency describes what may be affected when a RegistryEntity changes.
+
+RegistryDependency is used by:
+- Engineering Change Analysis;
+- Impact Analysis;
+- Validation;
+- Category Health Check;
+- Risk Classification;
+- Registry Transaction Model;
+- Publishing Gate.
+
+RegistryDependency is an engineering entity with:
+- source RegistryEntity;
+- affected RegistryEntity;
+- source RegistryRelation;
+- dependency kind;
+- dependency strength;
+- validation requirement;
+- risk impact;
+- optional dependency metadata.
+
+Dependency kinds:
+- structuralDependency;
+- inheritanceDependency;
+- referenceDependency;
+- bindingDependency;
+- workflowDependency;
+- validationDependency;
+- publicationDependency;
+- translationDependency;
+- guidanceDependency;
+- pricingDependency;
+- eligibilityDependency.
+
+Dependency strength:
+- weak;
+- normal;
+- strong;
+- blocking.
+
+Rules:
+- RegistryDependency must be derived from verified RegistryEntity and RegistryRelation data.
+- RegistryDependency must not be invented from assumptions or conversational memory.
+- RegistryDependency may be computed, but the computation must be deterministic and explainable.
+- Every dependency used for Impact Analysis must be traceable to source RegistryEntity and RegistryRelation data.
+- Blocking dependencies must prevent publication until resolved or explicitly reviewed.
+- Dependency analysis must expose affected entities before applying changes.
+- New RegistryDependency kinds require an approved domain contract before implementation.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
