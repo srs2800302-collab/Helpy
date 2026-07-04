@@ -4647,6 +4647,74 @@ Registry Studio must not rely on untyped dynamic payloads.
 Registry Studio must remain extensible as Registry grows to large-scale production size.
 
 
+
+##### RegistryEntityKind Model
+
+Status: APPROVED
+
+RegistryEntityKind defines the canonical semantic type of a RegistryEntity.
+
+RegistryEntityKind must be explicit, stable and suitable for engineering analysis.
+
+RegistryEntityKind groups:
+
+Core Registry kinds:
+- contract;
+- architectureGroup;
+- rootCategory;
+- category;
+- subcategory;
+- scenario;
+- section.
+
+Business logic kinds:
+- clientRule;
+- masterRule;
+- scenarioRule;
+- globalRule;
+- platformRule;
+- eligibilityRule;
+- dependencyRule;
+- translationRule;
+- question;
+- answerOption;
+- structuredScope;
+- photoRequirement;
+- photoLimit;
+- pricingRule;
+- guidance;
+- guidanceTrigger;
+- guidanceSlot;
+- adminDependency.
+
+Engineering and governance kinds:
+- draft;
+- publishedRevision;
+- changeSet;
+- transaction;
+- impactAnalysis;
+- dependencyAnalysis;
+- riskClassification;
+- validationResult;
+- healthCheck;
+- auditLog;
+- rollback;
+- snapshot;
+- featureFlag;
+- platformSetting;
+- builder;
+- workflow;
+- review.
+
+Rules:
+- RegistryEntityKind must not be inferred from raw Markdown syntax alone.
+- RegistryEntityKind must be derived from Registry structure, approved contracts and semantic context.
+- Every RegistryEntity must have exactly one primary RegistryEntityKind.
+- Additional classification must be represented through metadata, relations or payload fields.
+- New RegistryEntityKind values require an approved domain contract before implementation.
+- RegistryEntityKind must be used by search, filtering, dependency analysis, impact analysis, validation and risk classification.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
