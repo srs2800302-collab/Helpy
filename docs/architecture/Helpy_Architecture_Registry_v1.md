@@ -4488,6 +4488,85 @@ Status: APPROVED
 - Registry Studio architecture must prioritize long-term maintainability over fast local fixes.
 
 
+
+
+##### AI Engineering Principles
+
+Status: APPROVED
+
+Purpose:
+
+Define the mandatory engineering principles for AI-assisted development of Registry Studio.
+
+1. Registry and verified project artifacts are the source of truth.
+Conversational context, AI memory and assumptions must never override verified project artifacts.
+
+2. Verify project state before making engineering conclusions.
+Every engineering conclusion must be based on verified project artifacts.
+
+3. Architecture before implementation.
+Architecture, domain model and contracts must be approved before implementation begins.
+
+4. Respect architectural boundaries.
+Business logic belongs to the appropriate architectural layer and must never be hidden inside helpers, wrappers or presentation code.
+
+5. Preserve engineering consistency.
+Every implementation must remain consistent with approved architecture and must reduce, not increase, technical debt.
+
+6. Engineer remains the decision maker.
+AI assists engineering work but never replaces architectural or business decisions.
+
+7. Engineering success is measured by correctness, maintainability and long-term stability rather than implementation speed.
+
+##### Engineering Workflow
+
+Status: APPROVED
+
+Mandatory order:
+
+Architecture
+→ Contracts
+→ Domain Model
+→ Validation
+→ Implementation
+→ Integration
+→ Refactoring
+→ Optimization
+
+Skipping stages is prohibited.
+
+##### Engineering Evidence
+
+Status: APPROVED
+
+Engineering decisions may rely only on verified project artifacts.
+
+Verified engineering evidence includes:
+- Approved Registry.
+- Repository history.
+- Verified source code.
+- Verified implementation.
+- Terminal command output.
+- Build results.
+- Analyzer results.
+- Test results.
+- Git status.
+- Git diff.
+- CI/CD execution results.
+
+Conversational context, AI memory, assumptions and expected behavior are not engineering evidence.
+
+##### Runtime Verification Rule
+
+Status: APPROVED
+
+Every implementation step must finish with runtime verification before being considered complete.
+
+Engineering conclusions about implementation must be based on actual execution results rather than expected behavior.
+
+If runtime evidence contradicts assumptions, runtime evidence always takes precedence.
+
+
 ### Реализованные возможности
 
 На текущем этапе в Registry Studio реализованы следующие возможности.
