@@ -5499,6 +5499,55 @@ Rules:
 - New GlobalRename behavior requires an approved domain contract before implementation.
 
 
+
+##### Registry Studio Platform Scope
+
+Status: APPROVED
+
+RegistryStudio is a reusable engineering platform for managing Registry-based domain models.
+
+RegistryStudio is not tied to a specific business project.
+
+RegistryStudio provides a generic engineering foundation that may be reused across multiple products.
+
+RegistryStudio consists of:
+- Registry Domain Model;
+- Engineering Governance;
+- Engineering Services;
+- Analysis Engine;
+- Repository Contracts;
+- Platform APIs.
+
+Business projects integrate through project-specific adapters.
+
+Project adapters may define:
+- RegistryEntityKind;
+- RegistryEntityPayload;
+- business rules;
+- guidance;
+- workflows;
+- validation extensions;
+- project metadata.
+
+RegistryStudio core must remain independent of project-specific business logic.
+
+RegistryStudio responsibilities:
+- manage Registry domain models;
+- provide deterministic engineering analysis;
+- support safe Registry evolution;
+- provide reusable engineering services;
+- remain storage independent;
+- remain project independent.
+
+Rules:
+- RegistryStudio core must not contain project-specific business logic.
+- Every project must integrate through approved platform contracts.
+- Platform services must operate only on Registry domain contracts.
+- Project adapters may extend, but must not modify RegistryStudio core.
+- RegistryStudio upgrades must not require redesign of integrated projects.
+- New platform capabilities require an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
