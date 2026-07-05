@@ -5862,6 +5862,57 @@ Rules:
 
 
 
+
+##### Engineering Runtime Model
+
+Status: APPROVED
+
+EngineeringRuntime defines the canonical execution chain for Registry engineering.
+
+EngineeringRuntime separates engineering intent, workflow coordination, service execution and Registry modification into independent architectural responsibilities.
+
+Canonical execution flow:
+
+Engineer
+→ EngineerIntent
+→ EngineeringOrchestrator
+→ EngineeringWorkflow
+→ Service Contracts
+→ Engineering Services
+→ RegistryTransaction
+→ ImpactAnalysis
+→ Validation
+→ PublishingGate
+→ AuditLog
+→ Published Registry
+
+Responsibility separation:
+
+- Engineer defines engineering intent.
+- EngineeringOrchestrator selects and coordinates an approved EngineeringWorkflow.
+- EngineeringWorkflow defines the deterministic execution sequence.
+- Service Contracts define interaction boundaries between architectural components.
+- Engineering Services execute engineering logic independently through approved contracts.
+- RegistryTransaction governs every Registry modification.
+- ImpactAnalysis evaluates engineering impact before publication.
+- Validation verifies engineering integrity.
+- PublishingGate determines publication readiness.
+- AuditLog records the completed engineering transaction.
+- Published Registry becomes the new verified source of truth.
+
+Rules:
+
+- Every runtime component must have exactly one architectural responsibility.
+- EngineeringOrchestrator must coordinate execution but must not execute engineering logic.
+- EngineeringWorkflow must define execution flow but must not implement engineering services.
+- Engineering Services must execute engineering logic but must not coordinate workflow execution.
+- RegistryTransaction must be the only entry point for Registry modification.
+- Registry publication must occur only after successful Validation and PublishingGate approval.
+- Runtime execution must be deterministic, reproducible and fully traceable.
+- Architectural responsibility boundaries must not be bypassed or merged.
+- New EngineeringRuntime behavior requires an approved domain contract before implementation.
+
+
 ##### Registry Studio Development Phases
 
 Status: APPROVED
