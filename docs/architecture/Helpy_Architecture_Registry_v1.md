@@ -4829,6 +4829,49 @@ Rules:
 - New RegistryDependency kinds require an approved domain contract before implementation.
 
 
+
+##### RegistryPath Model
+
+Status: APPROVED
+
+RegistryPath defines the canonical logical address of a RegistryEntity.
+
+RegistryPath is independent of storage implementation.
+
+RegistryPath must remain stable when Registry storage changes from Markdown to another backend.
+
+RegistryPath is used by:
+- Registry navigation;
+- Tree View;
+- Search;
+- Cross References;
+- Dependency Graph;
+- Impact Analysis;
+- Global Rename;
+- Deep Linking;
+- Registry Transactions.
+
+RegistryPath identifies RegistryEntity within the Registry domain model.
+
+RegistryPath must not depend on:
+- Markdown line numbers;
+- Markdown heading levels;
+- file offsets;
+- parser implementation details;
+- storage backend identifiers.
+
+RegistryRepository is responsible for resolving storage-specific locations into RegistryPath.
+
+Rules:
+- Every RegistryEntity has exactly one canonical RegistryPath.
+- RegistryPath must uniquely identify RegistryEntity.
+- RegistryPath must remain stable across storage migrations whenever entity identity is preserved.
+- RegistryPath may be indexed for fast lookup.
+- RegistryPath must be used by engineering services instead of storage coordinates.
+- RegistryPath must be deterministic and reproducible.
+- RegistryPath changes require an approved engineering transaction.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
