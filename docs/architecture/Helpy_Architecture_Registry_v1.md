@@ -5915,6 +5915,81 @@ Rules:
 
 
 
+
+##### Engineering Workflow Model
+
+Status: APPROVED
+
+EngineeringWorkflow defines the canonical executable scenario description used by EngineeringOrchestrator.
+
+EngineeringWorkflow is not an engineering service.
+
+EngineeringWorkflow is not EngineeringOrchestrator.
+
+EngineeringWorkflow does not execute engineering logic.
+
+EngineeringWorkflow describes how an approved EngineerIntent should be executed through ordered workflow steps.
+
+EngineeringWorkflow is selected and executed by EngineeringOrchestrator.
+
+EngineeringWorkflow is based on:
+- EngineerIntent;
+- EngineeringContext;
+- EngineeringRuntime;
+- Service Contracts;
+- RegistryTransaction;
+- ImpactAnalysis;
+- Validation;
+- PublishingGate;
+- AuditLog.
+
+EngineeringWorkflow responsibilities:
+- define deterministic workflow steps;
+- define workflow step order;
+- define required service contracts;
+- define expected step inputs;
+- define expected step outputs;
+- define workflow stop conditions;
+- define workflow resume conditions;
+- define workflow completion conditions;
+- define required engineer decision points.
+
+EngineeringWorkflow must not:
+- coordinate engineering services;
+- execute engineering service logic;
+- implement engineering service behavior;
+- select itself;
+- replace EngineeringOrchestrator;
+- modify Registry;
+- publish Registry changes;
+- bypass RegistryTransaction;
+- bypass ImpactAnalysis;
+- bypass Validation;
+- bypass PublishingGate.
+
+Workflow states:
+- DEFINED;
+- SELECTED;
+- RUNNING;
+- WAITING_FOR_SERVICE_RESULT;
+- WAITING_FOR_ENGINEER_DECISION;
+- BLOCKED;
+- FAILED;
+- COMPLETED;
+- CANCELLED.
+
+Rules:
+- EngineeringWorkflow is a runtime scenario contract, not a Registry domain entity.
+- EngineeringWorkflow must be selected by EngineeringOrchestrator.
+- EngineeringWorkflow must be executed only by EngineeringOrchestrator.
+- EngineeringWorkflow must define execution flow but must not execute engineering services.
+- EngineeringWorkflow must reference approved Service Contracts only.
+- EngineeringWorkflow must preserve architectural responsibility boundaries.
+- EngineeringWorkflow must be deterministic and reproducible for identical EngineerIntent and verified context.
+- EngineeringWorkflow execution must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
+- New EngineeringWorkflow behavior requires an approved domain contract before implementation.
+
+
 ##### Engineering Runtime Model
 
 Status: APPROVED
