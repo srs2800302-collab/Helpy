@@ -4872,6 +4872,54 @@ Rules:
 - RegistryPath changes require an approved engineering transaction.
 
 
+
+##### RegistrySnapshot Model
+
+Status: APPROVED
+
+RegistrySnapshot defines a verified immutable state of Registry at a specific point in time.
+
+RegistrySnapshot is not a storage backup.
+
+RegistrySnapshot belongs to the Registry domain model and must remain independent of storage implementation.
+
+RegistrySnapshot is used by:
+- Registry Transactions;
+- Draft Workspace;
+- Difference Analysis;
+- Engineering Change Analysis;
+- Impact Analysis;
+- Validation;
+- Rollback preparation;
+- CLEAN state verification;
+- Registry history;
+- publication review.
+
+RegistrySnapshot is a domain entity with:
+- snapshot identity;
+- Registry identity;
+- source revision reference;
+- creation timestamp;
+- creation reason;
+- entity index;
+- relation index;
+- dependency index;
+- validation state;
+- optional snapshot metadata.
+
+Rules:
+- RegistrySnapshot must be immutable after creation.
+- RegistrySnapshot must be reproducible from verified Registry data.
+- RegistrySnapshot must not depend on Markdown line numbers or parser implementation details.
+- RegistrySnapshot must reference RegistryEntity through RegistryPath and stable identity.
+- RegistrySnapshot must support comparison with another RegistrySnapshot.
+- RegistrySnapshot must support rollback preparation, but rollback execution must follow Registry Transaction Model.
+- RegistrySnapshot must be created before applying approved Registry changes.
+- RegistrySnapshot must be used to verify CLEAN state after publication.
+- Snapshot comparison must expose changed, added, removed and affected RegistryEntity objects.
+- New RegistrySnapshot behavior requires an approved domain contract before implementation.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
