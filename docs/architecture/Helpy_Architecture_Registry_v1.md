@@ -5329,6 +5329,69 @@ Rules:
 - New DraftWorkspace behavior requires an approved domain contract before implementation.
 
 
+
+##### Audit Log Model
+
+Status: APPROVED
+
+AuditLog defines the canonical traceability model for Registry engineering actions.
+
+AuditLog records what happened, when it happened, who initiated it and which Registry domain entities were affected.
+
+AuditLog is not a chat log and not a free-form note.
+
+AuditLog is based on:
+- RegistryTransaction;
+- DraftWorkspace;
+- RegistryEntity;
+- RegistryPath;
+- RegistrySnapshot;
+- ImpactAnalysis;
+- Validation;
+- PublishingGate;
+- RiskClassification.
+
+AuditLog must record:
+- actor identity;
+- action type;
+- timestamp;
+- RegistryTransaction identity;
+- DraftWorkspace identity when applicable;
+- affected RegistryEntity objects;
+- affected RegistryPath values;
+- created RegistrySnapshot identity when applicable;
+- ImpactAnalysis summary;
+- Validation result;
+- PublishingGate decision;
+- RiskClassification summary;
+- publication result;
+- rollback reference when applicable.
+
+AuditLog action types:
+- draftCreated;
+- draftUpdated;
+- entityChanged;
+- impactAnalyzed;
+- validationExecuted;
+- publishingGateExecuted;
+- published;
+- publicationBlocked;
+- rollbackPrepared;
+- rollbackExecuted;
+- draftDiscarded.
+
+Rules:
+- Every committed RegistryTransaction must create AuditLog records.
+- Every publication attempt must be traceable through AuditLog.
+- AuditLog must be immutable after creation.
+- AuditLog must use RegistryPath and stable RegistryEntity identity, not storage coordinates.
+- AuditLog must not depend on Markdown line numbers or parser implementation details.
+- AuditLog must provide enough context to reconstruct the engineering decision path.
+- AuditLog must support rollback investigation.
+- AuditLog must not expose secrets or unsafe operational data.
+- New AuditLog behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
