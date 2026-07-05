@@ -4998,6 +4998,57 @@ Rules:
 - Untyped dynamic payloads are prohibited.
 
 
+
+##### RegistryGraph Model
+
+Status: APPROVED
+
+RegistryGraph defines the canonical graph representation of Registry domain entities.
+
+RegistryGraph combines:
+- RegistryEntity;
+- RegistryEntityKind;
+- RegistryPath;
+- RegistryRelation;
+- RegistryDependency.
+
+RegistryGraph is not a UI tree and not a Markdown outline.
+
+RegistryGraph is an engineering analysis model used by:
+- Registry navigation;
+- Search;
+- Cross References;
+- Dependency Graph;
+- Impact Analysis;
+- Engineering Change Analysis;
+- Global Rename;
+- Registry Coverage;
+- Rules Simulator;
+- Validation;
+- Registry Transactions.
+
+RegistryGraph is responsible for:
+- indexing RegistryEntity objects;
+- resolving RegistryPath;
+- exposing semantic relations;
+- exposing engineering dependencies;
+- supporting affected-entity lookup;
+- supporting reverse dependency lookup;
+- supporting safe graph traversal;
+- supporting deterministic engineering analysis.
+
+Rules:
+- RegistryGraph must be built from verified Registry domain data.
+- RegistryGraph must not depend on Markdown heading structure as its source of truth.
+- RegistryGraph may be generated from Markdown through Data layer adapters.
+- RegistryGraph must remain stable when Registry storage changes.
+- RegistryGraph traversal must be deterministic and reproducible.
+- RegistryGraph must expose enough context for engineering decisions.
+- RegistryGraph must not modify Registry directly.
+- RegistryGraph may be used by Registry Transaction Model before changes are applied.
+- New RegistryGraph behavior requires an approved domain contract before implementation.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
