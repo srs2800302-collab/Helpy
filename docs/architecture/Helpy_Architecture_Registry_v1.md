@@ -5803,6 +5803,58 @@ Rules:
 
 
 
+
+##### Engineer Intent Model
+
+Status: APPROVED
+
+EngineerIntent defines the canonical runtime input contract for translating an engineer's objective into a normalized technical request.
+
+EngineerIntent is not a RegistryEntity.
+
+EngineerIntent is not an EngineeringWorkflow.
+
+EngineerIntent does not define how engineering work will be executed.
+
+EngineerIntent exists only to express what the engineer intends to accomplish in a form that EngineeringOrchestrator can evaluate.
+
+EngineeringOrchestrator selects the appropriate EngineeringWorkflow after EngineerIntent is normalized and verified.
+
+EngineerIntent is based on:
+- engineer objective;
+- target RegistryPath when applicable;
+- target RegistryEntity when applicable;
+- engineering scope;
+- engineering constraints;
+- EngineeringContext when available.
+
+EngineerIntent responsibilities:
+- translate engineer objective into normalized technical intent;
+- identify the intended engineering target;
+- identify the intended engineering scope;
+- preserve explicit engineer constraints;
+- provide enough information for EngineeringOrchestrator to select an approved EngineeringWorkflow.
+
+EngineerIntent must not:
+- define workflow execution;
+- select EngineeringWorkflow directly;
+- implement engineering logic;
+- coordinate engineering services;
+- modify Registry;
+- create RegistryEntityKind;
+- create RegistryEntityPayload;
+- become Published Registry data.
+
+Rules:
+- EngineerIntent is a runtime input contract, not a Registry domain entity.
+- EngineerIntent must remain independent of storage implementation.
+- EngineerIntent must not be stored as Published Registry data.
+- EngineerIntent must not define Registry structure.
+- EngineerIntent must be deterministic and reproducible for identical engineer objectives and verified context.
+- EngineeringWorkflow selection must be performed by EngineeringOrchestrator, not by EngineerIntent.
+- New EngineerIntent behavior requires an approved domain contract before implementation.
+
+
 ##### Engineering Orchestrator Model
 
 Status: APPROVED
