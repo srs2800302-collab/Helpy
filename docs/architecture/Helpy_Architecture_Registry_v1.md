@@ -5880,7 +5880,7 @@ EngineeringOrchestrator is based on:
 - AuditLog.
 
 EngineeringOrchestrator responsibilities:
-- execute approved engineering workflows;
+- initiate and supervise approved EngineeringWorkflow execution;
 - determine workflow execution order;
 - determine workflow stop conditions;
 - coordinate service handoff;
