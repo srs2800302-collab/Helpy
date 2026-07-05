@@ -5861,6 +5861,65 @@ Rules:
 - New EngineeringOrchestrator behavior requires an approved domain contract before implementation.
 
 
+
+##### Registry Studio Development Phases
+
+Status: APPROVED
+
+Registry Studio development is divided into architectural phases to preserve navigation, context and design intent.
+
+Phase 1: Registry Foundation
+- Registry domain model;
+- Registry entities;
+- entity kinds;
+- typed payloads;
+- paths;
+- relations;
+- dependencies;
+- snapshots;
+- graph model;
+- repository boundary.
+
+Phase 2: Engineering Governance
+- Registry transactions;
+- Draft Workspace;
+- Validation;
+- Impact Analysis;
+- Risk Classification;
+- Publishing Gate;
+- Audit Log.
+
+Phase 3: Engineering Services
+- Dependency Explorer;
+- Engineering Context;
+- Rules Simulator;
+- Registry Coverage;
+- Sandbox Mode;
+- Bulk Operations;
+- Global Rename.
+
+Phase 4: Engineering Runtime
+- Engineering Orchestrator;
+- approved workflows;
+- intent-based engineering execution;
+- service coordination;
+- deterministic workflow state.
+
+Phase 5: Platform Expansion
+- project adapters;
+- storage adapters;
+- plugin-ready engineering services;
+- reusable Registry Studio Core;
+- future engineering assistant capabilities.
+
+Rules:
+- Development phases describe architectural maturity, not strict implementation order.
+- New capabilities must be assigned to the phase that best matches their architectural responsibility.
+- Phase separation must improve navigation and design consistency.
+- Phase separation must not override approved domain contracts.
+- Registry Studio must continue evolving through approved contracts, verified implementation and runtime evidence.
+
+
 ##### Risk Classification
 
 Status: APPROVED
