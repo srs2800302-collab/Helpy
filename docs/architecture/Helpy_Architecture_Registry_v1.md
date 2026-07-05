@@ -5881,7 +5881,6 @@ EngineeringOrchestrator is based on:
 
 EngineeringOrchestrator responsibilities:
 - execute approved engineering workflows;
-- coordinate engineering services;
 - determine workflow execution order;
 - determine workflow stop conditions;
 - coordinate service handoff;
