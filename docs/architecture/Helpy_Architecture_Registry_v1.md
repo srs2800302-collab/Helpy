@@ -5392,6 +5392,65 @@ Rules:
 - New AuditLog behavior requires an approved domain contract before implementation.
 
 
+
+##### Bulk Operations Model
+
+Status: APPROVED
+
+BulkOperations defines the canonical engineering service for applying deterministic changes to multiple RegistryEntity objects within a single RegistryTransaction.
+
+BulkOperations is not responsible for engineering decisions.
+
+BulkOperations orchestrates approved engineering workflows.
+
+BulkOperations is based on:
+- RegistryEntity;
+- RegistryGraph;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryTransaction;
+- DraftWorkspace;
+- ImpactAnalysis;
+- Validation;
+- PublishingGate;
+- AuditLog.
+
+BulkOperations responsibilities:
+- collect affected RegistryEntity objects;
+- create a single RegistryTransaction;
+- execute deterministic bulk changes;
+- invoke ImpactAnalysis;
+- invoke Validation;
+- invoke PublishingGate;
+- produce AuditLog records;
+- preserve transaction atomicity;
+- prevent partial Registry modification.
+
+Supported bulk operations:
+- bulkRename;
+- bulkMove;
+- bulkReplace;
+- bulkDelete;
+- bulkCreate;
+- bulkMerge;
+- bulkSplit;
+- bulkUpdateMetadata;
+- bulkReclassify;
+- bulkRefactor.
+
+Rules:
+- Every bulk operation must execute inside DraftWorkspace.
+- Every bulk operation must belong to exactly one RegistryTransaction.
+- BulkOperations must not bypass ImpactAnalysis.
+- BulkOperations must not bypass Validation.
+- BulkOperations must not bypass PublishingGate.
+- BulkOperations must not modify Published Registry directly.
+- Failed bulk operations must not partially modify Registry.
+- Every bulk operation must be fully traceable through AuditLog.
+- BulkOperations execution must be deterministic and reproducible.
+- New BulkOperations behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
