@@ -5548,6 +5548,56 @@ Rules:
 - New platform capabilities require an approved domain contract before implementation.
 
 
+
+##### Dependency Explorer Model
+
+Status: APPROVED
+
+DependencyExplorer defines the canonical engineering service for exploring Registry dependencies and engineering impact paths.
+
+DependencyExplorer is not a search engine.
+
+DependencyExplorer provides deterministic dependency navigation across the Registry domain model.
+
+DependencyExplorer is based on:
+- RegistryGraph;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryEntity;
+- RegistryPath;
+- RegistrySnapshot.
+
+DependencyExplorer responsibilities:
+- discover direct dependencies;
+- discover reverse dependencies;
+- discover dependency chains;
+- discover affected RegistryEntity objects;
+- discover blocking dependencies;
+- discover cyclic dependencies;
+- support engineering navigation;
+- provide deterministic dependency traversal.
+
+DependencyExplorer supports:
+- dependency lookup;
+- reverse dependency lookup;
+- dependency chain visualization;
+- impact scope discovery;
+- engineering context reconstruction;
+- GlobalRename;
+- ImpactAnalysis;
+- Validation.
+
+Rules:
+- DependencyExplorer must operate only on verified Registry domain data.
+- DependencyExplorer must not modify Registry.
+- DependencyExplorer traversal must be deterministic and reproducible.
+- DependencyExplorer must support forward and reverse dependency traversal.
+- DependencyExplorer must detect cyclic dependency paths.
+- DependencyExplorer must remain independent of storage implementation.
+- DependencyExplorer results must provide enough engineering context for safe decision making.
+- New DependencyExplorer behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
