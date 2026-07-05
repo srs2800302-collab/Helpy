@@ -5945,9 +5945,10 @@ EngineeringWorkflow is based on:
 EngineeringWorkflow responsibilities:
 - define deterministic workflow steps;
 - define workflow step order;
-- define required service contracts;
+- define workflow operation kinds;
 - define expected step inputs;
 - define expected step outputs;
+- define required EngineeringServiceContract for each executable step;
 - define workflow stop conditions;
 - define workflow resume conditions;
 - define workflow completion conditions;
@@ -6000,7 +6001,7 @@ EngineeringServiceContract is not an Engineering Service.
 
 EngineeringServiceContract does not implement engineering logic.
 
-EngineeringServiceContract describes which EngineeringOperation an Engineering Service is approved to execute, what input it requires and what result it returns.
+EngineeringServiceContract describes which workflow step or operation kind an Engineering Service is approved to execute, what input it requires and what result it returns.
 
 EngineeringServiceContract is based on:
 - EngineeringWorkflow;
@@ -6047,82 +6048,6 @@ Rules:
 
 
 
-##### Engineering Operation Model
-
-Status: APPROVED
-
-EngineeringOperation defines the canonical atomic technical command derived from EngineeringWorkflow.
-
-EngineeringOperation is not an EngineeringWorkflow.
-
-EngineeringOperation is not EngineeringOrchestrator.
-
-EngineeringOperation does not publish Registry changes.
-
-EngineeringOperation represents one bounded engineer-facing technical command that may be executed only through an approved EngineeringServiceContract.
-
-EngineeringOperation is based on:
-- EngineerIntent;
-- EngineeringWorkflow;
-- EngineeringServiceContract;
-- EngineeringContext;
-- RegistryEntity;
-- RegistryPath;
-- RegistryRelation when applicable;
-- RegistryDependency when applicable;
-- RegistryTransaction when Registry modification is involved;
-- ImpactAnalysis when impact evaluation is required;
-- Validation when correctness verification is required;
-- AuditLog when traceability is required.
-
-EngineeringOperation responsibilities:
-- define one atomic engineer-facing technical command;
-- define operation input;
-- define operation output;
-- define affected RegistryEntity objects;
-- define affected RegistryPath values;
-- define required preconditions;
-- define failure conditions;
-- define traceability requirements;
-- define RegistryTransaction participation when Registry modification is involved.
-
-Supported operation kinds:
-- createEntity;
-- updateEntity;
-- renameEntity;
-- moveEntity;
-- deleteEntity;
-- createRelation;
-- updateRelation;
-- deleteRelation;
-- analyzeImpact;
-- validateRegistry;
-- simulateChange;
-- calculateCoverage;
-- prepareRollback.
-
-EngineeringOperation must not:
-- coordinate workflow execution;
-- select EngineeringWorkflow;
-- call EngineeringOrchestrator;
-- bypass EngineeringServiceContract;
-- bypass RegistryTransaction when Registry modification is involved;
-- bypass ImpactAnalysis when impact evaluation is required;
-- bypass Validation when correctness verification is required;
-- modify Published Registry directly;
-- hide side effects;
-- combine unrelated engineering responsibilities.
-
-Rules:
-- Every EngineeringOperation must be derived from an approved EngineeringWorkflow and executed through exactly one approved EngineeringServiceContract.
-- Every EngineeringOperation must have one bounded engineer-facing technical responsibility.
-- EngineeringOperation definition must be deterministic and reproducible for identical inputs and verified context.
-- EngineeringOperation results must expose affected RegistryEntity objects whenever applicable.
-- EngineeringOperation side effects must be explicit, bounded and traceable.
-- Registry-modifying EngineeringOperation must participate in RegistryTransaction.
-- New EngineeringOperation behavior requires an approved domain contract before implementation.
-
-
 ##### Engineering Runtime Model
 
 Status: APPROVED
@@ -6137,7 +6062,6 @@ Engineer
 → EngineerIntent
 → EngineeringOrchestrator
 → EngineeringWorkflow
-→ EngineeringOperation
 → EngineeringServiceContract
 → Engineering Services
 → RegistryTransaction
@@ -6151,8 +6075,7 @@ Responsibility separation:
 
 - Engineer defines engineering intent.
 - EngineeringOrchestrator selects and coordinates an approved EngineeringWorkflow.
-- EngineeringWorkflow defines the deterministic execution sequence.
-- EngineeringOperation defines atomic engineer-facing technical commands.
+- EngineeringWorkflow defines deterministic execution sequence and atomic workflow operation kinds.
 - EngineeringServiceContract defines interaction boundaries between architectural components.
 - Engineering Services execute engineering logic independently through approved contracts.
 - RegistryTransaction governs every Registry modification.
@@ -6167,7 +6090,7 @@ Rules:
 - Every runtime component must have exactly one architectural responsibility.
 - EngineeringOrchestrator must coordinate execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
-- Engineering Services must execute approved EngineeringOperation through EngineeringServiceContract but must not coordinate workflow execution.
+- Engineering Services must execute approved workflow steps through EngineeringServiceContract but must not coordinate workflow execution.
 - RegistryTransaction must be the only entry point for Registry modification.
 - Registry publication must occur only after successful Validation and PublishingGate approval.
 - Runtime execution must be deterministic, reproducible and fully traceable.
