@@ -5598,6 +5598,49 @@ Rules:
 - New DependencyExplorer behavior requires an approved domain contract before implementation.
 
 
+
+##### Rules Simulator Model
+
+Status: APPROVED
+
+RulesSimulator defines the canonical engineering service for simulating Registry changes before publication.
+
+RulesSimulator does not modify Registry.
+
+RulesSimulator predicts engineering consequences using verified Registry domain models.
+
+RulesSimulator is based on:
+- RegistryGraph;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryEntity;
+- RegistryEntityPayload;
+- RegistrySnapshot;
+- RegistryTransaction;
+- ImpactAnalysis;
+- Validation.
+
+RulesSimulator responsibilities:
+- simulate Registry changes;
+- simulate dependency propagation;
+- simulate rule inheritance;
+- simulate publication readiness;
+- simulate validation outcome;
+- estimate engineering impact;
+- expose predicted affected RegistryEntity objects;
+- provide deterministic simulation results.
+
+Rules:
+- RulesSimulator must operate only on verified Registry domain data.
+- RulesSimulator must not modify Registry.
+- Simulation must be deterministic and reproducible.
+- Simulation results must clearly distinguish predicted data from published Registry.
+- RulesSimulator must support DraftWorkspace.
+- RulesSimulator must support engineering decision making before RegistryTransaction commit.
+- Simulation results must be explainable.
+- New RulesSimulator behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
