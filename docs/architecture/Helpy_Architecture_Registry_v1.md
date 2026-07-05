@@ -5178,6 +5178,62 @@ Rules:
 - New ImpactAnalysis behavior requires an approved domain contract before implementation.
 
 
+
+##### Validation Model
+
+Status: APPROVED
+
+Validation defines the canonical engineering verification of Registry domain integrity before publication.
+
+Validation is not limited to syntax verification.
+
+Validation is based on:
+- RegistryEntity;
+- RegistryEntityKind;
+- RegistryEntityPayload;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryGraph;
+- RegistryPath;
+- RegistrySnapshot;
+- ImpactAnalysis.
+
+Validation is used by:
+- Registry Transaction Model;
+- Engineering Change Analysis;
+- Category Health Check;
+- Risk Classification;
+- Publishing Gate;
+- Rollback preparation.
+
+Validation must verify:
+- entity integrity;
+- relation integrity;
+- dependency integrity;
+- payload consistency;
+- path consistency;
+- graph consistency;
+- domain rule consistency;
+- publication readiness;
+- CLEAN state readiness.
+
+Validation result:
+- PASSED;
+- WARNING;
+- FAILED;
+- BLOCKED.
+
+Rules:
+- Validation must be deterministic and reproducible.
+- Validation must use verified Registry domain data.
+- Validation must not depend on storage implementation.
+- Validation failures must identify affected RegistryEntity objects.
+- FAILED and BLOCKED validation must prevent publication.
+- Validation must execute before Registry publication.
+- Validation results must be traceable through RegistryTransaction.
+- New Validation behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
