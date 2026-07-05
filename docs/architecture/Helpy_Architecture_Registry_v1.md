@@ -5451,6 +5451,54 @@ Rules:
 - New BulkOperations behavior requires an approved domain contract before implementation.
 
 
+
+##### Global Rename Model
+
+Status: APPROVED
+
+GlobalRename defines the canonical engineering service for safely renaming Registry entities and updating every affected reference.
+
+GlobalRename is not a text replacement tool.
+
+GlobalRename performs semantic engineering refactoring.
+
+GlobalRename is based on:
+- RegistryEntity;
+- RegistryGraph;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryPath;
+- RegistryTransaction;
+- ImpactAnalysis;
+- Validation;
+- PublishingGate;
+- AuditLog;
+- BulkOperations.
+
+GlobalRename responsibilities:
+- identify the target RegistryEntity;
+- locate every semantic reference;
+- distinguish semantic references from plain text;
+- detect naming conflicts;
+- prepare deterministic rename operations;
+- invoke ImpactAnalysis;
+- invoke Validation;
+- invoke PublishingGate;
+- execute through BulkOperations;
+- produce AuditLog records.
+
+Rules:
+- GlobalRename must rename RegistryEntity identity consistently.
+- Partial semantic rename is prohibited.
+- Every affected RegistryEntity must belong to the same RegistryTransaction.
+- Naming conflicts must block publication.
+- GlobalRename must not modify Published Registry directly.
+- Every rename operation must be deterministic and reproducible.
+- Every rename operation must be fully traceable through AuditLog.
+- GlobalRename must preserve Registry identity across supported storage implementations.
+- New GlobalRename behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
