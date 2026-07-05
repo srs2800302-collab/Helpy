@@ -5117,6 +5117,67 @@ When sufficient verified information is available, Registry Studio must identify
 
 Mass changes must be context-aware and risk-classified.
 
+
+##### Impact Analysis Model
+
+Status: APPROVED
+
+ImpactAnalysis defines the engineering assessment of how proposed Registry changes may affect the Registry domain model.
+
+ImpactAnalysis is not a simple text diff.
+
+ImpactAnalysis is based on:
+- RegistryGraph;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryPath;
+- RegistrySnapshot;
+- RegistryEntityKind;
+- RegistryEntityPayload.
+
+ImpactAnalysis is used by:
+- Engineering Change Analysis;
+- Registry Transaction Model;
+- Validation;
+- Category Health Check;
+- Risk Classification;
+- Publishing Gate;
+- Rollback preparation;
+- Global Rename;
+- Bulk Operations.
+
+ImpactAnalysis must identify:
+- directly changed RegistryEntity objects;
+- indirectly affected RegistryEntity objects;
+- affected RegistryRelation objects;
+- affected RegistryDependency objects;
+- affected RegistryPath references;
+- affected payloads;
+- affected validation rules;
+- affected publication readiness;
+- affected guidance, questions, photos, pricing and rules;
+- affected cross references.
+
+Impact levels:
+- NONE;
+- LOW;
+- MEDIUM;
+- HIGH;
+- CRITICAL;
+- BLOCKING.
+
+Rules:
+- ImpactAnalysis must be computed from verified Registry domain data.
+- ImpactAnalysis must be deterministic and explainable.
+- ImpactAnalysis must expose affected entities before changes are applied.
+- ImpactAnalysis must not rely on conversational memory or assumptions.
+- Mass changes must not proceed without ImpactAnalysis.
+- BLOCKING impact must prevent publication until resolved or explicitly reviewed.
+- ImpactAnalysis must support comparison between RegistrySnapshot states.
+- ImpactAnalysis output must provide enough context for engineering decisions.
+- New ImpactAnalysis behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
