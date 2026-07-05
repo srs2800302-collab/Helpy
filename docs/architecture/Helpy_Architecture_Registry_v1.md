@@ -5280,6 +5280,55 @@ Rules:
 - New PublishingGate behavior requires an approved domain contract before implementation.
 
 
+
+##### Draft Workspace Model
+
+Status: APPROVED
+
+DraftWorkspace defines the isolated engineering workspace for preparing Registry changes before publication.
+
+DraftWorkspace is not the Published Registry.
+
+DraftWorkspace is based on:
+- RegistryEntity;
+- RegistryGraph;
+- RegistrySnapshot;
+- RegistryTransaction;
+- ImpactAnalysis;
+- Validation;
+- PublishingGate.
+
+DraftWorkspace is responsible for:
+- holding proposed Registry changes;
+- preserving engineering context;
+- grouping changes into RegistryTransaction;
+- supporting validation before publication;
+- supporting impact analysis before publication;
+- supporting review before publication;
+- preventing direct mutation of Published Registry.
+
+DraftWorkspace states:
+- EMPTY;
+- ACTIVE;
+- DIRTY;
+- VALIDATING;
+- READY_FOR_REVIEW;
+- READY_FOR_PUBLICATION;
+- BLOCKED;
+- PUBLISHED;
+- DISCARDED.
+
+Rules:
+- All Registry modifications must start inside DraftWorkspace.
+- DraftWorkspace must be isolated from Published Registry.
+- DraftWorkspace must preserve enough context to resume engineering work.
+- DraftWorkspace must expose DIRTY state when unpublished changes exist.
+- DraftWorkspace must not publish changes without PublishingGate approval.
+- DraftWorkspace must support discard without affecting Published Registry.
+- DraftWorkspace must be traceable through RegistryTransaction.
+- New DraftWorkspace behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
