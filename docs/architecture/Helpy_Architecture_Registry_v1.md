@@ -5049,6 +5049,46 @@ Rules:
 - New RegistryGraph behavior requires an approved domain contract before implementation.
 
 
+
+##### RegistryRepository Contract
+
+Status: APPROVED
+
+RegistryRepository is the canonical storage boundary between the Registry Studio Domain layer and any storage implementation.
+
+RegistryRepository provides Registry domain data.
+
+RegistryRepository must not expose Markdown, Git, database schema, API response models or parser-specific structures.
+
+Supported storage implementations may include:
+- Markdown Repository;
+- Database Repository;
+- Remote API Repository;
+- Admin Panel Repository;
+- Future storage implementations.
+
+RegistryRepository responsibilities:
+- load Registry;
+- load RegistryGraph;
+- load RegistrySnapshot;
+- resolve RegistryPath;
+- resolve RegistryEntity;
+- query RegistryRelation;
+- query RegistryDependency;
+- persist approved Registry transactions;
+- provide deterministic engineering data.
+
+Rules:
+- Domain layer communicates with Registry only through RegistryRepository.
+- RegistryRepository belongs to the Domain contract and is implemented in the Data layer.
+- Storage implementations are interchangeable.
+- Repository methods must return domain entities only.
+- Repository implementations must not leak storage-specific details.
+- Repository implementations must preserve Registry identity across storage migrations.
+- Repository behavior must remain deterministic for identical Registry revisions.
+- New repository capabilities require an approved domain contract before implementation.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
