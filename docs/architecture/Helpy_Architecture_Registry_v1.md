@@ -5694,6 +5694,61 @@ Rules:
 - New RegistryCoverage behavior requires an approved domain contract before implementation.
 
 
+
+##### Sandbox Mode Model
+
+Status: APPROVED
+
+SandboxMode defines the canonical safe experimentation environment for Registry engineering work.
+
+SandboxMode is not Published Registry and not a publication Draft by default.
+
+SandboxMode allows engineers to test Registry changes, workflows and simulations without affecting Published Registry.
+
+SandboxMode is based on:
+- RegistryGraph;
+- RegistrySnapshot;
+- DraftWorkspace;
+- RegistryTransaction;
+- RulesSimulator;
+- ImpactAnalysis;
+- Validation;
+- RegistryCoverage;
+- PublishingGate.
+
+SandboxMode responsibilities:
+- create isolated experimental Registry state;
+- test proposed Registry changes;
+- simulate bulk operations;
+- simulate GlobalRename;
+- simulate validation and publishing outcomes;
+- compare experimental results with source RegistrySnapshot;
+- discard experiments safely;
+- promote approved experiment results into DraftWorkspace when required.
+
+SandboxMode states:
+- EMPTY;
+- ACTIVE;
+- DIRTY;
+- SIMULATING;
+- VALIDATING;
+- READY_TO_PROMOTE;
+- BLOCKED;
+- PROMOTED_TO_DRAFT;
+- DISCARDED.
+
+Rules:
+- SandboxMode must never modify Published Registry directly.
+- SandboxMode must not be treated as Published Registry.
+- SandboxMode must clearly distinguish experimental state from DraftWorkspace and Published Registry.
+- SandboxMode must be deterministic and reproducible when based on the same RegistrySnapshot and inputs.
+- SandboxMode results must be explainable.
+- Promotion from SandboxMode to DraftWorkspace must create or join a RegistryTransaction.
+- SandboxMode must support discard without affecting DraftWorkspace or Published Registry.
+- SandboxMode must remain independent of storage implementation.
+- New SandboxMode behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
