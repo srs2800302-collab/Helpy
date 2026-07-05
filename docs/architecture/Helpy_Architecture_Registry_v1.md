@@ -5897,7 +5897,7 @@ EngineeringOrchestrator must not:
 
 EngineeringOrchestrator workflow principles:
 - engineer defines intent;
-- EngineeringOrchestrator selects workflow;
+- EngineeringOrchestrator selects and supervises EngineeringWorkflow until completion or termination;
 - engineering services execute independently;
 - service results determine subsequent workflow steps;
 - PublishingGate determines publication readiness;
@@ -5929,7 +5929,7 @@ EngineeringWorkflow does not execute engineering logic.
 
 EngineeringWorkflow describes how an approved EngineerIntent should be executed through ordered workflow steps.
 
-EngineeringWorkflow is selected and executed by EngineeringOrchestrator.
+EngineeringWorkflow is selected and supervised by EngineeringOrchestrator until completion or termination.
 
 EngineeringWorkflow is based on:
 - EngineerIntent;
@@ -5981,12 +5981,12 @@ Workflow states:
 Rules:
 - EngineeringWorkflow is a runtime scenario contract, not a Registry domain entity.
 - EngineeringWorkflow must be selected by EngineeringOrchestrator.
-- EngineeringWorkflow must be executed only by EngineeringOrchestrator.
+- EngineeringWorkflow lifecycle must be supervised only by EngineeringOrchestrator.
 - EngineeringWorkflow must define execution flow but must not execute engineering services.
 - EngineeringWorkflow must reference approved EngineeringServiceContract only.
 - EngineeringWorkflow must preserve architectural responsibility boundaries.
 - EngineeringWorkflow must be deterministic and reproducible for identical EngineerIntent and verified context.
-- EngineeringWorkflow execution must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
+- EngineeringWorkflow lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
 - New EngineeringWorkflow behavior requires an approved domain contract before implementation.
 
 
@@ -6074,7 +6074,7 @@ Engineer
 Responsibility separation:
 
 - Engineer defines engineering intent.
-- EngineeringOrchestrator selects and coordinates an approved EngineeringWorkflow.
+- EngineeringOrchestrator selects and supervises an approved EngineeringWorkflow until completion or termination.
 - EngineeringWorkflow defines deterministic execution sequence and atomic workflow operation kinds.
 - EngineeringServiceContract defines interaction boundaries between architectural components.
 - Engineering Services execute engineering logic independently through approved contracts.
