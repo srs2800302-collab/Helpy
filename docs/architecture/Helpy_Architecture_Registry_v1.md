@@ -5641,6 +5641,59 @@ Rules:
 - New RulesSimulator behavior requires an approved domain contract before implementation.
 
 
+
+##### Registry Coverage Model
+
+Status: APPROVED
+
+RegistryCoverage defines the canonical engineering service for measuring completeness of the Registry domain model.
+
+RegistryCoverage is not the same as Validation.
+
+Validation verifies correctness.
+RegistryCoverage verifies completeness.
+
+RegistryCoverage is based on:
+- RegistryGraph;
+- RegistryEntity;
+- RegistryEntityKind;
+- RegistryEntityPayload;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryPath;
+- RegistrySnapshot;
+- Validation.
+
+RegistryCoverage responsibilities:
+- measure Registry completeness;
+- detect missing required RegistryEntity objects;
+- detect incomplete RegistryEntityPayload objects;
+- detect missing required relations;
+- detect missing dependencies;
+- detect orphan RegistryEntity objects;
+- detect incomplete category structures;
+- detect incomplete rule structures;
+- detect incomplete question, photo, pricing and guidance coverage;
+- provide coverage summaries for engineering decisions.
+
+Coverage states:
+- COMPLETE;
+- PARTIAL;
+- MISSING;
+- ORPHAN;
+- UNKNOWN.
+
+Rules:
+- RegistryCoverage must operate only on verified Registry domain data.
+- RegistryCoverage must not modify Registry.
+- RegistryCoverage must be deterministic and reproducible.
+- RegistryCoverage must remain independent of storage implementation.
+- RegistryCoverage must distinguish invalid data from incomplete data.
+- RegistryCoverage results must identify affected RegistryEntity objects whenever applicable.
+- RegistryCoverage must provide enough context for engineering prioritization.
+- New RegistryCoverage behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
