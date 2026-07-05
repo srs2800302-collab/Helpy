@@ -5234,6 +5234,52 @@ Rules:
 - New Validation behavior requires an approved domain contract before implementation.
 
 
+
+##### Publishing Gate Model
+
+Status: APPROVED
+
+PublishingGate defines the canonical engineering decision point before Registry publication.
+
+PublishingGate is responsible for determining whether a RegistryTransaction may be published.
+
+PublishingGate is based on:
+- RegistryTransaction;
+- Validation;
+- ImpactAnalysis;
+- RiskClassification;
+- RegistrySnapshot;
+- RegistryDependency;
+- RegistryGraph.
+
+PublishingGate is responsible for:
+- verifying publication readiness;
+- verifying CLEAN state;
+- verifying blocking dependencies;
+- verifying validation results;
+- verifying impact assessment;
+- verifying snapshot availability;
+- producing deterministic publication decisions.
+
+Publishing decisions:
+- APPROVED;
+- APPROVED_WITH_WARNINGS;
+- BLOCKED;
+- REJECTED.
+
+Rules:
+- Every Registry publication must pass through PublishingGate.
+- PublishingGate must execute after Validation and ImpactAnalysis.
+- BLOCKED and REJECTED decisions must prevent publication.
+- PublishingGate must provide deterministic and explainable decisions.
+- PublishingGate decisions must identify blocking RegistryEntity objects whenever applicable.
+- PublishingGate decisions must be traceable through RegistryTransaction and AuditLog.
+- PublishingGate must not modify Registry directly.
+- PublishingGate must verify CLEAN state before publication.
+- PublishingGate behavior must not depend on storage implementation.
+- New PublishingGate behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
