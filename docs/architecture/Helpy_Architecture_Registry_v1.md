@@ -5989,6 +5989,140 @@ Rules:
 - New EngineeringWorkflow behavior requires an approved domain contract before implementation.
 
 
+
+##### Engineering Service Contract Model
+
+Status: APPROVED
+
+EngineeringServiceContract defines the canonical interaction boundary between EngineeringWorkflow, EngineeringOrchestrator and Engineering Services.
+
+EngineeringServiceContract is not an Engineering Service.
+
+EngineeringServiceContract does not implement engineering logic.
+
+EngineeringServiceContract describes what an Engineering Service can do, what input it requires and what result it returns.
+
+EngineeringServiceContract is based on:
+- EngineeringWorkflow;
+- EngineeringOrchestrator;
+- EngineeringContext;
+- RegistryEntity;
+- RegistryPath;
+- RegistryTransaction when Registry modification is involved;
+- AuditLog when traceability is required.
+
+EngineeringServiceContract responsibilities:
+- define service capability;
+- define service input contract;
+- define service output contract;
+- define service preconditions;
+- define service failure states;
+- define traceability requirements;
+- define whether RegistryTransaction participation is required.
+
+Engineering Services must:
+- implement exactly one approved EngineeringServiceContract;
+- execute only their approved engineering capability;
+- return deterministic and reproducible results;
+- expose failures through the approved output contract;
+- remain independent of EngineeringWorkflow and EngineeringOrchestrator.
+
+Engineering Services must not:
+- select EngineeringWorkflow;
+- coordinate workflow execution;
+- call EngineeringOrchestrator;
+- bypass EngineeringServiceContract;
+- modify Published Registry directly;
+- bypass RegistryTransaction when Registry modification is involved;
+- hide engineering side effects;
+- become universal engineering utilities.
+
+Rules:
+- EngineeringWorkflow must reference Engineering Services only through approved EngineeringServiceContract.
+- EngineeringOrchestrator must invoke Engineering Services only through approved EngineeringServiceContract.
+- EngineeringServiceContract must remain independent of service implementation details.
+- EngineeringServiceContract must remain independent of storage implementation.
+- Service replacement must not require EngineeringWorkflow redesign if the approved contract is preserved.
+- New EngineeringServiceContract behavior requires an approved domain contract before implementation.
+
+
+
+##### Engineering Operation Model
+
+Status: APPROVED
+
+EngineeringOperation defines the canonical atomic technical command derived from EngineeringWorkflow and executed through an approved EngineeringServiceContract.
+
+EngineeringOperation is not an EngineeringWorkflow.
+
+EngineeringOperation is not EngineeringOrchestrator.
+
+EngineeringOperation does not publish Registry changes.
+
+EngineeringOperation represents one bounded engineer-facing technical command with explicit input, output, affected Registry entities and traceability requirements.
+
+EngineeringOperation is based on:
+- EngineerIntent;
+- EngineeringWorkflow;
+- EngineeringServiceContract;
+- EngineeringContext;
+- RegistryEntity;
+- RegistryPath;
+- RegistryRelation when applicable;
+- RegistryDependency when applicable;
+- RegistryTransaction when Registry modification is involved;
+- ImpactAnalysis when impact evaluation is required;
+- Validation when correctness verification is required;
+- AuditLog when traceability is required.
+
+EngineeringOperation responsibilities:
+- define one atomic engineer-facing technical command;
+- define operation input;
+- define operation output;
+- define affected RegistryEntity objects;
+- define affected RegistryPath values;
+- define required preconditions;
+- define failure conditions;
+- define traceability requirements;
+- define RegistryTransaction participation when Registry modification is involved.
+
+Supported operation kinds:
+- createEntity;
+- updateEntity;
+- renameEntity;
+- moveEntity;
+- deleteEntity;
+- createRelation;
+- updateRelation;
+- deleteRelation;
+- analyzeImpact;
+- validateRegistry;
+- simulateChange;
+- calculateCoverage;
+- prepareRollback.
+
+EngineeringOperation must not:
+- coordinate workflow execution;
+- select EngineeringWorkflow;
+- call EngineeringOrchestrator;
+- bypass EngineeringServiceContract;
+- bypass RegistryTransaction when Registry modification is involved;
+- bypass ImpactAnalysis when impact evaluation is required;
+- bypass Validation when correctness verification is required;
+- modify Published Registry directly;
+- hide side effects;
+- combine unrelated engineering responsibilities.
+
+Rules:
+- Every EngineeringOperation must be derived from an approved EngineeringWorkflow and executed through exactly one approved EngineeringServiceContract.
+- Every EngineeringOperation must have one bounded engineer-facing technical responsibility.
+- EngineeringOperation execution must be deterministic and reproducible for identical inputs and verified context.
+- EngineeringOperation results must expose affected RegistryEntity objects whenever applicable.
+- EngineeringOperation side effects must be explicit and traceable.
+- Registry-modifying EngineeringOperation must participate in RegistryTransaction.
+- New EngineeringOperation behavior requires an approved domain contract before implementation.
+
+
 ##### Engineering Runtime Model
 
 Status: APPROVED
