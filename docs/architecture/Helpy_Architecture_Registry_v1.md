@@ -5802,6 +5802,65 @@ Rules:
 - New EngineeringContext behavior requires an approved domain contract before implementation.
 
 
+
+##### Engineering Orchestrator Model
+
+Status: APPROVED
+
+EngineeringOrchestrator defines the canonical workflow coordination service for Registry engineering.
+
+EngineeringOrchestrator is not an engineering service.
+
+EngineeringOrchestrator coordinates engineering services through approved service contracts.
+
+EngineeringOrchestrator is based on:
+- EngineeringContext;
+- DependencyExplorer;
+- RulesSimulator;
+- ImpactAnalysis;
+- Validation;
+- RegistryCoverage;
+- BulkOperations;
+- GlobalRename;
+- PublishingGate;
+- DraftWorkspace;
+- RegistryTransaction;
+- AuditLog.
+
+EngineeringOrchestrator responsibilities:
+- execute approved engineering workflows;
+- coordinate engineering services;
+- determine workflow execution order;
+- determine workflow stop conditions;
+- coordinate service handoff;
+- preserve workflow state;
+- create RegistryTransaction when required;
+- ensure deterministic workflow execution.
+
+EngineeringOrchestrator must not:
+- implement engineering service logic;
+- duplicate engineering service behavior;
+- bypass approved service contracts;
+- modify Published Registry directly;
+- replace engineering decisions.
+
+EngineeringOrchestrator workflow principles:
+- engineer defines intent;
+- EngineeringOrchestrator selects workflow;
+- engineering services execute independently;
+- service results determine subsequent workflow steps;
+- PublishingGate determines publication readiness;
+- AuditLog records the completed workflow.
+
+Rules:
+- EngineeringOrchestrator must coordinate services only through approved contracts.
+- EngineeringOrchestrator must know service capabilities, not service implementation details.
+- Engineering services must not depend on EngineeringOrchestrator.
+- EngineeringOrchestrator must remain independent of storage implementation.
+- EngineeringOrchestrator workflow execution must be deterministic and reproducible.
+- New EngineeringOrchestrator behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
