@@ -4920,6 +4920,84 @@ Rules:
 - New RegistrySnapshot behavior requires an approved domain contract before implementation.
 
 
+
+##### RegistryEntityPayload Model
+
+Status: APPROVED
+
+RegistryEntityPayload defines strongly typed content for a RegistryEntity.
+
+RegistryEntityPayload is selected by RegistryEntityKind.
+
+RegistryEntityPayload must not be untyped, dynamic or storage-specific.
+
+RegistryEntityPayload belongs to the Registry domain model and must remain independent of Markdown, database schema, API response shape or parser implementation details.
+
+Purpose:
+- preserve semantic content of RegistryEntity;
+- support type-safe engineering analysis;
+- support validation by RegistryEntityKind;
+- support deterministic serialization;
+- support future storage migration without rewriting Domain or Presentation layers.
+
+Payload groups:
+
+Core payloads:
+- ContractPayload;
+- ArchitectureGroupPayload;
+- CategoryPayload;
+- SubcategoryPayload;
+- ScenarioPayload;
+- SectionPayload.
+
+Business logic payloads:
+- ClientRulePayload;
+- MasterRulePayload;
+- ScenarioRulePayload;
+- GlobalRulePayload;
+- PlatformRulePayload;
+- EligibilityRulePayload;
+- DependencyRulePayload;
+- TranslationRulePayload;
+- QuestionPayload;
+- AnswerOptionPayload;
+- StructuredScopePayload;
+- PhotoRequirementPayload;
+- PhotoLimitPayload;
+- PricingRulePayload;
+- GuidancePayload;
+- GuidanceTriggerPayload;
+- GuidanceSlotPayload;
+- AdminDependencyPayload.
+
+Engineering and governance payloads:
+- DraftPayload;
+- PublishedRevisionPayload;
+- ChangeSetPayload;
+- TransactionPayload;
+- ImpactAnalysisPayload;
+- DependencyAnalysisPayload;
+- RiskClassificationPayload;
+- ValidationResultPayload;
+- HealthCheckPayload;
+- AuditLogPayload;
+- RollbackPayload;
+- SnapshotPayload;
+- FeatureFlagPayload;
+- PlatformSettingPayload;
+- BuilderPayload;
+- WorkflowPayload;
+- ReviewPayload.
+
+Rules:
+- Every RegistryEntityPayload must correspond to a RegistryEntityKind.
+- Payload fields must represent domain meaning, not Markdown formatting.
+- Storage adapters may map Markdown, database records or API responses into RegistryEntityPayload.
+- Domain, Application and Presentation layers must not depend on storage-specific payload representation.
+- New payload types require an approved domain contract before implementation.
+- Untyped dynamic payloads are prohibited.
+
+
 ##### Engineering Change Analysis
 
 Status: APPROVED
