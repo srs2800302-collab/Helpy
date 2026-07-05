@@ -5749,6 +5749,59 @@ Rules:
 - New SandboxMode behavior requires an approved domain contract before implementation.
 
 
+
+##### Engineering Context Model
+
+Status: APPROVED
+
+EngineeringContext defines the canonical engineering service for reconstructing sufficient Registry context required for safe engineering decisions.
+
+EngineeringContext is not a search engine.
+
+EngineeringContext provides verified engineering context derived from the Registry domain model.
+
+EngineeringContext is based on:
+- RegistryEntity;
+- RegistryGraph;
+- RegistryRelation;
+- RegistryDependency;
+- RegistryPath;
+- RegistrySnapshot;
+- DependencyExplorer;
+- ImpactAnalysis;
+- Validation;
+- RegistryCoverage.
+
+EngineeringContext responsibilities:
+- reconstruct engineering context;
+- identify related RegistryEntity objects;
+- identify inherited rules;
+- identify affected dependencies;
+- identify surrounding engineering scope;
+- identify engineering constraints;
+- identify publication readiness;
+- provide deterministic engineering context.
+
+EngineeringContext supports:
+- Engineering Change Analysis;
+- DependencyExplorer;
+- RulesSimulator;
+- Validation;
+- GlobalRename;
+- BulkOperations;
+- SandboxMode;
+- PublishingGate.
+
+Rules:
+- EngineeringContext must operate only on verified Registry domain data.
+- EngineeringContext must not modify Registry.
+- EngineeringContext reconstruction must be deterministic and reproducible.
+- EngineeringContext must remain independent of storage implementation.
+- EngineeringContext must provide sufficient verified information for engineering decisions.
+- EngineeringContext must distinguish verified Registry data from inferred information.
+- New EngineeringContext behavior requires an approved domain contract before implementation.
+
+
 ##### Risk Classification
 
 Status: APPROVED
