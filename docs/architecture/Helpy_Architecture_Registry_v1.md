@@ -5934,7 +5934,6 @@ EngineeringWorkflow is selected and supervised by EngineeringOrchestrator until 
 EngineeringWorkflow is based on:
 - EngineerIntent;
 - EngineeringContext;
-- EngineeringRuntime;
 - EngineeringServiceContract;
 - RegistryTransaction;
 - ImpactAnalysis;
@@ -6005,7 +6004,6 @@ EngineeringServiceContract describes which workflow step or operation kind an En
 
 EngineeringServiceContract is based on:
 - EngineeringWorkflow;
-- EngineeringOrchestrator;
 - EngineeringContext;
 - RegistryEntity;
 - RegistryPath;
