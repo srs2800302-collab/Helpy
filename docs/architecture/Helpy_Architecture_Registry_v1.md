@@ -5951,12 +5951,30 @@ EngineeringWorkflowResolver must not:
 - bypass EngineeringOrchestrator;
 - replace engineering decisions.
 
-Workflow resolution results:
+EngineeringWorkflowResolutionResult defines the canonical result of EngineeringWorkflowResolver evaluation.
+
+EngineeringWorkflowResolutionResult is based on:
+- EngineerIntent;
+- EngineeringContext;
+- selected EngineeringWorkflow when resolved;
+- rejection reason when unresolved;
+- blocking reason when blocked;
+- failure reason when failed.
+
+EngineeringWorkflowResolutionResult states:
 - RESOLVED;
 - AMBIGUOUS;
 - UNSUPPORTED;
 - BLOCKED;
 - FAILED.
+
+EngineeringWorkflowResolutionResult responsibilities:
+- preserve resolution state;
+- preserve selected EngineeringWorkflow when RESOLVED;
+- preserve ambiguity details when AMBIGUOUS;
+- preserve unsupported intent reason when UNSUPPORTED;
+- preserve blocking reason when BLOCKED;
+- preserve failure reason when FAILED.
 
 Rules:
 - EngineeringWorkflowResolver must operate only on approved EngineeringWorkflow definitions and verified EngineeringContext.
