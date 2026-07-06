@@ -6135,7 +6135,7 @@ EngineeringWorkflowInstance is based on:
 EngineeringWorkflowInstance responsibilities:
 - represent one concrete EngineeringWorkflow execution;
 - create and hold EngineeringOperationInstance objects;
-- preserve operation execution order;
+- apply operation execution order defined by EngineeringWorkflow;
 - hold workflow runtime state;
 - hold current execution position;
 - preserve engineer decision points;
@@ -6244,7 +6244,7 @@ Rules:
 
 Status: APPROVED
 
-EngineeringOperationInstance defines a concrete runtime execution instance of an approved EngineeringOperation within a selected EngineeringWorkflow.
+EngineeringOperationInstance defines a concrete runtime execution instance of an approved EngineeringOperation within a parent EngineeringWorkflowInstance.
 
 EngineeringOperationInstance is not EngineeringOperation.
 
@@ -6274,7 +6274,7 @@ EngineeringOperationInstance responsibilities:
 - hold resolved operation input;
 - hold operation output after execution;
 - bind operation execution to the required EngineeringServiceContract;
-- preserve execution ordering within the selected EngineeringWorkflow;
+- preserve execution position within the parent EngineeringWorkflowInstance;
 - preserve engineer confirmation state when required;
 - preserve failure state when execution fails;
 - preserve RegistryTransaction participation when Registry modification is involved;
