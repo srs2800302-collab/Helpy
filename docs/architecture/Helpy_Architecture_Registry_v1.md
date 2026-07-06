@@ -6227,25 +6227,20 @@ EngineeringOperation must not:
 - bypass Validation;
 - bypass PublishingGate.
 
-Operation states:
+Operation definition states:
 - DEFINED;
-- READY;
-- RUNNING;
-- WAITING_FOR_SERVICE_RESULT;
-- WAITING_FOR_ENGINEER_CONFIRMATION;
-- COMPLETED;
-- FAILED;
-- BLOCKED;
-- CANCELLED.
+- APPROVED;
+- DEPRECATED;
+- DISABLED.
 
 Rules:
 - EngineeringOperation must belong to exactly one EngineeringWorkflow.
 - EngineeringWorkflow defines EngineeringOperation execution order.
-- EngineeringOperation must be supervised by EngineeringOrchestrator through its parent EngineeringWorkflow.
-- EngineeringOperation must execute only through an approved EngineeringServiceContract.
+- EngineeringOperation execution must be represented by EngineeringOperationInstance under EngineeringWorkflowInstance and EngineeringOrchestrator supervision.
+- EngineeringOperation must define the required approved EngineeringServiceContract for runtime execution.
 - EngineeringOperation must have exactly one operation kind.
 - EngineeringOperation must be deterministic and reproducible for identical input and verified context.
-- EngineeringOperation lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
+- EngineeringOperation execution lifecycle must be traceable through EngineeringOperationInstance, RegistryTransaction and AuditLog when Registry modification is involved.
 - New EngineeringOperation behavior requires an approved domain contract before implementation.
 
 
