@@ -5899,7 +5899,7 @@ EngineeringOrchestrator workflow principles:
 - engineer defines intent;
 - EngineeringOrchestrator selects and supervises EngineeringWorkflow until completion or termination;
 - engineering services execute independently;
-- service results determine subsequent workflow steps;
+- service results determine subsequent EngineeringOperation steps;
 - PublishingGate determines publication readiness;
 - AuditLog records the completed workflow.
 
@@ -5942,15 +5942,11 @@ EngineeringWorkflow is based on:
 - AuditLog.
 
 EngineeringWorkflow responsibilities:
-- define deterministic workflow steps;
-- define workflow step order;
-- define workflow operation kinds;
-- define expected step inputs;
-- define expected step outputs;
-- define required EngineeringServiceContract for each executable step;
-- define workflow stop conditions;
-- define workflow resume conditions;
-- define workflow completion conditions;
+- define deterministic EngineeringOperation sequence;
+- define EngineeringOperation order;
+- define workflow-level stop conditions;
+- define workflow-level resume conditions;
+- define workflow-level completion conditions;
 - define required engineer decision points.
 
 EngineeringWorkflow must not:
@@ -5987,6 +5983,75 @@ Rules:
 - EngineeringWorkflow must be deterministic and reproducible for identical EngineerIntent and verified context.
 - EngineeringWorkflow lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
 - New EngineeringWorkflow behavior requires an approved domain contract before implementation.
+
+
+##### Engineering Operation Model
+
+Status: APPROVED
+
+EngineeringOperation defines an atomic executable step inside an EngineeringWorkflow.
+
+EngineeringOperation is not an engineering service.
+
+EngineeringOperation is not EngineeringOrchestrator.
+
+EngineeringOperation is not RegistryTransaction.
+
+EngineeringOperation describes one approved unit of work that must be executed through an EngineeringServiceContract.
+
+EngineeringOperation is based on:
+- EngineeringWorkflow;
+- EngineerIntent;
+- EngineeringContext;
+- EngineeringServiceContract;
+- RegistryEntity when applicable;
+- RegistryPath when applicable;
+- RegistryTransaction when Registry modification is involved;
+- AuditLog when traceability is required.
+
+EngineeringOperation responsibilities:
+- define atomic workflow step identity;
+- define operation kind;
+- define required input;
+- define expected output;
+- define required EngineeringServiceContract;
+- define preconditions;
+- define failure states;
+- define whether RegistryTransaction participation is required;
+- define whether engineer confirmation is required.
+
+EngineeringOperation must not:
+- coordinate workflow execution;
+- select EngineeringWorkflow;
+- implement engineering service logic;
+- call EngineeringOrchestrator;
+- bypass EngineeringServiceContract;
+- modify Published Registry directly;
+- bypass RegistryTransaction when Registry modification is involved;
+- bypass ImpactAnalysis;
+- bypass Validation;
+- bypass PublishingGate.
+
+Operation states:
+- DEFINED;
+- READY;
+- RUNNING;
+- WAITING_FOR_SERVICE_RESULT;
+- WAITING_FOR_ENGINEER_CONFIRMATION;
+- COMPLETED;
+- FAILED;
+- BLOCKED;
+- CANCELLED.
+
+Rules:
+- EngineeringOperation must belong to exactly one EngineeringWorkflow.
+- EngineeringWorkflow defines EngineeringOperation execution order.
+- EngineeringOperation must be supervised by EngineeringOrchestrator through its parent EngineeringWorkflow.
+- EngineeringOperation must execute only through an approved EngineeringServiceContract.
+- EngineeringOperation must have exactly one operation kind.
+- EngineeringOperation must be deterministic and reproducible for identical input and verified context.
+- EngineeringOperation lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
+- New EngineeringOperation behavior requires an approved domain contract before implementation.
 
 
 
@@ -6060,6 +6125,7 @@ Engineer
 → EngineerIntent
 → EngineeringOrchestrator
 → EngineeringWorkflow
+→ EngineeringOperation
 → EngineeringServiceContract
 → Engineering Services
 → RegistryTransaction
@@ -6073,7 +6139,8 @@ Responsibility separation:
 
 - Engineer defines engineering intent.
 - EngineeringOrchestrator selects and supervises an approved EngineeringWorkflow until completion or termination.
-- EngineeringWorkflow defines deterministic execution sequence and atomic workflow operation kinds.
+- EngineeringWorkflow defines deterministic EngineeringOperation sequence.
+- EngineeringOperation defines atomic executable workflow steps.
 - EngineeringServiceContract defines interaction boundaries between architectural components.
 - Engineering Services execute engineering logic independently through approved contracts.
 - RegistryTransaction governs every Registry modification.
@@ -6088,7 +6155,7 @@ Rules:
 - Every runtime component must have exactly one architectural responsibility.
 - EngineeringOrchestrator must coordinate execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
-- Engineering Services must execute approved workflow steps through EngineeringServiceContract but must not coordinate workflow execution.
+- Engineering Services must execute approved EngineeringOperation steps through EngineeringServiceContract but must not coordinate workflow execution.
 - RegistryTransaction must be the only entry point for Registry modification.
 - Registry publication must occur only after successful Validation and PublishingGate approval.
 - Runtime execution must be deterministic, reproducible and fully traceable.
