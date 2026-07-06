@@ -5258,6 +5258,7 @@ PublishingGate is responsible for:
 - verifying blocking dependencies;
 - verifying validation results;
 - verifying impact assessment;
+- verifying risk classification result;
 - verifying snapshot availability;
 - producing deterministic publication decisions.
 
@@ -5269,7 +5270,8 @@ Publishing decisions:
 
 Rules:
 - Every Registry publication must pass through PublishingGate.
-- PublishingGate must execute after Validation and ImpactAnalysis.
+- PublishingGate must execute after Validation, ImpactAnalysis and RiskClassification.
+- BLOCKED risk must prevent automatic publication until explicitly reviewed.
 - BLOCKED and REJECTED decisions must prevent publication.
 - PublishingGate must provide deterministic and explainable decisions.
 - PublishingGate decisions must identify blocking RegistryEntity objects whenever applicable.
@@ -6163,7 +6165,30 @@ Rules:
 
 Status: APPROVED
 
-Registry Studio must classify proposed changes by engineering risk.
+RiskClassification defines the canonical engineering assessment of risk for proposed Registry changes.
+
+RiskClassification is not ImpactAnalysis.
+RiskClassification is not Validation.
+RiskClassification is not PublishingGate.
+
+RiskClassification is based on:
+- RegistryEntity;
+- RegistryEntityKind;
+- RegistryEntityPayload;
+- RegistryDependency;
+- RegistryPath;
+- RegistrySnapshot;
+- ImpactAnalysis;
+- Validation.
+
+RiskClassification responsibilities:
+- classify proposed Registry changes by engineering risk;
+- classify dependency risk;
+- classify publication risk;
+- identify critical logic areas;
+- identify areas requiring manual engineer review;
+- provide deterministic risk result for PublishingGate;
+- provide risk summary for AuditLog.
 
 Risk levels:
 - LOW;
@@ -6172,12 +6197,20 @@ Risk levels:
 - CRITICAL;
 - BLOCKED.
 
-Risk classification must help the engineer understand where manual attention is required.
+Risk term separation:
+- BLOCKING impact belongs to ImpactAnalysis and means the proposed change has blocking engineering impact.
+- BLOCKED validation belongs to Validation and means Registry integrity verification failed or cannot proceed.
+- BLOCKED risk belongs to RiskClassification and means the risk level prevents automatic publication without explicit engineer review.
 
-Critical logic areas must be highlighted before changes are applied.
-
-Risk classification is advisory.
-Engineering decisions always remain the responsibility of the engineer.
+Rules:
+- RiskClassification must use verified Registry domain data.
+- RiskClassification must be deterministic and reproducible.
+- RiskClassification must not depend on storage implementation.
+- RiskClassification must not replace engineer decisions.
+- RiskClassification must not modify Registry.
+- CRITICAL and BLOCKED risk must identify affected RegistryEntity objects whenever applicable.
+- BLOCKED risk must prevent automatic publication until explicitly reviewed.
+- New RiskClassification behavior requires an approved domain contract before implementation.
 
 
 ### Реализованные возможности
