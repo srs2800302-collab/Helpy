@@ -6065,7 +6065,7 @@ EngineeringServiceContract is not an Engineering Service.
 
 EngineeringServiceContract does not implement engineering logic.
 
-EngineeringServiceContract describes which workflow step or operation kind an Engineering Service is approved to execute, what input it requires and what result it returns.
+EngineeringServiceContract describes which EngineeringOperation kind an Engineering Service is approved to execute, what input it requires and what result it returns.
 
 EngineeringServiceContract is based on:
 - EngineeringWorkflow;
@@ -6102,8 +6102,8 @@ Engineering Services must not:
 - become universal engineering utilities.
 
 Rules:
-- EngineeringWorkflow must reference Engineering Services only through approved EngineeringServiceContract.
-- EngineeringOrchestrator must invoke Engineering Services only through approved EngineeringServiceContract.
+- EngineeringWorkflow must reference EngineeringOperation objects with approved EngineeringServiceContract bindings.
+- EngineeringOrchestrator must invoke Engineering Services only for EngineeringOperation execution through approved EngineeringServiceContract.
 - EngineeringServiceContract must remain independent of service implementation details.
 - EngineeringServiceContract must remain independent of storage implementation.
 - Service replacement must not require EngineeringWorkflow redesign if the approved contract is preserved.
