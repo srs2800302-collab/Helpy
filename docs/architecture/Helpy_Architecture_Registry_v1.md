@@ -6451,13 +6451,13 @@ Admin must be able to open an order and see the full business lifecycle:
 - review submitted;
 - dispute opened / resolved if applicable.
 
-Prepared Launch Flow:
+Prepared MVP Flow:
 
 - Start Work changes order status from master_selected to in_progress.
 - Start Work creates job_events.work_started.
 - Master can upload evidence photos only after work starts.
 - Master can select up to 10 evidence photos per upload action.
-- Total order photo limit is 20 photos for launch scope.
+- Total order photo limit is 20 photos for MVP.
 - Evidence photos are used for hidden defects, unsafe conditions, work process and final result.
 - Current DB field job_photos.client_user_id is a legacy name and acts as uploaded_by_user_id until schema-cleanup.
 - Final schema-cleanup before launch must rename this concept cleanly.
