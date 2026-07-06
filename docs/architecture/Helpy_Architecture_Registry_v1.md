@@ -6025,13 +6025,9 @@ EngineeringExecutionContext must not:
 
 EngineeringExecutionContext states:
 - CREATED;
-- READY;
-- RUNNING;
-- WAITING_FOR_OPERATION;
-- WAITING_FOR_ENGINEER_DECISION;
+- ACTIVE;
 - COMPLETED;
 - FAILED;
-- BLOCKED;
 - CANCELLED.
 
 Rules:
@@ -6513,7 +6509,7 @@ Responsibility separation:
 - EngineeringWorkflowResolver selects one approved EngineeringWorkflow for normalized EngineerIntent.
 - EngineeringWorkflow defines deterministic EngineeringOperation sequence.
 - EngineeringOrchestrator receives resolved EngineeringWorkflow, creates EngineeringExecutionContext and supervises EngineeringWorkflowInstance until completion or termination.
-- EngineeringExecutionContext preserves mutable runtime state for the execution.
+- EngineeringExecutionContext preserves mutable runtime context state for the execution.
 - EngineeringWorkflowInstance represents concrete EngineeringWorkflow execution and owns EngineeringOperationInstance objects.
 - EngineeringOperation defines approved atomic executable workflow steps.
 - EngineeringOperationInstance represents concrete EngineeringOperation execution within a workflow run.
@@ -6532,7 +6528,7 @@ Rules:
 - Every runtime component must have exactly one architectural responsibility.
 - EngineeringOrchestrator must coordinate EngineeringWorkflowInstance execution and supervise EngineeringOperationInstance execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
-- EngineeringExecutionContext must preserve runtime execution state but must not execute engineering service logic.
+- EngineeringExecutionContext must preserve runtime execution context state but must not execute engineering service logic.
 - EngineeringWorkflowInstance must preserve workflow runtime state but must not execute engineering service logic.
 - EngineeringService must execute approved EngineeringOperationInstance steps through EngineeringServiceContract but must not coordinate workflow execution.
 - EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
