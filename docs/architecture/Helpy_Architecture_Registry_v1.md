@@ -5921,7 +5921,7 @@ EngineeringOrchestrator defines the canonical workflow coordination service for 
 
 EngineeringOrchestrator is not an engineering service.
 
-EngineeringOrchestrator coordinates EngineeringOperation execution through approved service contracts.
+EngineeringOrchestrator coordinates EngineeringWorkflowInstance execution through EngineeringExecutionContext and approved service contracts.
 
 EngineeringOrchestrator is based on:
 - EngineeringContext;
@@ -5939,13 +5939,13 @@ EngineeringOrchestrator is based on:
 - AuditLog.
 
 EngineeringOrchestrator responsibilities:
-- initiate and supervise approved EngineeringWorkflow execution;
-- determine workflow execution order;
-- determine workflow stop conditions;
-- coordinate EngineeringOperation handoff;
-- preserve workflow state;
+- initiate and supervise EngineeringWorkflowInstance execution;
+- determine EngineeringWorkflowInstance execution order;
+- determine EngineeringWorkflowInstance stop conditions;
+- supervise EngineeringOperationInstance handoff;
+- preserve workflow execution state through EngineeringExecutionContext;
 - create RegistryTransaction when required;
-- ensure deterministic workflow execution.
+- ensure deterministic EngineeringWorkflowInstance execution.
 
 EngineeringOrchestrator must not:
 - implement engineering service logic;
@@ -5956,14 +5956,14 @@ EngineeringOrchestrator must not:
 
 EngineeringOrchestrator workflow principles:
 - engineer defines intent;
-- EngineeringOrchestrator selects and supervises EngineeringWorkflow until completion or termination;
-- EngineeringOperation steps are executed independently through approved EngineeringServiceContract bindings;
-- EngineeringOperation results determine subsequent EngineeringOperation steps;
+- EngineeringOrchestrator receives resolved EngineeringWorkflow, creates EngineeringExecutionContext and supervises EngineeringWorkflowInstance until completion or termination;
+- EngineeringOperationInstance steps are executed independently through approved EngineeringServiceContract bindings;
+- EngineeringOperationInstance results determine subsequent EngineeringOperationInstance steps;
 - PublishingGate determines publication readiness;
 - AuditLog records the completed workflow.
 
 Rules:
-- EngineeringOrchestrator must coordinate EngineeringOperation execution only through approved contracts.
+- EngineeringOrchestrator must coordinate EngineeringWorkflowInstance execution through EngineeringExecutionContext and approved contracts.
 - EngineeringOrchestrator must know approved EngineeringServiceContract capabilities through EngineeringServiceCapabilityRegistry, not service implementation details.
 - Engineering services must not depend on EngineeringOrchestrator.
 - New Engineering Services must be discoverable by EngineeringOrchestrator through approved EngineeringServiceContract registration.
@@ -5972,6 +5972,76 @@ Rules:
 - New EngineeringOrchestrator behavior requires an approved domain contract before implementation.
 
 
+
+
+##### Engineering Execution Context Model
+
+Status: APPROVED
+
+EngineeringExecutionContext defines the canonical runtime state container for one Registry engineering execution.
+
+EngineeringExecutionContext is not EngineeringContext.
+
+EngineeringExecutionContext is not EngineeringOrchestrator.
+
+EngineeringExecutionContext is not EngineeringWorkflowInstance.
+
+EngineeringContext provides verified input context.
+
+EngineeringExecutionContext preserves mutable execution state during a specific runtime execution.
+
+EngineeringExecutionContext is created by EngineeringOrchestrator after EngineeringWorkflow resolution and before EngineeringWorkflowInstance creation.
+
+EngineeringExecutionContext is based on:
+- EngineerIntent;
+- EngineeringContext;
+- EngineeringWorkflow;
+- EngineeringWorkflowInstance when created;
+- EngineeringOperationInstance when active;
+- RegistryTransaction when Registry modification is involved;
+- AuditLog when traceability is required.
+
+EngineeringExecutionContext responsibilities:
+- hold runtime execution state;
+- hold resolved EngineeringWorkflow;
+- hold active EngineeringWorkflowInstance when created;
+- hold active EngineeringOperationInstance when running;
+- preserve operation results between execution steps;
+- preserve runtime artifacts;
+- preserve engineer decision state;
+- preserve failure state;
+- preserve RegistryTransaction participation when Registry modification is involved;
+- provide traceability for AuditLog.
+
+EngineeringExecutionContext must not:
+- select EngineeringWorkflow;
+- create EngineeringWorkflowInstance;
+- create EngineeringOperationInstance;
+- execute EngineeringService;
+- implement engineering service logic;
+- modify Registry directly;
+- bypass RegistryTransaction when Registry modification is involved;
+- replace EngineeringContext.
+
+EngineeringExecutionContext states:
+- CREATED;
+- READY;
+- RUNNING;
+- WAITING_FOR_OPERATION;
+- WAITING_FOR_ENGINEER_DECISION;
+- COMPLETED;
+- FAILED;
+- BLOCKED;
+- CANCELLED.
+
+Rules:
+- EngineeringExecutionContext must be created only by EngineeringOrchestrator.
+- EngineeringExecutionContext must exist only within one runtime execution.
+- EngineeringExecutionContext must preserve runtime state without modifying approved workflow or operation definitions.
+- EngineeringWorkflowInstance and EngineeringOperationInstance must use EngineeringExecutionContext for runtime state propagation.
+- EngineeringExecutionContext lifecycle must be traceable through AuditLog.
+- EngineeringExecutionContext must be deterministic and reproducible for identical EngineerIntent, EngineeringContext and resolved EngineeringWorkflow.
+- New EngineeringExecutionContext behavior requires an approved domain contract before implementation.
 
 
 
@@ -6433,6 +6503,7 @@ Engineer
 → EngineeringWorkflowResolver
 → EngineeringWorkflow
 → EngineeringOrchestrator
+→ EngineeringExecutionContext
 → EngineeringWorkflowInstance
 → EngineeringOperation
 → EngineeringOperationInstance
@@ -6451,7 +6522,8 @@ Responsibility separation:
 - Engineer defines engineering intent.
 - EngineeringWorkflowResolver selects one approved EngineeringWorkflow for normalized EngineerIntent.
 - EngineeringWorkflow defines deterministic EngineeringOperation sequence.
-- EngineeringOrchestrator receives resolved EngineeringWorkflow and supervises EngineeringWorkflowInstance until completion or termination.
+- EngineeringOrchestrator receives resolved EngineeringWorkflow, creates EngineeringExecutionContext and supervises EngineeringWorkflowInstance until completion or termination.
+- EngineeringExecutionContext preserves mutable runtime state for the execution.
 - EngineeringWorkflowInstance represents concrete EngineeringWorkflow execution and owns EngineeringOperationInstance objects.
 - EngineeringOperation defines approved atomic executable workflow steps.
 - EngineeringOperationInstance represents concrete EngineeringOperation execution within a workflow run.
@@ -6470,6 +6542,7 @@ Rules:
 - Every runtime component must have exactly one architectural responsibility.
 - EngineeringOrchestrator must coordinate EngineeringWorkflowInstance execution and supervise EngineeringOperationInstance execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
+- EngineeringExecutionContext must preserve runtime execution state but must not execute engineering service logic.
 - EngineeringWorkflowInstance must preserve workflow runtime state but must not execute engineering service logic.
 - EngineeringService must execute approved EngineeringOperationInstance steps through EngineeringServiceContract but must not coordinate workflow execution.
 - EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
