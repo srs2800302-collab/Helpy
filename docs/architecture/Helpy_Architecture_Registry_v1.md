@@ -5233,7 +5233,7 @@ Rules:
 - Mass changes must not proceed without ImpactAnalysis.
 - BLOCKING impact must prevent publication until resolved or explicitly reviewed.
 - ImpactAnalysis must support comparison between RegistrySnapshot states.
-- ImpactAnalysis output must provide enough context for engineering decisions.
+- ImpactAnalysisResult must provide enough context for engineering decisions.
 - New ImpactAnalysis behavior requires an approved domain contract before implementation.
 
 
@@ -5276,7 +5276,7 @@ Validation must verify:
 - publication readiness;
 - CLEAN state readiness.
 
-Validation result:
+ValidationResult:
 - PASSED;
 - WARNING;
 - FAILED;
