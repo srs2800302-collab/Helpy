@@ -5939,7 +5939,7 @@ EngineeringWorkflowResolver responsibilities:
 - reject ambiguous workflow selection;
 - reject unsupported EngineerIntent;
 - explain workflow selection result;
-- return deterministic workflow resolution output.
+- return deterministic EngineeringWorkflowResolutionResult.
 
 EngineeringWorkflowResolver must not:
 - execute EngineeringWorkflow;
