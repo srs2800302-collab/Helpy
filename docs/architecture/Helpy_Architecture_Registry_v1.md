@@ -5934,7 +5934,7 @@ EngineeringWorkflow is selected and supervised by EngineeringOrchestrator until 
 EngineeringWorkflow is based on:
 - EngineerIntent;
 - EngineeringContext;
-- EngineeringServiceContract;
+- EngineeringOperation;
 - RegistryTransaction;
 - ImpactAnalysis;
 - Validation;
@@ -6059,7 +6059,7 @@ Rules:
 
 Status: APPROVED
 
-EngineeringServiceContract defines the canonical interaction boundary between EngineeringWorkflow, EngineeringOrchestrator and Engineering Services.
+EngineeringServiceContract defines the canonical interaction boundary between EngineeringOperation, EngineeringOrchestrator and Engineering Services.
 
 EngineeringServiceContract is not an Engineering Service.
 
@@ -6068,7 +6068,7 @@ EngineeringServiceContract does not implement engineering logic.
 EngineeringServiceContract describes which EngineeringOperation kind an Engineering Service is approved to execute, what input it requires and what result it returns.
 
 EngineeringServiceContract is based on:
-- EngineeringWorkflow;
+- EngineeringOperation;
 - EngineeringContext;
 - RegistryEntity;
 - RegistryPath;
@@ -6089,7 +6089,7 @@ Engineering Services must:
 - execute only their approved engineering capability;
 - return deterministic and reproducible results;
 - expose failures through the approved output contract;
-- remain independent of EngineeringWorkflow and EngineeringOrchestrator.
+- remain independent of EngineeringWorkflow, EngineeringOperation and EngineeringOrchestrator.
 
 Engineering Services must not:
 - select EngineeringWorkflow;
