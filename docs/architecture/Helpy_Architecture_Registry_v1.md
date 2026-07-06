@@ -5015,6 +5015,39 @@ Rules:
 
 
 
+##### SnapshotPayload Model
+
+Status: APPROVED
+
+SnapshotPayload defines the canonical typed payload for RegistrySnapshot domain data.
+
+SnapshotPayload is based on:
+- RegistrySnapshot;
+- Registry identity;
+- snapshot identity;
+- source revision reference;
+- entity index;
+- relation index;
+- dependency index;
+- validation state;
+- snapshot metadata when applicable.
+
+SnapshotPayload responsibilities:
+- preserve immutable snapshot data;
+- preserve RegistryEntity references through RegistryPath and stable identity;
+- preserve relation and dependency indexes;
+- preserve validation state at snapshot creation time;
+- preserve source revision reference;
+- provide deterministic snapshot serialization.
+
+Rules:
+- SnapshotPayload must represent RegistrySnapshot domain meaning, not storage format.
+- SnapshotPayload must not modify RegistrySnapshot after creation.
+- SnapshotPayload must not contain untyped dynamic data.
+- SnapshotPayload must remain independent of Markdown, database schema and API response shape.
+- New SnapshotPayload behavior requires an approved domain contract before implementation.
+
+
 ##### RegistryEntityPayload Model
 
 Status: APPROVED
