@@ -5854,6 +5854,64 @@ Rules:
 - EngineeringWorkflow selection must be performed by EngineeringOrchestrator, not by EngineerIntent.
 - New EngineerIntent behavior requires an approved domain contract before implementation.
 
+##### Engineering Workflow Resolver Model
+
+Status: APPROVED
+
+EngineeringWorkflowResolver defines the canonical runtime service for selecting an approved EngineeringWorkflow for a normalized EngineerIntent.
+
+EngineeringWorkflowResolver is not EngineeringOrchestrator.
+
+EngineeringWorkflowResolver is not EngineeringWorkflow.
+
+EngineeringWorkflowResolver does not execute workflow logic.
+
+EngineeringWorkflowResolver does not create EngineeringWorkflowInstance.
+
+EngineeringWorkflowResolver is based on:
+- EngineerIntent;
+- EngineeringContext;
+- EngineeringWorkflow;
+- workflow eligibility rules;
+- workflow constraints;
+- workflow resolution result.
+
+EngineeringWorkflowResolver responsibilities:
+- evaluate normalized EngineerIntent;
+- evaluate verified EngineeringContext;
+- select one approved EngineeringWorkflow when exactly one valid workflow matches;
+- reject ambiguous workflow selection;
+- reject unsupported EngineerIntent;
+- explain workflow selection result;
+- return deterministic workflow resolution output.
+
+EngineeringWorkflowResolver must not:
+- execute EngineeringWorkflow;
+- create EngineeringWorkflowInstance;
+- create EngineeringOperationInstance;
+- coordinate workflow execution;
+- call EngineeringService;
+- modify Registry;
+- bypass EngineeringOrchestrator;
+- replace engineering decisions.
+
+Workflow resolution results:
+- RESOLVED;
+- AMBIGUOUS;
+- UNSUPPORTED;
+- BLOCKED;
+- FAILED.
+
+Rules:
+- EngineeringWorkflowResolver must operate only on approved EngineeringWorkflow definitions and verified EngineeringContext.
+- EngineeringWorkflowResolver must return exactly one EngineeringWorkflow for RESOLVED result.
+- Ambiguous workflow resolution must not proceed to runtime execution.
+- Unsupported EngineerIntent must not create EngineeringWorkflowInstance.
+- EngineeringWorkflowResolver must be deterministic and reproducible for identical EngineerIntent and verified EngineeringContext.
+- EngineeringOrchestrator must use EngineeringWorkflowResolver before creating EngineeringWorkflowInstance.
+- New EngineeringWorkflowResolver behavior requires an approved domain contract before implementation.
+
+
 
 ##### Engineering Orchestrator Model
 
@@ -6372,8 +6430,9 @@ Canonical execution flow:
 
 Engineer
 → EngineerIntent
-→ EngineeringOrchestrator
+→ EngineeringWorkflowResolver
 → EngineeringWorkflow
+→ EngineeringOrchestrator
 → EngineeringWorkflowInstance
 → EngineeringOperation
 → EngineeringOperationInstance
@@ -6390,8 +6449,9 @@ Engineer
 Responsibility separation:
 
 - Engineer defines engineering intent.
-- EngineeringOrchestrator selects and supervises an approved EngineeringWorkflow until completion or termination.
+- EngineeringWorkflowResolver selects one approved EngineeringWorkflow for normalized EngineerIntent.
 - EngineeringWorkflow defines deterministic EngineeringOperation sequence.
+- EngineeringOrchestrator receives resolved EngineeringWorkflow and supervises EngineeringWorkflowInstance until completion or termination.
 - EngineeringWorkflowInstance represents concrete EngineeringWorkflow execution and owns EngineeringOperationInstance objects.
 - EngineeringOperation defines approved atomic executable workflow steps.
 - EngineeringOperationInstance represents concrete EngineeringOperation execution within a workflow run.
