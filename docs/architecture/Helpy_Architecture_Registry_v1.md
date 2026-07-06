@@ -5340,6 +5340,42 @@ Rules:
 
 
 
+##### Publication Result Model
+
+Status: APPROVED
+
+PublicationResult defines the canonical result of applying an approved RegistryTransaction to Published Registry.
+
+PublicationResult is based on:
+- RegistryTransaction;
+- PublishingGateDecision;
+- RegistrySnapshot before publication;
+- RegistrySnapshot after publication when applied;
+- affected RegistryEntity objects;
+- publication failure reason when failed.
+
+PublicationResult states:
+- APPLIED;
+- BLOCKED;
+- FAILED;
+- CANCELLED.
+
+PublicationResult responsibilities:
+- preserve publication state;
+- preserve applied RegistryTransaction identity;
+- preserve before and after RegistrySnapshot references when applicable;
+- preserve affected RegistryEntity references;
+- preserve publication failure reason when failed;
+- provide traceability for AuditLog.
+
+Rules:
+- PublicationResult must be created for every publication attempt.
+- PublicationResult must not modify Registry directly.
+- PublicationResult must be traceable through RegistryTransaction and AuditLog.
+- PublicationResult must be deterministic and reproducible for identical RegistryTransaction, PublishingGateDecision and verified RegistrySnapshot data.
+- New PublicationResult behavior requires an approved domain contract before implementation.
+
+
 ##### Draft Workspace Model
 
 Status: APPROVED
