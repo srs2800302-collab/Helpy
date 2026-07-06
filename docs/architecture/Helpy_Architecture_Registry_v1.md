@@ -5988,7 +5988,7 @@ EngineeringExecutionContext is not EngineeringWorkflowInstance.
 
 EngineeringContext provides verified input context.
 
-EngineeringExecutionContext preserves mutable execution state during a specific runtime execution.
+EngineeringExecutionContext preserves mutable execution context state during a specific runtime execution.
 
 EngineeringExecutionContext is created by EngineeringOrchestrator after EngineeringWorkflow resolution and before EngineeringWorkflowInstance creation.
 
@@ -6002,15 +6002,15 @@ EngineeringExecutionContext is based on:
 - AuditLog when traceability is required.
 
 EngineeringExecutionContext responsibilities:
-- hold runtime execution state;
+- hold runtime execution context state;
 - hold resolved EngineeringWorkflow;
-- hold active EngineeringWorkflowInstance when created;
-- hold active EngineeringOperationInstance when running;
-- preserve operation results between execution steps;
+- reference active EngineeringWorkflowInstance when created;
+- reference active EngineeringOperationInstance when running;
+- provide operation result propagation between execution steps;
 - preserve runtime artifacts;
-- preserve engineer decision state;
-- preserve failure state;
-- preserve RegistryTransaction participation when Registry modification is involved;
+- provide engineer decision state propagation;
+- provide execution failure state propagation;
+- reference RegistryTransaction participation when Registry modification is involved;
 - provide traceability for AuditLog.
 
 EngineeringExecutionContext must not:
@@ -6037,7 +6037,7 @@ EngineeringExecutionContext states:
 Rules:
 - EngineeringExecutionContext must be created only by EngineeringOrchestrator.
 - EngineeringExecutionContext must exist only within one runtime execution.
-- EngineeringExecutionContext must preserve runtime state without modifying approved workflow or operation definitions.
+- EngineeringExecutionContext must preserve runtime context state without modifying approved workflow or operation definitions.
 - EngineeringWorkflowInstance and EngineeringOperationInstance must use EngineeringExecutionContext for runtime state propagation.
 - EngineeringExecutionContext lifecycle must be traceable through AuditLog.
 - EngineeringExecutionContext must be deterministic and reproducible for identical EngineerIntent, EngineeringContext and resolved EngineeringWorkflow.
