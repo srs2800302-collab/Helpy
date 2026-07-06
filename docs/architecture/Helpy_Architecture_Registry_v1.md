@@ -5708,13 +5708,13 @@ SandboxMode allows engineers to test Registry changes, workflows and simulations
 SandboxMode is based on:
 - RegistryGraph;
 - RegistrySnapshot;
-- DraftWorkspace;
-- RegistryTransaction;
 - RulesSimulator;
 - ImpactAnalysis;
 - Validation;
 - RegistryCoverage;
-- PublishingGate.
+- PublishingGate;
+- DraftWorkspace when experiment is promoted;
+- RegistryTransaction when experiment is promoted.
 
 SandboxMode responsibilities:
 - create isolated experimental Registry state;
