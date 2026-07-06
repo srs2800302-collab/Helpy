@@ -4378,6 +4378,12 @@ Current placement rules:
 - Registry Studio platform contracts may later be extracted into a top-level Registry Studio contract without changing their approved architectural meaning.
 - Extraction must be treated as documentation reorganization, not as a redesign of Registry Studio responsibilities.
 
+Registry Studio platform direction:
+- Helpy is the first production validation project for Registry Studio.
+- Registry Studio must remain reusable after validation on Helpy.
+- Registry Studio must support future integration into other business projects through project-specific adapters.
+- Helpy-specific business logic must remain inside project adapters and must not become part of Registry Studio Core.
+
 Architecture documentation principles:
 - Architecture documentation describes architectural contracts, architectural responsibilities and implemented capabilities.
 - Architecture documentation must not use marketing product stages, for example MVP, Alpha or Beta, as architectural classifications.
