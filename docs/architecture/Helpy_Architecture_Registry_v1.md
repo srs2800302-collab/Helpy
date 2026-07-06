@@ -6062,10 +6062,10 @@ EngineeringExecutionContext responsibilities:
 - hold resolved EngineeringWorkflow;
 - reference active EngineeringWorkflowInstance when created;
 - reference active EngineeringOperationInstance when running;
-- provide operation result propagation between execution steps;
+- provide operation result references between execution steps;
 - preserve runtime artifacts;
-- provide engineer decision state propagation;
-- provide execution failure state propagation;
+- provide engineer decision state references between workflow and operation instances;
+- provide execution failure state references between workflow and operation instances;
 - reference RegistryTransaction participation when Registry modification is involved;
 - provide traceability for AuditLog.
 
@@ -6090,7 +6090,7 @@ Rules:
 - EngineeringExecutionContext must be created only by EngineeringOrchestrator.
 - EngineeringExecutionContext must exist only within one runtime execution.
 - EngineeringExecutionContext must preserve runtime context state without modifying approved workflow or operation definitions.
-- EngineeringWorkflowInstance and EngineeringOperationInstance must use EngineeringExecutionContext for runtime state propagation.
+- EngineeringWorkflowInstance and EngineeringOperationInstance must use EngineeringExecutionContext for shared runtime context references, not lifecycle ownership.
 - EngineeringExecutionContext lifecycle must be traceable through AuditLog.
 - EngineeringExecutionContext must be deterministic and reproducible for identical EngineerIntent, EngineeringContext and resolved EngineeringWorkflow.
 - New EngineeringExecutionContext behavior requires an approved domain contract before implementation.
