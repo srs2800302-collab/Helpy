@@ -6496,6 +6496,7 @@ Engineer
 → EngineeringServiceCapabilityRegistry
 → EngineeringServiceContract
 → EngineeringService
+→ DraftWorkspace
 → RegistryTransaction
 → ImpactAnalysis
 → Validation
@@ -6516,6 +6517,7 @@ Responsibility separation:
 - EngineeringServiceCapabilityRegistry exposes approved EngineeringServiceContract capabilities for EngineeringOperationInstance execution.
 - EngineeringServiceContract defines interaction boundary between EngineeringOperationInstance and EngineeringService.
 - EngineeringService executes engineering logic independently through its approved EngineeringServiceContract.
+- DraftWorkspace contains every prepared Registry modification before publication.
 - RegistryTransaction governs every Registry modification.
 - ImpactAnalysis evaluates engineering impact before publication.
 - Validation verifies engineering integrity.
@@ -6532,6 +6534,7 @@ Rules:
 - EngineeringWorkflowInstance must preserve workflow runtime state but must not execute engineering service logic.
 - EngineeringService must execute approved EngineeringOperationInstance steps through EngineeringServiceContract but must not coordinate workflow execution.
 - EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
+- DraftWorkspace must contain Registry modifications before RegistryTransaction publication flow proceeds.
 - RegistryTransaction must be the only entry point for Registry modification.
 - Registry publication must occur only after successful Validation and PublishingGate approval.
 - Runtime execution must be deterministic, reproducible and fully traceable.
