@@ -4355,36 +4355,6 @@ They do not require immediate MVP implementation, but the architecture must rese
 
 #### Registry Studio / Registry Operations
 
-##### Registry Studio Admin Panel Integration Boundary
-
-Status: APPROVED
-
-Registry Studio contracts are currently located inside Admin Panel Architecture because Registry Studio is planned as an integrated engineering extension of the Admin Panel.
-
-This placement is intentional.
-
-Registry Studio must be developed in parallel with Helpy without blocking Helpy roadmap closure, final Roadmap preparation or application development.
-
-Integration principle:
-- Admin Panel provides operational business logic management.
-- Registry Studio provides engineering Registry lifecycle management.
-- Registry Studio supports Admin Panel operation, but does not replace Admin Panel.
-- Admin Panel may consume Registry Studio outputs only through approved Registry Transaction Model, validation, publishing and API contracts.
-- Registry Studio must not bypass Admin Panel governance, Registry Transaction Model, Audit Log, Validation or PublishingGate.
-
-Current placement rules:
-- Registry Studio contracts remain inside Admin Panel Architecture while Helpy roadmap and Admin Panel architecture are being finalized.
-- Registry Studio must remain logically isolated from order, payment, user and mobile runtime behavior.
-- Registry Studio platform contracts may later be extracted into a top-level Registry Studio contract without changing their approved architectural meaning.
-- Extraction must be treated as documentation reorganization, not as a redesign of Registry Studio responsibilities.
-
-Architecture documentation principles:
-- Architecture documentation describes architectural contracts, architectural responsibilities and implemented capabilities.
-- Architecture documentation must not use marketing product stages, for example MVP, Alpha or Beta, as architectural classifications.
-- Product release stages belong to release planning and roadmap documentation, not to Registry architecture.
-
-Registry Studio / Registry Operations status:
-
 Status: PLANNED / ACTIVE DEVELOPMENT
 
 Registry Studio is an Admin Panel roadmap module for maintaining Helpy Registry as a structured source of truth.
