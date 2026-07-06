@@ -6101,7 +6101,7 @@ Rules:
 
 Status: APPROVED
 
-EngineeringWorkflow defines the canonical executable scenario description used by EngineeringOrchestrator.
+EngineeringWorkflow defines the canonical execution scenario description used by EngineeringOrchestrator.
 
 EngineeringWorkflow is not an engineering service.
 
@@ -6153,12 +6153,12 @@ Workflow definition states:
 Rules:
 - EngineeringWorkflow is a runtime scenario contract, not a Registry domain entity.
 - EngineeringWorkflow must be selected by EngineeringWorkflowResolver.
-- EngineeringWorkflow execution lifecycle must be represented by EngineeringWorkflowInstance and supervised by EngineeringOrchestrator.
+- EngineeringWorkflow runtime execution must be represented by EngineeringWorkflowInstance and supervised by EngineeringOrchestrator.
 - EngineeringWorkflow must define execution flow but must not execute engineering services.
 - EngineeringWorkflow must reference EngineeringOperation objects only.
 - EngineeringWorkflow must preserve architectural responsibility boundaries.
 - EngineeringWorkflow must be deterministic and reproducible for identical EngineerIntent and verified context.
-- EngineeringWorkflow execution lifecycle must be traceable through EngineeringWorkflowInstance, RegistryTransaction and AuditLog when Registry modification is involved.
+- EngineeringWorkflow runtime usage must be traceable through EngineeringWorkflowInstance, RegistryTransaction and AuditLog when Registry modification is involved.
 - New EngineeringWorkflow behavior requires an approved domain contract before implementation.
 
 ##### Engineering Workflow Instance Model
