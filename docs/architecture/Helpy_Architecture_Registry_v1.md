@@ -6386,7 +6386,7 @@ EngineeringService is based on:
 - EngineeringServiceCapabilityRegistry;
 - EngineeringOperation input;
 - EngineeringOperation output;
-- service preconditions;
+- capability preconditions;
 - service failure states;
 - RegistryTransaction when Registry modification is involved;
 - AuditLog when traceability is required.
@@ -6436,19 +6436,19 @@ EngineeringServiceCapabilityRegistry does not know service implementation detail
 EngineeringServiceCapabilityRegistry is based on:
 - EngineeringServiceContract;
 - EngineeringOperation kind;
-- service capability;
-- service registration;
-- service availability;
-- service preconditions;
-- service failure states.
+- EngineeringServiceContract capability;
+- capability registration;
+- capability availability;
+- capability preconditions;
+- capability failure states.
 
 EngineeringServiceCapabilityRegistry responsibilities:
 - register approved EngineeringServiceContract capabilities;
 - expose available EngineeringServiceContract capabilities to EngineeringOrchestrator;
 - map EngineeringOperation kind to approved EngineeringServiceContract;
-- expose service preconditions;
-- expose service failure states;
-- expose service availability;
+- expose capability preconditions;
+- expose capability failure states;
+- expose capability availability;
 - support future EngineeringServiceContract capability registration without EngineeringOrchestrator redesign.
 
 EngineeringServiceCapabilityRegistry must not:
