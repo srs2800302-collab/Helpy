@@ -5818,7 +5818,7 @@ EngineerIntent does not define how engineering work will be executed.
 
 EngineerIntent exists only to express what the engineer intends to accomplish in a form that EngineeringOrchestrator can evaluate.
 
-EngineeringOrchestrator selects the appropriate EngineeringWorkflow after EngineerIntent is normalized and verified.
+EngineeringWorkflowResolver selects the appropriate EngineeringWorkflow after EngineerIntent is normalized and verified.
 
 EngineerIntent is based on:
 - engineer objective;
@@ -5833,7 +5833,7 @@ EngineerIntent responsibilities:
 - identify the intended engineering target;
 - identify the intended engineering scope;
 - preserve explicit engineer constraints;
-- provide enough information for EngineeringOrchestrator to select an approved EngineeringWorkflow.
+- provide enough information for EngineeringWorkflowResolver to select an approved EngineeringWorkflow.
 
 EngineerIntent must not:
 - define workflow execution;
@@ -5851,7 +5851,7 @@ Rules:
 - EngineerIntent must not be stored as Published Registry data.
 - EngineerIntent must not define Registry structure.
 - EngineerIntent must be deterministic and reproducible for identical engineer objectives and verified context.
-- EngineeringWorkflow selection must be performed by EngineeringOrchestrator, not by EngineerIntent.
+- EngineeringWorkflow selection must be performed by EngineeringWorkflowResolver, not by EngineerIntent.
 - New EngineerIntent behavior requires an approved domain contract before implementation.
 
 ##### Engineering Workflow Resolver Model
