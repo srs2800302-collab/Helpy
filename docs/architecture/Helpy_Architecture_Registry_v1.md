@@ -6259,8 +6259,8 @@ EngineeringOperation is based on:
 EngineeringOperation responsibilities:
 - define atomic workflow step identity;
 - define operation kind;
-- define required input;
-- define expected output;
+- define required EngineeringServiceInput contract;
+- define expected EngineeringServiceOutput contract;
 - define required EngineeringServiceContract;
 - define preconditions;
 - define failure states;
@@ -6291,7 +6291,7 @@ Rules:
 - EngineeringOperation execution must be represented by EngineeringOperationInstance under EngineeringWorkflowInstance and EngineeringOrchestrator supervision.
 - EngineeringOperation must define the required approved EngineeringServiceContract for runtime execution.
 - EngineeringOperation must have exactly one operation kind.
-- EngineeringOperation must be deterministic and reproducible for identical input and verified context.
+- EngineeringOperation must be deterministic and reproducible for identical definition and verified context.
 - EngineeringOperation execution lifecycle must be traceable through EngineeringOperationInstance, RegistryTransaction and AuditLog when Registry modification is involved.
 - New EngineeringOperation behavior requires an approved domain contract before implementation.
 
