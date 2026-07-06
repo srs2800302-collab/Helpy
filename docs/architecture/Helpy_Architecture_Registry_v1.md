@@ -5370,11 +5370,8 @@ DraftWorkspace states:
 - EMPTY;
 - ACTIVE;
 - DIRTY;
-- VALIDATING;
-- READY_FOR_REVIEW;
-- READY_FOR_PUBLICATION;
+- CLEAN;
 - BLOCKED;
-- PUBLISHED;
 - DISCARDED.
 
 Rules:
@@ -5382,7 +5379,7 @@ Rules:
 - DraftWorkspace must be isolated from Published Registry.
 - DraftWorkspace must preserve enough context to resume engineering work.
 - DraftWorkspace must expose DIRTY state when unpublished changes exist.
-- DraftWorkspace must not publish changes without PublishingGate approval.
+- DraftWorkspace must not own RegistryTransaction, Validation, PublishingGate or publication lifecycle states.
 - DraftWorkspace must support discard without affecting Published Registry.
 - DraftWorkspace must be traceable through RegistryTransaction.
 - New DraftWorkspace behavior requires an approved domain contract before implementation.
