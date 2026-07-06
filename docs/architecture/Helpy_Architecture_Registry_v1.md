@@ -5480,6 +5480,81 @@ Rules:
 - New PublicationResult behavior requires an approved domain contract before implementation.
 
 
+##### Rollback Model
+
+Status: APPROVED
+
+Rollback defines the canonical engineering recovery process for restoring a previously verified RegistrySnapshot after an approved RegistryTransaction.
+
+Rollback is not a storage restore.
+
+Rollback is based on:
+- RegistryTransaction;
+- RegistrySnapshot;
+- PublicationResult;
+- AuditLog;
+- affected RegistryEntity objects;
+- affected RegistryPath references.
+
+Rollback states:
+- PREPARED;
+- READY;
+- EXECUTED;
+- FAILED;
+- CANCELLED.
+
+Rollback responsibilities:
+- preserve rollback identity;
+- preserve source and target RegistrySnapshot references;
+- preserve restored RegistryEntity and RegistryPath references;
+- preserve rollback reason;
+- preserve rollback execution result;
+- provide traceability for AuditLog.
+
+Rules:
+- Rollback must originate from a verified RegistrySnapshot.
+- Rollback must execute through RegistryTransaction.
+- Rollback must not modify Published Registry outside RegistryTransaction.
+- Rollback execution must create AuditLog records.
+- Rollback must be deterministic and reproducible for identical RegistrySnapshot and RegistryTransaction data.
+- New Rollback behavior requires an approved domain contract before implementation.
+
+
+##### RollbackPayload Model
+
+Status: APPROVED
+
+RollbackPayload defines the canonical typed payload for Rollback domain data.
+
+RollbackPayload is based on:
+- Rollback;
+- RegistryTransaction;
+- source RegistrySnapshot;
+- target RegistrySnapshot;
+- restored RegistryEntity objects;
+- restored RegistryPath references;
+- rollback reason;
+- rollback execution result;
+- AuditLog traceability references.
+
+RollbackPayload responsibilities:
+- preserve rollback identity data;
+- preserve rollback lifecycle state;
+- preserve source and target RegistrySnapshot references;
+- preserve restored RegistryEntity and RegistryPath references;
+- preserve rollback reason;
+- preserve rollback execution result;
+- provide deterministic rollback serialization.
+
+Rules:
+- RollbackPayload must represent Rollback domain meaning, not storage format.
+- RollbackPayload must not execute rollback.
+- RollbackPayload must not modify Published Registry.
+- RollbackPayload must not contain untyped dynamic data.
+- RollbackPayload must remain independent of Markdown, database schema and API response shape.
+- New RollbackPayload behavior requires an approved domain contract before implementation.
+
+
 ##### Draft Workspace Model
 
 Status: APPROVED
