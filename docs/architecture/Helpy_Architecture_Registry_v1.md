@@ -5659,7 +5659,7 @@ Rules:
 
 Status: APPROVED
 
-RulesSimulator defines the canonical engineering service for simulating Registry changes before publication.
+RulesSimulator defines the canonical simulation component for simulating Registry changes before publication.
 
 RulesSimulator does not modify Registry.
 
