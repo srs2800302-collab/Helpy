@@ -4351,7 +4351,7 @@ Purpose:
 Reserved Admin Panel modules that reduce operational risk, prevent business-rule drift and help validate configuration before publication.
 
 These modules are part of the Admin Panel roadmap.
-They do not require immediate MVP implementation, but the architecture must reserve space for them before Admin Panel development.
+They do not require immediate launch implementation, but the architecture must reserve space for them before Admin Panel development.
 
 #### Registry Studio / Registry Operations
 
