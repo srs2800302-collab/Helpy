@@ -4523,6 +4523,41 @@ Forbidden:
 - Publishing with NOT CLEAN state.
 - Partial application of a Draft.
 
+##### TransactionPayload Model
+
+Status: APPROVED
+
+TransactionPayload defines the canonical typed payload for RegistryTransaction domain data.
+
+TransactionPayload is based on:
+- RegistryTransaction;
+- DraftWorkspace;
+- affected RegistryEntity objects;
+- affected RegistryPath references;
+- RegistrySnapshot references;
+- ValidationResult;
+- PublishingGateDecision;
+- PublicationResult when available;
+- AuditLog traceability references.
+
+TransactionPayload responsibilities:
+- preserve transaction identity data;
+- preserve transaction lifecycle state;
+- preserve affected RegistryEntity and RegistryPath references;
+- preserve RegistrySnapshot references before publication;
+- preserve ValidationResult and PublishingGateDecision references;
+- preserve PublicationResult reference when available;
+- preserve rollback reference when applicable;
+- provide deterministic transaction serialization.
+
+Rules:
+- TransactionPayload must represent RegistryTransaction domain meaning, not storage format.
+- TransactionPayload must not modify RegistryTransaction lifecycle.
+- TransactionPayload must not contain untyped dynamic data.
+- TransactionPayload must remain independent of Markdown, database schema and API response shape.
+- New TransactionPayload behavior requires an approved domain contract before implementation.
+
+
 ##### Registry Storage Independence
 
 Status: APPROVED
