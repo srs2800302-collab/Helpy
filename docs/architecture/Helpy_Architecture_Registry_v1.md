@@ -5863,10 +5863,11 @@ EngineeringOrchestrator defines the canonical workflow coordination service for 
 
 EngineeringOrchestrator is not an engineering service.
 
-EngineeringOrchestrator coordinates engineering services through approved service contracts.
+EngineeringOrchestrator coordinates EngineeringOperation execution through approved service contracts.
 
 EngineeringOrchestrator is based on:
 - EngineeringContext;
+- EngineeringServiceCapabilityRegistry;
 - DependencyExplorer;
 - RulesSimulator;
 - ImpactAnalysis;
@@ -5883,7 +5884,7 @@ EngineeringOrchestrator responsibilities:
 - initiate and supervise approved EngineeringWorkflow execution;
 - determine workflow execution order;
 - determine workflow stop conditions;
-- coordinate service handoff;
+- coordinate EngineeringOperation handoff;
 - preserve workflow state;
 - create RegistryTransaction when required;
 - ensure deterministic workflow execution.
@@ -5898,15 +5899,16 @@ EngineeringOrchestrator must not:
 EngineeringOrchestrator workflow principles:
 - engineer defines intent;
 - EngineeringOrchestrator selects and supervises EngineeringWorkflow until completion or termination;
-- engineering services execute independently;
-- service results determine subsequent EngineeringOperation steps;
+- EngineeringOperation steps are executed independently through approved EngineeringServiceContract bindings;
+- EngineeringOperation results determine subsequent EngineeringOperation steps;
 - PublishingGate determines publication readiness;
 - AuditLog records the completed workflow.
 
 Rules:
-- EngineeringOrchestrator must coordinate services only through approved contracts.
-- EngineeringOrchestrator must know service capabilities, not service implementation details.
+- EngineeringOrchestrator must coordinate EngineeringOperation execution only through approved contracts.
+- EngineeringOrchestrator must know approved EngineeringServiceContract capabilities through EngineeringServiceCapabilityRegistry, not service implementation details.
 - Engineering services must not depend on EngineeringOrchestrator.
+- New Engineering Services must be discoverable by EngineeringOrchestrator through approved EngineeringServiceContract registration.
 - EngineeringOrchestrator must remain independent of storage implementation.
 - EngineeringOrchestrator workflow execution must be deterministic and reproducible.
 - New EngineeringOrchestrator behavior requires an approved domain contract before implementation.
@@ -6110,6 +6112,54 @@ Rules:
 - New EngineeringServiceContract behavior requires an approved domain contract before implementation.
 
 
+##### Engineering Service Capability Registry Model
+
+Status: APPROVED
+
+EngineeringServiceCapabilityRegistry defines the canonical discovery model for available Engineering Services and their approved EngineeringServiceContract capabilities.
+
+EngineeringServiceCapabilityRegistry is not an Engineering Service.
+
+EngineeringServiceCapabilityRegistry does not execute EngineeringOperation logic.
+
+EngineeringServiceCapabilityRegistry does not know service implementation details.
+
+EngineeringServiceCapabilityRegistry is based on:
+- EngineeringServiceContract;
+- EngineeringOperation kind;
+- service capability;
+- service registration;
+- service availability;
+- service preconditions;
+- service failure states.
+
+EngineeringServiceCapabilityRegistry responsibilities:
+- register approved EngineeringServiceContract capabilities;
+- expose available Engineering Services to EngineeringOrchestrator;
+- map EngineeringOperation kind to approved EngineeringServiceContract;
+- expose service preconditions;
+- expose service failure states;
+- expose service availability;
+- support future Engineering Service registration without EngineeringOrchestrator redesign.
+
+EngineeringServiceCapabilityRegistry must not:
+- execute EngineeringOperation logic;
+- coordinate workflow execution;
+- select EngineeringWorkflow;
+- modify Registry;
+- bypass EngineeringServiceContract;
+- expose service implementation details;
+- become a universal service locator for unrelated platform services.
+
+Rules:
+- EngineeringOrchestrator must use EngineeringServiceCapabilityRegistry to discover available EngineeringServiceContract capabilities.
+- New Engineering Services must register approved EngineeringServiceContract capabilities before they can be used by EngineeringOrchestrator.
+- EngineeringServiceCapabilityRegistry must expose capabilities, not implementation details.
+- EngineeringServiceCapabilityRegistry must remain independent of storage implementation.
+- EngineeringServiceCapabilityRegistry behavior must be deterministic and reproducible.
+- New EngineeringServiceCapabilityRegistry behavior requires an approved domain contract before implementation.
+
+
 
 ##### Engineering Runtime Model
 
@@ -6126,6 +6176,7 @@ Engineer
 → EngineeringOrchestrator
 → EngineeringWorkflow
 → EngineeringOperation
+→ EngineeringServiceCapabilityRegistry
 → EngineeringServiceContract
 → Engineering Services
 → RegistryTransaction
@@ -6141,6 +6192,7 @@ Responsibility separation:
 - EngineeringOrchestrator selects and supervises an approved EngineeringWorkflow until completion or termination.
 - EngineeringWorkflow defines deterministic EngineeringOperation sequence.
 - EngineeringOperation defines atomic executable workflow steps.
+- EngineeringServiceCapabilityRegistry exposes approved service capabilities for EngineeringOperation execution.
 - EngineeringServiceContract defines interaction boundaries between architectural components.
 - Engineering Services execute engineering logic independently through approved contracts.
 - RegistryTransaction governs every Registry modification.
@@ -6156,6 +6208,7 @@ Rules:
 - EngineeringOrchestrator must coordinate execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
 - Engineering Services must execute approved EngineeringOperation steps through EngineeringServiceContract but must not coordinate workflow execution.
+- EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
 - RegistryTransaction must be the only entry point for Registry modification.
 - Registry publication must occur only after successful Validation and PublishingGate approval.
 - Runtime execution must be deterministic, reproducible and fully traceable.
