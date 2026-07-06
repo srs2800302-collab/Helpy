@@ -6321,7 +6321,7 @@ Rules:
 
 Status: APPROVED
 
-EngineeringServiceContract defines the canonical interaction boundary between EngineeringOperation, EngineeringOrchestrator and Engineering Services.
+EngineeringServiceContract defines the canonical interaction boundary between EngineeringOperationInstance and EngineeringService.
 
 EngineeringServiceContract is not an Engineering Service.
 
@@ -6346,14 +6346,14 @@ EngineeringServiceContract responsibilities:
 - define traceability requirements;
 - define whether RegistryTransaction participation is required.
 
-Engineering Services must:
+EngineeringService must:
 - implement exactly one approved EngineeringServiceContract;
-- execute only their approved engineering capability;
+- execute only its approved engineering capability;
 - return deterministic and reproducible results;
 - expose failures through the approved output contract;
 - remain independent of EngineeringWorkflow, EngineeringOperation and EngineeringOrchestrator.
 
-Engineering Services must not:
+EngineeringService must not:
 - select EngineeringWorkflow;
 - coordinate workflow execution;
 - call EngineeringOrchestrator;
