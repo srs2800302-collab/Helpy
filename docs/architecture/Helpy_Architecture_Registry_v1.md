@@ -6315,15 +6315,18 @@ Non-goals:
 - Studio must not replace Git as the final version-control system.
 
 
-Must-Have Roadmap:
-- Rules Simulator;
+Approved Architecture Models:
+- Dependency Explorer;
+- Engineering Context;
 - Impact Analysis;
+- Rules Simulator;
 - Registry Coverage;
-- Sandbox Mode.
-
-Nice-To-Have Roadmap:
-- Search Everywhere;
+- Sandbox Mode;
 - Bulk Operations;
+- Global Rename.
+
+Future Implementation Roadmap:
+- Search Everywhere;
 - Import / Export.
 
 Rules Simulator:
@@ -6388,7 +6391,8 @@ Governance Rules:
 - Roadmap extensions must not bypass Category Health Check.
 - Roadmap extensions must not expose secrets or unsafe database access.
 - Roadmap extensions should be implemented gradually after core Admin Panel builders.
-- Rules Simulator, Impact Analysis, Registry Coverage and Sandbox Mode are higher priority than Search Everywhere, Bulk Operations and Import / Export.
+- Approved architecture models must be implemented according to Registry Studio Development Phases and engineering priority.
+- Future implementation roadmap items must not bypass approved architecture models.
 
 ### Future Admin Roles Reserve
 Reserved:
