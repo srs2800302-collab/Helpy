@@ -4442,6 +4442,64 @@ Core principles:
 - Partial publication is prohibited.
 - Administrator confirmation is required before applying a Draft to Registry.
 
+RegistryTransaction defines the canonical atomic governance unit for preparing, validating, approving and applying Registry modifications.
+
+RegistryTransaction is not DraftWorkspace.
+
+RegistryTransaction is not Published Registry.
+
+RegistryTransaction is not a storage commit.
+
+RegistryTransaction is based on:
+- DraftWorkspace;
+- RegistrySnapshot;
+- RegistryEntity;
+- RegistryPath;
+- RegistryDependency;
+- ImpactAnalysis;
+- Validation;
+- PublishingGate;
+- AuditLog.
+
+RegistryTransaction responsibilities:
+- define transaction identity;
+- group related Registry modifications;
+- preserve affected RegistryEntity and RegistryPath references;
+- preserve dependency and impact visibility;
+- preserve validation result;
+- preserve PublishingGate decision;
+- preserve administrator approval state;
+- preserve publication result;
+- preserve rollback reference when applicable;
+- provide traceability for AuditLog.
+
+RegistryTransaction states:
+- CREATED;
+- DRAFTING;
+- READY_FOR_ANALYSIS;
+- ANALYZED;
+- VALIDATED;
+- READY_FOR_REVIEW;
+- APPROVED;
+- PUBLISHED;
+- BLOCKED;
+- FAILED;
+- CANCELLED;
+- ROLLBACK_PREPARED;
+- ROLLED_BACK.
+
+Rules:
+- Every Registry modification must belong to exactly one RegistryTransaction.
+- RegistryTransaction must originate from DraftWorkspace.
+- RegistryTransaction must not modify Published Registry before PublishingGate approval.
+- RegistryTransaction must create or reference RegistrySnapshot before approved changes are applied.
+- RegistryTransaction must preserve ImpactAnalysis and Validation results before publication.
+- RegistryTransaction must preserve administrator approval before applying changes to Published Registry.
+- RegistryTransaction must create AuditLog records for committed actions.
+- RegistryTransaction must finish in CLEAN state after publication, cancellation or rollback.
+- Partial RegistryTransaction publication is prohibited.
+- New RegistryTransaction behavior requires an approved domain contract before implementation.
+
 Required lifecycle:
 
 Published Registry
