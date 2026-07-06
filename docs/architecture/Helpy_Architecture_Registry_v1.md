@@ -6059,7 +6059,7 @@ EngineeringWorkflow does not execute engineering logic.
 
 EngineeringWorkflow describes how an approved EngineerIntent should be executed through ordered workflow steps.
 
-EngineeringWorkflow is selected and supervised by EngineeringOrchestrator until completion or termination.
+EngineeringWorkflow is selected by EngineeringWorkflowResolver and executed through EngineeringWorkflowInstance under EngineeringOrchestrator supervision.
 
 EngineeringWorkflow is based on:
 - EngineerIntent;
@@ -6092,26 +6092,21 @@ EngineeringWorkflow must not:
 - bypass Validation;
 - bypass PublishingGate.
 
-Workflow states:
+Workflow definition states:
 - DEFINED;
-- SELECTED;
-- RUNNING;
-- WAITING_FOR_SERVICE_RESULT;
-- WAITING_FOR_ENGINEER_DECISION;
-- BLOCKED;
-- FAILED;
-- COMPLETED;
-- CANCELLED.
+- APPROVED;
+- DEPRECATED;
+- DISABLED.
 
 Rules:
 - EngineeringWorkflow is a runtime scenario contract, not a Registry domain entity.
-- EngineeringWorkflow must be selected by EngineeringOrchestrator.
-- EngineeringWorkflow lifecycle must be supervised only by EngineeringOrchestrator.
+- EngineeringWorkflow must be selected by EngineeringWorkflowResolver.
+- EngineeringWorkflow execution lifecycle must be represented by EngineeringWorkflowInstance and supervised by EngineeringOrchestrator.
 - EngineeringWorkflow must define execution flow but must not execute engineering services.
 - EngineeringWorkflow must reference EngineeringOperation objects only.
 - EngineeringWorkflow must preserve architectural responsibility boundaries.
 - EngineeringWorkflow must be deterministic and reproducible for identical EngineerIntent and verified context.
-- EngineeringWorkflow lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
+- EngineeringWorkflow execution lifecycle must be traceable through EngineeringWorkflowInstance, RegistryTransaction and AuditLog when Registry modification is involved.
 - New EngineeringWorkflow behavior requires an approved domain contract before implementation.
 
 ##### Engineering Workflow Instance Model
@@ -6270,7 +6265,7 @@ EngineeringOperation defines the approved atomic step.
 
 EngineeringOperationInstance represents one execution of that step during a specific workflow run.
 
-EngineeringOperationInstance is created by EngineeringOrchestrator from the selected EngineeringWorkflow and approved EngineeringOperation definitions.
+EngineeringOperationInstance is materialized by EngineeringWorkflowInstance from approved EngineeringOperation definitions within EngineeringExecutionContext.
 
 EngineeringOperationInstance is based on:
 - EngineeringOperation;
@@ -6317,7 +6312,7 @@ EngineeringOperationInstance states:
 - CANCELLED.
 
 Rules:
-- EngineeringOperationInstance must be created only by EngineeringOrchestrator after EngineeringWorkflow selection.
+- EngineeringOperationInstance must be materialized only by EngineeringWorkflowInstance within EngineeringExecutionContext.
 - EngineeringOperationInstance must be created from an approved EngineeringOperation definition.
 - EngineeringOperationInstance must not modify the source EngineeringOperation definition.
 - EngineeringOperationInstance must resolve its EngineeringServiceContract through EngineeringServiceCapabilityRegistry before execution.
