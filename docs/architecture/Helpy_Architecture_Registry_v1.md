@@ -6105,7 +6105,7 @@ Engineering Services must not:
 
 Rules:
 - EngineeringWorkflow must reference EngineeringOperation objects with approved EngineeringServiceContract bindings.
-- EngineeringOrchestrator must invoke Engineering Services only for EngineeringOperation execution through approved EngineeringServiceContract.
+- EngineeringOrchestrator must invoke Engineering Services only through EngineeringServiceContract capabilities discovered through EngineeringServiceCapabilityRegistry.
 - EngineeringServiceContract must remain independent of service implementation details.
 - EngineeringServiceContract must remain independent of storage implementation.
 - Service replacement must not require EngineeringWorkflow redesign if the approved contract is preserved.
@@ -6154,6 +6154,10 @@ EngineeringServiceCapabilityRegistry must not:
 Rules:
 - EngineeringOrchestrator must use EngineeringServiceCapabilityRegistry to discover available EngineeringServiceContract capabilities.
 - New Engineering Services must register approved EngineeringServiceContract capabilities before they can be used by EngineeringOrchestrator.
+- Each EngineeringOperation kind must resolve to exactly one approved EngineeringServiceContract capability.
+- Duplicate capability registration for the same EngineeringOperation kind must not be allowed.
+- Capability registration must be completed before runtime discovery is allowed.
+- Capability replacement must preserve the approved EngineeringServiceContract. Any change to the contract itself requires a new approved EngineeringServiceContract and an approved domain contract before runtime adoption.
 - EngineeringServiceCapabilityRegistry must expose capabilities, not implementation details.
 - EngineeringServiceCapabilityRegistry must remain independent of storage implementation.
 - EngineeringServiceCapabilityRegistry behavior must be deterministic and reproducible.
@@ -6205,7 +6209,7 @@ Responsibility separation:
 Rules:
 
 - Every runtime component must have exactly one architectural responsibility.
-- EngineeringOrchestrator must coordinate execution but must not execute engineering logic.
+- EngineeringOrchestrator must coordinate EngineeringOperation execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
 - Engineering Services must execute approved EngineeringOperation steps through EngineeringServiceContract but must not coordinate workflow execution.
 - EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
