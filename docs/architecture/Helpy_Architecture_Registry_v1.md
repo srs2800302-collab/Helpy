@@ -6111,6 +6111,59 @@ Rules:
 - Service replacement must not require EngineeringWorkflow redesign if the approved contract is preserved.
 - New EngineeringServiceContract behavior requires an approved domain contract before implementation.
 
+##### Engineering Service Model
+
+Status: APPROVED
+
+EngineeringService defines an executable engineering component that implements exactly one approved EngineeringServiceContract capability.
+
+EngineeringService is not EngineeringOrchestrator.
+
+EngineeringService is not EngineeringWorkflow.
+
+EngineeringService is not EngineeringOperation.
+
+EngineeringService executes engineering logic only through its approved EngineeringServiceContract.
+
+EngineeringService is based on:
+- EngineeringServiceContract;
+- EngineeringServiceCapabilityRegistry;
+- EngineeringOperation input;
+- EngineeringOperation output;
+- service preconditions;
+- service failure states;
+- RegistryTransaction when Registry modification is involved;
+- AuditLog when traceability is required.
+
+EngineeringService responsibilities:
+- implement exactly one approved EngineeringServiceContract;
+- execute the approved service capability;
+- validate service preconditions before execution;
+- return deterministic service output;
+- expose failures through the approved output contract;
+- preserve RegistryTransaction boundaries when Registry modification is involved;
+- remain replaceable when the approved EngineeringServiceContract is preserved.
+
+EngineeringService must not:
+- select EngineeringWorkflow;
+- coordinate workflow execution;
+- call EngineeringOrchestrator;
+- bypass EngineeringServiceContract;
+- bypass EngineeringServiceCapabilityRegistry registration;
+- modify Published Registry directly;
+- bypass RegistryTransaction when Registry modification is involved;
+- hide engineering side effects;
+- become a universal engineering utility.
+
+Rules:
+- EngineeringService must be registered through EngineeringServiceCapabilityRegistry before runtime use.
+- EngineeringService must execute only the capability defined by its approved EngineeringServiceContract.
+- EngineeringService must remain independent of EngineeringWorkflow, EngineeringOperation and EngineeringOrchestrator.
+- EngineeringService replacement must preserve the approved EngineeringServiceContract.
+- Any EngineeringServiceContract change requires a new approved EngineeringServiceContract and an approved domain contract before runtime adoption.
+- New EngineeringService behavior requires an approved domain contract before implementation.
+
+
 
 ##### Engineering Service Capability Registry Model
 
@@ -6182,7 +6235,7 @@ Engineer
 → EngineeringOperation
 → EngineeringServiceCapabilityRegistry
 → EngineeringServiceContract
-→ Engineering Services
+→ EngineeringService
 → RegistryTransaction
 → ImpactAnalysis
 → Validation
@@ -6198,7 +6251,7 @@ Responsibility separation:
 - EngineeringOperation defines atomic executable workflow steps.
 - EngineeringServiceCapabilityRegistry exposes approved service capabilities for EngineeringOperation execution.
 - EngineeringServiceContract defines interaction boundaries between architectural components.
-- Engineering Services execute engineering logic independently through approved contracts.
+- EngineeringService executes engineering logic independently through its approved EngineeringServiceContract.
 - RegistryTransaction governs every Registry modification.
 - ImpactAnalysis evaluates engineering impact before publication.
 - Validation verifies engineering integrity.
@@ -6211,7 +6264,7 @@ Rules:
 - Every runtime component must have exactly one architectural responsibility.
 - EngineeringOrchestrator must coordinate EngineeringOperation execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
-- Engineering Services must execute approved EngineeringOperation steps through EngineeringServiceContract but must not coordinate workflow execution.
+- EngineeringService must execute approved EngineeringOperation steps through EngineeringServiceContract but must not coordinate workflow execution.
 - EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
 - RegistryTransaction must be the only entry point for Registry modification.
 - Registry publication must occur only after successful Validation and PublishingGate approval.
