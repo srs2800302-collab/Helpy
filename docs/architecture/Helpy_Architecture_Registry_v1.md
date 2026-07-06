@@ -6488,7 +6488,7 @@ Rules:
 
 Status: APPROVED
 
-EngineeringService defines an executable engineering component that implements exactly one approved EngineeringServiceContract capability.
+EngineeringService defines an executable engineering service that implements exactly one approved EngineeringServiceContract capability.
 
 EngineeringService is not EngineeringOrchestrator.
 
