@@ -5986,6 +5986,76 @@ Rules:
 - EngineeringWorkflow lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
 - New EngineeringWorkflow behavior requires an approved domain contract before implementation.
 
+##### Engineering Workflow Instance Model
+
+Status: APPROVED
+
+EngineeringWorkflowInstance defines a concrete runtime execution instance of a selected EngineeringWorkflow.
+
+EngineeringWorkflowInstance is not EngineeringWorkflow.
+
+EngineeringWorkflowInstance is not EngineeringOrchestrator.
+
+EngineeringWorkflowInstance does not execute engineering service logic.
+
+EngineeringWorkflow defines the approved execution scenario.
+
+EngineeringWorkflowInstance represents one runtime execution of that scenario for a specific EngineerIntent.
+
+EngineeringWorkflowInstance is created by EngineeringOrchestrator after EngineeringWorkflow selection.
+
+EngineeringWorkflowInstance is based on:
+- EngineeringWorkflow;
+- EngineerIntent;
+- EngineeringContext;
+- EngineeringOperation;
+- EngineeringOperationInstance;
+- RegistryTransaction when Registry modification is involved;
+- AuditLog when traceability is required.
+
+EngineeringWorkflowInstance responsibilities:
+- represent one concrete EngineeringWorkflow execution;
+- create and hold EngineeringOperationInstance objects;
+- preserve operation execution order;
+- hold workflow runtime state;
+- hold current execution position;
+- preserve engineer decision points;
+- preserve workflow stop, resume and completion state;
+- preserve RegistryTransaction participation when Registry modification is involved;
+- provide traceability for AuditLog.
+
+EngineeringWorkflowInstance must not:
+- define EngineeringWorkflow semantics;
+- select EngineeringWorkflow;
+- implement engineering service logic;
+- call EngineeringOrchestrator;
+- bypass EngineeringOperation;
+- bypass EngineeringOperationInstance;
+- bypass RegistryTransaction when Registry modification is involved;
+- modify Published Registry directly.
+
+EngineeringWorkflowInstance states:
+- CREATED;
+- READY;
+- RUNNING;
+- WAITING_FOR_OPERATION;
+- WAITING_FOR_ENGINEER_DECISION;
+- COMPLETED;
+- FAILED;
+- BLOCKED;
+- CANCELLED.
+
+Rules:
+- EngineeringWorkflowInstance must be created only by EngineeringOrchestrator after EngineeringWorkflow selection.
+- EngineeringWorkflowInstance must be created from an approved EngineeringWorkflow definition.
+- EngineeringWorkflowInstance must not modify the source EngineeringWorkflow definition.
+- EngineeringWorkflowInstance must materialize EngineeringOperationInstance objects from approved EngineeringOperation definitions.
+- EngineeringWorkflowInstance lifecycle must be supervised by EngineeringOrchestrator.
+- EngineeringWorkflowInstance lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
+- EngineeringWorkflowInstance must be deterministic and reproducible for identical EngineerIntent, EngineeringWorkflow and verified EngineeringContext.
+- New EngineeringWorkflowInstance behavior requires an approved domain contract before implementation.
+
+
 
 ##### Engineering Operation Model
 
@@ -6304,6 +6374,7 @@ Engineer
 → EngineerIntent
 → EngineeringOrchestrator
 → EngineeringWorkflow
+→ EngineeringWorkflowInstance
 → EngineeringOperation
 → EngineeringOperationInstance
 → EngineeringServiceCapabilityRegistry
@@ -6321,6 +6392,7 @@ Responsibility separation:
 - Engineer defines engineering intent.
 - EngineeringOrchestrator selects and supervises an approved EngineeringWorkflow until completion or termination.
 - EngineeringWorkflow defines deterministic EngineeringOperation sequence.
+- EngineeringWorkflowInstance represents concrete EngineeringWorkflow execution and owns EngineeringOperationInstance objects.
 - EngineeringOperation defines approved atomic executable workflow steps.
 - EngineeringOperationInstance represents concrete EngineeringOperation execution within a workflow run.
 - EngineeringServiceCapabilityRegistry exposes approved service capabilities for EngineeringOperationInstance execution.
@@ -6336,8 +6408,9 @@ Responsibility separation:
 Rules:
 
 - Every runtime component must have exactly one architectural responsibility.
-- EngineeringOrchestrator must coordinate EngineeringOperationInstance execution but must not execute engineering logic.
+- EngineeringOrchestrator must coordinate EngineeringWorkflowInstance execution and supervise EngineeringOperationInstance execution but must not execute engineering logic.
 - EngineeringWorkflow must define execution flow but must not implement engineering services.
+- EngineeringWorkflowInstance must preserve workflow runtime state but must not execute engineering service logic.
 - EngineeringService must execute approved EngineeringOperationInstance steps through EngineeringServiceContract but must not coordinate workflow execution.
 - EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
 - RegistryTransaction must be the only entry point for Registry modification.
