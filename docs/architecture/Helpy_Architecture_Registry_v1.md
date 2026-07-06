@@ -6367,6 +6367,67 @@ Rules:
 - Service replacement must not require EngineeringWorkflow redesign if the approved contract is preserved.
 - New EngineeringServiceContract behavior requires an approved domain contract before implementation.
 
+##### Engineering Service Contract Payload Model
+
+Status: APPROVED
+
+EngineeringServiceContractPayload defines the canonical typed payload boundary for EngineeringServiceContract execution.
+
+EngineeringServiceContractPayload is not an EngineeringService.
+
+EngineeringServiceContractPayload is not EngineeringOperationInstance.
+
+EngineeringServiceContractPayload does not execute engineering logic.
+
+EngineeringServiceContractPayload is based on:
+- EngineeringOperationInstance;
+- EngineeringServiceContract;
+- EngineeringServiceInput;
+- EngineeringServiceOutput;
+- EngineeringServiceFailure;
+- RegistryTransaction when Registry modification is involved;
+- AuditLog when traceability is required.
+
+EngineeringServiceInput responsibilities:
+- represent typed input passed from EngineeringOperationInstance to EngineeringService;
+- preserve resolved operation input;
+- preserve required EngineeringContext references;
+- preserve RegistryEntity and RegistryPath references when applicable;
+- preserve RegistryTransaction participation when Registry modification is involved.
+
+EngineeringServiceOutput responsibilities:
+- represent typed output returned by EngineeringService;
+- preserve deterministic service result;
+- preserve produced Registry modification artifacts when applicable;
+- preserve service warnings when applicable;
+- preserve traceability references for AuditLog.
+
+EngineeringServiceFailure responsibilities:
+- represent typed service execution failure;
+- preserve failure kind;
+- preserve failure reason;
+- preserve affected RegistryEntity and RegistryPath references when applicable;
+- preserve whether execution can continue;
+- preserve whether engineer decision is required.
+
+EngineeringServiceContractPayload must not:
+- use untyped dynamic payloads;
+- use generic Map payloads as the domain contract;
+- hide service side effects;
+- bypass EngineeringServiceContract;
+- bypass EngineeringOperationInstance;
+- bypass RegistryTransaction when Registry modification is involved;
+- replace AuditLog.
+
+Rules:
+- Every EngineeringServiceContract must define typed EngineeringServiceInput and EngineeringServiceOutput.
+- Every executable EngineeringServiceContract must define typed EngineeringServiceFailure.
+- EngineeringOperationInstance must pass data to EngineeringService only through EngineeringServiceInput.
+- EngineeringService must return data only through EngineeringServiceOutput or EngineeringServiceFailure.
+- EngineeringServiceInput, EngineeringServiceOutput and EngineeringServiceFailure must be deterministic and reproducible for identical EngineeringOperationInstance and verified EngineeringContext.
+- Registry modification artifacts produced by EngineeringServiceOutput must enter DraftWorkspace before publication flow proceeds.
+- New EngineeringServiceContractPayload behavior requires an approved domain contract before implementation.
+
 ##### Engineering Service Model
 
 Status: APPROVED
