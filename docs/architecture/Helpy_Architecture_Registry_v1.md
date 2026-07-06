@@ -5702,7 +5702,7 @@ Rules:
 
 Status: APPROVED
 
-RegistryCoverage defines the canonical engineering service for measuring completeness of the Registry domain model.
+RegistryCoverage defines the canonical coverage analysis component for measuring completeness of the Registry domain model.
 
 RegistryCoverage is not the same as Validation.
 
