@@ -6518,7 +6518,7 @@ Responsibility separation:
 - EngineeringOperation defines approved atomic executable workflow steps.
 - EngineeringOperationInstance represents concrete EngineeringOperation execution within a workflow run.
 - EngineeringServiceCapabilityRegistry exposes approved service capabilities for EngineeringOperationInstance execution.
-- EngineeringServiceContract defines interaction boundaries between architectural components.
+- EngineeringServiceContract defines interaction boundary between EngineeringOperationInstance and EngineeringService.
 - EngineeringService executes engineering logic independently through its approved EngineeringServiceContract.
 - RegistryTransaction governs every Registry modification.
 - ImpactAnalysis evaluates engineering impact before publication.
