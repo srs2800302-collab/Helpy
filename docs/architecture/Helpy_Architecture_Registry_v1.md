@@ -5940,10 +5940,10 @@ EngineeringOrchestrator is based on:
 
 EngineeringOrchestrator responsibilities:
 - initiate and supervise EngineeringWorkflowInstance execution;
-- determine EngineeringWorkflowInstance execution order;
-- determine EngineeringWorkflowInstance stop conditions;
+- apply EngineeringWorkflow execution order through EngineeringWorkflowInstance;
+- apply EngineeringWorkflow stop conditions through EngineeringWorkflowInstance;
 - supervise EngineeringOperationInstance handoff;
-- preserve workflow execution state through EngineeringExecutionContext;
+- preserve workflow execution context through EngineeringExecutionContext;
 - create RegistryTransaction when required;
 - ensure deterministic EngineeringWorkflowInstance execution.
 
