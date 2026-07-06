@@ -6498,6 +6498,15 @@ EngineeringServiceContractPayload is based on:
 - RegistryTransaction when Registry modification is involved;
 - AuditLog when traceability is required.
 
+EngineeringServiceInput defines the canonical typed input passed from EngineeringOperationInstance to EngineeringService.
+
+EngineeringServiceInput is based on:
+- EngineeringOperationInstance;
+- EngineeringServiceContract;
+- EngineeringContext;
+- RegistryEntity and RegistryPath when applicable;
+- RegistryTransaction when Registry modification is involved.
+
 EngineeringServiceInput responsibilities:
 - represent typed input passed from EngineeringOperationInstance to EngineeringService;
 - preserve resolved operation input;
@@ -6505,12 +6514,31 @@ EngineeringServiceInput responsibilities:
 - preserve RegistryEntity and RegistryPath references when applicable;
 - preserve RegistryTransaction participation when Registry modification is involved.
 
+EngineeringServiceOutput defines the canonical typed successful result returned by EngineeringService.
+
+EngineeringServiceOutput is based on:
+- EngineeringServiceContract;
+- EngineeringServiceInput;
+- produced Registry modification artifacts when applicable;
+- service warnings when applicable;
+- AuditLog traceability references.
+
 EngineeringServiceOutput responsibilities:
 - represent typed output returned by EngineeringService;
 - preserve deterministic service result;
 - preserve produced Registry modification artifacts when applicable;
 - preserve service warnings when applicable;
 - preserve traceability references for AuditLog.
+
+EngineeringServiceFailure defines the canonical typed failure result returned by EngineeringService.
+
+EngineeringServiceFailure is based on:
+- EngineeringServiceContract;
+- EngineeringServiceInput;
+- failure kind;
+- failure reason;
+- affected RegistryEntity and RegistryPath when applicable;
+- engineer decision requirement when applicable.
 
 EngineeringServiceFailure responsibilities:
 - represent typed service execution failure;
