@@ -5872,7 +5872,7 @@ EngineerIntent is not an EngineeringWorkflow.
 
 EngineerIntent does not define how engineering work will be executed.
 
-EngineerIntent exists only to express what the engineer intends to accomplish in a form that EngineeringOrchestrator can evaluate.
+EngineerIntent exists only to express what the engineer intends to accomplish in a form that EngineeringWorkflowResolver can evaluate.
 
 EngineeringWorkflowResolver selects the appropriate EngineeringWorkflow after EngineerIntent is normalized and verified.
 
@@ -6604,6 +6604,7 @@ Canonical execution flow:
 
 Engineer
 → EngineerIntent
+→ EngineeringContext
 → EngineeringWorkflowResolver
 → EngineeringWorkflow
 → EngineeringOrchestrator
@@ -6625,6 +6626,7 @@ Engineer
 Responsibility separation:
 
 - Engineer defines engineering intent.
+- EngineeringContext provides verified Registry context for engineering decisions.
 - EngineeringWorkflowResolver selects one approved EngineeringWorkflow for normalized EngineerIntent.
 - EngineeringWorkflow defines deterministic EngineeringOperation sequence.
 - EngineeringOrchestrator receives resolved EngineeringWorkflow, creates EngineeringExecutionContext and supervises EngineeringWorkflowInstance until completion or termination.
