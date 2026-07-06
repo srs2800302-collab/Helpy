@@ -4466,10 +4466,10 @@ RegistryTransaction responsibilities:
 - group related Registry modifications;
 - preserve affected RegistryEntity and RegistryPath references;
 - preserve dependency and impact visibility;
-- preserve validation result;
-- preserve PublishingGate decision;
+- preserve ValidationResult;
+- preserve PublishingGateDecision;
 - preserve administrator approval state;
-- preserve publication result;
+- preserve PublicationResult;
 - preserve rollback reference when applicable;
 - provide traceability for AuditLog.
 
@@ -5315,12 +5315,12 @@ PublishingGate is responsible for:
 - verifying publication readiness;
 - verifying CLEAN state;
 - verifying blocking dependencies;
-- verifying validation results;
+- verifying ValidationResult;
 - verifying impact assessment;
 - verifying snapshot availability;
-- producing deterministic publication decisions.
+- producing deterministic PublishingGateDecision.
 
-Publishing decisions:
+PublishingGateDecision:
 - APPROVED;
 - APPROVED_WITH_WARNINGS;
 - BLOCKED;
@@ -5331,8 +5331,8 @@ Rules:
 - PublishingGate must execute after Validation and ImpactAnalysis.
 - BLOCKED and REJECTED decisions must prevent publication.
 - PublishingGate must provide deterministic and explainable decisions.
-- PublishingGate decisions must identify blocking RegistryEntity objects whenever applicable.
-- PublishingGate decisions must be traceable through RegistryTransaction and AuditLog.
+- PublishingGateDecision must identify blocking RegistryEntity objects whenever applicable.
+- PublishingGateDecision must be traceable through RegistryTransaction and AuditLog.
 - PublishingGate must not modify Registry directly.
 - PublishingGate must verify CLEAN state before publication.
 - PublishingGate behavior must not depend on storage implementation.
@@ -5417,10 +5417,10 @@ AuditLog must record:
 - affected RegistryPath values;
 - created RegistrySnapshot identity when applicable;
 - ImpactAnalysis summary;
-- Validation result;
-- PublishingGate decision;
+- ValidationResult;
+- PublishingGateDecision;
 - RiskClassification summary;
-- publication result;
+- PublicationResult;
 - rollback reference when applicable.
 
 AuditLog action types:
