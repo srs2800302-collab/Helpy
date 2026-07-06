@@ -6425,7 +6425,7 @@ Rules:
 
 Status: APPROVED
 
-EngineeringServiceCapabilityRegistry defines the canonical discovery model for available Engineering Services and their approved EngineeringServiceContract capabilities.
+EngineeringServiceCapabilityRegistry defines the canonical discovery model for approved EngineeringServiceContract capabilities.
 
 EngineeringServiceCapabilityRegistry is not an Engineering Service.
 
@@ -6444,12 +6444,12 @@ EngineeringServiceCapabilityRegistry is based on:
 
 EngineeringServiceCapabilityRegistry responsibilities:
 - register approved EngineeringServiceContract capabilities;
-- expose available Engineering Services to EngineeringOrchestrator;
+- expose available EngineeringServiceContract capabilities to EngineeringOrchestrator;
 - map EngineeringOperation kind to approved EngineeringServiceContract;
 - expose service preconditions;
 - expose service failure states;
 - expose service availability;
-- support future Engineering Service registration without EngineeringOrchestrator redesign.
+- support future EngineeringServiceContract capability registration without EngineeringOrchestrator redesign.
 
 EngineeringServiceCapabilityRegistry must not:
 - execute EngineeringOperation logic;
@@ -6462,7 +6462,7 @@ EngineeringServiceCapabilityRegistry must not:
 
 Rules:
 - EngineeringOrchestrator must use EngineeringServiceCapabilityRegistry to discover available EngineeringServiceContract capabilities.
-- New Engineering Services must register approved EngineeringServiceContract capabilities before they can be used by EngineeringOrchestrator.
+- New EngineeringServiceContract capabilities must be registered before they can be discovered by EngineeringOrchestrator.
 - Each EngineeringOperation kind must resolve to exactly one approved EngineeringServiceContract capability.
 - Duplicate capability registration for the same EngineeringOperation kind must not be allowed.
 - Capability registration must be completed before runtime discovery is allowed.
