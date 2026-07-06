@@ -5978,7 +5978,7 @@ Rules:
 - EngineeringWorkflow must be selected by EngineeringOrchestrator.
 - EngineeringWorkflow lifecycle must be supervised only by EngineeringOrchestrator.
 - EngineeringWorkflow must define execution flow but must not execute engineering services.
-- EngineeringWorkflow must reference approved EngineeringServiceContract only.
+- EngineeringWorkflow must reference EngineeringOperation objects only.
 - EngineeringWorkflow must preserve architectural responsibility boundaries.
 - EngineeringWorkflow must be deterministic and reproducible for identical EngineerIntent and verified context.
 - EngineeringWorkflow lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
