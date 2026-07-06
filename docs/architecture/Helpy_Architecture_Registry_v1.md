@@ -5294,6 +5294,42 @@ Rules:
 
 
 
+##### Risk Classification Model
+
+Status: APPROVED
+
+RiskClassification defines the canonical engineering risk assessment for proposed Registry changes before publication.
+
+RiskClassification is based on:
+- ImpactAnalysis;
+- ValidationResult;
+- RegistryDependency;
+- affected RegistryEntity objects;
+- affected RegistryPath references.
+
+RiskClassification levels:
+- NONE;
+- LOW;
+- MEDIUM;
+- HIGH;
+- CRITICAL;
+- BLOCKING.
+
+RiskClassification responsibilities:
+- classify engineering risk before publication;
+- identify blocking risk when applicable;
+- preserve affected RegistryEntity and RegistryPath references;
+- provide RiskClassificationSummary for AuditLog;
+- provide risk context for PublishingGate.
+
+Rules:
+- RiskClassification must be computed from verified Registry domain data.
+- RiskClassification must be deterministic and explainable.
+- BLOCKING risk must prevent publication until resolved or explicitly reviewed.
+- RiskClassification must be traceable through RegistryTransaction and AuditLog.
+- New RiskClassification behavior requires an approved domain contract before implementation.
+
+
 ##### Publishing Gate Model
 
 Status: APPROVED
