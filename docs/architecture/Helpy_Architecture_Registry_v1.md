@@ -5609,7 +5609,7 @@ Rules:
 
 Status: APPROVED
 
-DependencyExplorer defines the canonical engineering service for exploring Registry dependencies and engineering impact paths.
+DependencyExplorer defines the canonical dependency navigation component for exploring Registry dependencies and engineering impact paths.
 
 DependencyExplorer is not a search engine.
 
