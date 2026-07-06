@@ -4668,6 +4668,7 @@ Core model:
 - RegistryEntityKind;
 - RegistryEntityPayload;
 - EngineeringAsset;
+- RegistryTransaction;
 - RegistryPath;
 - RegistryRelation;
 - RegistryDependency;
@@ -6503,8 +6504,9 @@ EngineeringService executes engineering logic only through its approved Engineer
 EngineeringService is based on:
 - EngineeringServiceContract;
 - EngineeringServiceCapabilityRegistry;
-- EngineeringOperation input;
-- EngineeringOperation output;
+- EngineeringServiceInput;
+- EngineeringServiceOutput;
+- EngineeringServiceFailure;
 - service preconditions;
 - service failure states;
 - RegistryTransaction when Registry modification is involved;
