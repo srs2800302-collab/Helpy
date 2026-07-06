@@ -5966,7 +5966,7 @@ Rules:
 - EngineeringOrchestrator must coordinate EngineeringWorkflowInstance execution through EngineeringExecutionContext and approved contracts.
 - EngineeringOrchestrator must know approved EngineeringServiceContract capabilities through EngineeringServiceCapabilityRegistry, not service implementation details.
 - Engineering services must not depend on EngineeringOrchestrator.
-- New Engineering Services must be discoverable by EngineeringOrchestrator through approved EngineeringServiceContract registration.
+- New EngineeringServiceContract capabilities must be discoverable by EngineeringOrchestrator through approved capability registration.
 - EngineeringOrchestrator must remain independent of storage implementation.
 - EngineeringOrchestrator workflow execution must be deterministic and reproducible.
 - New EngineeringOrchestrator behavior requires an approved domain contract before implementation.
@@ -6386,7 +6386,7 @@ EngineeringService is based on:
 - EngineeringServiceCapabilityRegistry;
 - EngineeringOperation input;
 - EngineeringOperation output;
-- capability preconditions;
+- service preconditions;
 - service failure states;
 - RegistryTransaction when Registry modification is involved;
 - AuditLog when traceability is required.
@@ -6513,7 +6513,7 @@ Responsibility separation:
 - EngineeringWorkflowInstance represents concrete EngineeringWorkflow execution and owns EngineeringOperationInstance objects.
 - EngineeringOperation defines approved atomic executable workflow steps.
 - EngineeringOperationInstance represents concrete EngineeringOperation execution within a workflow run.
-- EngineeringServiceCapabilityRegistry exposes approved service capabilities for EngineeringOperationInstance execution.
+- EngineeringServiceCapabilityRegistry exposes approved EngineeringServiceContract capabilities for EngineeringOperationInstance execution.
 - EngineeringServiceContract defines interaction boundary between EngineeringOperationInstance and EngineeringService.
 - EngineeringService executes engineering logic independently through its approved EngineeringServiceContract.
 - RegistryTransaction governs every Registry modification.
