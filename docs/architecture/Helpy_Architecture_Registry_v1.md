@@ -5810,7 +5810,7 @@ Rules:
 
 Status: APPROVED
 
-EngineeringContext defines the canonical engineering service for reconstructing sufficient Registry context required for safe engineering decisions.
+EngineeringContext defines the canonical engineering context provider for reconstructing sufficient Registry context required for safe engineering decisions.
 
 EngineeringContext is not a search engine.
 
