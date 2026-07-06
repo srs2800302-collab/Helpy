@@ -6402,6 +6402,12 @@ Reserved:
 - Finance Manager
 - Moderator
 
+Registry Studio engineering roles are reserved for a future dedicated contract.
+
+Operational Admin Panel roles and Registry Studio engineering roles define different responsibility domains.
+
+An approved administrative role, for example Super Admin, may be granted responsibilities in both domains through approved access-control contracts.
+
 ### Chat Lifecycle / Attachment Rules Builder
 
 Admin can configure:
