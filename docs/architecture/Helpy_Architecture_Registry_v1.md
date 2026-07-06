@@ -6128,6 +6128,7 @@ Phase 2: Engineering Governance
 - Audit Log.
 
 Phase 3: Engineering Services
+- Engineering Service Contract;
 - Dependency Explorer;
 - Engineering Context;
 - Rules Simulator;
