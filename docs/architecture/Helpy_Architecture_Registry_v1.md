@@ -5401,7 +5401,7 @@ BulkOperations defines the canonical engineering service for applying determinis
 
 BulkOperations is not responsible for engineering decisions.
 
-BulkOperations orchestrates approved engineering workflows.
+BulkOperations executes approved bulk engineering operations through RegistryTransaction and approved engineering service contracts.
 
 BulkOperations is based on:
 - RegistryEntity;
@@ -5866,18 +5866,22 @@ EngineeringOrchestrator is not an engineering service.
 EngineeringOrchestrator coordinates engineering services through approved service contracts.
 
 EngineeringOrchestrator is based on:
+- EngineerIntent;
+- EngineeringWorkflow;
+- EngineeringServiceContract;
 - EngineeringContext;
-- DependencyExplorer;
-- RulesSimulator;
-- ImpactAnalysis;
-- Validation;
-- RegistryCoverage;
-- BulkOperations;
-- GlobalRename;
-- PublishingGate;
-- DraftWorkspace;
-- RegistryTransaction;
-- AuditLog.
+- approved engineering service capabilities:
+  - DependencyExplorer;
+  - RulesSimulator;
+  - ImpactAnalysis;
+  - Validation;
+  - RegistryCoverage;
+  - BulkOperations;
+  - GlobalRename;
+  - PublishingGate;
+- DraftWorkspace when Registry modification is required;
+- RegistryTransaction when Registry modification is required;
+- AuditLog when traceability is required.
 
 EngineeringOrchestrator responsibilities:
 - initiate and supervise approved EngineeringWorkflow execution;
