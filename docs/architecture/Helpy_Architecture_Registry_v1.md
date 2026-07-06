@@ -5416,10 +5416,10 @@ AuditLog must record:
 - affected RegistryEntity objects;
 - affected RegistryPath values;
 - created RegistrySnapshot identity when applicable;
-- ImpactAnalysis summary;
+- ImpactAnalysisSummary;
 - ValidationResult;
 - PublishingGateDecision;
-- RiskClassification summary;
+- RiskClassificationSummary;
 - PublicationResult;
 - rollback reference when applicable.
 
