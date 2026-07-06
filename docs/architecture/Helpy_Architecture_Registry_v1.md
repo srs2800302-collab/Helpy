@@ -6342,26 +6342,26 @@ EngineeringServiceContract responsibilities:
 - define traceability requirements;
 - define whether RegistryTransaction participation is required.
 
-EngineeringService must:
+EngineeringServiceContract must require EngineeringService to:
 - implement exactly one approved EngineeringServiceContract;
-- execute only its approved engineering capability;
+- execute only the approved engineering capability;
 - return deterministic and reproducible results;
 - expose failures through the approved output contract;
 - remain independent of EngineeringWorkflow, EngineeringOperation and EngineeringOrchestrator.
 
-EngineeringService must not:
-- select EngineeringWorkflow;
-- coordinate workflow execution;
-- call EngineeringOrchestrator;
-- bypass EngineeringServiceContract;
-- modify Published Registry directly;
-- bypass RegistryTransaction when Registry modification is involved;
-- hide engineering side effects;
-- become universal engineering utilities.
+EngineeringServiceContract must prohibit EngineeringService from:
+- selecting EngineeringWorkflow;
+- coordinating workflow execution;
+- calling EngineeringOrchestrator;
+- bypassing EngineeringServiceContract;
+- modifying Published Registry directly;
+- bypassing RegistryTransaction when Registry modification is involved;
+- hiding engineering side effects;
+- becoming a universal engineering utility.
 
 Rules:
-- EngineeringWorkflow must reference EngineeringOperation objects with approved EngineeringServiceContract bindings.
-- EngineeringOrchestrator must invoke Engineering Services only through EngineeringServiceContract capabilities discovered through EngineeringServiceCapabilityRegistry.
+- EngineeringServiceContract binding must be declared by approved EngineeringOperation definitions.
+- EngineeringServiceContract capabilities must be discoverable through EngineeringServiceCapabilityRegistry before runtime use.
 - EngineeringServiceContract must remain independent of service implementation details.
 - EngineeringServiceContract must remain independent of storage implementation.
 - Service replacement must not require EngineeringWorkflow redesign if the approved contract is preserved.
