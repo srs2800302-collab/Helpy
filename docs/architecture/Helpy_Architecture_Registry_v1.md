@@ -5401,7 +5401,7 @@ BulkOperations defines the canonical engineering service for applying determinis
 
 BulkOperations is not responsible for engineering decisions.
 
-BulkOperations orchestrates approved engineering workflows.
+BulkOperations executes approved deterministic bulk operation steps within an EngineeringWorkflow.
 
 BulkOperations is based on:
 - RegistryEntity;
