@@ -6779,7 +6779,9 @@ Rules Simulator:
 Admin can simulate what the client or master will see for a selected role, category, subcategory, structured scope, form step, language, pricing rule, photo requirement, client rules, master rules, guidance rule, role-based guidance and workflow state.
 
 Purpose:
-- Prove behavior before publication.
+- Evaluate adapter-defined expected behavior before publication; its trace
+  becomes publication evidence only when a validation extension includes it
+  in ValidationResult.
 - Reduce APK rebuilds.
 - Prevent broken category/form/pricing/guidance combinations.
 
@@ -6823,7 +6825,9 @@ real users. SANDBOX does not create RegistryTransaction or publication evidence.
 Purpose:
 - Separate draft experiments from production.
 - Test future service logic safely.
-- Support controlled Admin Panel rollout.
+- Support controlled Admin Panel experimentation; promotion uses a new instance
+  of the existing DraftWorkspace with purpose = PUBLISHING_DRAFT, seeded from
+  the exact SANDBOX revision and fingerprint.
 
 Search Everywhere:
 Admin can search across categories, subcategories, questions, photo requirements, pricing rules, guidance, translations, notes and platform settings.
