@@ -6370,32 +6370,37 @@ RegistryRelation:
 - has no separate RegistryEntityPayload;
 - must be derived from approved semantic contracts, not Markdown hierarchy alone.
 
-Only one canonical direction may be persisted for one semantic fact.
+Only one canonical directed RegistryRelation record may be persisted for one semantic fact.
 
-Reverse traversal must be computed by RegistryGraph.
+Reverse traversal, inverse display labels and reverse dependency navigation must be derived by RegistryGraph. They must not create a second persisted semantic fact.
 
-The following mirrored persisted relation kinds must be removed:
+Registry Studio Core does not own a closed enumeration of concrete RegistryRelation kinds.
 
-- parentOf / childOf;
-- references / referencedBy;
-- bindsTo / boundBy.
+Core provides:
 
-Minimal universal Core relation semantics:
+- source and target RegistryEntity identity;
+- one canonical directed semantic edge;
+- deterministic relation identity;
+- adapter-defined typed qualifiers when required;
+- deterministic forward and reverse traversal;
+- path provenance and explainable graph traversal;
+- inverse derivation without persisted duplicate edges;
+- cycle detection.
 
-- contains;
-- references;
-- inherits;
-- overrides.
+Each project adapter must define for every concrete relation kind:
 
-The following relation semantics are adapter-defined or deferred until strict universal meaning is approved:
+- stable kind identifier;
+- adapter semantic-contract version;
+- semantic meaning;
+- qualifier schema when required;
+- impact propagation behavior;
+- validation constraints;
+- cycle policy;
+- inverse and display interpretation when required.
 
-- belongsTo;
-- bindsTo;
-- extends;
-- specializes;
-- triggers;
-- follows;
-- precedes.
+No pair of inverse adapter labels may be persisted as separate RegistryRelation records for the same semantic fact.
+
+Relation labels such as contains, references, inherits, overrides, belongsTo, bindsTo, extends, specializes, triggers, follows and precedes may exist as adapter-defined semantics only. They are not a closed Registry Studio Core enum.
 
 RegistryDependency:
 
@@ -6425,10 +6430,10 @@ Only direct confirmed dependencies and indirect impacts enter deterministic impa
 
 Cycle rules:
 
-- structural containment cycles are validation failures;
-- inheritance and override cycles are validation failures;
-- reference cycles are adapter-defined;
-- graph traversal must detect cycles, stop deterministically and explain the path.
+- each project adapter must declare cycle policy for every concrete RegistryRelation kind;
+- cycle policy must state whether a cycle is prohibited, allowed or allowed only with explicit traversal constraints;
+- Validation must enforce declared adapter cycle policy for the exact Registry revision;
+- RegistryGraph must detect cycles, stop traversal deterministically when a configured traversal reaches a cycle and explain the complete path.
 
 ###### 11. Application Service Decisions
 
@@ -6611,7 +6616,6 @@ The following decisions remain open and must not be invented during implementati
 
 | Open question | Required decision |
 |---|---|
-| Universal relation set | Strict meaning for deferred relation kinds |
 | Repository shape | One composite port or separated state/governance persistence boundaries |
 | Dynamic capability registry | Real plugin installation or replacement scenario before modeling |
 
@@ -6622,7 +6626,7 @@ The following Registry Studio blocks must be rewritten as one coordinated archit
 - RegistryTransaction and TransactionPayload;
 - Registry Studio Domain Model and RegistryEntityKind;
 - RegistrySnapshot and RegistryEntityPayload taxonomy;
-- RegistryGraph and RegistryRepository;
+- RegistryRelation, RegistryDependency, RegistryGraph and RegistryRepository;
 - Engineering Change Analysis, ImpactAnalysis, Validation, RiskClassification, PublishingGate, PublicationResult and Rollback;
 - DraftWorkspace and AuditLog;
 - BulkOperations, GlobalRename, RulesSimulator, RegistryCoverage and SandboxMode;
