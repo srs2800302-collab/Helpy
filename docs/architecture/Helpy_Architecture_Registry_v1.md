@@ -6135,28 +6135,55 @@ After any DraftWorkspace modification:
 
 RegistrySnapshot:
 
-- is immutable after creation;
-- has independent identity;
-- records verified Registry state at a specific point in time;
-- supports comparison, audit, publication evidence and recovery preparation;
+- is an immutable governance record for one exact verified Registry revision;
+- has independent snapshot identity;
 - is not a storage backup;
 - is not a second editable Registry source of truth;
+- is not a RegistryEntity;
 - is not a RegistryGraph node;
-- has no separate Domain payload model.
+- has no separate Domain payload model;
+- pins semantic state required to compare history, explain impact, preserve audit evidence and prepare governed recovery.
 
-RegistrySnapshot provenance must include:
+RegistrySnapshot must contain:
 
+- snapshot identity;
 - Registry identity;
-- source revision or content fingerprint;
-- creation reason;
+- snapshot revision reference;
+- deterministic semantic fingerprint;
 - creation timestamp;
+- creation reason;
 - adapter identity;
 - adapter semantic-contract version;
-- verification evidence references when attached.
+- RegistryEntityKind and RegistryEntityPayload schema versions required to interpret pinned semantic state;
+- exact pinned canonical semantic state composed of RegistryEntity identity, adapter-defined kind, typed semantic content, RegistryPath and RegistryRelation;
+- immutable verification or publication evidence references when applicable.
 
-Entity indexes, relation indexes and dependency indexes may exist only as pinned or reproducible materialized representations of the snapshot state. They must not become independently editable semantic truth.
+RegistrySnapshot must not own as canonical snapshot state:
 
-RegistryGraph and RegistryDependency projections must be reproducible for the exact RegistrySnapshot or DraftWorkspace revision to which they belong.
+- RegistryGraph;
+- RegistryDependency;
+- ValidationResult state;
+- RiskAssessment;
+- DraftWorkspace DIRTY / CLEAN state;
+- AuditLog contents;
+- runtime state.
+
+Entity indexes and relation indexes may exist only as pinned or reproducible materialized lookup representations of snapshot semantic state. They must not become independently editable semantic truth.
+
+RegistryDependency is always derived for the exact RegistrySnapshot revision and adapter semantic-contract version. It must not be stored as canonical Snapshot state.
+
+ValidationResult is immutable evidence for a specific verification run. A RegistrySnapshot may reference such evidence when applicable, but must not own current validation state.
+
+Snapshot lifecycle:
+
+- source RegistrySnapshot must exist before DraftWorkspace begins mutable change preparation;
+- DraftWorkspace owns mutable draft revision and draft fingerprint;
+- successful publication creates resulting RegistrySnapshot for the new published semantic state;
+- failed, blocked or cancelled publication does not create resulting published RegistrySnapshot;
+- DraftWorkspace owns CLEAN verification;
+- RegistrySnapshot provides immutable source and resulting state evidence only.
+
+RegistrySnapshot comparison must expose changed, added, removed and affected RegistryEntity objects, RegistryPath values and RegistryRelation records through pinned semantic state.
 
 ###### 7. Analysis, Validation and Publication Decisions
 
@@ -6517,7 +6544,6 @@ The following decisions remain open and must not be invented during implementati
 
 | Open question | Required decision |
 |---|---|
-| RegistrySnapshot representation | Exact boundary between pinned state and reproducible materialization |
 | SandboxMode | Workspace purpose/mode or separate workspace type |
 | RulesSimulator | Independent capability or Analysis Engine component |
 | Universal relation set | Strict meaning for deferred relation kinds |
