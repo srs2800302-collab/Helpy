@@ -5820,6 +5820,683 @@ Rules:
 
 
 
+##### Registry Studio Architecture Audit Decision Register
+
+Status: APPROVED — ARCHITECTURE CORRECTION BASELINE
+
+Purpose:
+
+This register records the architectural audit decisions required before further Registry Studio expansion.
+
+Registry Studio must not continue adding domain models, payload models, result contracts, runtime components or platform capabilities until the current responsibility boundaries are applied consistently.
+
+Precedence:
+
+- This register has priority over earlier Registry Studio descriptions when they conflict.
+- Legacy models, taxonomy lists and cross-references that contradict this register must not be used as a basis for new implementation.
+- Existing contracts remain subject to targeted reclassification, merge, relocation or removal according to the decisions below.
+- Required product capability does not automatically require a new Registry entity, payload, result contract, service model or runtime aggregate.
+- A separate model is allowed only when an existing owner cannot legally hold the responsibility without mixing identity, lifecycle, ownership or architectural boundaries.
+
+Audit criteria:
+
+Every Registry Studio candidate model must prove:
+
+- independent identity;
+- independent lifecycle;
+- explicit lifecycle owner;
+- required RegistryGraph participation;
+- required typed payload;
+- non-duplication of an existing responsibility;
+- storage independence;
+- project independence when proposed for Registry Studio Core;
+- stable behavior across Registry revisions, adapter upgrades and workflow changes.
+
+###### 1. Target Platform Boundary
+
+Registry Studio Core:
+
+- reusable engineering foundation for Registry-based domain models;
+- Registry domain contracts;
+- governance contracts;
+- analysis execution contracts;
+- repository boundaries;
+- runtime execution abstractions;
+- storage-independent engineering services.
+
+Project Adapter:
+
+- RegistryEntityKind definitions;
+- RegistryEntityPayload schemas;
+- business semantics;
+- validation extensions;
+- relation and dependency semantics;
+- workflow definitions;
+- guidance;
+- project metadata;
+- project-specific migration and compatibility rules.
+
+Application Services:
+
+- graph traversal;
+- analysis;
+- validation;
+- simulation;
+- semantic refactoring;
+- deterministic change planning.
+
+Runtime:
+
+- confirmed engineering workflow execution;
+- step execution;
+- handler binding;
+- engineer decision points;
+- deterministic stop, resume and completion behavior.
+
+Governance:
+
+- DraftWorkspace;
+- RegistryTransaction;
+- immutable RegistrySnapshot;
+- publication governance;
+- audit records;
+- governed recovery transactions.
+
+###### 2. Core Registry Domain Decisions
+
+| Object | Decision | Canonical role |
+|---|---|---|
+| Registry | retain / define missing contract | Registry root source of truth with stable identity and revision boundary |
+| RegistryEntity | retain | Semantic Registry unit |
+| RegistryEntityKind | retain / reclassify | Core extension contract; concrete kinds belong to project adapters |
+| RegistryEntityPayload | retain / reclassify | Typed adapter-defined semantic content for RegistryEntity |
+| RegistryPath | retain as value object | Canonical logical address of RegistryEntity |
+| RegistryRelation | retain / reclassify | Canonical directed semantic edge |
+| RegistryDependency | retain / reclassify | Derived explainable impact edge |
+| RegistryGraph | retain / reclassify | Derived projection of a specific Registry revision |
+| RegistryRepository | retain / narrow | Storage port for canonical Registry state |
+| EngineeringAsset | remove | Orphaned abstraction with no independent responsibility or consumers |
+
+RegistryEntity:
+
+- has stable identity;
+- has exactly one primary adapter-defined RegistryEntityKind;
+- owns one canonical RegistryPath;
+- contains typed adapter-defined semantic content;
+- participates in semantic RegistryRelation objects;
+- does not own Draft / Published lifecycle;
+- does not own validation state;
+- does not own impact or risk state;
+- does not own transaction lifecycle;
+- does not own audit history;
+- does not own runtime execution state.
+
+RegistryPath:
+
+- is not a RegistryEntity;
+- is not a RegistryGraph node;
+- has no independent payload;
+- belongs to RegistryEntity;
+- remains stable while entity identity is preserved;
+- must not depend on Markdown lines, headings, offsets, parser details or storage identifiers.
+
+###### 3. RegistryEntityKind and RegistryEntityPayload Boundary
+
+Registry Studio Core retains only:
+
+- RegistryEntityKind extension contract;
+- RegistryEntityPayload extension contract;
+- typed payload requirement;
+- prohibition of untyped dynamic payloads;
+- analysis and validation support for adapter-defined kinds and payloads.
+
+Concrete RegistryEntityKind values belong to project adapters.
+
+The current Helpy semantic kinds must move to Helpy adapter ownership, including:
+
+- contract;
+- architectureGroup;
+- rootCategory;
+- category;
+- subcategory;
+- scenario;
+- section;
+- clientRule;
+- masterRule;
+- scenarioRule;
+- globalRule;
+- platformRule;
+- eligibilityRule;
+- dependencyRule;
+- translationRule;
+- question;
+- answerOption;
+- structuredScope;
+- photoRequirement;
+- photoLimit;
+- pricingRule;
+- guidance;
+- guidanceTrigger;
+- guidanceSlot;
+- adminDependency.
+
+The following items must be removed from RegistryEntityKind taxonomy because they are not Registry content:
+
+- draft;
+- publishedRevision;
+- changeSet;
+- transaction;
+- impactAnalysis;
+- dependencyAnalysis;
+- riskClassification;
+- validationResult;
+- healthCheck;
+- auditLog;
+- rollback;
+- snapshot;
+- featureFlag;
+- platformSetting;
+- builder;
+- workflow;
+- review.
+
+The corresponding concrete Helpy payload schemas must move to Helpy adapter ownership.
+
+The following items must be removed from RegistryEntityPayload taxonomy because they are governance records, analysis results, application capabilities, runtime contracts or UI concepts:
+
+- DraftPayload;
+- PublishedRevisionPayload;
+- ChangeSetPayload;
+- TransactionPayload;
+- ImpactAnalysisPayload;
+- DependencyAnalysisPayload;
+- RiskClassificationPayload;
+- ValidationResultPayload;
+- HealthCheckPayload;
+- AuditLogPayload;
+- RollbackPayload;
+- SnapshotPayload;
+- FeatureFlagPayload;
+- PlatformSettingPayload;
+- BuilderPayload;
+- WorkflowPayload;
+- ReviewPayload.
+
+Adapter provenance must be preserved for any snapshot, analysis, validation or audit evidence through:
+
+- adapter identity;
+- adapter semantic-contract version;
+- RegistryEntityKind schema version;
+- RegistryEntityPayload schema version.
+
+###### 4. Governance Core Decisions
+
+| Object | Decision | Canonical owner |
+|---|---|---|
+| RegistryTransaction | retain | Governed change lifecycle |
+| DraftWorkspace | retain / tighten | Draft state, work context and DIRTY / CLEAN state |
+| RegistrySnapshot | retain / reclassify | Immutable verified revision evidence |
+| AuditLog | retain / reclassify | Append-only immutable audit records |
+| TransactionPayload | remove from Domain | Data/API mapping boundary only |
+| SnapshotPayload | remove from Domain | Data/API mapping boundary only |
+| RollbackPayload | remove from Domain | Data/API mapping boundary only |
+| PublicationResult | remove as standalone model | Replaced by transaction-owned PublicationAttempt |
+| Rollback | reclassify | Governed recovery operation through a new RegistryTransaction |
+
+DraftWorkspace:
+
+- one DraftWorkspace has one active RegistryTransaction;
+- contains isolated mutable draft state;
+- references one source RegistrySnapshot;
+- owns draft revision and draft fingerprint;
+- owns DIRTY and CLEAN state;
+- preserves resumable engineering work context;
+- may be discarded without affecting Published Registry;
+- must not own transaction lifecycle;
+- must not own validation lifecycle;
+- must not own publication lifecycle.
+
+RegistryTransaction:
+
+- is the only governed lifecycle owner for one Registry modification;
+- preserves analysis, validation, approval and publication evidence;
+- preserves transaction outcome;
+- preserves audit references;
+- originates from DraftWorkspace;
+- must not own DraftWorkspace DIRTY / CLEAN state;
+- must not finish in CLEAN state;
+- must not change the historical outcome of an already published transaction.
+
+The current rollback-specific RegistryTransaction states must be removed:
+
+- ROLLBACK_PREPARED;
+- ROLLED_BACK.
+
+###### 5. Draft Revision Invalidation Rule
+
+Every DraftWorkspace modification creates a new draft revision.
+
+ImpactAnalysisResult, ValidationResult, derived RiskAssessment and PublishingGateDecision are valid only for the exact draft revision and source RegistrySnapshot used to produce them.
+
+After any DraftWorkspace modification:
+
+- previous ImpactAnalysisResult becomes stale;
+- previous ValidationResult becomes stale;
+- previous RiskAssessment becomes stale;
+- previous PublishingGateDecision becomes stale;
+- publication is prohibited until current revision evidence is recomputed.
+
+###### 6. RegistrySnapshot and Revision Ownership
+
+RegistrySnapshot:
+
+- is immutable after creation;
+- has independent identity;
+- records verified Registry state at a specific point in time;
+- supports comparison, audit, publication evidence and recovery preparation;
+- is not a storage backup;
+- is not a second editable Registry source of truth;
+- is not a RegistryGraph node;
+- has no separate Domain payload model.
+
+RegistrySnapshot provenance must include:
+
+- Registry identity;
+- source revision or content fingerprint;
+- creation reason;
+- creation timestamp;
+- adapter identity;
+- adapter semantic-contract version;
+- verification evidence references when attached.
+
+Entity indexes, relation indexes and dependency indexes may exist only as pinned or reproducible materialized representations of the snapshot state. They must not become independently editable semantic truth.
+
+RegistryGraph and RegistryDependency projections must be reproducible for the exact RegistrySnapshot or DraftWorkspace revision to which they belong.
+
+###### 7. Analysis, Validation and Publication Decisions
+
+| Object | Decision | Canonical role |
+|---|---|---|
+| Engineering Change Analysis | reclassify | Application use case |
+| ImpactAnalysis | retain / reclassify | Immutable assessment of one draft revision |
+| Validation | reclassify | Validation policy/service |
+| ValidationResult | retain as result value | Transaction-owned verification evidence |
+| RiskClassification | merge | Derived part of ImpactAnalysisResult |
+| PublishingGate | reclassify | Pure governance policy |
+| PublishingGateDecision | retain as result value | Decision for one current draft revision |
+| PublicationResult | remove standalone | Replaced by PublicationAttempt |
+
+Canonical flow:
+
+DraftWorkspace revision
+→ Engineering Change Analysis
+→ ImpactAnalysisResult
+→ ValidationResult
+→ derived RiskAssessment
+→ PublishingGateDecision
+→ PublicationAttempt
+→ Audit records
+
+Engineering Change Analysis:
+
+- is an application use case;
+- collects verified context;
+- creates explainable impact evidence;
+- is not a RegistryEntity;
+- is not a RegistryEntityPayload;
+- is not a persistent lifecycle owner.
+
+ImpactAnalysisResult:
+
+- belongs to one RegistryTransaction;
+- belongs to one exact DraftWorkspace revision;
+- references one source RegistrySnapshot;
+- identifies direct and indirect affected entities;
+- identifies relation and dependency paths;
+- exposes why each affected item is included;
+- distinguishes confirmed impact from semantic candidates and informational matches;
+- does not become a RegistryEntity;
+- does not require a separate RegistryEntityPayload model.
+
+Validation:
+
+- is a deterministic policy/service;
+- validates one exact DraftWorkspace revision;
+- may execute adapter-defined validation extensions;
+- must remain storage independent.
+
+ValidationResult:
+
+- is immutable verification evidence;
+- belongs to one RegistryTransaction and draft revision;
+- becomes stale after DraftWorkspace modification;
+- identifies affected entities and paths when validation fails or blocks publication.
+
+RiskAssessment:
+
+- is derived from current ImpactAnalysisResult and ValidationResult;
+- is advisory evidence for engineer decision-making;
+- is not a standalone RegistryEntity;
+- is not persistent dependency state;
+- must not duplicate a separate RiskClassification model.
+
+The duplicate standalone Risk Classification section must be removed during contract consolidation.
+
+PublishingGate:
+
+- is a pure governance policy;
+- does not own lifecycle state;
+- does not modify Registry;
+- evaluates only current non-stale evidence;
+- verifies that no newer unvalidated draft revision exists;
+- returns PublishingGateDecision.
+
+Blocking invariant:
+
+- risk is advisory;
+- failed validation, unresolved hard dependency or missing required approval is blocking;
+- blocking conditions cannot be bypassed by ordinary advisory review.
+
+###### 8. PublicationAttempt and Recovery
+
+RegistryTransaction owns PublicationAttempt records.
+
+PublicationAttempt contains:
+
+- current draft revision;
+- source RegistrySnapshot;
+- PublishingGateDecision reference;
+- before publication snapshot;
+- after publication snapshot when applied;
+- publication outcome;
+- cancellation or failure reason when applicable;
+- audit references.
+
+Publication blocking remains a PublishingGateDecision outcome. A blocked gate decision is not a completed publication attempt.
+
+Rollback is a governed recovery operation, not a parallel aggregate.
+
+Canonical recovery flow:
+
+Published RegistryTransaction A
+→ recovery request
+→ new RegistryTransaction B
+→ analysis
+→ validation
+→ engineer approval
+→ publication
+
+Recovery RegistryTransaction B references:
+
+- source RegistryTransaction A;
+- target verified RegistrySnapshot;
+- recovery reason;
+- current evidence;
+- publication attempt;
+- audit records.
+
+RegistryTransaction A remains historically PUBLISHED.
+
+###### 9. Audit Log Decision
+
+AuditLog is an append-only immutable audit-record stream.
+
+Each audit record has independent identity and contains:
+
+- actor;
+- action;
+- timestamp;
+- immutable event summary;
+- stable references;
+- affected RegistryEntity and RegistryPath references;
+- RegistryTransaction reference when applicable;
+- DraftWorkspace reference when applicable;
+- RegistrySnapshot reference when applicable.
+
+Audit records may reference ImpactAnalysisResult, ValidationResult, PublishingGateDecision, PublicationAttempt and recovery transaction evidence.
+
+AuditLog must not duplicate full mutable governance state from these owners.
+
+###### 10. Relation and Dependency Semantics
+
+RegistryRelation:
+
+- is a canonical directed semantic edge between exactly two RegistryEntity objects;
+- belongs to Registry state;
+- changes only through DraftWorkspace and RegistryTransaction;
+- participates in RegistryGraph;
+- has no separate RegistryEntityPayload;
+- must be derived from approved semantic contracts, not Markdown hierarchy alone.
+
+Only one canonical direction may be persisted for one semantic fact.
+
+Reverse traversal must be computed by RegistryGraph.
+
+The following mirrored persisted relation kinds must be removed:
+
+- parentOf / childOf;
+- references / referencedBy;
+- bindsTo / boundBy.
+
+Minimal universal Core relation semantics:
+
+- contains;
+- references;
+- inherits;
+- overrides.
+
+The following relation semantics are adapter-defined or deferred until strict universal meaning is approved:
+
+- belongsTo;
+- bindsTo;
+- extends;
+- specializes;
+- triggers;
+- follows;
+- precedes.
+
+RegistryDependency:
+
+- is a derived explainable impact edge;
+- is built from RegistryRelation and adapter-defined semantic rules;
+- is not independently editable Registry content;
+- is not a RegistryEntity;
+- has no separate RegistryEntityPayload;
+- must preserve provenance.
+
+RegistryDependency must not own:
+
+- risk state;
+- validation state;
+- publication state.
+
+These belong to current transaction evidence.
+
+Dependency result categories:
+
+1. Direct confirmed dependency.
+2. Indirect impact through confirmed relation/dependency paths.
+3. Semantic candidate requiring engineer decision.
+4. Informational text match without confirmed semantic relation.
+
+Only direct confirmed dependencies and indirect impacts enter deterministic impact scope automatically.
+
+Cycle rules:
+
+- structural containment cycles are validation failures;
+- inheritance and override cycles are validation failures;
+- reference cycles are adapter-defined;
+- graph traversal must detect cycles, stop deterministically and explain the path.
+
+###### 11. Application Service Decisions
+
+| Object | Decision | Canonical role |
+|---|---|---|
+| DependencyExplorer | retain / reclassify | Read-only graph traversal service |
+| RulesSimulator | retain capability | Candidate for later merge review with Analysis Engine |
+| BulkOperations | reclassify | Deterministic change-plan application service |
+| GlobalRename | reclassify | Semantic bulk-refactoring operation |
+| RegistryCoverage | move to project adapter | Adapter-defined completeness checks |
+| SandboxMode | merge candidate | Workspace purpose/mode or separate workspace type pending decision |
+
+BulkOperations:
+
+- prepares and applies approved deterministic change plans inside DraftWorkspace;
+- must not own transaction lifecycle;
+- must not directly own analysis, validation, gate or audit lifecycle;
+- must preserve transaction atomicity through governance flow.
+
+GlobalRename:
+
+- is not text replacement;
+- is a semantic bulk refactoring operation;
+- must preserve immutable RegistryEntity identity;
+- may change display name, semantic key, RegistryPath segment, canonical label and semantic references;
+- must not modify Published Registry directly.
+
+RegistryCoverage must move to project adapter because category, question, photo, pricing, guidance and eligibility completeness are not generic Registry Studio Core concepts.
+
+###### 12. Runtime Decisions
+
+| Object | Decision | Canonical role |
+|---|---|---|
+| EngineeringContext | retain / reclassify | Read-only provider of verified base Registry context |
+| EngineerIntent | retain | Runtime input |
+| EngineeringWorkflowResolver | retain | Workflow resolution application service |
+| EngineeringWorkflowResolutionResult | retain | Typed resolution result |
+| EngineeringOrchestrator | retain / narrow | Workflow run coordinator |
+| EngineeringExecutionContext | merge | Into EngineeringWorkflowInstance |
+| EngineeringWorkflow | reclassify | Core workflow contract; concrete definitions belong to project adapters |
+| EngineeringWorkflowInstance | retain | Runtime aggregate for one workflow run |
+| EngineeringOperation | merge | WorkflowStepDefinition |
+| EngineeringOperationInstance | merge | WorkflowStepExecution |
+| EngineeringServiceContract | retain / reclassify | Typed handler boundary |
+| EngineeringServiceContractPayload | remove | Redundant wrapper |
+| EngineeringServiceInput / Output / Failure | retain | Typed execution values |
+| EngineeringService | reclassify | Application handler implementation |
+| EngineeringServiceCapabilityRegistry | defer dynamic model | Composition-time capability binding only |
+
+EngineeringContext:
+
+- provides only verified base Registry context;
+- may use Registry, RegistryPath, RegistryRelation, RegistryDependency, RegistryGraph and RegistrySnapshot;
+- must not depend on ImpactAnalysis, Validation, RegistryCoverage or PublishingGate as input dependencies;
+- must not define publication readiness.
+
+EngineerIntent:
+
+- expresses engineer objective, target, scope and explicit constraints;
+- does not select workflow;
+- does not execute workflow;
+- does not modify Registry;
+- is not Published Registry data.
+
+EngineeringWorkflowResolver:
+
+- proposes one eligible approved workflow only when resolution is unambiguous;
+- explains resolution, ambiguity, unsupported intent or blocking reason;
+- does not execute workflow;
+- does not create workflow instances;
+- does not replace engineer decision.
+
+Engineer confirmation is required after workflow resolution and before runtime execution begins.
+
+EngineeringWorkflowInstance owns:
+
+- runtime lifecycle;
+- current step;
+- WorkflowStepExecution records;
+- intermediate result references;
+- engineer decision points;
+- failure, resume and completion state;
+- RegistryTransaction reference when Registry modification exists;
+- runtime audit references.
+
+EngineeringExecutionContext must merge into EngineeringWorkflowInstance. It must not remain as a second lifecycle and state owner.
+
+EngineeringOperation must merge into WorkflowStepDefinition because it belongs to exactly one EngineeringWorkflow definition.
+
+EngineeringOperationInstance must merge into WorkflowStepExecution because it is execution evidence inside one EngineeringWorkflowInstance.
+
+Canonical runtime flow:
+
+EngineerIntent
+→ EngineeringContext
+→ EngineeringWorkflowResolver
+→ engineer confirmation
+→ EngineeringWorkflowInstance
+   └─ WorkflowStepExecution[]
+       → typed handler contract
+       → service handler
+→ DraftWorkspace
+→ RegistryTransaction
+→ analysis / validation / publishing / audit
+
+EngineeringOrchestrator:
+
+- coordinates confirmed workflow execution;
+- advances WorkflowStepExecution sequence;
+- enforces stop conditions;
+- stops for engineer decisions;
+- delegates a step through typed handler binding;
+- transitions Registry modification work through DraftWorkspace governance boundary;
+- must not directly depend on BulkOperations, GlobalRename, RulesSimulator, ImpactAnalysis, Validation, RegistryCoverage, PublishingGate or AuditLog implementations;
+- must not create RegistryTransaction outside DraftWorkspace boundary.
+
+EngineeringServiceContractPayload must be removed because typed EngineeringServiceInput, EngineeringServiceOutput and EngineeringServiceFailure already define the required service boundary.
+
+Dynamic EngineeringServiceCapabilityRegistry is deferred. Current Core requires only approved composition-time capability binding through platform and adapter contracts.
+
+###### 13. Helpy Adapter Decisions
+
+The following remain required Helpy adapter capabilities:
+
+- Category Health Check;
+- Helpy RegistryCoverage rules;
+- category, subcategory, question, photo, pricing and guidance completeness;
+- master eligibility checks;
+- launch checks;
+- canonical RU / EN / TH formulation semantics;
+- translation semantics;
+- Helpy-specific RegistryEntityKind values;
+- Helpy-specific RegistryEntityPayload schemas;
+- Helpy-specific relation and dependency semantics;
+- Helpy workflow definitions;
+- Helpy guidance and platform metadata.
+
+Category Health Check remains a required Helpy publishing gate extension. It is not Registry Studio Core model or RegistryEntityKind.
+
+###### 14. Open Decisions Requiring Separate Contracts
+
+The following decisions remain open and must not be invented during implementation:
+
+| Open question | Required decision |
+|---|---|
+| Registry root contract | Stable Registry identity, published revision, draft revision, fingerprint and canonical semantic state |
+| RegistrySnapshot representation | Exact boundary between pinned state and reproducible materialization |
+| SandboxMode | Workspace purpose/mode or separate workspace type |
+| RulesSimulator | Independent capability or Analysis Engine component |
+| Universal relation set | Strict meaning for deferred relation kinds |
+| Repository shape | One composite port or separated state/governance persistence boundaries |
+| Dynamic capability registry | Real plugin installation or replacement scenario before modeling |
+
+###### 15. Controlled Rewrite Scope
+
+The following Registry Studio blocks must be rewritten as one coordinated architecture correction:
+
+- RegistryTransaction and TransactionPayload;
+- Registry Studio Domain Model and RegistryEntityKind;
+- RegistrySnapshot and RegistryEntityPayload taxonomy;
+- RegistryGraph and RegistryRepository;
+- Engineering Change Analysis, ImpactAnalysis, Validation, RiskClassification, PublishingGate, PublicationResult and Rollback;
+- DraftWorkspace and AuditLog;
+- BulkOperations, GlobalRename, RegistryCoverage and SandboxMode;
+- Engineering Context and Engineering Runtime;
+- duplicated Risk Classification section.
+
+No implementation may begin from a legacy contract block until its corresponding correction is completed.
+
+
 ##### Dependency Explorer Model
 
 Status: APPROVED
