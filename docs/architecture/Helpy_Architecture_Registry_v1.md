@@ -6349,906 +6349,297 @@ the SANDBOX contract defined by Draft Workspace Model.
 
 ##### Engineering Context Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringContext defines the canonical engineering context provider for reconstructing sufficient Registry context required for safe engineering decisions.
+EngineeringContext is a read-only provider of verified base Registry context
+for one exact Registry state.
 
-EngineeringContext is not a search engine.
+EngineeringContext may derive verified context from Registry, RegistryPath,
+RegistryRelation, RegistryDependency, RegistryGraph and RegistrySnapshot.
 
-EngineeringContext provides verified engineering context derived from the Registry domain model.
+EngineeringContext:
 
-EngineeringContext is based on:
-- RegistryEntity;
-- RegistryGraph;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryPath;
-- RegistrySnapshot;
-- DependencyExplorer;
-- ImpactAnalysis;
-- Validation;
-- RegistryCoverage.
+- reconstructs only verified base Registry context;
+- identifies related entities, inherited semantic rules, confirmed dependencies
+  and applicable constraints;
+- distinguishes verified Registry data from inferred information;
+- remains deterministic and storage independent;
+- does not modify Registry, DraftWorkspace or RegistryTransaction;
+- does not define publication readiness;
+- does not depend on ImpactAnalysis, Validation, Helpy RegistryCoverage or
+  PublishingGate as input dependencies.
 
-EngineeringContext responsibilities:
-- reconstruct engineering context;
-- identify related RegistryEntity objects;
-- identify inherited rules;
-- identify affected dependencies;
-- identify surrounding engineering scope;
-- identify engineering constraints;
-- identify publication readiness;
-- provide deterministic engineering context.
-
-EngineeringContext supports:
-- Engineering Change Analysis;
-- DependencyExplorer;
-- RulesSimulator;
-- Validation;
-- GlobalRename;
-- BulkOperations;
-- SandboxMode;
-- PublishingGate.
-
-Rules:
-- EngineeringContext must operate only on verified Registry domain data.
-- EngineeringContext must not modify Registry.
-- EngineeringContext reconstruction must be deterministic and reproducible.
-- EngineeringContext must remain independent of storage implementation.
-- EngineeringContext must provide sufficient verified information for engineering decisions.
-- EngineeringContext must distinguish verified Registry data from inferred information.
-- New EngineeringContext behavior requires an approved domain contract before implementation.
-
-
-
+EngineeringContext is not a search engine, publication authority or workflow
+lifecycle owner.
 
 ##### Engineer Intent Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineerIntent defines the canonical runtime input contract for translating an engineer's objective into a normalized technical request.
+EngineerIntent is the runtime input that expresses an engineer objective,
+target, scope and explicit constraints.
 
-EngineerIntent is not a RegistryEntity.
+EngineerIntent:
 
-EngineerIntent is not an EngineeringWorkflow.
-
-EngineerIntent does not define how engineering work will be executed.
-
-EngineerIntent exists only to express what the engineer intends to accomplish in a form that EngineeringWorkflowResolver can evaluate.
-
-EngineeringWorkflowResolver selects the appropriate EngineeringWorkflow after EngineerIntent is normalized and verified.
-
-EngineerIntent is based on:
-- engineer objective;
-- target RegistryPath when applicable;
-- target RegistryEntity when applicable;
-- engineering scope;
-- engineering constraints;
-- EngineeringContext when available.
-
-EngineerIntent responsibilities:
-- translate engineer objective into normalized technical intent;
-- identify the intended engineering target;
-- identify the intended engineering scope;
-- preserve explicit engineer constraints;
-- provide enough information for EngineeringWorkflowResolver to select an approved EngineeringWorkflow.
-
-EngineerIntent must not:
-- define workflow execution;
-- select EngineeringWorkflow directly;
-- implement engineering logic;
-- coordinate engineering services;
-- modify Registry;
-- create RegistryEntityKind;
-- create RegistryEntityPayload;
-- become Published Registry data.
-
-Rules:
-- EngineerIntent is a runtime input contract, not a Registry domain entity.
-- EngineerIntent must remain independent of storage implementation.
-- EngineerIntent must not be stored as Published Registry data.
-- EngineerIntent must not define Registry structure.
-- EngineerIntent must be deterministic and reproducible for identical engineer objectives and verified context.
-- EngineeringWorkflow selection must be performed by EngineeringWorkflowResolver, not by EngineerIntent.
-- New EngineerIntent behavior requires an approved domain contract before implementation.
+- may identify a target RegistryEntity or RegistryPath;
+- preserves explicit engineering scope and constraints;
+- provides input to EngineeringWorkflowResolver;
+- does not select a workflow;
+- does not execute a workflow;
+- does not modify Registry;
+- is not Published Registry data;
+- remains independent of storage implementation.
 
 ##### Engineering Workflow Resolver Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringWorkflowResolver defines the canonical runtime service for selecting an approved EngineeringWorkflow for a normalized EngineerIntent.
+EngineeringWorkflowResolver is an application service that evaluates one
+EngineerIntent against verified EngineeringContext and active approved workflow
+definitions.
 
-EngineeringWorkflowResolver is not EngineeringOrchestrator.
+EngineeringWorkflowResolver:
 
-EngineeringWorkflowResolver is not EngineeringWorkflow.
+- proposes exactly one eligible approved workflow only when resolution is
+  unambiguous;
+- returns a typed resolution result with RESOLVED, AMBIGUOUS, UNSUPPORTED,
+  BLOCKED or FAILED outcome;
+- explains selected workflow, ambiguity, unsupported intent or blocking reason;
+- does not execute workflow logic;
+- does not create EngineeringWorkflowInstance;
+- does not create DraftWorkspace or RegistryTransaction;
+- does not replace engineer decision.
 
-EngineeringWorkflowResolver does not execute workflow logic.
-
-EngineeringWorkflowResolver does not create EngineeringWorkflowInstance.
-
-EngineeringWorkflowResolver is based on:
-- EngineerIntent;
-- EngineeringContext;
-- EngineeringWorkflow;
-- workflow eligibility rules;
-- workflow constraints;
-- workflow resolution result.
-
-EngineeringWorkflowResolver responsibilities:
-- evaluate normalized EngineerIntent;
-- evaluate verified EngineeringContext;
-- select one approved EngineeringWorkflow when exactly one valid workflow matches;
-- reject ambiguous workflow selection;
-- reject unsupported EngineerIntent;
-- explain workflow selection result;
-- return deterministic EngineeringWorkflowResolutionResult.
-
-EngineeringWorkflowResolver must not:
-- execute EngineeringWorkflow;
-- create EngineeringWorkflowInstance;
-- create EngineeringOperationInstance;
-- coordinate workflow execution;
-- call EngineeringService;
-- modify Registry;
-- bypass EngineeringOrchestrator;
-- replace engineering decisions.
-
-EngineeringWorkflowResolutionResult defines the canonical result of EngineeringWorkflowResolver evaluation.
-
-EngineeringWorkflowResolutionResult is based on:
-- EngineerIntent;
-- EngineeringContext;
-- selected EngineeringWorkflow when resolved;
-- rejection reason when unresolved;
-- blocking reason when blocked;
-- failure reason when failed.
-
-EngineeringWorkflowResolutionResult states:
-- RESOLVED;
-- AMBIGUOUS;
-- UNSUPPORTED;
-- BLOCKED;
-- FAILED.
-
-EngineeringWorkflowResolutionResult responsibilities:
-- preserve resolution state;
-- preserve selected EngineeringWorkflow when RESOLVED;
-- preserve ambiguity details when AMBIGUOUS;
-- preserve unsupported intent reason when UNSUPPORTED;
-- preserve blocking reason when BLOCKED;
-- preserve failure reason when FAILED.
-
-Rules:
-- EngineeringWorkflowResolver must operate only on approved EngineeringWorkflow definitions and verified EngineeringContext.
-- EngineeringWorkflowResolver must return exactly one EngineeringWorkflow for RESOLVED result.
-- Ambiguous workflow resolution must not proceed to runtime execution.
-- Unsupported EngineerIntent must not create EngineeringWorkflowInstance.
-- EngineeringWorkflowResolver must be deterministic and reproducible for identical EngineerIntent and verified EngineeringContext.
-- EngineeringOrchestrator must use EngineeringWorkflowResolver before creating EngineeringWorkflowInstance.
-- New EngineeringWorkflowResolver behavior requires an approved domain contract before implementation.
-
-
+Engineer confirmation is required after RESOLVED workflow selection and before
+runtime execution begins.
 
 ##### Engineering Orchestrator Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringOrchestrator defines the canonical workflow coordination service for Registry engineering.
+EngineeringOrchestrator is the narrow coordinator of confirmed
+EngineeringWorkflowInstance execution.
 
-EngineeringOrchestrator is not an engineering service.
+EngineeringOrchestrator:
 
-EngineeringOrchestrator coordinates EngineeringWorkflowInstance execution through EngineeringExecutionContext and approved service contracts.
-
-EngineeringOrchestrator is based on:
-- EngineeringContext;
-- EngineeringServiceCapabilityRegistry;
-- DependencyExplorer;
-- RulesSimulator;
-- ImpactAnalysis;
-- Validation;
-- RegistryCoverage;
-- BulkOperations;
-- GlobalRename;
-- PublishingGate;
-- DraftWorkspace;
-- RegistryTransaction;
-- AuditLog.
-
-EngineeringOrchestrator responsibilities:
-- initiate and supervise EngineeringWorkflowInstance execution;
-- supervise EngineeringWorkflowInstance application of EngineeringWorkflow execution order;
-- supervise EngineeringWorkflowInstance application of EngineeringWorkflow stop conditions;
-- supervise EngineeringOperationInstance handoff;
-- preserve workflow execution context through EngineeringExecutionContext;
-- create RegistryTransaction when required;
-- ensure deterministic EngineeringWorkflowInstance execution.
+- starts one confirmed EngineeringWorkflowInstance;
+- advances the declared WorkflowStepExecution sequence;
+- enforces workflow and step stop conditions;
+- stops for required engineer decisions;
+- resolves the required typed EngineeringServiceContract through
+  EngineeringServiceCapabilityCatalog;
+- delegates a step only through the resolved approved handler binding;
+- transitions Registry modification work through the DraftWorkspace governance
+  boundary;
+- must not create RegistryTransaction outside DraftWorkspace boundary;
+- remains independent of storage implementation.
 
 EngineeringOrchestrator must not:
-- implement engineering service logic;
-- duplicate engineering service behavior;
-- bypass approved service contracts;
+
+- implement handler logic;
+- define workflow or step semantics;
+- directly depend on BulkOperations, GlobalRename, RulesSimulator,
+  ImpactAnalysis, Validation, Helpy RegistryCoverage, PublishingGate or AuditLog
+  implementations;
 - modify Published Registry directly;
-- replace engineering decisions.
-
-EngineeringOrchestrator workflow principles:
-- engineer defines intent;
-- EngineeringOrchestrator receives resolved EngineeringWorkflow, creates EngineeringExecutionContext and supervises EngineeringWorkflowInstance until completion or termination;
-- EngineeringOperationInstance steps are executed independently through approved EngineeringServiceContract bindings;
-- EngineeringOperationInstance results determine subsequent EngineeringOperationInstance steps;
-- PublishingGate determines publication readiness;
-- AuditLog records the completed workflow.
-
-Rules:
-- EngineeringOrchestrator must coordinate EngineeringWorkflowInstance execution through EngineeringExecutionContext and approved contracts.
-- EngineeringOrchestrator must know approved EngineeringServiceContract capabilities through EngineeringServiceCapabilityRegistry, not service implementation details.
-- Engineering services must not depend on EngineeringOrchestrator.
-- New EngineeringServiceContract capabilities must be discoverable by EngineeringOrchestrator through approved capability registration.
-- EngineeringOrchestrator must remain independent of storage implementation.
-- EngineeringOrchestrator workflow execution must be deterministic and reproducible.
-- New EngineeringOrchestrator behavior requires an approved domain contract before implementation.
-
-
-
-
-##### Engineering Execution Context Model
-
-Status: APPROVED
-
-EngineeringExecutionContext defines the canonical runtime state container for one Registry engineering execution.
-
-EngineeringExecutionContext is not EngineeringContext.
-
-EngineeringExecutionContext is not EngineeringOrchestrator.
-
-EngineeringExecutionContext is not EngineeringWorkflowInstance.
-
-EngineeringContext provides verified input context.
-
-EngineeringExecutionContext preserves mutable execution context state during a specific runtime execution.
-
-EngineeringExecutionContext is created by EngineeringOrchestrator after EngineeringWorkflow resolution and before EngineeringWorkflowInstance creation.
-
-EngineeringExecutionContext is based on:
-- EngineerIntent;
-- EngineeringContext;
-- EngineeringWorkflow;
-- EngineeringWorkflowInstance when created;
-- EngineeringOperationInstance when active;
-- RegistryTransaction when Registry modification is involved;
-- AuditLog when traceability is required.
-
-EngineeringExecutionContext responsibilities:
-- hold runtime execution context state;
-- hold resolved EngineeringWorkflow;
-- reference active EngineeringWorkflowInstance when created;
-- reference active EngineeringOperationInstance when running;
-- provide operation result references between execution steps;
-- preserve runtime artifacts;
-- provide engineer decision state references between workflow and operation instances;
-- provide execution failure state references between workflow and operation instances;
-- reference RegistryTransaction participation when Registry modification is involved;
-- provide traceability for AuditLog.
-
-EngineeringExecutionContext must not:
-- select EngineeringWorkflow;
-- create EngineeringWorkflowInstance;
-- create EngineeringOperationInstance;
-- execute EngineeringService;
-- implement engineering service logic;
-- modify Registry directly;
-- bypass RegistryTransaction when Registry modification is involved;
-- replace EngineeringContext.
-
-EngineeringExecutionContext states:
-- CREATED;
-- ACTIVE;
-- COMPLETED;
-- FAILED;
-- CANCELLED.
-
-Rules:
-- EngineeringExecutionContext must be created only by EngineeringOrchestrator.
-- EngineeringExecutionContext must exist only within one runtime execution.
-- EngineeringExecutionContext must preserve runtime context state without modifying approved workflow or operation definitions.
-- EngineeringWorkflowInstance and EngineeringOperationInstance must use EngineeringExecutionContext for shared runtime context references, not lifecycle ownership.
-- EngineeringExecutionContext lifecycle must be traceable through AuditLog.
-- EngineeringExecutionContext must be deterministic and reproducible for identical EngineerIntent, EngineeringContext and resolved EngineeringWorkflow.
-- New EngineeringExecutionContext behavior requires an approved domain contract before implementation.
-
-
+- replace engineer decisions.
 
 ##### Engineering Workflow Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringWorkflow defines the canonical execution scenario description used by EngineeringOrchestrator.
+EngineeringWorkflow is a Core runtime workflow contract. Concrete workflow
+definitions belong to the active project adapter.
 
-EngineeringWorkflow is not an engineering service.
+EngineeringWorkflow defines deterministic execution order, workflow-level stop,
+resume and completion conditions, and required engineer decision points.
 
-EngineeringWorkflow is not EngineeringOrchestrator.
+Each executable workflow contains WorkflowStepDefinition records.
 
-EngineeringWorkflow does not execute engineering logic.
+WorkflowStepDefinition:
 
-EngineeringWorkflow describes how an approved EngineerIntent should be executed through ordered workflow steps.
+- belongs to exactly one EngineeringWorkflow definition;
+- defines one ordered executable workflow step;
+- declares exactly one required typed EngineeringServiceContract;
+- defines typed input, expected output, typed failure handling, preconditions,
+  stop conditions and engineer confirmation requirements;
+- does not execute handler logic;
+- does not coordinate workflow execution;
+- does not modify Registry directly.
 
-EngineeringWorkflow is selected by EngineeringWorkflowResolver and executed through EngineeringWorkflowInstance under EngineeringOrchestrator supervision.
-
-EngineeringWorkflow is based on:
-- EngineerIntent;
-- EngineeringContext;
-- EngineeringOperation;
-- RegistryTransaction;
-- ImpactAnalysis;
-- Validation;
-- PublishingGate;
-- AuditLog.
-
-EngineeringWorkflow responsibilities:
-- define deterministic EngineeringOperation sequence;
-- define EngineeringOperation order;
-- define workflow-level stop conditions;
-- define workflow-level resume conditions;
-- define workflow-level completion conditions;
-- define required engineer decision points.
-
-EngineeringWorkflow must not:
-- coordinate engineering services;
-- execute engineering service logic;
-- implement engineering service behavior;
-- select itself;
-- replace EngineeringOrchestrator;
-- modify Registry;
-- publish Registry changes;
-- bypass RegistryTransaction;
-- bypass ImpactAnalysis;
-- bypass Validation;
-- bypass PublishingGate.
-
-Workflow definition states:
-- DEFINED;
-- APPROVED;
-- DEPRECATED;
-- DISABLED.
-
-Rules:
-- EngineeringWorkflow is a runtime scenario contract, not a Registry domain entity.
-- EngineeringWorkflow must be selected by EngineeringWorkflowResolver.
-- EngineeringWorkflow runtime execution must be represented by EngineeringWorkflowInstance and supervised by EngineeringOrchestrator.
-- EngineeringWorkflow must define execution flow but must not execute engineering services.
-- EngineeringWorkflow must reference EngineeringOperation objects only.
-- EngineeringWorkflow must preserve architectural responsibility boundaries.
-- EngineeringWorkflow must be deterministic and reproducible for identical EngineerIntent and verified context.
-- EngineeringWorkflow runtime usage must be traceable through EngineeringWorkflowInstance, RegistryTransaction and AuditLog when Registry modification is involved.
-- New EngineeringWorkflow behavior requires an approved domain contract before implementation.
+EngineeringWorkflow is not a RegistryEntity, a DraftWorkspace, a
+RegistryTransaction or an executable handler.
 
 ##### Engineering Workflow Instance Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringWorkflowInstance defines a concrete runtime execution instance of a selected EngineeringWorkflow.
+EngineeringWorkflowInstance is the runtime aggregate for one confirmed
+EngineeringWorkflow execution.
 
-EngineeringWorkflowInstance is not EngineeringWorkflow.
+EngineeringWorkflowInstance owns:
 
-EngineeringWorkflowInstance is not EngineeringOrchestrator.
+- runtime lifecycle;
+- active EngineeringWorkflow definition reference;
+- active runtime composition fingerprint;
+- current execution position;
+- WorkflowStepExecution records;
+- intermediate result references;
+- engineer decision points;
+- failure, resume and completion state;
+- RegistryTransaction reference when Registry modification exists;
+- runtime audit references.
 
-EngineeringWorkflowInstance does not execute engineering service logic.
+EngineeringExecutionContext merges into EngineeringWorkflowInstance. No second
+runtime lifecycle or mutable state owner exists.
 
-EngineeringWorkflow defines the approved execution scenario.
+WorkflowStepExecution is execution evidence for one WorkflowStepDefinition. It
+preserves:
 
-EngineeringWorkflowInstance represents one runtime execution of that scenario for a specific EngineerIntent.
+- step identity and execution position;
+- resolved typed EngineeringServiceContract identity and semantic version;
+- resolved handler binding provenance;
+- typed input, output or failure value;
+- engineer confirmation state;
+- stop, resume and completion state.
 
-EngineeringWorkflowInstance is created by EngineeringOrchestrator after EngineeringWorkflow selection.
-
-EngineeringWorkflowInstance is based on:
-- EngineeringWorkflow;
-- EngineerIntent;
-- EngineeringContext;
-- EngineeringOperation;
-- EngineeringOperationInstance;
-- RegistryTransaction when Registry modification is involved;
-- AuditLog when traceability is required.
-
-EngineeringWorkflowInstance responsibilities:
-- represent one concrete EngineeringWorkflow execution;
-- create and hold EngineeringOperationInstance objects;
-- apply operation execution order defined by EngineeringWorkflow;
-- hold workflow runtime state;
-- hold current execution position;
-- preserve engineer decision points;
-- preserve workflow stop, resume and completion state;
-- preserve RegistryTransaction participation when Registry modification is involved;
-- provide traceability for AuditLog.
-
-EngineeringWorkflowInstance must not:
-- define EngineeringWorkflow semantics;
-- select EngineeringWorkflow;
-- implement engineering service logic;
-- call EngineeringOrchestrator;
-- bypass EngineeringOperation;
-- bypass EngineeringOperationInstance;
-- bypass RegistryTransaction when Registry modification is involved;
-- modify Published Registry directly.
-
-EngineeringWorkflowInstance states:
-- CREATED;
-- READY;
-- RUNNING;
-- WAITING_FOR_OPERATION;
-- WAITING_FOR_ENGINEER_DECISION;
-- COMPLETED;
-- FAILED;
-- BLOCKED;
-- CANCELLED.
-
-Rules:
-- EngineeringWorkflowInstance must be created only by EngineeringOrchestrator after EngineeringWorkflow selection.
-- EngineeringWorkflowInstance must be created from an approved EngineeringWorkflow definition.
-- EngineeringWorkflowInstance must not modify the source EngineeringWorkflow definition.
-- EngineeringWorkflowInstance must materialize EngineeringOperationInstance objects from approved EngineeringOperation definitions.
-- EngineeringWorkflowInstance lifecycle must be supervised by EngineeringOrchestrator.
-- EngineeringWorkflowInstance lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
-- EngineeringWorkflowInstance must be deterministic and reproducible for identical EngineerIntent, EngineeringWorkflow and verified EngineeringContext.
-- New EngineeringWorkflowInstance behavior requires an approved domain contract before implementation.
-
-
-
-##### Engineering Operation Model
-
-Status: APPROVED
-
-EngineeringOperation defines an atomic executable step inside an EngineeringWorkflow.
-
-EngineeringOperation is not an engineering service.
-
-EngineeringOperation is not EngineeringOrchestrator.
-
-EngineeringOperation is not RegistryTransaction.
-
-EngineeringOperation describes one approved unit of work that must be executed through an EngineeringServiceContract.
-
-EngineeringOperation is based on:
-- EngineeringWorkflow;
-- EngineerIntent;
-- EngineeringContext;
-- EngineeringServiceContract;
-- RegistryEntity when applicable;
-- RegistryPath when applicable;
-- RegistryTransaction when Registry modification is involved;
-- AuditLog when traceability is required.
-
-EngineeringOperation responsibilities:
-- define atomic workflow step identity;
-- define operation kind;
-- define required EngineeringServiceInput contract;
-- define expected EngineeringServiceOutput contract;
-- define required EngineeringServiceContract;
-- define preconditions;
-- define failure states;
-- define whether RegistryTransaction participation is required;
-- define whether engineer confirmation is required.
-
-EngineeringOperation must not:
-- coordinate workflow execution;
-- select EngineeringWorkflow;
-- implement engineering service logic;
-- call EngineeringOrchestrator;
-- bypass EngineeringServiceContract;
-- modify Published Registry directly;
-- bypass RegistryTransaction when Registry modification is involved;
-- bypass ImpactAnalysis;
-- bypass Validation;
-- bypass PublishingGate.
-
-Operation definition states:
-- DEFINED;
-- APPROVED;
-- DEPRECATED;
-- DISABLED.
-
-Rules:
-- EngineeringOperation must belong to exactly one EngineeringWorkflow.
-- EngineeringWorkflow defines EngineeringOperation execution order.
-- EngineeringOperation execution must be represented by EngineeringOperationInstance under EngineeringWorkflowInstance and EngineeringOrchestrator supervision.
-- EngineeringOperation must define the required approved EngineeringServiceContract for runtime execution.
-- EngineeringOperation must have exactly one operation kind.
-- EngineeringOperation must be deterministic and reproducible for identical definition and verified context.
-- EngineeringOperation execution lifecycle must be traceable through EngineeringOperationInstance, RegistryTransaction and AuditLog when Registry modification is involved.
-- New EngineeringOperation behavior requires an approved domain contract before implementation.
-
-
-##### Engineering Operation Instance Model
-
-Status: APPROVED
-
-EngineeringOperationInstance defines a concrete runtime execution instance of an approved EngineeringOperation within a parent EngineeringWorkflowInstance.
-
-EngineeringOperationInstance is not EngineeringOperation.
-
-EngineeringOperationInstance is not EngineeringWorkflow.
-
-EngineeringOperationInstance is not EngineeringOrchestrator.
-
-EngineeringOperation defines the approved atomic step.
-
-EngineeringOperationInstance represents one execution of that step during a specific workflow run.
-
-EngineeringOperationInstance is materialized by EngineeringWorkflowInstance from approved EngineeringOperation definitions within EngineeringExecutionContext.
-
-EngineeringOperationInstance is based on:
-- EngineeringOperation;
-- EngineeringWorkflow;
-- EngineerIntent;
-- EngineeringContext;
-- EngineeringServiceContract;
-- EngineeringServiceCapabilityRegistry;
-- RegistryTransaction when Registry modification is involved;
-- AuditLog when traceability is required.
-
-EngineeringOperationInstance responsibilities:
-- represent one concrete EngineeringOperation execution;
-- hold runtime operation state;
-- hold resolved operation input;
-- hold operation output after execution;
-- bind operation execution to the required EngineeringServiceContract;
-- preserve execution position within the parent EngineeringWorkflowInstance;
-- preserve engineer confirmation state when required;
-- preserve failure state when execution fails;
-- preserve RegistryTransaction participation when Registry modification is involved;
-- provide traceability for AuditLog.
-
-EngineeringOperationInstance must not:
-- define EngineeringOperation semantics;
-- select EngineeringWorkflow;
-- coordinate workflow execution;
-- implement engineering service logic;
-- call EngineeringOrchestrator;
-- bypass EngineeringServiceContract;
-- bypass EngineeringServiceCapabilityRegistry;
-- modify Published Registry directly;
-- bypass RegistryTransaction when Registry modification is involved.
-
-EngineeringOperationInstance states:
-- CREATED;
-- READY;
-- RUNNING;
-- WAITING_FOR_SERVICE_RESULT;
-- WAITING_FOR_ENGINEER_CONFIRMATION;
-- COMPLETED;
-- FAILED;
-- BLOCKED;
-- CANCELLED.
-
-Rules:
-- EngineeringOperationInstance must be materialized only by EngineeringWorkflowInstance within EngineeringExecutionContext.
-- EngineeringOperationInstance must be created from an approved EngineeringOperation definition.
-- EngineeringOperationInstance must not modify the source EngineeringOperation definition.
-- EngineeringOperationInstance must resolve its EngineeringServiceContract through EngineeringServiceCapabilityRegistry before execution.
-- EngineeringOperationInstance lifecycle must be traceable through RegistryTransaction and AuditLog when Registry modification is involved.
-- EngineeringOperationInstance must be deterministic and reproducible for identical EngineerIntent, EngineeringWorkflow, EngineeringOperation and verified EngineeringContext.
-- New EngineeringOperationInstance behavior requires an approved domain contract before implementation.
-
-
+A resumable WorkflowStepExecution must not continue automatically when its
+previously resolved handler binding provenance changed. It must stop for an
+engineer decision.
 
 ##### Engineering Service Contract Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringServiceContract defines the canonical interaction boundary between EngineeringOperationInstance and EngineeringService.
+EngineeringServiceContract is the typed handler boundary required by a
+WorkflowStepDefinition.
 
-EngineeringServiceContract is not an Engineering Service.
+EngineeringServiceContract defines:
 
-EngineeringServiceContract does not implement engineering logic.
+- stable contract identity and semantic version;
+- typed EngineeringServiceInput;
+- typed EngineeringServiceOutput;
+- typed EngineeringServiceFailure;
+- handler preconditions;
+- handler failure semantics;
+- declared traceability requirements.
 
-EngineeringServiceContract describes which EngineeringOperation kind an Engineering Service is approved to execute, what input it requires and what result it returns.
+EngineeringServiceContract:
 
-EngineeringServiceContract is based on:
-- EngineeringOperation;
-- EngineeringContext;
-- RegistryEntity;
-- RegistryPath;
-- RegistryTransaction when Registry modification is involved;
-- AuditLog when traceability is required.
+- is not an executable handler;
+- does not coordinate workflow execution;
+- does not modify Registry directly;
+- does not expose untyped dynamic or generic Map payloads;
+- does not become a universal engineering utility contract.
 
-EngineeringServiceContract responsibilities:
-- define service capability;
-- define service input contract;
-- define service output contract;
-- define service preconditions;
-- define service failure states;
-- define traceability requirements;
-- define whether RegistryTransaction participation is required.
-
-EngineeringServiceContract must require EngineeringService to:
-- implement exactly one approved EngineeringServiceContract;
-- execute only the approved engineering capability;
-- return deterministic and reproducible results;
-- expose failures through the approved output contract;
-- remain independent of EngineeringWorkflow, EngineeringOperation and EngineeringOrchestrator.
-
-EngineeringServiceContract must prohibit EngineeringService from:
-- selecting EngineeringWorkflow;
-- coordinating workflow execution;
-- calling EngineeringOrchestrator;
-- bypassing EngineeringServiceContract;
-- modifying Published Registry directly;
-- bypassing RegistryTransaction when Registry modification is involved;
-- hiding engineering side effects;
-- becoming a universal engineering utility.
-
-Rules:
-- EngineeringServiceContract binding must be declared by approved EngineeringOperation definitions.
-- EngineeringServiceContract capabilities must be discoverable through EngineeringServiceCapabilityRegistry before runtime use.
-- EngineeringServiceContract must remain independent of service implementation details.
-- EngineeringServiceContract must remain independent of storage implementation.
-- Service replacement must not require EngineeringWorkflow redesign if the approved contract is preserved.
-- New EngineeringServiceContract behavior requires an approved domain contract before implementation.
-
-##### Engineering Service Contract Payload Model
-
-Status: APPROVED
-
-EngineeringServiceContractPayload defines the canonical typed payload boundary for EngineeringServiceContract execution.
-
-EngineeringServiceContractPayload is not an EngineeringService.
-
-EngineeringServiceContractPayload is not EngineeringOperationInstance.
-
-EngineeringServiceContractPayload does not execute engineering logic.
-
-EngineeringServiceContractPayload is based on:
-- EngineeringOperationInstance;
-- EngineeringServiceContract;
-- EngineeringServiceInput;
-- EngineeringServiceOutput;
-- EngineeringServiceFailure;
-- RegistryTransaction when Registry modification is involved;
-- AuditLog when traceability is required.
-
-EngineeringServiceInput defines the canonical typed input passed from EngineeringOperationInstance to EngineeringService.
-
-EngineeringServiceInput is based on:
-- EngineeringOperationInstance;
-- EngineeringServiceContract;
-- EngineeringContext;
-- RegistryEntity and RegistryPath when applicable;
-- RegistryTransaction when Registry modification is involved.
-
-EngineeringServiceInput responsibilities:
-- represent typed input passed from EngineeringOperationInstance to EngineeringService;
-- preserve resolved operation input;
-- preserve required EngineeringContext references;
-- preserve RegistryEntity and RegistryPath references when applicable;
-- preserve RegistryTransaction participation when Registry modification is involved.
-
-EngineeringServiceOutput defines the canonical typed successful result returned by EngineeringService.
-
-EngineeringServiceOutput is based on:
-- EngineeringServiceContract;
-- EngineeringServiceInput;
-- produced Registry modification artifacts when applicable;
-- service warnings when applicable;
-- AuditLog traceability references.
-
-EngineeringServiceOutput responsibilities:
-- represent typed output returned by EngineeringService;
-- preserve deterministic service result;
-- preserve produced Registry modification artifacts when applicable;
-- preserve service warnings when applicable;
-- preserve traceability references for AuditLog.
-
-EngineeringServiceFailure defines the canonical typed failure result returned by EngineeringService.
-
-EngineeringServiceFailure is based on:
-- EngineeringServiceContract;
-- EngineeringServiceInput;
-- failure kind;
-- failure reason;
-- affected RegistryEntity and RegistryPath when applicable;
-- engineer decision requirement when applicable.
-
-EngineeringServiceFailure responsibilities:
-- represent typed service execution failure;
-- preserve failure kind;
-- preserve failure reason;
-- preserve affected RegistryEntity and RegistryPath references when applicable;
-- preserve whether execution can continue;
-- preserve whether engineer decision is required.
-
-EngineeringServiceContractPayload must not:
-- use untyped dynamic payloads;
-- use generic Map payloads as the domain contract;
-- hide service side effects;
-- bypass EngineeringServiceContract;
-- bypass EngineeringOperationInstance;
-- bypass RegistryTransaction when Registry modification is involved;
-- replace AuditLog.
-
-Rules:
-- Every EngineeringServiceContract must define typed EngineeringServiceInput and EngineeringServiceOutput.
-- Every executable EngineeringServiceContract must define typed EngineeringServiceFailure.
-- EngineeringOperationInstance must pass data to EngineeringService only through EngineeringServiceInput.
-- EngineeringService must return data only through EngineeringServiceOutput or EngineeringServiceFailure.
-- EngineeringServiceInput, EngineeringServiceOutput and EngineeringServiceFailure must be deterministic and reproducible for identical EngineeringOperationInstance and verified EngineeringContext.
-- Registry modification artifacts produced by EngineeringServiceOutput must enter DraftWorkspace before publication flow proceeds.
-- New EngineeringServiceContractPayload behavior requires an approved domain contract before implementation.
+No EngineeringServiceContractPayload model exists. Typed
+EngineeringServiceInput, EngineeringServiceOutput and EngineeringServiceFailure
+are the complete execution value boundary.
 
 ##### Engineering Service Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringService defines an executable engineering service that implements exactly one approved EngineeringServiceContract capability.
+EngineeringService is an application handler implementation invoked through
+one resolved approved EngineeringServiceCapabilityCatalog binding.
 
-EngineeringService is not EngineeringOrchestrator.
+EngineeringService:
 
-EngineeringService is not EngineeringWorkflow.
+- receives only typed EngineeringServiceInput;
+- returns only typed EngineeringServiceOutput or EngineeringServiceFailure;
+- executes only the capability defined by the resolved approved
+  EngineeringServiceContract;
+- validates handler preconditions before execution;
+- exposes failure through typed failure values;
+- does not select workflows;
+- does not coordinate workflow execution;
+- does not call EngineeringOrchestrator;
+- does not modify Published Registry directly;
+- must route Registry modification work through DraftWorkspace governance.
 
-EngineeringService is not EngineeringOperation.
+Handler unavailability is a handler precondition and typed
+EngineeringServiceFailure. It is not mutable catalog state.
 
-EngineeringService executes engineering logic only through its approved EngineeringServiceContract.
+##### Engineering Service Capability Catalog Model
 
-EngineeringService is based on:
-- EngineeringServiceContract;
-- EngineeringServiceCapabilityRegistry;
-- EngineeringServiceInput;
-- EngineeringServiceOutput;
-- EngineeringServiceFailure;
-- service preconditions;
-- service failure states;
-- RegistryTransaction when Registry modification is involved;
-- AuditLog when traceability is required.
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringService responsibilities:
-- implement exactly one approved EngineeringServiceContract;
-- execute the approved service capability;
-- validate service preconditions before execution;
-- return deterministic service output;
-- expose failures through the approved output contract;
-- preserve RegistryTransaction boundaries when Registry modification is involved;
-- remain replaceable when the approved EngineeringServiceContract is preserved.
+EngineeringServiceCapabilityCatalog is an immutable versioned runtime
+composition catalog.
 
-EngineeringService must not:
-- select EngineeringWorkflow;
-- coordinate workflow execution;
-- call EngineeringOrchestrator;
-- bypass EngineeringServiceContract;
-- bypass EngineeringServiceCapabilityRegistry registration;
-- modify Published Registry directly;
-- bypass RegistryTransaction when Registry modification is involved;
-- hide engineering side effects;
-- become a universal engineering utility.
+EngineeringServiceCapabilityCatalog:
 
-Rules:
-- EngineeringService must be registered through EngineeringServiceCapabilityRegistry before runtime use.
-- EngineeringService must execute only the capability defined by its approved EngineeringServiceContract.
-- EngineeringService must remain independent of EngineeringWorkflow, EngineeringOperation and EngineeringOrchestrator.
-- EngineeringService replacement must preserve the approved EngineeringServiceContract.
-- Any EngineeringServiceContract change requires a new approved EngineeringServiceContract and an approved domain contract before runtime adoption.
-- New EngineeringService behavior requires an approved domain contract before implementation.
+- is created and validated during platform and active project-adapter
+  composition before any workflow is resolved or executed;
+- accepts only declared approved EngineeringServiceContract bindings from
+  platform and adapter composition;
+- validates that every executable WorkflowStepDefinition admitted into the
+  active runtime resolves to exactly one approved typed handler binding;
+- resolves only a declared typed EngineeringServiceContract required by workflow
+  execution;
+- preserves composition fingerprint, contract identity, contract semantic
+  version and handler binding provenance;
+- remains immutable for the lifetime of active runtime composition;
+- allows platform or adapter extensions to contribute bindings only before
+  catalog validation;
+- does not execute handler logic;
+- does not select workflows;
+- does not coordinate workflow execution;
+- does not modify Registry, DraftWorkspace or RegistryTransaction;
+- is not a RegistryEntity;
+- has no RegistryEntityPayload;
+- has no persistent capability state;
+- is not a generic service locator;
+- does not expose arbitrary handler lookup or implementation details;
+- does not own mutable capability availability.
 
-
-
-##### Engineering Service Capability Registry Model
-
-Status: APPROVED
-
-EngineeringServiceCapabilityRegistry defines the canonical discovery model for approved EngineeringServiceContract capabilities.
-
-EngineeringServiceCapabilityRegistry is not an Engineering Service.
-
-EngineeringServiceCapabilityRegistry does not execute EngineeringOperation logic.
-
-EngineeringServiceCapabilityRegistry does not know service implementation details.
-
-EngineeringServiceCapabilityRegistry is based on:
-- EngineeringServiceContract;
-- EngineeringOperation kind;
-- EngineeringServiceContract capability;
-- capability registration;
-- capability availability;
-- capability preconditions;
-- capability failure states.
-
-EngineeringServiceCapabilityRegistry responsibilities:
-- register approved EngineeringServiceContract capabilities;
-- expose available EngineeringServiceContract capabilities to EngineeringOrchestrator;
-- map EngineeringOperation kind to approved EngineeringServiceContract;
-- expose capability preconditions;
-- expose capability failure states;
-- expose capability availability;
-- support future EngineeringServiceContract capability registration without EngineeringOrchestrator redesign.
-
-EngineeringServiceCapabilityRegistry must not:
-- execute EngineeringOperation logic;
-- coordinate workflow execution;
-- select EngineeringWorkflow;
-- modify Registry;
-- bypass EngineeringServiceContract;
-- expose service implementation details;
-- become a universal service locator for unrelated platform services.
-
-Rules:
-- EngineeringOrchestrator must use EngineeringServiceCapabilityRegistry to discover available EngineeringServiceContract capabilities.
-- New EngineeringServiceContract capabilities must be registered before they can be discovered by EngineeringOrchestrator.
-- Each EngineeringOperation kind must resolve to exactly one approved EngineeringServiceContract capability.
-- Duplicate capability registration for the same EngineeringOperation kind must not be allowed.
-- Capability registration must be completed before runtime discovery is allowed.
-- Capability replacement must preserve the approved EngineeringServiceContract. Any change to the contract itself requires a new approved EngineeringServiceContract and an approved domain contract before runtime adoption.
-- EngineeringServiceCapabilityRegistry must expose capabilities, not implementation details.
-- EngineeringServiceCapabilityRegistry must remain independent of storage implementation.
-- EngineeringServiceCapabilityRegistry behavior must be deterministic and reproducible.
-- New EngineeringServiceCapabilityRegistry behavior requires an approved domain contract before implementation.
-
-
+Handler replacement creates a new validated runtime composition. A replacement
+may preserve an approved contract; a changed contract requires a separately
+approved semantic version.
 
 ##### Engineering Runtime Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-EngineeringRuntime defines the canonical execution chain for Registry engineering.
+EngineeringRuntime defines the canonical execution chain for Registry
+engineering.
 
-EngineeringRuntime separates engineering intent, workflow coordination, service execution and Registry modification into independent architectural responsibilities.
+Canonical runtime flow:
 
-Canonical execution flow:
-
-Engineer
-→ EngineerIntent
+EngineerIntent
 → EngineeringContext
 → EngineeringWorkflowResolver
-→ EngineeringWorkflow
-→ EngineeringOrchestrator
-→ EngineeringExecutionContext
+→ engineer confirmation
 → EngineeringWorkflowInstance
-→ EngineeringOperation
-→ EngineeringOperationInstance
-→ EngineeringServiceCapabilityRegistry
-→ EngineeringServiceContract
-→ EngineeringService
+   └─ WorkflowStepExecution[]
+       → required EngineeringServiceContract
+       → EngineeringServiceCapabilityCatalog
+       → resolved approved handler binding
+       → EngineeringService
 → DraftWorkspace
 → RegistryTransaction
-→ ImpactAnalysis
-→ Validation
-→ PublishingGate
-→ AuditLog
-→ Published Registry
+→ analysis / validation / publishing / audit
 
 Responsibility separation:
 
-- Engineer defines engineering intent.
-- EngineeringContext provides verified Registry context for engineering decisions.
-- EngineeringWorkflowResolver selects one approved EngineeringWorkflow for normalized EngineerIntent.
-- EngineeringWorkflow defines deterministic EngineeringOperation sequence.
-- EngineeringOrchestrator receives resolved EngineeringWorkflow, creates EngineeringExecutionContext and supervises EngineeringWorkflowInstance until completion or termination.
-- EngineeringExecutionContext preserves mutable runtime context state for the execution.
-- EngineeringWorkflowInstance represents concrete EngineeringWorkflow execution and owns EngineeringOperationInstance objects.
-- EngineeringOperation defines approved atomic executable workflow steps.
-- EngineeringOperationInstance represents concrete EngineeringOperation execution within a workflow run.
-- EngineeringServiceCapabilityRegistry exposes approved EngineeringServiceContract capabilities for EngineeringOperationInstance execution.
-- EngineeringServiceContract defines interaction boundary between EngineeringOperationInstance and EngineeringService.
-- EngineeringService executes engineering logic independently through its approved EngineeringServiceContract.
-- DraftWorkspace contains every prepared Registry modification before publication.
-- RegistryTransaction governs every Registry modification.
-- ImpactAnalysis evaluates engineering impact before publication.
-- Validation verifies engineering integrity.
-- PublishingGate determines publication readiness.
-- AuditLog records the completed engineering transaction.
-- Published Registry becomes the new verified source of truth.
+- EngineerIntent expresses objective, target, scope and constraints.
+- EngineeringContext provides verified base Registry context.
+- EngineeringWorkflowResolver proposes an eligible workflow.
+- Engineer confirmation authorizes runtime execution.
+- EngineeringWorkflowInstance owns one runtime execution and absorbed
+  EngineeringExecutionContext state.
+- WorkflowStepExecution preserves step-level execution evidence.
+- EngineeringOrchestrator coordinates confirmed execution without implementing
+  handler logic.
+- EngineeringServiceCapabilityCatalog resolves declared approved typed handler
+  bindings from immutable active runtime composition.
+- EngineeringService executes one resolved typed handler capability.
+- DraftWorkspace is the required mutable Registry modification boundary.
+- RegistryTransaction governs publication evidence and outcome.
+- Analysis, validation, publishing and audit follow governance contracts.
 
-Rules:
-
-- Every runtime component must have exactly one architectural responsibility.
-- EngineeringOrchestrator must coordinate EngineeringWorkflowInstance execution and supervise EngineeringOperationInstance execution but must not execute engineering logic.
-- EngineeringWorkflow must define execution flow but must not implement engineering services.
-- EngineeringExecutionContext must preserve runtime execution context state but must not execute engineering service logic.
-- EngineeringWorkflowInstance must preserve workflow runtime state but must not execute engineering service logic.
-- EngineeringService must execute approved EngineeringOperationInstance steps through EngineeringServiceContract but must not coordinate workflow execution.
-- EngineeringServiceContract capabilities must be discovered through EngineeringServiceCapabilityRegistry.
-- DraftWorkspace must contain Registry modifications before RegistryTransaction publication flow proceeds.
-- RegistryTransaction must be the only entry point for Registry modification.
-- Registry publication must occur only after successful Validation and PublishingGate approval.
-- Runtime execution must be deterministic, reproducible and fully traceable.
-- Architectural responsibility boundaries must not be bypassed or merged.
-- New EngineeringRuntime behavior requires an approved domain contract before implementation.
-
-
+Every runtime component has exactly one architectural responsibility.
+Published Registry may change only through successful governed publication.
 ##### Registry Studio Development Phases
 
 Status: APPROVED
