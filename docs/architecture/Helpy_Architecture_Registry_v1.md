@@ -3918,7 +3918,8 @@ Status: PARTIALLY CLOSED — GAP APPROVED
 
 Decision Summary:
 - Admin Panel is a Business Logic Builder, not a simple order-management dashboard.
-- Admin Panel is the source of truth for categories, subcategories, questions, photo requirements, pricing, guidance, platform settings, rules, evidence, reviews, translations and operational control.
+- Admin Panel is the source of truth for live Helpy operational configuration: categories, subcategories, questions, photo requirements, pricing, guidance, platform settings, rules, evidence, reviews, translations and operational control.
+- Its standard Registry interface uses shared Registry governance contracts and does not redefine Registry Studio architecture.
 - Mobile app must consume Admin-managed business logic through structured API contracts.
 - Runtime Markdown document parsing is not allowed for mobile guidance.
 - Draft / Published lifecycle, Audit Log, Preview, governed recovery, Helpy Category Health Check and PUBLISHING_DRAFT / SANDBOX workspace purposes are required governance capabilities.
@@ -4372,7 +4373,8 @@ They do not require immediate MVP implementation, but the architecture must rese
 
 Status: PLANNED / ACTIVE DEVELOPMENT
 
-Registry Studio is an Admin Panel roadmap module for maintaining Helpy Registry as a structured source of truth.
+Registry Studio integration is an Admin Panel roadmap capability for maintaining Helpy Registry as a structured source of truth.
+Registry Studio itself remains a standalone engineering platform; Helpy is its first project adapter and pilot.
 
 Purpose:
 - Navigate the Registry as an architecture tree.
@@ -4380,16 +4382,16 @@ Purpose:
 - Support canonical translation and audit workflows.
 - Preserve checked phrase statuses between sessions.
 - Track Registry changes until the workspace returns to CLEAN state.
-- Support future Admin Panel operation without external tools.
+- Support project Admin Panel integration through shared Registry governance contracts.
 
 Core principle:
 - Studio analyzes, highlights risks and preserves context.
-- Final decisions remain the responsibility of the administrator.
+- Studio does not make autonomous decisions. Final Registry structure, canonicalization, drift and ambiguity decisions remain with authorized engineers; project governance may require additional approval.
 
 Required modules:
 - Registry Explorer.
 - Hierarchical Registry Search.
-- Translation Engine.
+- Translation Review Integration.
 - Canonical Audit.
 - Phrase Status Persistence.
 - Registry Health.
@@ -4416,14 +4418,14 @@ Required modules:
 - Admin Panel Integration.
 
 Design principles:
-- Registry is the source of truth.
+- Registry is the source of truth for canonical engineering state; live operational records remain owned by their project domain.
 - Any Registry change must be traceable.
 - Any Registry change must expose its impact before application.
 - A PUBLISHING_DRAFT workspace becomes CLEAN only through successful atomic publication; abandoned work must be explicitly discarded.
 - Studio must preserve work context between sessions.
-- Studio must help the administrator, not replace the administrator.
-- Studio must prevent hidden drift and unfinished work.
-- Studio must allow one administrator to continue another administrator's work without losing context.
+- Studio must support engineers and authorized administrators, not replace human decision-making.
+- Studio must reveal drift and unfinished work, including drift between project operational configuration and canonical Registry representation.
+- Studio must allow one authorized actor to continue another authorized actor's work without losing context.
 
 
 
@@ -5354,6 +5356,27 @@ Rules:
 - Project adapters may extend, but must not modify RegistryStudio core.
 - RegistryStudio upgrades must not require redesign of integrated projects.
 - New platform capabilities require an approved domain contract before implementation.
+
+###### Interface Boundary
+
+One Registry governance core supports multiple project-neutral Registry interfaces:
+
+- Registry Studio provides the full precise engineering interface;
+- an Admin Panel provides the standard project interface;
+- every Registry-facing interface uses the same approved Registry governance contracts and publication path;
+- Registry Studio may operate standalone and is not a module of any project's Admin Panel.
+
+A project Admin Panel may separately publish project operational records through
+project-specific workflows. That does not redefine Registry Studio or directly
+alter canonical Registry engineering state. Any resulting divergence is input
+to subsequent Registry Studio drift analysis.
+
+###### Current Development Boundary
+
+- Registry Studio universal source code and contracts develop in the `helpy_translator` repository on `develop/v2`;
+- Helpy is the first project adapter and pilot, not the owner of Registry Studio;
+- generic Registry Studio changes and builds must not be made in the Helpy repository;
+- the Helpy repository receives only explicit Helpy adapter or integration changes.
 
 
 
