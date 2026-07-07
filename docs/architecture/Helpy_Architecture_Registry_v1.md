@@ -6579,7 +6579,34 @@ The legacy Rules Simulator Model must be rewritten during controlled contract co
 | EngineeringServiceContractPayload | remove | Redundant wrapper |
 | EngineeringServiceInput / Output / Failure | retain | Typed execution values |
 | EngineeringService | reclassify | Application handler implementation |
-| EngineeringServiceCapabilityRegistry | defer dynamic model | Composition-time capability binding only |
+| EngineeringServiceCapabilityRegistry | reclassify / rename | EngineeringServiceCapabilityCatalog: immutable versioned runtime composition catalog |
+
+EngineeringServiceCapabilityCatalog:
+
+- is an immutable versioned runtime composition catalog;
+- is created and validated during platform and active project-adapter composition before any workflow is resolved or executed;
+- accepts only declared approved EngineeringServiceContract bindings from platform and adapter composition;
+- validates that every executable WorkflowStepDefinition admitted into the active runtime resolves to exactly one approved typed handler binding;
+- provides deterministic resolution only for a declared typed EngineeringServiceContract required by workflow execution;
+- preserves composition fingerprint, contract identity, contract semantic version and binding provenance;
+- remains immutable for the lifetime of its active runtime composition;
+- allows platform or adapter extensions to contribute bindings only before catalog validation;
+- does not execute handler logic;
+- does not select workflows;
+- does not coordinate workflow execution;
+- does not modify Registry, DraftWorkspace or RegistryTransaction;
+- is not a RegistryEntity;
+- has no RegistryEntityPayload;
+- has no persistent capability state;
+- is not a generic service locator;
+- does not expose arbitrary service lookup or implementation details;
+- does not own mutable capability availability.
+
+Runtime dependency unavailability belongs to typed handler preconditions and EngineeringServiceFailure. It is not catalog state.
+
+Handler replacement creates a new validated runtime composition. It may preserve the approved EngineeringServiceContract without requiring workflow redesign. A changed contract requires a separately approved contract and semantic version.
+
+EngineeringWorkflowInstance must preserve the active composition fingerprint as run-level runtime evidence. Each WorkflowStepExecution must preserve its resolved EngineeringServiceContract identity and handler binding provenance. A resumable step must not execute automatically when its previously resolved binding provenance has changed; it must stop for engineer decision.
 
 EngineeringContext:
 
@@ -6609,6 +6636,7 @@ Engineer confirmation is required after workflow resolution and before runtime e
 EngineeringWorkflowInstance owns:
 
 - runtime lifecycle;
+- active runtime composition fingerprint;
 - current step;
 - WorkflowStepExecution records;
 - intermediate result references;
@@ -6616,6 +6644,8 @@ EngineeringWorkflowInstance owns:
 - failure, resume and completion state;
 - RegistryTransaction reference when Registry modification exists;
 - runtime audit references.
+
+Each WorkflowStepExecution preserves its resolved EngineeringServiceContract identity and handler binding provenance.
 
 EngineeringExecutionContext must merge into EngineeringWorkflowInstance. It must not remain as a second lifecycle and state owner.
 
@@ -6631,8 +6661,10 @@ EngineerIntent
 → engineer confirmation
 → EngineeringWorkflowInstance
    └─ WorkflowStepExecution[]
-       → typed handler contract
-       → service handler
+       → required EngineeringServiceContract
+       → EngineeringServiceCapabilityCatalog
+       → resolved approved handler binding
+       → EngineeringService
 → DraftWorkspace
 → RegistryTransaction
 → analysis / validation / publishing / audit
@@ -6643,14 +6675,14 @@ EngineeringOrchestrator:
 - advances WorkflowStepExecution sequence;
 - enforces stop conditions;
 - stops for engineer decisions;
-- delegates a step through typed handler binding;
+- resolves the required typed handler contract through EngineeringServiceCapabilityCatalog and delegates a step through the resolved approved binding;
 - transitions Registry modification work through DraftWorkspace governance boundary;
 - must not directly depend on BulkOperations, GlobalRename, RulesSimulator, ImpactAnalysis, Validation, RegistryCoverage, PublishingGate or AuditLog implementations;
 - must not create RegistryTransaction outside DraftWorkspace boundary.
 
 EngineeringServiceContractPayload must be removed because typed EngineeringServiceInput, EngineeringServiceOutput and EngineeringServiceFailure already define the required service boundary.
 
-Dynamic EngineeringServiceCapabilityRegistry is deferred. Current Core requires only approved composition-time capability binding through platform and adapter contracts.
+The legacy dynamic EngineeringServiceCapabilityRegistry model must be replaced by EngineeringServiceCapabilityCatalog during controlled contract correction.
 
 ###### 13. Helpy Adapter Decisions
 
@@ -6672,13 +6704,11 @@ The following remain required Helpy adapter capabilities:
 
 Category Health Check remains a required Helpy publishing gate extension. It is not Registry Studio Core model or RegistryEntityKind.
 
-###### 14. Open Decisions Requiring Separate Contracts
+###### 14. Deferred Future Expansion
 
-The following decisions remain open and must not be invented during implementation:
+No unresolved Core architecture decision remains in this audit baseline.
 
-| Open question | Required decision |
-|---|---|
-| Dynamic capability registry | Real plugin installation or replacement scenario before modeling |
+Dynamic capability lifecycle is explicitly deferred. It may be modeled only after an approved evidence-backed scenario requires handler installation, removal, activation, deactivation or replacement without creating a new runtime composition.
 
 ###### 15. Controlled Rewrite Scope
 
@@ -6691,7 +6721,7 @@ The following Registry Studio blocks must be rewritten as one coordinated archit
 - Engineering Change Analysis, ImpactAnalysis, Validation, RiskClassification, PublishingGate, PublicationResult and Rollback;
 - DraftWorkspace and AuditLog;
 - BulkOperations, GlobalRename, RulesSimulator, RegistryCoverage and SandboxMode;
-- Engineering Context and Engineering Runtime;
+- Engineering Context, Engineering Runtime and EngineeringServiceCapabilityRegistry legacy model;
 - duplicated Risk Classification section.
 
 No implementation may begin from a legacy contract block until its corresponding correction is completed.
