@@ -4404,7 +4404,7 @@ Design principles:
 - Registry is the source of truth.
 - Any Registry change must be traceable.
 - Any Registry change must expose its impact before application.
-- Any Registry change must finish in CLEAN state.
+- A PUBLISHING_DRAFT workspace becomes CLEAN only through successful atomic publication; abandoned work must be explicitly discarded.
 - Studio must preserve work context between sessions.
 - Studio must help the administrator, not replace the administrator.
 - Studio must prevent hidden drift and unfinished work.
@@ -4414,149 +4414,55 @@ Design principles:
 
 ##### Registry Transaction Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-Registry Studio must treat Registry as a domain model, not as a Markdown file.
+RegistryTransaction is the only governed lifecycle owner for one Registry
+modification intended for publication.
 
-Markdown is one possible storage backend.
-Registry Studio must not depend on Markdown implementation details.
+RegistryTransaction:
 
-Future storage backends may include structured documents, databases, remote repositories or Admin Panel APIs without changing Registry Studio business logic.
+- has stable transaction identity;
+- originates from one PUBLISHING_DRAFT DraftWorkspace;
+- preserves the source RegistrySnapshot reference;
+- preserves exact draft revision and draft fingerprint references used as
+  governance evidence;
+- owns analysis, validation, approval and publication evidence for that
+  modification;
+- owns transaction outcome;
+- owns PublicationAttempt records;
+- preserves immutable audit references;
+- must not modify Published Registry directly;
+- must not own DraftWorkspace revision, fingerprint, DIRTY state or CLEAN state;
+- must not finish in CLEAN state;
+- must not change the historical outcome of an already published transaction.
 
-Purpose:
-- Define the lifecycle of every Registry modification.
-- Prevent silent Registry drift.
-- Prevent partial Registry publication.
-- Preserve dependency visibility before any change is applied.
-- Ensure every Registry change finishes in CLEAN state.
+RegistryTransaction is not Published Registry, DraftWorkspace, a storage
+commit or a generic data-transfer wrapper.
 
-Core principles:
-- Published Registry is immutable during editing.
-- All modifications must be performed inside Draft Workspace.
-- Draft Workspace is isolated from the published Registry.
-- Every change must be traceable.
-- Every change must expose dependency impact before publication.
-- Every publication must pass validation before application.
-- Every publication must finish in CLEAN state.
-- Silent Registry modification is prohibited.
-- Partial publication is prohibited.
-- Administrator confirmation is required before applying a Draft to Registry.
+All Registry changes intended for publication must originate through a
+PUBLISHING_DRAFT DraftWorkspace and exactly one active RegistryTransaction.
 
-RegistryTransaction defines the canonical atomic governance unit for preparing, validating, approving and applying Registry modifications.
+Transaction evidence must remain pinned to the exact source RegistrySnapshot
+and exact DraftWorkspace revision from which it was produced.
 
-RegistryTransaction is not DraftWorkspace.
+A later workspace modification invalidates prior analysis, validation, risk
+and gate evidence. Publication remains prohibited until current evidence is
+recomputed.
 
-RegistryTransaction is not Published Registry.
+Required engineer approval must be preserved as transaction evidence when
+approval is required by governance policy.
 
-RegistryTransaction is not a storage commit.
+Partial publication is prohibited.
 
-RegistryTransaction is based on:
-- DraftWorkspace;
-- RegistrySnapshot;
-- RegistryEntity;
-- RegistryPath;
-- RegistryDependency;
-- ImpactAnalysis;
-- Validation;
-- PublishingGate;
-- AuditLog.
+The successful publication path uses the atomic PublishRegistryRevision
+application boundary defined by Repository Boundary Contracts.
 
-RegistryTransaction responsibilities:
-- define transaction identity;
-- group related Registry modifications;
-- preserve affected RegistryEntity and RegistryPath references;
-- preserve dependency and impact visibility;
-- preserve ValidationResult;
-- preserve PublishingGateDecision;
-- preserve administrator approval state;
-- preserve PublicationResult;
-- preserve rollback reference when applicable;
-- provide traceability for AuditLog.
+Data, API and storage mappings may serialize transaction information, but no
+separate Domain payload model is introduced for RegistryTransaction.
 
-RegistryTransaction states:
-- CREATED;
-- DRAFTING;
-- READY_FOR_ANALYSIS;
-- ANALYZED;
-- VALIDATED;
-- READY_FOR_REVIEW;
-- APPROVED;
-- PUBLISHED;
-- BLOCKED;
-- FAILED;
-- CANCELLED;
-- ROLLBACK_PREPARED;
-- ROLLED_BACK.
-
-Rules:
-- Every Registry modification must belong to exactly one RegistryTransaction.
-- RegistryTransaction must originate from DraftWorkspace.
-- RegistryTransaction must not modify Published Registry before PublishingGate approval.
-- RegistryTransaction must create or reference RegistrySnapshot before approved changes are applied.
-- RegistryTransaction must preserve ImpactAnalysis and Validation results before publication.
-- RegistryTransaction must preserve administrator approval before applying changes to Published Registry.
-- RegistryTransaction must create AuditLog records for committed actions.
-- RegistryTransaction must finish in CLEAN state after publication, cancellation or rollback.
-- Partial RegistryTransaction publication is prohibited.
-- New RegistryTransaction behavior requires an approved domain contract before implementation.
-
-Required lifecycle:
-
-Published Registry
-→ Create Draft
-→ Modify Draft
-→ Dependency Analysis
-→ Impact Analysis
-→ Validation
-→ Diff Preview
-→ Administrator Review
-→ CLEAN Verification
-→ Apply to Registry
-
-Forbidden:
-- Direct Registry editing from Registry Studio.
-- Background Registry modification.
-- Silent automatic replacement.
-- Automatic publication.
-- Publishing with unresolved dependencies.
-- Publishing with failed validation.
-- Publishing with NOT CLEAN state.
-- Partial application of a Draft.
-
-##### TransactionPayload Model
-
-Status: APPROVED
-
-TransactionPayload defines the canonical typed payload for RegistryTransaction domain data.
-
-TransactionPayload is based on:
-- RegistryTransaction;
-- DraftWorkspace;
-- affected RegistryEntity objects;
-- affected RegistryPath references;
-- RegistrySnapshot references;
-- ValidationResult;
-- PublishingGateDecision;
-- PublicationResult when available;
-- AuditLog traceability references.
-
-TransactionPayload responsibilities:
-- preserve transaction identity data;
-- preserve transaction lifecycle state;
-- preserve affected RegistryEntity and RegistryPath references;
-- preserve RegistrySnapshot references before publication;
-- preserve ValidationResult and PublishingGateDecision references;
-- preserve PublicationResult reference when available;
-- preserve rollback reference when applicable;
-- provide deterministic transaction serialization.
-
-Rules:
-- TransactionPayload must represent RegistryTransaction domain meaning, not storage format.
-- TransactionPayload must not modify RegistryTransaction lifecycle.
-- TransactionPayload must not contain untyped dynamic data.
-- TransactionPayload must remain independent of Markdown, database schema and API response shape.
-- New TransactionPayload behavior requires an approved domain contract before implementation.
-
+Legacy rollback-specific transaction states are removed. Recovery is governed
+through a new RegistryTransaction and does not rewrite historical outcome of
+the original published transaction.
 
 ##### Registry Storage Independence
 
@@ -5079,451 +4985,262 @@ technical transaction wrapper is introduced.
 
 ##### Engineering Change Analysis
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-Engineering Change Analysis is not a file comparison tool.
+Engineering Change Analysis is an application use case that prepares verified
+decision support for one exact DraftWorkspace revision.
 
-It is an engineering decision support model.
+Engineering Change Analysis:
 
-Purpose:
-- detect changes;
-- restore engineering context;
-- identify dependencies;
-- evaluate impact;
-- classify risk;
-- highlight critical logic areas;
-- prepare verified information for engineering decisions.
+- collects verified source RegistrySnapshot and DraftWorkspace context;
+- derives explainable relation and dependency impact context;
+- creates immutable ImpactAnalysisResult evidence;
+- may identify semantic candidates and informational text matches;
+- is not a RegistryEntity;
+- is not a RegistryEntityPayload;
+- is not a persistent lifecycle owner;
+- does not publish Registry changes;
+- does not replace engineer decision-making.
 
-Registry Studio must provide the engineer with sufficient verified context to make safe engineering decisions.
+Registry Studio must provide enough verified context to prevent an engineer
+from manually reconstructing Registry logic before a change decision.
 
-The system supports engineering decisions.
-It does not replace them.
+##### Impact Analysis Result Model
 
-Registry Studio must not require the engineer to manually reconstruct Registry logic before making a decision.
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-When sufficient verified information is available, Registry Studio must identify dependencies, classify risks and highlight critical logic areas.
+ImpactAnalysisResult is an immutable assessment for one exact
+RegistryTransaction, DraftWorkspace revision and source RegistrySnapshot.
 
-Mass changes must be context-aware and risk-classified.
+ImpactAnalysisResult:
 
+- identifies directly changed and indirectly affected RegistryEntity objects;
+- identifies affected RegistryPath values and RegistryRelation records;
+- identifies confirmed dependency paths;
+- explains why each affected item enters scope;
+- distinguishes direct confirmed dependency, indirect confirmed impact,
+  semantic candidate and informational text match;
+- preserves adapter identity and semantic-contract provenance;
+- does not become a RegistryEntity;
+- does not require a RegistryEntityPayload;
+- does not become an independent aggregate or persistence boundary.
 
-##### Impact Analysis Model
+Only direct confirmed dependencies and indirect confirmed impacts enter
+deterministic impact scope automatically.
 
-Status: APPROVED
+Semantic candidates require engineer decision.
 
-ImpactAnalysis defines the engineering assessment of how proposed Registry changes may affect the Registry domain model.
+Informational text matches provide context only and must not become confirmed
+dependency evidence without approved semantic support.
 
-ImpactAnalysis is not a simple text diff.
+RiskAssessment is derived from current ImpactAnalysisResult and
+ValidationResult.
 
-ImpactAnalysis is based on:
-- RegistryGraph;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryPath;
-- RegistrySnapshot;
-- RegistryEntityKind;
-- RegistryEntityPayload.
+RiskAssessment:
 
-ImpactAnalysis is used by:
-- Engineering Change Analysis;
-- Registry Transaction Model;
-- Validation;
-- Category Health Check;
-- Risk Classification;
-- Publishing Gate;
-- Rollback preparation;
-- Global Rename;
-- Bulk Operations.
-
-ImpactAnalysis must identify:
-- directly changed RegistryEntity objects;
-- indirectly affected RegistryEntity objects;
-- affected RegistryRelation objects;
-- affected RegistryDependency objects;
-- affected RegistryPath references;
-- affected payloads;
-- affected validation rules;
-- affected publication readiness;
-- affected guidance, questions, photos, pricing and rules;
-- affected cross references.
-
-Impact levels:
-- NONE;
-- LOW;
-- MEDIUM;
-- HIGH;
-- CRITICAL;
-- BLOCKING.
-
-Rules:
-- ImpactAnalysis must be computed from verified Registry domain data.
-- ImpactAnalysis must be deterministic and explainable.
-- ImpactAnalysis must expose affected entities before changes are applied.
-- ImpactAnalysis must not rely on conversational memory or assumptions.
-- Mass changes must not proceed without ImpactAnalysis.
-- BLOCKING impact must prevent publication until resolved or explicitly reviewed.
-- ImpactAnalysis must support comparison between RegistrySnapshot states.
-- ImpactAnalysisResult must provide enough context for engineering decisions.
-- New ImpactAnalysis behavior requires an approved domain contract before implementation.
-
-
+- is advisory evidence for engineer decision-making;
+- is not a standalone RegistryEntity;
+- is not persistent dependency state;
+- must not become a separate lifecycle model;
+- must not bypass blocking validation, hard dependency or approval rules.
 
 ##### Validation Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-Validation defines the canonical engineering verification of Registry domain integrity before publication.
+Validation is a deterministic policy and service that verifies one exact
+DraftWorkspace revision.
 
-Validation is not limited to syntax verification.
+Validation:
 
-Validation is based on:
-- RegistryEntity;
-- RegistryEntityKind;
-- RegistryEntityPayload;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryGraph;
-- RegistryPath;
-- RegistrySnapshot;
-- ImpactAnalysis.
+- validates semantic integrity, path integrity, relation constraints and
+  adapter-defined semantic rules;
+- validates declared adapter cycle policy for the exact revision;
+- may execute approved adapter-defined validation extensions;
+- remains storage independent;
+- does not modify Registry;
+- does not publish Registry changes;
+- does not own transaction lifecycle.
 
-Validation is used by:
-- Registry Transaction Model;
-- Engineering Change Analysis;
-- Category Health Check;
-- Risk Classification;
-- Publishing Gate;
-- Rollback preparation.
-
-Validation must verify:
-- entity integrity;
-- relation integrity;
-- dependency integrity;
-- payload consistency;
-- path consistency;
-- graph consistency;
-- domain rule consistency;
-- publication readiness;
-- CLEAN state readiness.
+ValidationResult is immutable transaction-owned verification evidence.
 
 ValidationResult:
-- PASSED;
-- WARNING;
-- FAILED;
-- BLOCKED.
 
-Rules:
-- Validation must be deterministic and reproducible.
-- Validation must use verified Registry domain data.
-- Validation must not depend on storage implementation.
-- Validation failures must identify affected RegistryEntity objects.
-- FAILED and BLOCKED validation must prevent publication.
-- Validation must execute before Registry publication.
-- Validation results must be traceable through RegistryTransaction.
-- New Validation behavior requires an approved domain contract before implementation.
+- belongs to one RegistryTransaction and one exact DraftWorkspace revision;
+- references the verified source RegistrySnapshot;
+- identifies affected RegistryEntity and RegistryPath values when validation
+  fails or blocks publication;
+- becomes stale after any DraftWorkspace modification;
+- must remain explainable and reproducible for identical verified inputs.
 
-
-
-##### Risk Classification Model
-
-Status: APPROVED
-
-RiskClassification defines the canonical engineering risk assessment for proposed Registry changes before publication.
-
-RiskClassification is based on:
-- ImpactAnalysis;
-- ValidationResult;
-- RegistryDependency;
-- affected RegistryEntity objects;
-- affected RegistryPath references.
-
-RiskClassification levels:
-- NONE;
-- LOW;
-- MEDIUM;
-- HIGH;
-- CRITICAL;
-- BLOCKING.
-
-RiskClassification responsibilities:
-- classify engineering risk before publication;
-- identify blocking risk when applicable;
-- preserve affected RegistryEntity and RegistryPath references;
-- provide RiskClassificationSummary for AuditLog;
-- provide risk context for PublishingGate.
-
-Rules:
-- RiskClassification must be computed from verified Registry domain data.
-- RiskClassification must be deterministic and explainable.
-- BLOCKING risk must prevent publication until resolved or explicitly reviewed.
-- RiskClassification must be traceable through RegistryTransaction and AuditLog.
-- New RiskClassification behavior requires an approved domain contract before implementation.
-
+Failed validation, unresolved hard dependency and missing required approval are
+blocking conditions. Advisory risk does not override them.
 
 ##### Publishing Gate Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-PublishingGate defines the canonical engineering decision point before Registry publication.
+PublishingGate is a pure governance policy for one exact current
+DraftWorkspace revision.
 
-PublishingGate is responsible for determining whether a RegistryTransaction may be published.
+PublishingGate:
 
-PublishingGate is based on:
-- RegistryTransaction;
-- Validation;
-- ImpactAnalysis;
-- RiskClassification;
-- RegistrySnapshot;
-- RegistryDependency;
-- RegistryGraph.
+- evaluates only non-stale ImpactAnalysisResult, ValidationResult,
+  RiskAssessment and required approval evidence;
+- verifies that no newer unvalidated DraftWorkspace revision exists;
+- applies blocking governance invariants;
+- returns PublishingGateDecision;
+- does not own lifecycle state;
+- does not modify Registry;
+- does not create RegistryTransaction;
+- does not execute publication.
 
-PublishingGate is responsible for:
-- verifying publication readiness;
-- verifying CLEAN state;
-- verifying blocking dependencies;
-- verifying ValidationResult;
-- verifying impact assessment;
-- verifying snapshot availability;
-- producing deterministic PublishingGateDecision.
+PublishingGateDecision is a transaction-owned decision value for one exact
+draft revision.
 
-PublishingGateDecision:
-- APPROVED;
-- APPROVED_WITH_WARNINGS;
-- BLOCKED;
-- REJECTED.
+A blocked gate decision is not a completed PublicationAttempt.
 
-Rules:
-- Every Registry publication must pass through PublishingGate.
-- PublishingGate must execute after Validation and ImpactAnalysis.
-- BLOCKED and REJECTED decisions must prevent publication.
-- PublishingGate must provide deterministic and explainable decisions.
-- PublishingGateDecision must identify blocking RegistryEntity objects whenever applicable.
-- PublishingGateDecision must be traceable through RegistryTransaction and AuditLog.
-- PublishingGate must not modify Registry directly.
-- PublishingGate must verify CLEAN state before publication.
-- PublishingGate behavior must not depend on storage implementation.
-- New PublishingGate behavior requires an approved domain contract before implementation.
+DraftWorkspace CLEAN transition occurs only inside successful atomic
+PublishRegistryRevision publication. CLEAN is not a pre-publication gate
+condition.
 
+##### Publication Attempt
 
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-##### Publication Result Model
+PublicationAttempt is transaction-owned immutable evidence of an applied,
+failed or cancelled publication execution.
 
-Status: APPROVED
+PublicationAttempt contains:
 
-PublicationResult defines the canonical result of applying an approved RegistryTransaction to Published Registry.
-
-PublicationResult is based on:
-- RegistryTransaction;
-- PublishingGateDecision;
-- RegistrySnapshot before publication;
-- RegistrySnapshot after publication when applied;
-- affected RegistryEntity objects;
-- publication failure reason when failed.
-
-PublicationResult states:
-- APPLIED;
-- BLOCKED;
-- FAILED;
-- CANCELLED.
-
-PublicationResult responsibilities:
-- preserve publication state;
-- preserve applied RegistryTransaction identity;
-- preserve before and after RegistrySnapshot references when applicable;
-- preserve affected RegistryEntity references;
-- preserve publication failure reason when failed;
-- provide traceability for AuditLog.
-
-Rules:
-- PublicationResult must be created for every publication attempt.
-- PublicationResult must not modify Registry directly.
-- PublicationResult must be traceable through RegistryTransaction and AuditLog.
-- PublicationResult must be deterministic and reproducible for identical RegistryTransaction, PublishingGateDecision and verified RegistrySnapshot data.
-- New PublicationResult behavior requires an approved domain contract before implementation.
-
-
-##### Rollback Model
-
-Status: APPROVED
-
-Rollback defines the canonical engineering recovery process for restoring a previously verified RegistrySnapshot after an approved RegistryTransaction.
-
-Rollback is not a storage restore.
-
-Rollback is based on:
-- RegistryTransaction;
-- RegistrySnapshot;
-- PublicationResult;
-- AuditLog;
-- affected RegistryEntity objects;
-- affected RegistryPath references.
-
-Rollback states:
-- PREPARED;
-- READY;
-- EXECUTED;
-- FAILED;
-- CANCELLED.
-
-Rollback responsibilities:
-- preserve rollback identity;
-- preserve source and target RegistrySnapshot references;
-- preserve restored RegistryEntity and RegistryPath references;
-- preserve rollback reason;
-- preserve rollback execution result;
-- provide traceability for AuditLog.
-
-Rules:
-- Rollback must originate from a verified RegistrySnapshot.
-- Rollback must execute through RegistryTransaction.
-- Rollback must not modify Published Registry outside RegistryTransaction.
-- Rollback execution must create AuditLog records.
-- Rollback must be deterministic and reproducible for identical RegistrySnapshot and RegistryTransaction data.
-- New Rollback behavior requires an approved domain contract before implementation.
-
-
-##### RollbackPayload Model
-
-Status: APPROVED
-
-RollbackPayload defines the canonical typed payload for Rollback domain data.
-
-RollbackPayload is based on:
-- Rollback;
-- RegistryTransaction;
+- current DraftWorkspace revision;
 - source RegistrySnapshot;
-- target RegistrySnapshot;
-- restored RegistryEntity objects;
-- restored RegistryPath references;
-- rollback reason;
-- rollback execution result;
-- AuditLog traceability references.
+- PublishingGateDecision reference;
+- before-publication RegistrySnapshot;
+- resulting RegistrySnapshot when publication succeeds;
+- publication outcome;
+- cancellation or failure reason when applicable;
+- immutable audit references.
 
-RollbackPayload responsibilities:
-- preserve rollback identity data;
-- preserve rollback lifecycle state;
-- preserve source and target RegistrySnapshot references;
-- preserve restored RegistryEntity and RegistryPath references;
-- preserve rollback reason;
-- preserve rollback execution result;
-- provide deterministic rollback serialization.
+PublicationAttempt is not an independent aggregate, RegistryEntity,
+RegistryEntityPayload or persistence boundary.
 
-Rules:
-- RollbackPayload must represent Rollback domain meaning, not storage format.
-- RollbackPayload must not execute rollback.
-- RollbackPayload must not modify Published Registry.
-- RollbackPayload must not contain untyped dynamic data.
-- RollbackPayload must remain independent of Markdown, database schema and API response shape.
-- New RollbackPayload behavior requires an approved domain contract before implementation.
+A blocked PublishingGateDecision prevents creation of an applied publication
+attempt.
 
+##### Governed Recovery
+
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
+
+Recovery is a governed operation, not a parallel aggregate or storage restore.
+
+Canonical recovery flow:
+
+Published RegistryTransaction A
+→ recovery request
+→ new PUBLISHING_DRAFT DraftWorkspace
+→ new RegistryTransaction B
+→ Engineering Change Analysis
+→ Validation
+→ required engineer approval
+→ publication
+
+Recovery RegistryTransaction B references:
+
+- published RegistryTransaction A;
+- target verified RegistrySnapshot;
+- recovery reason;
+- current analysis, validation and approval evidence;
+- PublicationAttempt;
+- immutable audit records.
+
+RegistryTransaction A remains historically PUBLISHED.
+
+No standalone recovery payload model is introduced.
 
 ##### Draft Workspace Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-DraftWorkspace defines the isolated engineering workspace for preparing Registry changes before publication.
+DraftWorkspace is the common isolated workspace aggregate for Registry change
+preparation and experimentation.
 
-DraftWorkspace is not the Published Registry.
+DraftWorkspace:
 
-DraftWorkspace is based on:
-- RegistryEntity;
-- RegistryGraph;
-- RegistrySnapshot;
-- RegistryTransaction;
-- ImpactAnalysis;
-- Validation;
-- PublishingGate.
+- has exactly one purpose:
+  - PUBLISHING_DRAFT;
+  - SANDBOX;
+- references one source RegistrySnapshot;
+- owns current isolated workspace revision and fingerprint;
+- preserves resumable engineering work context;
+- may be discarded without affecting Published Registry;
+- does not own RegistryTransaction lifecycle;
+- does not own validation lifecycle;
+- does not own publication lifecycle;
+- does not own RegistryGraph or RegistryDependency as independent state.
 
-DraftWorkspace is responsible for:
-- holding proposed Registry changes;
-- preserving engineering context;
-- grouping changes into RegistryTransaction;
-- supporting validation before publication;
-- supporting impact analysis before publication;
-- supporting review before publication;
-- preventing direct mutation of Published Registry.
+PUBLISHING_DRAFT:
 
-DraftWorkspace states:
-- EMPTY;
-- ACTIVE;
-- DIRTY;
-- CLEAN;
-- BLOCKED;
-- DISCARDED.
+- prepares Registry changes intended for publication;
+- has exactly one active RegistryTransaction;
+- owns mutable draft revision and fingerprint;
+- owns DIRTY and CLEAN state;
+- may request ImpactAnalysis, Validation, RiskAssessment and PublishingGate
+  evidence;
+- is the only workspace purpose permitted to enter publication governance.
 
-Rules:
-- All Registry modifications must start inside DraftWorkspace.
-- DraftWorkspace must be isolated from Published Registry.
-- DraftWorkspace must preserve enough context to resume engineering work.
-- DraftWorkspace must expose DIRTY state when unpublished changes exist.
-- DraftWorkspace must not own RegistryTransaction, Validation, PublishingGate or publication lifecycle states.
-- DraftWorkspace must support discard without affecting Published Registry.
-- DraftWorkspace must be traceable through RegistryTransaction.
-- New DraftWorkspace behavior requires an approved domain contract before implementation.
+SANDBOX:
 
+- owns an isolated experimental revision;
+- has no RegistryTransaction;
+- must not invoke PublishingGate or publication;
+- may run deterministic simulation, analysis and validation experiments;
+- produces informational experimental results only;
+- must not treat experimental results as publication evidence;
+- may be discarded without affecting PUBLISHING_DRAFT workspaces or Published
+  Registry.
 
+Sandbox promotion does not convert an existing SANDBOX workspace.
+
+Promotion creates a new PUBLISHING_DRAFT DraftWorkspace seeded from the exact
+sandbox revision and fingerprint, then creates a new RegistryTransaction and
+requires fresh analysis, validation, risk and gate evidence.
+
+Blocking state belongs to current validation and gate evidence, not to
+DraftWorkspace lifecycle.
+
+No separate SandboxMode model is introduced.
 
 ##### Audit Log Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-AuditLog defines the canonical traceability model for Registry engineering actions.
+AuditLog is an append-only immutable audit-record stream.
 
-AuditLog records what happened, when it happened, who initiated it and which Registry domain entities were affected.
+Each audit record has independent identity and contains:
 
-AuditLog is not a chat log and not a free-form note.
-
-AuditLog is based on:
-- RegistryTransaction;
-- DraftWorkspace;
-- RegistryEntity;
-- RegistryPath;
-- RegistrySnapshot;
-- ImpactAnalysis;
-- Validation;
-- PublishingGate;
-- RiskClassification.
-
-AuditLog must record:
-- actor identity;
-- action type;
+- actor;
+- action;
 - timestamp;
-- RegistryTransaction identity;
-- DraftWorkspace identity when applicable;
-- affected RegistryEntity objects;
-- affected RegistryPath values;
-- created RegistrySnapshot identity when applicable;
-- ImpactAnalysisSummary;
-- ValidationResult;
-- PublishingGateDecision;
-- RiskClassificationSummary;
-- PublicationResult;
-- rollback reference when applicable.
+- immutable event summary;
+- stable references;
+- affected RegistryEntity and RegistryPath references when applicable;
+- RegistryTransaction reference when applicable;
+- DraftWorkspace reference when applicable;
+- RegistrySnapshot reference when applicable.
 
-AuditLog action types:
-- draftCreated;
-- draftUpdated;
-- entityChanged;
-- impactAnalyzed;
-- validationExecuted;
-- publishingGateExecuted;
-- published;
-- publicationBlocked;
-- rollbackPrepared;
-- rollbackExecuted;
-- draftDiscarded.
+Audit records may reference ImpactAnalysisResult, ValidationResult,
+PublishingGateDecision, PublicationAttempt and governed recovery evidence.
 
-Rules:
-- Every committed RegistryTransaction must create AuditLog records.
-- Every publication attempt must be traceable through AuditLog.
-- AuditLog must be immutable after creation.
-- AuditLog must use RegistryPath and stable RegistryEntity identity, not storage coordinates.
-- AuditLog must not depend on Markdown line numbers or parser implementation details.
-- AuditLog must provide enough context to reconstruct the engineering decision path.
-- AuditLog must support rollback investigation.
-- AuditLog must not expose secrets or unsafe operational data.
-- New AuditLog behavior requires an approved domain contract before implementation.
+AuditLog:
 
-
+- must remain immutable after record creation;
+- must use RegistryPath and stable RegistryEntity identity rather than storage
+  coordinates;
+- must not depend on Markdown line numbers or parser implementation details;
+- must not duplicate mutable governance state from transaction, workspace or
+  evidence owners;
+- must not expose secrets or unsafe operational data.
 
 ##### Bulk Operations Model
 
@@ -7747,28 +7464,6 @@ Rules:
 - Phase separation must improve navigation and design consistency.
 - Phase separation must not override approved domain contracts.
 - Registry Studio must continue evolving through approved contracts, verified implementation and runtime evidence.
-
-
-##### Risk Classification
-
-Status: APPROVED
-
-Registry Studio must classify proposed changes by engineering risk.
-
-Risk levels:
-- LOW;
-- MEDIUM;
-- HIGH;
-- CRITICAL;
-- BLOCKED.
-
-Risk classification must help the engineer understand where manual attention is required.
-
-Critical logic areas must be highlighted before changes are applied.
-
-Risk classification is advisory.
-Engineering decisions always remain the responsibility of the engineer.
-
 
 ### Реализованные возможности
 
