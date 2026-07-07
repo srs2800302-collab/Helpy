@@ -6090,16 +6090,46 @@ Adapter provenance must be preserved for any snapshot, analysis, validation or a
 
 DraftWorkspace:
 
-- one DraftWorkspace has one active RegistryTransaction;
-- contains isolated mutable draft state;
+- is retained as the common isolated workspace aggregate;
+- has exactly one workspace purpose:
+  - PUBLISHING_DRAFT;
+  - SANDBOX;
 - references one source RegistrySnapshot;
-- owns draft revision and draft fingerprint;
-- owns DIRTY and CLEAN state;
+- owns its current isolated workspace revision and fingerprint;
 - preserves resumable engineering work context;
 - may be discarded without affecting Published Registry;
-- must not own transaction lifecycle;
+- must not own RegistryTransaction lifecycle;
 - must not own validation lifecycle;
 - must not own publication lifecycle.
+
+PUBLISHING_DRAFT workspace:
+
+- prepares Registry changes intended for publication;
+- has exactly one active RegistryTransaction;
+- owns mutable draft revision and draft fingerprint;
+- owns DIRTY and CLEAN state;
+- may request ImpactAnalysis, Validation, RiskAssessment and PublishingGate evidence;
+- is the only workspace purpose permitted to enter publication governance.
+
+SANDBOX workspace:
+
+- owns isolated experimental revision;
+- has no RegistryTransaction;
+- must not invoke PublishingGate or publication;
+- may run deterministic simulation, analysis and validation experiments;
+- produces informational experimental results only;
+- must not treat experimental evidence as publication evidence;
+- may be discarded without affecting any PUBLISHING_DRAFT workspace or Published Registry.
+
+Sandbox promotion:
+
+- does not convert an existing SANDBOX workspace into PUBLISHING_DRAFT;
+- creates a new PUBLISHING_DRAFT DraftWorkspace seeded from the exact sandbox revision and fingerprint;
+- creates a new RegistryTransaction;
+- requires fresh ImpactAnalysis, Validation, RiskAssessment and PublishingGate evidence;
+- may preserve sandbox results only as engineering context and audit references.
+
+The separate SandboxMode model must be removed during controlled contract rewrite.
 
 RegistryTransaction:
 
@@ -6409,7 +6439,7 @@ Cycle rules:
 | BulkOperations | reclassify | Deterministic change-plan application service |
 | GlobalRename | reclassify | Semantic bulk-refactoring operation |
 | RegistryCoverage | move to project adapter | Adapter-defined completeness checks |
-| SandboxMode | merge candidate | Workspace purpose/mode or separate workspace type pending decision |
+| SandboxMode | merge | DraftWorkspace purpose; not a separate model or lifecycle owner |
 
 BulkOperations:
 
@@ -6544,7 +6574,6 @@ The following decisions remain open and must not be invented during implementati
 
 | Open question | Required decision |
 |---|---|
-| SandboxMode | Workspace purpose/mode or separate workspace type |
 | RulesSimulator | Independent capability or Analysis Engine component |
 | Universal relation set | Strict meaning for deferred relation kinds |
 | Repository shape | One composite port or separated state/governance persistence boundaries |
