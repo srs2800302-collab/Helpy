@@ -5914,7 +5914,7 @@ Governance:
 | RegistryRelation | retain / reclassify | Canonical directed semantic edge |
 | RegistryDependency | retain / reclassify | Derived explainable impact edge |
 | RegistryGraph | retain / reclassify | Derived projection of a specific Registry revision |
-| RegistryRepository | retain / narrow | Storage port for canonical Registry state |
+| RegistryRepository | retain / narrow | Storage port for current published Registry semantic state |
 | EngineeringAsset | remove | Orphaned abstraction with no independent responsibility or consumers |
 
 Registry:
@@ -5984,6 +5984,68 @@ RegistryPath:
 - belongs to RegistryEntity;
 - remains stable while entity identity is preserved;
 - must not depend on Markdown lines, headings, offsets, parser details or storage identifiers.
+
+Repository boundaries:
+
+Registry Studio uses exactly three logical persistence boundaries.
+
+These boundaries are not wrappers, helpers or a requirement for separate databases, tables or physical stores. One storage adapter may implement all three boundaries when it preserves their independent ownership contracts.
+
+RegistryRepository:
+
+- owns load and persistence of current published Registry semantic state;
+- persists Registry identity, current published revision, fingerprint, RegistryEntity, RegistryPath and RegistryRelation;
+- does not own DraftWorkspace state;
+- does not own RegistryTransaction, RegistrySnapshot or AuditLog;
+- does not own RegistryGraph or RegistryDependency projections;
+- does not own analysis, validation, risk, gate or publication evidence.
+
+DraftWorkspaceRepository:
+
+- owns isolated DraftWorkspace state for both PUBLISHING_DRAFT and SANDBOX purposes;
+- persists workspace identity, purpose, source RegistrySnapshot reference, current workspace revision, fingerprint, resumable engineering context and DIRTY / CLEAN state;
+- does not own Published Registry state;
+- does not own RegistryTransaction lifecycle;
+- does not own immutable RegistrySnapshot or AuditLog records.
+
+RegistryGovernanceRepository:
+
+- owns RegistryTransaction and transaction-owned evidence;
+- owns immutable RegistrySnapshot records;
+- owns append-only AuditLog records;
+- persists ImpactAnalysisResult, ValidationResult, RiskAssessment, PublishingGateDecision and PublicationAttempt only through their owning RegistryTransaction;
+- does not own current Published Registry state;
+- does not own mutable DraftWorkspace state;
+- does not build RegistryGraph or derive RegistryDependency.
+
+No independent persistence boundary exists for:
+
+- RegistryGraph;
+- RegistryDependency;
+- reverse traversal;
+- relation indexes;
+- ImpactAnalysisResult;
+- ValidationResult;
+- RiskAssessment;
+- PublishingGateDecision;
+- PublicationAttempt.
+
+RegistryGraph, RegistryDependency, traversal and indexes are derived projections for one exact Registry or DraftWorkspace revision.
+
+ImpactAnalysisResult, ValidationResult, RiskAssessment, PublishingGateDecision and PublicationAttempt remain RegistryTransaction-owned evidence. They must not become independent aggregates or repositories.
+
+Publication atomicity:
+
+- one invocation of PublishRegistryRevision is the single atomic application boundary for publication;
+- PublishRegistryRevision is an application use case, not a new domain object, repository or persistence wrapper;
+- it coordinates RegistryRepository, DraftWorkspaceRepository and RegistryGovernanceRepository according to their independent ownership contracts;
+- every publication write across those contracts must participate in one native all-or-nothing storage write scope;
+- repositories must not expose begin, commit or rollback methods, technical transaction wrappers or staged mutable write state;
+- a publication-capable storage implementation must atomically persist the published Registry revision, resulting RegistrySnapshot, RegistryTransaction and PublicationAttempt outcome, AuditLog records and PUBLISHING_DRAFT CLEAN transition;
+- publication must verify the expected source Registry revision and fingerprint before applying changes;
+- a storage implementation that cannot provide all-or-nothing publication is not publication-capable.
+
+No composite RegistryRepository, PublicationCommitPort, SnapshotRepository or technical transaction wrapper is introduced.
 
 ###### 3. RegistryEntityKind and RegistryEntityPayload Boundary
 
@@ -6616,7 +6678,6 @@ The following decisions remain open and must not be invented during implementati
 
 | Open question | Required decision |
 |---|---|
-| Repository shape | One composite port or separated state/governance persistence boundaries |
 | Dynamic capability registry | Real plugin installation or replacement scenario before modeling |
 
 ###### 15. Controlled Rewrite Scope
@@ -6626,7 +6687,7 @@ The following Registry Studio blocks must be rewritten as one coordinated archit
 - RegistryTransaction and TransactionPayload;
 - Registry Studio Domain Model and RegistryEntityKind;
 - RegistrySnapshot and RegistryEntityPayload taxonomy;
-- RegistryRelation, RegistryDependency, RegistryGraph and RegistryRepository;
+- RegistryRelation, RegistryDependency, RegistryGraph and repository boundary contracts;
 - Engineering Change Analysis, ImpactAnalysis, Validation, RiskClassification, PublishingGate, PublicationResult and Rollback;
 - DraftWorkspace and AuditLog;
 - BulkOperations, GlobalRename, RulesSimulator, RegistryCoverage and SandboxMode;
