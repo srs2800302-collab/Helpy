@@ -6435,7 +6435,7 @@ Cycle rules:
 | Object | Decision | Canonical role |
 |---|---|---|
 | DependencyExplorer | retain / reclassify | Read-only graph traversal service |
-| RulesSimulator | retain capability | Candidate for later merge review with Analysis Engine |
+| RulesSimulator | retain / reclassify | Universal Core simulation capability with adapter-defined simulation contracts |
 | BulkOperations | reclassify | Deterministic change-plan application service |
 | GlobalRename | reclassify | Semantic bulk-refactoring operation |
 | RegistryCoverage | move to project adapter | Adapter-defined completeness checks |
@@ -6457,6 +6457,42 @@ GlobalRename:
 - must not modify Published Registry directly.
 
 RegistryCoverage must move to project adapter because category, question, photo, pricing, guidance and eligibility completeness are not generic Registry Studio Core concepts.
+
+
+RulesSimulator:
+
+- is a universal Core application capability for deterministic non-mutating behavior simulation;
+- is not a RegistryEntity;
+- is not a RegistryEntityPayload;
+- is not a lifecycle aggregate;
+- is not a publication authority;
+- is not merged with ImpactAnalysis;
+- executes against one exact published RegistrySnapshot, PUBLISHING_DRAFT workspace revision or SANDBOX workspace revision;
+- preserves source Registry identity, revision reference, fingerprint, adapter identity and adapter semantic-contract version;
+- accepts typed adapter-defined hypothetical scenario input;
+- returns typed adapter-defined simulation output with an explainable execution trace;
+- must remain independent of project-specific business terms, storage representation and UI implementation;
+- must not modify Registry, DraftWorkspace or RegistryTransaction;
+- must not create ValidationResult, RiskAssessment or PublishingGateDecision;
+- must not automatically create publication evidence.
+
+RulesSimulator and ImpactAnalysis have distinct responsibilities:
+
+- ImpactAnalysis explains what Registry entities, relations and dependencies are affected by a proposed change.
+- RulesSimulator evaluates what adapter-defined behavior results from one hypothetical scenario against one exact Registry revision.
+
+Project adapters define:
+
+- scenario input semantics;
+- evaluator bindings;
+- output semantics;
+- behavior trace interpretation;
+- UI preview bindings;
+- adapter-specific simulation constraints.
+
+A project validation extension may invoke RulesSimulator and include its trace in ValidationResult evidence. The evidence is then owned by Validation, not by RulesSimulator.
+
+The legacy Rules Simulator Model must be rewritten during controlled contract correction.
 
 ###### 12. Runtime Decisions
 
@@ -6563,6 +6599,7 @@ The following remain required Helpy adapter capabilities:
 - Helpy-specific RegistryEntityKind values;
 - Helpy-specific RegistryEntityPayload schemas;
 - Helpy-specific relation and dependency semantics;
+- Helpy simulation scenario semantics, evaluator bindings, behavior traces and preview bindings;
 - Helpy workflow definitions;
 - Helpy guidance and platform metadata.
 
@@ -6574,7 +6611,6 @@ The following decisions remain open and must not be invented during implementati
 
 | Open question | Required decision |
 |---|---|
-| RulesSimulator | Independent capability or Analysis Engine component |
 | Universal relation set | Strict meaning for deferred relation kinds |
 | Repository shape | One composite port or separated state/governance persistence boundaries |
 | Dynamic capability registry | Real plugin installation or replacement scenario before modeling |
@@ -6589,7 +6625,7 @@ The following Registry Studio blocks must be rewritten as one coordinated archit
 - RegistryGraph and RegistryRepository;
 - Engineering Change Analysis, ImpactAnalysis, Validation, RiskClassification, PublishingGate, PublicationResult and Rollback;
 - DraftWorkspace and AuditLog;
-- BulkOperations, GlobalRename, RegistryCoverage and SandboxMode;
+- BulkOperations, GlobalRename, RulesSimulator, RegistryCoverage and SandboxMode;
 - Engineering Context and Engineering Runtime;
 - duplicated Risk Classification section.
 
