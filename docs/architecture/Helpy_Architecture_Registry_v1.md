@@ -4248,6 +4248,21 @@ Statuses:
 
 Admin can manually correct translations.
 
+Translation review must support two entry paths:
+
+- a selected existing Registry formulation forwarded into the translation workspace;
+- a manually entered candidate source formulation for review before approval and
+  addition to the canonical dictionary.
+
+Both entry paths must use the same RU / EN / TH translation flow and the same
+review statuses.
+
+Manual candidate input:
+
+- does not create a RegistryEntity, canonical dictionary record or publication evidence;
+- does not approve or apply a formulation automatically;
+- may be discarded without affecting Registry.
+
 ### Multi-Language Admin Interface
 Supported:
 - Russian
