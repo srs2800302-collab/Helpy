@@ -5906,7 +5906,7 @@ Governance:
 
 | Object | Decision | Canonical role |
 |---|---|---|
-| Registry | retain / define missing contract | Registry root source of truth with stable identity and revision boundary |
+| Registry | retain / contract closed | Core root aggregate for one logical Registry and its current published semantic state |
 | RegistryEntity | retain | Semantic Registry unit |
 | RegistryEntityKind | retain / reclassify | Core extension contract; concrete kinds belong to project adapters |
 | RegistryEntityPayload | retain / reclassify | Typed adapter-defined semantic content for RegistryEntity |
@@ -5916,6 +5916,51 @@ Governance:
 | RegistryGraph | retain / reclassify | Derived projection of a specific Registry revision |
 | RegistryRepository | retain / narrow | Storage port for canonical Registry state |
 | EngineeringAsset | remove | Orphaned abstraction with no independent responsibility or consumers |
+
+Registry:
+
+- is the Core root aggregate for one logical Registry;
+- has stable storage-independent Registry identity;
+- owns canonical published semantic state composed of RegistryEntity, RegistryPath and RegistryRelation;
+- exposes exactly one current published revision;
+- records deterministic published content fingerprint;
+- records adapter identity and adapter semantic-contract version required to interpret current published semantic state;
+- does not use Markdown bytes, line numbers, Git commit identifiers or storage coordinates as Registry identity, published revision identity or semantic fingerprint;
+- does not own DraftWorkspace mutable state;
+- does not own draft revisions;
+- does not own RegistryGraph or RegistryDependency projections;
+- does not own ImpactAnalysisResult, ValidationResult or RiskAssessment;
+- does not own RegistryTransaction lifecycle;
+- does not own AuditLog records;
+- does not own runtime execution state.
+
+Published Registry:
+
+- is not a separate model;
+- means the current immutable published revision of Registry;
+- changes only through a successful approved PublicationAttempt governed by RegistryTransaction.
+
+Published revision:
+
+- is immutable once published;
+- is Registry provenance, not a new aggregate;
+- is identified by Registry identity, published revision reference and published content fingerprint;
+- is interpreted through the adapter identity and semantic-contract version captured with it.
+
+Published content fingerprint:
+
+- is calculated from canonical semantic state;
+- includes RegistryEntity identity, adapter-defined kind, typed semantic content, canonical RegistryPath, canonical RegistryRelation and required adapter semantic-contract version;
+- must be deterministic for semantically identical published state;
+- must not depend on storage formatting, Markdown ordering, parser output, database record addresses or Git commit identity.
+
+Draft revision:
+
+- is not a Registry published revision;
+- belongs only to DraftWorkspace;
+- is mutable until publication;
+- references its source published RegistrySnapshot;
+- invalidates analysis, validation, risk and gate evidence whenever it changes.
 
 RegistryEntity:
 
@@ -6472,7 +6517,6 @@ The following decisions remain open and must not be invented during implementati
 
 | Open question | Required decision |
 |---|---|
-| Registry root contract | Stable Registry identity, published revision, draft revision, fingerprint and canonical semantic state |
 | RegistrySnapshot representation | Exact boundary between pinned state and reproducible materialization |
 | SandboxMode | Workspace purpose/mode or separate workspace type |
 | RulesSimulator | Independent capability or Analysis Engine component |
