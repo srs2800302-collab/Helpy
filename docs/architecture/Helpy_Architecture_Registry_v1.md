@@ -4565,7 +4565,7 @@ Status: APPROVED
 - Registry Studio operates on Registry domain entities.
 - Markdown parsing belongs exclusively to the Data layer.
 - Domain, Application and Presentation layers must never depend on Markdown syntax.
-- RegistryRepository is the storage boundary.
+- Repository boundary contracts isolate published Registry state, DraftWorkspace state and governance records from storage implementation.
 - Replacing Markdown with another storage implementation must not require changes to Registry Studio business logic.
 
 ##### Registry Studio Clean Architecture Rule
@@ -4693,528 +4693,389 @@ Registry Studio is authorized to modify the Registry only through the approved R
 
 ##### Registry Studio Domain Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-Registry Studio domain model must scale through Registry data and contracts, not through artifact rebuilds.
+Registry Studio Core is a reusable engineering foundation for one logical
+Registry and its governed semantic evolution.
 
-Core model:
+Core Registry model:
+
 - Registry;
 - RegistryEntity;
-- RegistryEntityKind;
-- RegistryEntityPayload;
-- EngineeringAsset;
-- RegistryTransaction;
+- RegistryEntityKind extension contract;
+- RegistryEntityPayload extension contract;
 - RegistryPath;
 - RegistryRelation;
 - RegistryDependency;
-- RegistrySnapshot.
+- RegistryGraph;
+- immutable RegistrySnapshot governance record.
 
-RegistryEntity defines what exists in Registry.
+Registry:
 
-RegistryEntityKind defines the semantic type of a RegistryEntity.
+- is the Core root aggregate for one logical Registry;
+- has stable storage-independent identity;
+- owns current published semantic state composed of RegistryEntity,
+  RegistryPath and RegistryRelation;
+- exposes exactly one current published revision;
+- records deterministic published content fingerprint;
+- records adapter identity and adapter semantic-contract version required
+  to interpret published semantic state;
+- does not use Markdown bytes, line numbers, Git identifiers, parser output
+  or storage coordinates as semantic identity;
+- does not own DraftWorkspace mutable state or draft revisions;
+- does not own RegistryGraph or RegistryDependency projections;
+- does not own analysis, validation, risk, publication, audit or runtime state.
 
-RegistryEntityPayload contains strongly typed content for a specific RegistryEntityKind.
+Published Registry is not a separate aggregate. It is the current immutable
+published revision of Registry and changes only through a successful approved
+PublicationAttempt governed by RegistryTransaction.
 
-EngineeringAsset wraps RegistryEntity for engineering lifecycle management.
+Published revision is immutable provenance identified by Registry identity,
+published revision reference and published content fingerprint.
 
-EngineeringAsset is responsible for:
-- lifecycle state;
-- Draft / Published participation;
-- dependency tracking;
-- validation state;
-- impact tracking;
-- risk tracking;
-- transaction participation;
-- engineering history;
-- decision context.
+Published content fingerprint must be calculated from canonical semantic state:
 
-RegistryEntity and EngineeringAsset must not duplicate responsibilities.
+- RegistryEntity identity;
+- adapter-defined kind;
+- typed semantic content;
+- canonical RegistryPath;
+- canonical RegistryRelation;
+- required adapter semantic-contract version.
 
-RegistryEntity describes content and semantic meaning.
+The fingerprint must be deterministic for semantically identical published
+state and must not depend on formatting, ordering, storage addresses or Git
+commit identity.
 
-EngineeringAsset describes engineering governance, lifecycle and change management.
+RegistryEntity:
 
-New Registry entity kinds must be added through domain contracts and typed payloads.
+- has stable identity;
+- has exactly one primary adapter-defined RegistryEntityKind;
+- owns one canonical RegistryPath;
+- contains typed adapter-defined semantic content;
+- participates in canonical RegistryRelation records;
+- does not own Draft / Published lifecycle;
+- does not own validation, impact or risk state;
+- does not own RegistryTransaction lifecycle;
+- does not own audit history;
+- does not own runtime execution state.
 
-Registry Studio must not rely on untyped dynamic payloads.
+EngineeringAsset is removed. It has no independent identity, lifecycle,
+ownership or consumers that cannot be represented by Registry governance,
+transaction evidence and runtime contracts.
 
-Registry Studio must remain extensible as Registry grows to large-scale production size.
+Registry Studio Core must not rely on untyped dynamic semantic payloads.
 
+##### RegistryEntityKind and RegistryEntityPayload Boundary
 
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-##### RegistryEntityKind Model
+Registry Studio Core retains only:
 
-Status: APPROVED
+- RegistryEntityKind extension contract;
+- RegistryEntityPayload extension contract;
+- typed payload requirement;
+- prohibition of untyped dynamic payloads;
+- analysis and validation support for adapter-defined kinds and payloads.
 
-RegistryEntityKind defines the canonical semantic type of a RegistryEntity.
+Concrete RegistryEntityKind values and concrete RegistryEntityPayload schemas
+belong to project adapters.
 
-RegistryEntityKind must be explicit, stable and suitable for engineering analysis.
+Every RegistryEntity must have exactly one primary adapter-defined kind.
+Additional classification belongs to adapter-defined semantic content,
+qualifiers or canonical RegistryRelation records.
 
-RegistryEntityKind groups:
+RegistryEntityPayload:
 
-Core Registry kinds:
-- contract;
-- architectureGroup;
-- rootCategory;
-- category;
-- subcategory;
-- scenario;
-- section.
+- contains typed adapter-defined semantic content for one RegistryEntity;
+- represents semantic meaning, not Markdown formatting, parser output,
+  database schema or API response shape;
+- is interpreted through adapter identity, adapter semantic-contract version,
+  RegistryEntityKind schema version and RegistryEntityPayload schema version;
+- must remain deterministic for one exact Registry revision.
 
-Business logic kinds:
-- clientRule;
-- masterRule;
-- scenarioRule;
-- globalRule;
-- platformRule;
-- eligibilityRule;
-- dependencyRule;
-- translationRule;
-- question;
-- answerOption;
-- structuredScope;
-- photoRequirement;
-- photoLimit;
-- pricingRule;
-- guidance;
-- guidanceTrigger;
-- guidanceSlot;
-- adminDependency.
+Governance records, analysis results, application capabilities, runtime
+contracts and UI concepts must not become RegistryEntityKind values or
+RegistryEntityPayload schemas.
 
-Engineering and governance kinds:
-- draft;
-- publishedRevision;
-- changeSet;
-- transaction;
-- impactAnalysis;
-- dependencyAnalysis;
-- riskClassification;
-- validationResult;
-- healthCheck;
-- auditLog;
-- rollback;
-- snapshot;
-- featureFlag;
-- platformSetting;
-- builder;
-- workflow;
-- review.
+This includes draft state, published revision, transaction, impact analysis,
+dependency analysis, risk classification, validation result, health check,
+audit log, rollback, snapshot, feature flag, platform setting, builder,
+workflow and review concepts.
 
-Rules:
-- RegistryEntityKind must not be inferred from raw Markdown syntax alone.
-- RegistryEntityKind must be derived from Registry structure, approved contracts and semantic context.
-- Every RegistryEntity must have exactly one primary RegistryEntityKind.
-- Additional classification must be represented through metadata, relations or payload fields.
-- New RegistryEntityKind values require an approved domain contract before implementation.
-- RegistryEntityKind must be used by search, filtering, dependency analysis, impact analysis, validation and risk classification.
-
-
+The current Helpy semantic kinds and payload schemas remain valid Helpy adapter
+semantics. They are not Registry Studio Core taxonomy.
 
 ##### RegistryRelation Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-RegistryRelation defines canonical semantic relationships between RegistryEntity objects.
+RegistryRelation is one canonical directed semantic edge between exactly two
+RegistryEntity objects.
 
-RegistryRelation describes domain relationships.
-It does not describe engineering dependencies.
+RegistryRelation:
 
-RegistryRelation is a domain entity with:
-- source RegistryEntity;
-- target RegistryEntity;
-- relation kind;
-- optional relation metadata.
+- belongs to Registry semantic state;
+- has deterministic relation identity;
+- changes only through DraftWorkspace and RegistryTransaction governance;
+- participates in RegistryGraph;
+- has no separate RegistryEntityPayload;
+- must be derived from approved semantic contracts, not Markdown hierarchy alone;
+- may contain typed adapter-defined qualifiers when required.
 
-RegistryRelation kinds:
+Only one canonical directed RegistryRelation record may be persisted for one
+semantic fact.
 
-Structural:
-- contains;
-- parentOf;
-- childOf;
-- belongsTo.
+Reverse traversal, inverse display labels and reverse dependency navigation
+must be derived by RegistryGraph. They must not create a second persisted
+semantic fact.
 
-Architecture:
-- inherits;
-- overrides;
-- extends;
-- specializes.
+Registry Studio Core does not own a closed enumeration of concrete relation
+kinds.
 
-Reference:
-- references;
-- referencedBy.
+Each project adapter must define for every concrete relation kind:
 
-Binding:
-- bindsTo;
-- boundBy.
+- stable kind identifier;
+- adapter semantic-contract version;
+- semantic meaning;
+- qualifier schema when required;
+- impact propagation behavior;
+- validation constraints;
+- cycle policy;
+- inverse and display interpretation when required.
 
-Workflow:
-- triggers;
-- follows;
-- precedes.
+No inverse adapter labels may be persisted as separate RegistryRelation records
+for the same semantic fact.
 
-Rules:
-- RegistryRelation always connects exactly two RegistryEntity objects.
-- RegistryRelation has exactly one relation kind.
-- RegistryRelation is directional.
-- RegistryRelation must not be inferred from Markdown hierarchy alone.
-- RegistryRelation must be derived from approved Registry semantics.
-- Engineering dependency analysis may consume RegistryRelation but must not redefine it.
-- New RegistryRelation kinds require an approved domain contract before implementation.
-
-
+Relation labels such as contains, references, inherits, overrides, belongsTo,
+bindsTo, extends, specializes, triggers, follows and precedes may exist as
+adapter-defined semantics only.
 
 ##### RegistryDependency Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-RegistryDependency defines an engineering dependency derived from RegistryRelation and approved Registry semantics.
+RegistryDependency is a derived explainable impact edge for one exact Registry
+or DraftWorkspace revision and adapter semantic-contract version.
 
-RegistryDependency is not the same as RegistryRelation.
+RegistryDependency:
 
-RegistryRelation describes how RegistryEntity objects are semantically connected.
+- is built from RegistryRelation and adapter-defined semantic rules;
+- is not independently editable Registry content;
+- is not a RegistryEntity;
+- has no separate RegistryEntityPayload;
+- preserves source relation, revision and adapter provenance;
+- does not own risk, validation or publication state.
 
-RegistryDependency describes what may be affected when a RegistryEntity changes.
+Dependency result categories:
 
-RegistryDependency is used by:
-- Engineering Change Analysis;
-- Impact Analysis;
-- Validation;
-- Category Health Check;
-- Risk Classification;
-- Registry Transaction Model;
-- Publishing Gate.
+1. Direct confirmed dependency.
+2. Indirect impact through confirmed relation or dependency paths.
+3. Semantic candidate requiring engineer decision.
+4. Informational text match without confirmed semantic relation.
 
-RegistryDependency is an engineering entity with:
-- source RegistryEntity;
-- affected RegistryEntity;
-- source RegistryRelation;
-- dependency kind;
-- dependency strength;
-- validation requirement;
-- risk impact;
-- optional dependency metadata.
+Only direct confirmed dependencies and indirect impacts enter deterministic
+impact scope automatically.
 
-Dependency kinds:
-- structuralDependency;
-- inheritanceDependency;
-- referenceDependency;
-- bindingDependency;
-- workflowDependency;
-- validationDependency;
-- publicationDependency;
-- translationDependency;
-- guidanceDependency;
-- pricingDependency;
-- eligibilityDependency.
+Each project adapter must declare cycle policy for every concrete
+RegistryRelation kind.
 
-Dependency strength:
-- weak;
-- normal;
-- strong;
-- blocking.
+Validation must enforce declared adapter cycle policy for the exact revision.
 
-Rules:
-- RegistryDependency must be derived from verified RegistryEntity and RegistryRelation data.
-- RegistryDependency must not be invented from assumptions or conversational memory.
-- RegistryDependency may be computed, but the computation must be deterministic and explainable.
-- Every dependency used for Impact Analysis must be traceable to source RegistryEntity and RegistryRelation data.
-- Blocking dependencies must prevent publication until resolved or explicitly reviewed.
-- Dependency analysis must expose affected entities before applying changes.
-- New RegistryDependency kinds require an approved domain contract before implementation.
-
-
+RegistryGraph must detect cycles, stop configured traversal deterministically
+when a cycle is reached and explain the complete traversal path.
 
 ##### RegistryPath Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-RegistryPath defines the canonical logical address of a RegistryEntity.
+RegistryPath is the canonical logical address of one RegistryEntity.
 
-RegistryPath is independent of storage implementation.
+RegistryPath:
 
-RegistryPath must remain stable when Registry storage changes from Markdown to another backend.
+- is a value object;
+- is not a RegistryEntity;
+- is not a RegistryGraph node;
+- has no independent payload;
+- belongs to RegistryEntity;
+- remains stable while RegistryEntity identity is preserved;
+- may be indexed as derived lookup material;
+- changes only through governed Registry modification.
 
-RegistryPath is used by:
-- Registry navigation;
-- Tree View;
-- Search;
-- Cross References;
-- Dependency Graph;
-- Impact Analysis;
-- Global Rename;
-- Deep Linking;
-- Registry Transactions.
+RegistryPath must not depend on Markdown line numbers, heading levels, file
+offsets, parser details, storage backend identifiers or database addresses.
 
-RegistryPath identifies RegistryEntity within the Registry domain model.
-
-RegistryPath must not depend on:
-- Markdown line numbers;
-- Markdown heading levels;
-- file offsets;
-- parser implementation details;
-- storage backend identifiers.
-
-RegistryRepository is responsible for resolving storage-specific locations into RegistryPath.
-
-Rules:
-- Every RegistryEntity has exactly one canonical RegistryPath.
-- RegistryPath must uniquely identify RegistryEntity.
-- RegistryPath must remain stable across storage migrations whenever entity identity is preserved.
-- RegistryPath may be indexed for fast lookup.
-- RegistryPath must be used by engineering services instead of storage coordinates.
-- RegistryPath must be deterministic and reproducible.
-- RegistryPath changes require an approved engineering transaction.
-
-
+Engineering services must use RegistryPath and stable RegistryEntity identity
+instead of storage coordinates.
 
 ##### RegistrySnapshot Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-RegistrySnapshot defines a verified immutable state of Registry at a specific point in time.
+RegistrySnapshot is an immutable governance record for one exact verified
+Registry revision.
 
-RegistrySnapshot is not a storage backup.
+RegistrySnapshot:
 
-RegistrySnapshot belongs to the Registry domain model and must remain independent of storage implementation.
+- has independent snapshot identity;
+- is not a storage backup;
+- is not a second editable Registry source of truth;
+- is not a RegistryEntity;
+- is not a RegistryGraph node;
+- has no separate Domain payload model;
+- pins semantic state required for history comparison, impact explanation,
+  audit evidence and governed recovery.
 
-RegistrySnapshot is used by:
-- Registry Transactions;
-- Draft Workspace;
-- Difference Analysis;
-- Engineering Change Analysis;
-- Impact Analysis;
-- Validation;
-- Rollback preparation;
-- CLEAN state verification;
-- Registry history;
-- publication review.
+RegistrySnapshot must contain:
 
-RegistrySnapshot is a domain entity with:
 - snapshot identity;
 - Registry identity;
-- source revision reference;
+- snapshot revision reference;
+- deterministic semantic fingerprint;
 - creation timestamp;
 - creation reason;
-- entity index;
-- relation index;
-- dependency index;
-- validation state;
-- optional snapshot metadata.
+- adapter identity;
+- adapter semantic-contract version;
+- RegistryEntityKind and RegistryEntityPayload schema versions;
+- exact pinned canonical semantic state composed of RegistryEntity identity,
+  adapter-defined kind, typed semantic content, RegistryPath and
+  RegistryRelation;
+- immutable verification or publication evidence references when applicable.
 
-Rules:
-- RegistrySnapshot must be immutable after creation.
-- RegistrySnapshot must be reproducible from verified Registry data.
-- RegistrySnapshot must not depend on Markdown line numbers or parser implementation details.
-- RegistrySnapshot must reference RegistryEntity through RegistryPath and stable identity.
-- RegistrySnapshot must support comparison with another RegistrySnapshot.
-- RegistrySnapshot must support rollback preparation, but rollback execution must follow Registry Transaction Model.
-- RegistrySnapshot must be created before applying approved Registry changes.
-- RegistrySnapshot must be used to verify CLEAN state after publication.
-- Snapshot comparison must expose changed, added, removed and affected RegistryEntity objects.
-- New RegistrySnapshot behavior requires an approved domain contract before implementation.
+RegistrySnapshot must not own as canonical snapshot state:
 
+- RegistryGraph;
+- RegistryDependency;
+- ValidationResult state;
+- RiskAssessment;
+- DraftWorkspace DIRTY / CLEAN state;
+- AuditLog contents;
+- runtime state.
 
+Entity and relation indexes may exist only as pinned or reproducible lookup
+materializations of snapshot semantic state. They must never become separately
+editable semantic truth.
 
-##### SnapshotPayload Model
+RegistryDependency is derived for the exact RegistrySnapshot revision and
+adapter semantic-contract version. It must not be stored as canonical snapshot
+state.
 
-Status: APPROVED
+Snapshot lifecycle:
 
-SnapshotPayload defines the canonical typed payload for RegistrySnapshot domain data.
+- source RegistrySnapshot must exist before DraftWorkspace begins mutable
+  change preparation;
+- successful publication creates a resulting RegistrySnapshot for the new
+  published semantic state;
+- failed, blocked or cancelled publication does not create a resulting
+  published RegistrySnapshot;
+- RegistrySnapshot provides immutable source and resulting state evidence only.
 
-SnapshotPayload is based on:
-- RegistrySnapshot;
-- Registry identity;
-- snapshot identity;
-- source revision reference;
-- entity index;
-- relation index;
-- dependency index;
-- validation state;
-- snapshot metadata when applicable.
-
-SnapshotPayload responsibilities:
-- preserve immutable snapshot data;
-- preserve RegistryEntity references through RegistryPath and stable identity;
-- preserve relation and dependency indexes;
-- preserve validation state at snapshot creation time;
-- preserve source revision reference;
-- provide deterministic snapshot serialization.
-
-Rules:
-- SnapshotPayload must represent RegistrySnapshot domain meaning, not storage format.
-- SnapshotPayload must not modify RegistrySnapshot after creation.
-- SnapshotPayload must not contain untyped dynamic data.
-- SnapshotPayload must remain independent of Markdown, database schema and API response shape.
-- New SnapshotPayload behavior requires an approved domain contract before implementation.
-
-
-##### RegistryEntityPayload Model
-
-Status: APPROVED
-
-RegistryEntityPayload defines strongly typed content for a RegistryEntity.
-
-RegistryEntityPayload is selected by RegistryEntityKind.
-
-RegistryEntityPayload must not be untyped, dynamic or storage-specific.
-
-RegistryEntityPayload belongs to the Registry domain model and must remain independent of Markdown, database schema, API response shape or parser implementation details.
-
-Purpose:
-- preserve semantic content of RegistryEntity;
-- support type-safe engineering analysis;
-- support validation by RegistryEntityKind;
-- support deterministic serialization;
-- support future storage migration without rewriting Domain or Presentation layers.
-
-Payload groups:
-
-Core payloads:
-- ContractPayload;
-- ArchitectureGroupPayload;
-- CategoryPayload;
-- SubcategoryPayload;
-- ScenarioPayload;
-- SectionPayload.
-
-Business logic payloads:
-- ClientRulePayload;
-- MasterRulePayload;
-- ScenarioRulePayload;
-- GlobalRulePayload;
-- PlatformRulePayload;
-- EligibilityRulePayload;
-- DependencyRulePayload;
-- TranslationRulePayload;
-- QuestionPayload;
-- AnswerOptionPayload;
-- StructuredScopePayload;
-- PhotoRequirementPayload;
-- PhotoLimitPayload;
-- PricingRulePayload;
-- GuidancePayload;
-- GuidanceTriggerPayload;
-- GuidanceSlotPayload;
-- AdminDependencyPayload.
-
-Engineering and governance payloads:
-- DraftPayload;
-- PublishedRevisionPayload;
-- ChangeSetPayload;
-- TransactionPayload;
-- ImpactAnalysisPayload;
-- DependencyAnalysisPayload;
-- RiskClassificationPayload;
-- ValidationResultPayload;
-- HealthCheckPayload;
-- AuditLogPayload;
-- RollbackPayload;
-- SnapshotPayload;
-- FeatureFlagPayload;
-- PlatformSettingPayload;
-- BuilderPayload;
-- WorkflowPayload;
-- ReviewPayload.
-
-Rules:
-- Every RegistryEntityPayload must correspond to a RegistryEntityKind.
-- Payload fields must represent domain meaning, not Markdown formatting.
-- Storage adapters may map Markdown, database records or API responses into RegistryEntityPayload.
-- Domain, Application and Presentation layers must not depend on storage-specific payload representation.
-- New payload types require an approved domain contract before implementation.
-- Untyped dynamic payloads are prohibited.
-
-
+Snapshot comparison must expose changed, added, removed and affected
+RegistryEntity objects, RegistryPath values and RegistryRelation records.
 
 ##### RegistryGraph Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-RegistryGraph defines the canonical graph representation of Registry domain entities.
+RegistryGraph is a derived deterministic projection of one exact published
+Registry revision or DraftWorkspace revision.
 
-RegistryGraph combines:
+RegistryGraph is not a UI tree, Markdown outline, independent aggregate,
+RegistryEntity or canonical source of semantic truth.
+
+RegistryGraph derives from:
+
 - RegistryEntity;
-- RegistryEntityKind;
 - RegistryPath;
 - RegistryRelation;
-- RegistryDependency.
+- RegistryDependency;
+- adapter-defined relation and dependency semantics;
+- exact revision and adapter semantic-contract version.
 
-RegistryGraph is not a UI tree and not a Markdown outline.
+RegistryGraph provides:
 
-RegistryGraph is an engineering analysis model used by:
-- Registry navigation;
-- Search;
-- Cross References;
-- Dependency Graph;
-- Impact Analysis;
-- Engineering Change Analysis;
-- Global Rename;
-- Registry Coverage;
-- Rules Simulator;
-- Validation;
-- Registry Transactions.
+- deterministic entity and path lookup;
+- forward and reverse relation traversal;
+- derived dependency navigation;
+- affected-entity lookup;
+- path provenance;
+- cycle detection;
+- explainable deterministic traversal.
 
-RegistryGraph is responsible for:
-- indexing RegistryEntity objects;
-- resolving RegistryPath;
-- exposing semantic relations;
-- exposing engineering dependencies;
-- supporting affected-entity lookup;
-- supporting reverse dependency lookup;
-- supporting safe graph traversal;
-- supporting deterministic engineering analysis.
+RegistryGraph:
 
-Rules:
-- RegistryGraph must be built from verified Registry domain data.
-- RegistryGraph must not depend on Markdown heading structure as its source of truth.
-- RegistryGraph may be generated from Markdown through Data layer adapters.
-- RegistryGraph must remain stable when Registry storage changes.
-- RegistryGraph traversal must be deterministic and reproducible.
-- RegistryGraph must expose enough context for engineering decisions.
-- RegistryGraph must not modify Registry directly.
-- RegistryGraph may be used by Registry Transaction Model before changes are applied.
-- New RegistryGraph behavior requires an approved domain contract before implementation.
+- must not modify Registry;
+- must not persist inverse relation duplicates;
+- must not own semantic state independently of the exact source revision;
+- may expose indexes only as derived projections;
+- must remain independent of Markdown hierarchy and storage implementation.
 
+##### Repository Boundary Contracts
 
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-##### RegistryRepository Contract
+Registry Studio uses exactly three logical persistence boundaries.
 
-Status: APPROVED
+These boundaries are not wrappers, helpers or a requirement for separate
+databases, tables or physical stores. One storage adapter may implement all
+three boundaries while preserving their independent ownership contracts.
 
-RegistryRepository is the canonical storage boundary between the Registry Studio Domain layer and any storage implementation.
+RegistryRepository:
 
-RegistryRepository provides Registry domain data.
+- owns load and persistence of current published Registry semantic state;
+- persists Registry identity, current published revision, fingerprint,
+  RegistryEntity, RegistryPath and RegistryRelation;
+- does not own DraftWorkspace state;
+- does not own RegistryTransaction, RegistrySnapshot or AuditLog;
+- does not own RegistryGraph or RegistryDependency projections;
+- does not own analysis, validation, risk, gate or publication evidence.
 
-RegistryRepository must not expose Markdown, Git, database schema, API response models or parser-specific structures.
+DraftWorkspaceRepository:
 
-Supported storage implementations may include:
-- Markdown Repository;
-- Database Repository;
-- Remote API Repository;
-- Admin Panel Repository;
-- Future storage implementations.
+- owns isolated DraftWorkspace state for PUBLISHING_DRAFT and SANDBOX;
+- persists workspace identity, purpose, source RegistrySnapshot reference,
+  current workspace revision, fingerprint, resumable engineering context and
+  DIRTY / CLEAN state;
+- does not own Published Registry state;
+- does not own RegistryTransaction lifecycle;
+- does not own immutable RegistrySnapshot or AuditLog records.
 
-RegistryRepository responsibilities:
-- load Registry;
-- load RegistryGraph;
-- load RegistrySnapshot;
-- resolve RegistryPath;
-- resolve RegistryEntity;
-- query RegistryRelation;
-- query RegistryDependency;
-- persist approved Registry transactions;
-- provide deterministic engineering data.
+RegistryGovernanceRepository:
 
-Rules:
-- Domain layer communicates with Registry only through RegistryRepository.
-- RegistryRepository belongs to the Domain contract and is implemented in the Data layer.
-- Storage implementations are interchangeable.
-- Repository methods must return domain entities only.
-- Repository implementations must not leak storage-specific details.
-- Repository implementations must preserve Registry identity across storage migrations.
-- Repository behavior must remain deterministic for identical Registry revisions.
-- New repository capabilities require an approved domain contract before implementation.
+- owns RegistryTransaction and transaction-owned evidence;
+- owns immutable RegistrySnapshot records;
+- owns append-only AuditLog records;
+- persists ImpactAnalysisResult, ValidationResult, RiskAssessment,
+  PublishingGateDecision and PublicationAttempt only through their owning
+  RegistryTransaction;
+- does not own current Published Registry state;
+- does not own mutable DraftWorkspace state;
+- does not build RegistryGraph or derive RegistryDependency.
 
+No independent persistence boundary exists for RegistryGraph,
+RegistryDependency, reverse traversal, relation indexes, ImpactAnalysisResult,
+ValidationResult, RiskAssessment, PublishingGateDecision or PublicationAttempt.
+
+RegistryGraph, RegistryDependency, traversal and indexes are derived
+projections. Transaction evidence remains owned by RegistryTransaction.
+
+Publication atomicity:
+
+- one invocation of PublishRegistryRevision is the single atomic application
+  boundary for publication;
+- PublishRegistryRevision coordinates RegistryRepository,
+  DraftWorkspaceRepository and RegistryGovernanceRepository according to
+  their independent ownership contracts;
+- every publication write must participate in one native all-or-nothing
+  storage write scope;
+- repositories must not expose begin, commit or rollback methods, technical
+  transaction wrappers or staged mutable write state;
+- publication must verify expected source Registry revision and fingerprint
+  before applying changes;
+- a storage implementation that cannot provide all-or-nothing publication is
+  not publication-capable.
+
+No composite RegistryRepository, PublicationCommitPort, SnapshotRepository or
+technical transaction wrapper is introduced.
 
 ##### Engineering Change Analysis
 
