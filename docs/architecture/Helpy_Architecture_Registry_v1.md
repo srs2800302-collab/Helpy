@@ -3921,7 +3921,7 @@ Decision Summary:
 - Admin Panel is the source of truth for categories, subcategories, questions, photo requirements, pricing, guidance, platform settings, rules, evidence, reviews, translations and operational control.
 - Mobile app must consume Admin-managed business logic through structured API contracts.
 - Runtime Markdown document parsing is not allowed for mobile guidance.
-- Draft / Published lifecycle, Audit Log, Preview, Rollback, Health Check and Sandbox Mode are required governance primitives.
+- Draft / Published lifecycle, Audit Log, Preview, governed recovery, Helpy Category Health Check and PUBLISHING_DRAFT / SANDBOX workspace purposes are required governance capabilities.
 - Implementation is not complete: multiple approved builders and roadmap modules remain GAP_APPROVED.
 - Final DB baseline vs migration strategy remains DRAFT.
 - This contract cannot be CLOSED until Admin builders, platform settings, guidance, rules, evidence, review and DB baseline strategy are aligned.
@@ -3929,7 +3929,7 @@ Decision Summary:
 Implementation State:
 - TARGET_APPROVED: Admin Panel as Business Logic Builder.
 - IMPLEMENTED: basic Admin dashboard shell, Jobs list, Payments list, Disputes list, Translation Tasks admin endpoints, reset endpoints.
-- GAP_APPROVED: Category Builder, Subcategory Builder, Question Builder, Photo Requirement Builder, Pricing Builder, Guidance Builder, Platform Settings Center, Audit Log, Rollback, Rules Simulator, Impact Analysis, Registry Coverage, Sandbox Mode, Notification Center, Admin Order Timeline / Evidence Screen.
+- GAP_APPROVED: Category Builder, Subcategory Builder, Question Builder, Photo Requirement Builder, Pricing Builder, Guidance Builder, Platform Settings Center, Audit Log, Governed Recovery, Rules Simulator, Impact Analysis, Helpy Registry Coverage, SANDBOX DraftWorkspace, Notification Center, Admin Order Timeline / Evidence Screen.
 - CURRENT GAP: Admin frontend API client still references legacy admin URLs while backend exposes /api/v1/admin/* routes.
 - DEFERRED: advanced admin roles, bulk operations, import/export, search everywhere.
 - DRAFT: final DB baseline vs 0005 migration strategy.
@@ -5244,110 +5244,54 @@ AuditLog:
 
 ##### Bulk Operations Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-BulkOperations defines the canonical engineering service for applying deterministic changes to multiple RegistryEntity objects within a single RegistryTransaction.
+BulkOperations is an application service that prepares and applies approved
+deterministic change plans inside one PUBLISHING_DRAFT DraftWorkspace.
 
-BulkOperations is not responsible for engineering decisions.
+BulkOperations:
 
-BulkOperations executes approved deterministic bulk operation steps within an EngineeringWorkflow.
+- operates only against the current isolated DraftWorkspace revision;
+- applies only a deterministic plan with explicit affected semantic targets;
+- must not create or own RegistryTransaction lifecycle;
+- must not directly own analysis, validation, gate or audit lifecycle;
+- must not modify Published Registry directly;
+- must preserve transaction atomicity through the established governance flow;
+- must not apply a partial deterministic plan;
+- must remain explainable and reproducible for identical verified inputs.
 
-BulkOperations is based on:
-- RegistryEntity;
-- RegistryGraph;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryTransaction;
-- DraftWorkspace;
-- ImpactAnalysis;
-- Validation;
-- PublishingGate;
-- AuditLog.
+BulkOperations may support semantic rename, move, replace, delete, create,
+merge, split, metadata update, reclassification and refactoring operations
+when the active project adapter defines their semantics.
 
-BulkOperations responsibilities:
-- collect affected RegistryEntity objects;
-- create a single RegistryTransaction;
-- execute deterministic bulk changes;
-- invoke ImpactAnalysis;
-- invoke Validation;
-- invoke PublishingGate;
-- produce AuditLog records;
-- preserve transaction atomicity;
-- prevent partial Registry modification.
-
-Supported bulk operations:
-- bulkRename;
-- bulkMove;
-- bulkReplace;
-- bulkDelete;
-- bulkCreate;
-- bulkMerge;
-- bulkSplit;
-- bulkUpdateMetadata;
-- bulkReclassify;
-- bulkRefactor.
-
-Rules:
-- Every bulk operation must execute inside DraftWorkspace.
-- Every bulk operation must belong to exactly one RegistryTransaction.
-- BulkOperations must not bypass ImpactAnalysis.
-- BulkOperations must not bypass Validation.
-- BulkOperations must not bypass PublishingGate.
-- BulkOperations must not modify Published Registry directly.
-- Failed bulk operations must not partially modify Registry.
-- Every bulk operation must be fully traceable through AuditLog.
-- BulkOperations execution must be deterministic and reproducible.
-- New BulkOperations behavior requires an approved domain contract before implementation.
-
-
+Any resulting change invalidates prior draft evidence. Analysis, validation,
+risk, gate and publication remain governed by the active RegistryTransaction.
 
 ##### Global Rename Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-GlobalRename defines the canonical engineering service for safely renaming Registry entities and updating every affected reference.
+GlobalRename is a semantic bulk-refactoring operation. It is not a text
+replacement tool.
 
-GlobalRename is not a text replacement tool.
+GlobalRename:
 
-GlobalRename performs semantic engineering refactoring.
+- identifies one target RegistryEntity through stable immutable identity;
+- preserves RegistryEntity identity;
+- may change display name, semantic key, RegistryPath segment, canonical label
+  and adapter-defined semantic references;
+- identifies confirmed semantic references through RegistryGraph and
+  adapter-defined relation semantics;
+- distinguishes confirmed semantic references from semantic candidates and
+  informational text matches;
+- prepares deterministic changes through BulkOperations;
+- must not modify Published Registry directly;
+- must remain explainable and reproducible for identical verified inputs.
 
-GlobalRename is based on:
-- RegistryEntity;
-- RegistryGraph;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryPath;
-- RegistryTransaction;
-- ImpactAnalysis;
-- Validation;
-- PublishingGate;
-- AuditLog;
-- BulkOperations.
+Informational text matches must not be rewritten automatically.
 
-GlobalRename responsibilities:
-- identify the target RegistryEntity;
-- locate every semantic reference;
-- distinguish semantic references from plain text;
-- detect naming conflicts;
-- prepare deterministic rename operations;
-- invoke ImpactAnalysis;
-- invoke Validation;
-- invoke PublishingGate;
-- execute through BulkOperations;
-- produce AuditLog records.
-
-Rules:
-- GlobalRename must rename RegistryEntity identity consistently.
-- Partial semantic rename is prohibited.
-- Every affected RegistryEntity must belong to the same RegistryTransaction.
-- Naming conflicts must block publication.
-- GlobalRename must not modify Published Registry directly.
-- Every rename operation must be deterministic and reproducible.
-- Every rename operation must be fully traceable through AuditLog.
-- GlobalRename must preserve Registry identity across supported storage implementations.
-- New GlobalRename behavior requires an approved domain contract before implementation.
-
-
+Naming conflict, invalid target semantics or incomplete confirmed reference
+coverage must block the deterministic plan until resolved through governance.
 
 ##### Registry Studio Platform Scope
 
@@ -6307,204 +6251,101 @@ No implementation may begin from a legacy contract block until its corresponding
 
 ##### Dependency Explorer Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-DependencyExplorer defines the canonical dependency navigation component for exploring Registry dependencies and engineering impact paths.
+DependencyExplorer is a read-only graph traversal service for one exact
+published Registry revision or DraftWorkspace revision.
 
-DependencyExplorer is not a search engine.
+DependencyExplorer:
 
-DependencyExplorer provides deterministic dependency navigation across the Registry domain model.
+- derives traversal from RegistryGraph, RegistryRelation, RegistryDependency,
+  RegistryPath and adapter-defined semantic rules;
+- supports deterministic forward and reverse traversal;
+- exposes direct confirmed dependencies, indirect impact paths, semantic
+  candidates and informational text matches distinctly;
+- exposes relation and path provenance for every traversal result;
+- detects configured traversal cycles and explains the full cycle path;
+- supports engineering navigation, context reconstruction, impact analysis,
+  validation and semantic refactoring;
+- does not modify Registry, DraftWorkspace or RegistryTransaction;
+- does not create independent dependency state;
+- remains storage independent.
 
-DependencyExplorer is based on:
-- RegistryGraph;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryEntity;
-- RegistryPath;
-- RegistrySnapshot.
-
-DependencyExplorer responsibilities:
-- discover direct dependencies;
-- discover reverse dependencies;
-- discover dependency chains;
-- discover affected RegistryEntity objects;
-- discover blocking dependencies;
-- discover cyclic dependencies;
-- support engineering navigation;
-- provide deterministic dependency traversal.
-
-DependencyExplorer supports:
-- dependency lookup;
-- reverse dependency lookup;
-- dependency chain visualization;
-- impact scope discovery;
-- engineering context reconstruction;
-- GlobalRename;
-- ImpactAnalysis;
-- Validation.
-
-Rules:
-- DependencyExplorer must operate only on verified Registry domain data.
-- DependencyExplorer must not modify Registry.
-- DependencyExplorer traversal must be deterministic and reproducible.
-- DependencyExplorer must support forward and reverse dependency traversal.
-- DependencyExplorer must detect cyclic dependency paths.
-- DependencyExplorer must remain independent of storage implementation.
-- DependencyExplorer results must provide enough engineering context for safe decision making.
-- New DependencyExplorer behavior requires an approved domain contract before implementation.
-
-
+DependencyExplorer is not a generic text search engine.
 
 ##### Rules Simulator Model
 
-Status: APPROVED
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-RulesSimulator defines the canonical simulation component for simulating Registry changes before publication.
+RulesSimulator is a universal Core application capability for deterministic
+non-mutating behavior simulation.
 
-RulesSimulator does not modify Registry.
+RulesSimulator:
 
-RulesSimulator predicts engineering consequences using verified Registry domain models.
+- is not a RegistryEntity;
+- is not a RegistryEntityPayload;
+- is not a lifecycle aggregate;
+- is not a publication authority;
+- is not merged with ImpactAnalysis;
+- executes against one exact published RegistrySnapshot, PUBLISHING_DRAFT
+  workspace revision or SANDBOX workspace revision;
+- preserves Registry identity, revision reference, fingerprint, adapter
+  identity and adapter semantic-contract version;
+- accepts typed adapter-defined hypothetical scenario input;
+- returns typed adapter-defined simulation output with an explainable
+  execution trace;
+- remains independent of project-specific business terms, storage
+  representation and UI implementation;
+- must not modify Registry, DraftWorkspace or RegistryTransaction;
+- must not create ValidationResult, RiskAssessment or PublishingGateDecision;
+- must not automatically create publication evidence.
 
-RulesSimulator is based on:
-- RegistryGraph;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryEntity;
-- RegistryEntityPayload;
-- RegistrySnapshot;
-- RegistryTransaction;
-- ImpactAnalysis;
-- Validation.
+ImpactAnalysis explains affected Registry entities, relations and dependencies
+for a proposed change.
 
-RulesSimulator responsibilities:
-- simulate Registry changes;
-- simulate dependency propagation;
-- simulate rule inheritance;
-- simulate publication readiness;
-- simulate validation outcome;
-- estimate engineering impact;
-- expose predicted affected RegistryEntity objects;
-- provide deterministic simulation results.
+RulesSimulator evaluates adapter-defined behavior for one hypothetical scenario
+against one exact Registry revision.
 
-Rules:
-- RulesSimulator must operate only on verified Registry domain data.
-- RulesSimulator must not modify Registry.
-- Simulation must be deterministic and reproducible.
-- Simulation results must clearly distinguish predicted data from published Registry.
-- RulesSimulator must support DraftWorkspace.
-- RulesSimulator must support engineering decision making before RegistryTransaction commit.
-- Simulation results must be explainable.
-- New RulesSimulator behavior requires an approved domain contract before implementation.
+Project adapters define scenario input semantics, evaluator bindings, output
+semantics, behavior trace interpretation, preview bindings and adapter-specific
+simulation constraints.
 
+A validation extension may invoke RulesSimulator and include its trace in
+ValidationResult evidence. The resulting evidence remains owned by Validation.
 
+##### Helpy Registry Coverage Extension
 
-##### Registry Coverage Model
+Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 
-Status: APPROVED
+RegistryCoverage is not a Registry Studio Core model.
 
-RegistryCoverage defines the canonical coverage analysis component for measuring completeness of the Registry domain model.
+Helpy RegistryCoverage is an adapter-defined completeness capability for Helpy
+semantic contracts and launch readiness.
 
-RegistryCoverage is not the same as Validation.
+Helpy RegistryCoverage may evaluate:
 
-Validation verifies correctness.
-RegistryCoverage verifies completeness.
+- category and subcategory completeness;
+- question, answer option and structured-scope completeness;
+- photo, pricing, guidance and eligibility completeness;
+- canonical RU / EN / TH formulation coverage;
+- translation semantics;
+- category health and launch readiness;
+- Helpy-specific relation, dependency and workflow completeness.
 
-RegistryCoverage is based on:
-- RegistryGraph;
-- RegistryEntity;
-- RegistryEntityKind;
-- RegistryEntityPayload;
-- RegistryRelation;
-- RegistryDependency;
-- RegistryPath;
-- RegistrySnapshot;
-- Validation.
+Helpy RegistryCoverage:
 
-RegistryCoverage responsibilities:
-- measure Registry completeness;
-- detect missing required RegistryEntity objects;
-- detect incomplete RegistryEntityPayload objects;
-- detect missing required relations;
-- detect missing dependencies;
-- detect orphan RegistryEntity objects;
-- detect incomplete category structures;
-- detect incomplete rule structures;
-- detect incomplete question, photo, pricing and guidance coverage;
-- provide coverage summaries for engineering decisions.
+- operates on one exact Registry or DraftWorkspace revision;
+- remains distinct from Validation;
+- must not modify Registry directly;
+- must produce explainable adapter-defined findings;
+- may participate in the required Helpy Category Health Check publishing-gate
+  extension;
+- must not become Registry Studio Core taxonomy, payload or persistence state.
 
-Coverage states:
-- COMPLETE;
-- PARTIAL;
-- MISSING;
-- ORPHAN;
-- UNKNOWN.
+No separate SandboxMode model exists.
 
-Rules:
-- RegistryCoverage must operate only on verified Registry domain data.
-- RegistryCoverage must not modify Registry.
-- RegistryCoverage must be deterministic and reproducible.
-- RegistryCoverage must remain independent of storage implementation.
-- RegistryCoverage must distinguish invalid data from incomplete data.
-- RegistryCoverage results must identify affected RegistryEntity objects whenever applicable.
-- RegistryCoverage must provide enough context for engineering prioritization.
-- New RegistryCoverage behavior requires an approved domain contract before implementation.
-
-
-
-##### Sandbox Mode Model
-
-Status: APPROVED
-
-SandboxMode defines the canonical safe experimentation environment for Registry engineering work.
-
-SandboxMode is not Published Registry and not a publication Draft by default.
-
-SandboxMode allows engineers to test Registry changes, workflows and simulations without affecting Published Registry.
-
-SandboxMode is based on:
-- RegistryGraph;
-- RegistrySnapshot;
-- DraftWorkspace;
-- RegistryTransaction;
-- RulesSimulator;
-- ImpactAnalysis;
-- Validation;
-- RegistryCoverage;
-- PublishingGate.
-
-SandboxMode responsibilities:
-- create isolated experimental Registry state;
-- test proposed Registry changes;
-- simulate bulk operations;
-- simulate GlobalRename;
-- simulate validation and publishing outcomes;
-- compare experimental results with source RegistrySnapshot;
-- discard experiments safely;
-- promote approved experiment results into DraftWorkspace when required.
-
-SandboxMode states:
-- EMPTY;
-- ACTIVE;
-- DIRTY;
-- SIMULATING;
-- CHECKING;
-- PROMOTION_CANDIDATE;
-- BLOCKED;
-- PROMOTED;
-- DISCARDED.
-
-Rules:
-- SandboxMode must never modify Published Registry directly.
-- SandboxMode must not be treated as Published Registry.
-- SandboxMode must clearly distinguish experimental state from DraftWorkspace and Published Registry.
-- SandboxMode must be deterministic and reproducible when based on the same RegistrySnapshot and inputs.
-- SandboxMode results must be explainable.
-- Promotion from SandboxMode to DraftWorkspace must create or join a RegistryTransaction.
-- SandboxMode must support discard without affecting DraftWorkspace or Published Registry.
-- SandboxMode must remain independent of storage implementation.
-- New SandboxMode behavior requires an approved domain contract before implementation.
-
-
+SANDBOX behavior is owned exclusively by DraftWorkspace purpose and follows
+the SANDBOX contract defined by Draft Workspace Model.
 
 ##### Engineering Context Model
 
@@ -7428,19 +7269,20 @@ Phase 1: Registry Foundation
 
 Phase 2: Engineering Governance
 - Registry transactions;
-- Draft Workspace;
-- Validation;
+- DraftWorkspace purposes: PUBLISHING_DRAFT and SANDBOX;
 - Impact Analysis;
-- Risk Classification;
+- Validation;
+- derived RiskAssessment;
 - Publishing Gate;
+- PublicationAttempt;
+- governed recovery;
 - Audit Log.
 
 Phase 3: Engineering Services
 - Dependency Explorer;
 - Engineering Context;
 - Rules Simulator;
-- Registry Coverage;
-- Sandbox Mode;
+- Helpy Registry Coverage;
 - Bulk Operations;
 - Global Rename.
 
@@ -7454,7 +7296,7 @@ Phase 4: Engineering Runtime
 Phase 5: Platform Expansion
 - project adapters;
 - storage adapters;
-- plugin-ready engineering services;
+- immutable validated engineering service capability composition;
 - reusable Registry Studio Core;
 - future engineering assistant capabilities.
 
@@ -7534,8 +7376,8 @@ Non-goals:
 Must-Have Roadmap:
 - Rules Simulator;
 - Impact Analysis;
-- Registry Coverage;
-- Sandbox Mode.
+- Helpy Registry Coverage;
+- SANDBOX DraftWorkspace purpose.
 
 Nice-To-Have Roadmap:
 - Search Everywhere;
@@ -7558,8 +7400,8 @@ Purpose:
 - Show dependencies before risky changes.
 - Support safe Admin Panel publishing.
 
-Registry Coverage:
-Admin can see readiness coverage per category/subcategory:
+Helpy Registry Coverage:
+Admin can see Helpy readiness coverage per category/subcategory:
 - category structure;
 - structured scope;
 - questions;
@@ -7582,8 +7424,10 @@ Purpose:
 - Support category readiness decisions.
 - Keep Registry and Admin Panel aligned.
 
-Sandbox Mode:
-Admin can test draft categories, rules, pricing, guidance, completion flows and feature flags without exposing them to real users.
+SANDBOX DraftWorkspace:
+Admin can prepare an isolated SANDBOX workspace for draft categories, rules,
+pricing, guidance, completion flows and feature flags without exposing them to
+real users. SANDBOX does not create RegistryTransaction or publication evidence.
 
 Purpose:
 - Separate draft experiments from production.
@@ -7604,7 +7448,7 @@ Governance Rules:
 - Roadmap extensions must not bypass Category Health Check.
 - Roadmap extensions must not expose secrets or unsafe database access.
 - Roadmap extensions should be implemented gradually after core Admin Panel builders.
-- Rules Simulator, Impact Analysis, Registry Coverage and Sandbox Mode are higher priority than Search Everywhere, Bulk Operations and Import / Export.
+- Rules Simulator, Impact Analysis, Helpy Registry Coverage and SANDBOX DraftWorkspace are higher priority than Search Everywhere, Bulk Operations and Import / Export.
 
 ### Future Admin Roles Reserve
 Reserved:
