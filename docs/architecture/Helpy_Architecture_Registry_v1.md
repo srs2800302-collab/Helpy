@@ -6483,6 +6483,16 @@ Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 EngineeringOrchestrator is the narrow coordinator of confirmed
 EngineeringWorkflowInstance execution.
 
+EngineeringOrchestrator ownership boundary:
+
+EngineeringOrchestrator не заменяет EngineeringOperation и не владеет
+workflow step definition, runtime step state, typed handler contract,
+service handler execution или service capability resolution.
+
+Эти ответственности остаются у WorkflowStepDefinition,
+WorkflowStepExecution, EngineeringServiceContract и
+EngineeringServiceCapabilityCatalog.
+
 EngineeringOrchestrator:
 
 - starts one confirmed EngineeringWorkflowInstance;
