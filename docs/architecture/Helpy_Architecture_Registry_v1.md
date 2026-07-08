@@ -6392,6 +6392,31 @@ Status: APPROVED — CONTROLLED CONTRACT CORRECTION
 EngineeringContext is a read-only provider of verified base Registry context
 for one exact Registry state.
 
+EngineeringContext обязан показывать инженеру полный read-only контекст целевой RegistryEntity из RegistryEntityPayload:
+
+```text
+Entity
+→ Scenario
+  → Scenario Entry Evidence
+  → Questions
+  → Photo Questions
+  → Photo Limits
+  → Client Guidance
+  → Master Guidance
+```
+
+Каждый Scenario рассматривается отдельно. У разных Scenario могут быть
+разные Questions, Photo Questions, Photo Limits, Client Guidance и
+Master Guidance.
+
+Client Guidance и Master Guidance являются role-specific подсказками
+экранов для конкретного Scenario.
+
+EngineeringContext не создаёт отдельный RegistryEntityReviewContext,
+ReviewContent или параллельный payload. Он использует существующих владельцев
+ответственности: RegistryEntity, RegistryEntityPayload, SourceEvidence,
+RegistryRelation, RegistryDependency, RegistryGraph и RegistrySnapshot.
+
 EngineeringContext may derive verified context from Registry, RegistryPath,
 RegistryRelation, RegistryDependency, RegistryGraph and RegistrySnapshot.
 
