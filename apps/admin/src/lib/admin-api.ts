@@ -31,25 +31,18 @@ export type AdminPaymentRow = {
 
 export type AdminDisputeRow = {
   id: string;
-  jobId: string;
-  openedByUserId: string;
+  job_id: string;
+  created_by_user_id: string;
   reason: string;
-  status: string;
-  resolutionNote?: string | null;
-  createdAt: string;
-  resolvedAt?: string | null;
-  job?: {
-    id: string;
-    title: string;
-    status: string;
-    clientUserId: string;
-    selectedMasterUserId?: string | null;
-  };
-  openedBy?: {
-    id: string;
-    phone?: string;
-    role?: string;
-  };
+  status: 'open' | 'resolved';
+  resolution: 'refund' | 'no_refund' | null;
+  resolved_by_user_id: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  job_title?: string | null;
+  job_category?: string | null;
+  client_user_id?: string | null;
+  selected_master_user_id?: string | null;
 };
 
 function getApiBaseUrl(): string | null {
@@ -108,14 +101,11 @@ export async function fetchAdminPayments(status?: string): Promise<AdminPaymentR
   }
 }
 
-export async function fetchAdminDisputes(status?: string): Promise<AdminDisputeRow[]> {
+export async function fetchAdminDisputes(): Promise<AdminDisputeRow[]> {
   const baseUrl = getApiBaseUrl();
   if (!baseUrl) return [];
 
-  const query = new URLSearchParams();
-  if (status) query.set('status', status);
-
-  const url = `${baseUrl}/admin/disputes${query.toString() ? `?${query}` : ''}`;
+  const url = `${baseUrl}/admin/disputes`;
 
   try {
     const response = await fetch(url, {
@@ -133,23 +123,21 @@ export async function fetchAdminDisputes(status?: string): Promise<AdminDisputeR
   }
 }
 
-export async function updateDisputeStatus(input: {
-  disputeId: string;
-  status: 'open' | 'in_review' | 'resolved' | 'rejected';
-  resolutionNote?: string;
+export async function resolveDispute(input: {
+  jobId: string;
+  resolution: 'refund' | 'no_refund';
 }): Promise<boolean> {
   const baseUrl = getApiBaseUrl();
   if (!baseUrl) return false;
 
   try {
-    const response = await fetch(`${baseUrl}/disputes/${input.disputeId}/status`, {
-      method: 'PATCH',
+    const response = await fetch(`${baseUrl}/jobs/${input.jobId}/dispute/resolve`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        status: input.status,
-        resolutionNote: input.resolutionNote?.trim() || undefined,
+        resolution: input.resolution,
       }),
       cache: 'no-store',
     });
