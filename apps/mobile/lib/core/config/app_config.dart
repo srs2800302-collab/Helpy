@@ -11,7 +11,7 @@ class AppConfig {
     return const AppConfig(
       apiBaseUrl: 'https://fixi-edge-api.srs2800302.workers.dev/api/v1',
       googleServerClientId:
-          '1096903651505-plim8k4colk6j0343u028qeim2fcoq1a.apps.googleusercontent.com',
+          '1096903651505-00uj9fa78pkgstt07b3qd7jvo6qrvc13.apps.googleusercontent.com',
     );
   }
 }
