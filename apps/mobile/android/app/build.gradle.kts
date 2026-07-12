@@ -30,6 +30,20 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        getByName("debug") {
+            // Checked-in debug keystore so every build (local or CI) shares the
+            // same signing certificate. Its SHA-1 is what's registered as the
+            // Android OAuth client in Google Cloud Console; a machine-generated
+            // ~/.android/debug.keystore would produce a different, unregistered
+            // SHA-1 and break Google Sign-In with a DEVELOPER_ERROR.
+            storeFile = file("../debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

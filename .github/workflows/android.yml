@@ -39,6 +39,13 @@ jobs:
         run: |
           echo "API_BASE_URL=https://fixi-edge-api.srs2800302.workers.dev/api/v1" > .env
 
+      # Shared debug keystore so CI signs with the same certificate as local
+      # builds - its SHA-1 is registered as the Android OAuth client in
+      # Google Cloud Console, so a per-runner debug key would break
+      # Google Sign-In with DEVELOPER_ERROR.
+      - name: Restore debug keystore
+        run: echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > android/debug.keystore
+
       - name: Build release APK
         run: flutter build apk --release
 
