@@ -95,7 +95,7 @@ export async function createRefundPayment(jobId: string, env: any) {
       deposit.source ?? 'client_card',
       deposit.provider ?? 'mock',
       `refund_${deposit.id}`,
-      -Math.abs(deposit.amount),
+      Math.abs(deposit.amount),
       deposit.currency,
       'refund',
       'paid',
