@@ -1,6 +1,4 @@
-const OTP_CODE = '123456';
-
-const ROLE_SWITCHER_PHONES = new Set(['+79152800302']);
+const ROLE_SWITCHER_EMAILS = new Set(['tester@fixi.dev']);
 
 function jsonError(error: string, status: number) {
   return Response.json({ success: false, error }, { status });
@@ -13,24 +11,54 @@ function makeTokens(userId: string) {
   };
 }
 
-function displayPhone(phone: string) {
-  return phone.replace(/:master$/, '');
+function displayEmail(email: string) {
+  return email.replace(/:master$/, '');
 }
 
 function sanitizeUser(row: any) {
   return {
     id: row.id,
-    phone: displayPhone(String(row.phone ?? '')),
+    email: displayEmail(String(row.email ?? '')),
     role: row.role,
     language: row.language,
     created_at: row.created_at ?? null,
   };
 }
 
-async function findOrCreateUser(phone: string, env: any) {
+type GoogleTokenInfo = {
+  aud: string;
+  sub: string;
+  email?: string;
+  email_verified?: string;
+  exp: string;
+};
+
+async function verifyGoogleIdToken(idToken: string, env: any): Promise<GoogleTokenInfo> {
+  const response = await fetch(
+    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
+  );
+
+  if (!response.ok) {
+    throw new Error('Invalid Google ID token');
+  }
+
+  const info = (await response.json()) as GoogleTokenInfo;
+
+  if (!env.GOOGLE_OAUTH_CLIENT_ID || info.aud !== env.GOOGLE_OAUTH_CLIENT_ID) {
+    throw new Error('Google ID token was issued for a different client');
+  }
+
+  if (info.email_verified !== 'true') {
+    throw new Error('Google account email is not verified');
+  }
+
+  return info;
+}
+
+async function findOrCreateUserByGoogle(sub: string, email: string, env: any) {
   const existing = await env.DB.prepare(
-    'SELECT id, role, phone, language, created_at FROM users WHERE phone = ?1 LIMIT 1'
-  ).bind(phone).first();
+    'SELECT id, role, email, language, created_at FROM users WHERE google_sub = ?1 LIMIT 1'
+  ).bind(sub).first();
 
   if (existing) return existing;
 
@@ -38,19 +66,19 @@ async function findOrCreateUser(phone: string, env: any) {
   const createdAt = new Date().toISOString();
 
   await env.DB.prepare(
-    'INSERT INTO users (id, role, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)'
-  ).bind(id, 'client', phone, 'ru', createdAt).run();
+    'INSERT INTO users (id, role, google_sub, email, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
+  ).bind(id, 'client', sub, email, `google:${sub}`, 'ru', createdAt).run();
 
   return {
     id,
     role: 'client',
-    phone,
+    email,
     language: 'ru',
     created_at: createdAt,
   };
 }
 
-export async function requestOtp(request: Request, env: any) {
+export async function signInWithGoogle(request: Request, env: any) {
   let body: any;
   try {
     body = await request.json();
@@ -58,30 +86,20 @@ export async function requestOtp(request: Request, env: any) {
     return jsonError('Invalid JSON', 400);
   }
 
-  const phone = body.phone?.toString().trim();
-  if (!phone) return jsonError('phone is required', 400);
+  const idToken = body.id_token?.toString().trim();
+  if (!idToken) return jsonError('id_token is required', 400);
 
-  return Response.json({
-    success: true,
-    data: { phone, otp: OTP_CODE },
-  });
-}
-
-export async function verifyOtp(request: Request, env: any) {
-  let body: any;
+  let info: GoogleTokenInfo;
   try {
-    body = await request.json();
-  } catch {
-    return jsonError('Invalid JSON', 400);
+    info = await verifyGoogleIdToken(idToken, env);
+  } catch (e) {
+    return jsonError(e instanceof Error ? e.message : 'Invalid Google ID token', 401);
   }
 
-  const phone = body.phone?.toString().trim();
-  const code = body.code?.toString().trim();
+  const email = info.email?.toLowerCase().trim();
+  if (!email) return jsonError('Google account has no email', 400);
 
-  if (!phone || !code) return jsonError('phone and code are required', 400);
-  if (code !== OTP_CODE) return jsonError('Invalid OTP code', 400);
-
-  const user = await findOrCreateUser(phone, env);
+  const user = await findOrCreateUserByGoogle(info.sub, email, env);
 
   return Response.json({
     success: true,
@@ -99,7 +117,7 @@ export async function getMe(request: Request, env: any) {
   if (!userId) return jsonError('Missing Authorization header', 401);
 
   const user = await env.DB.prepare(
-    'SELECT id, role, phone, language, created_at FROM users WHERE id = ?1 LIMIT 1'
+    'SELECT id, role, email, language, created_at FROM users WHERE id = ?1 LIMIT 1'
   ).bind(userId).first();
 
   if (!user) return jsonError('User not found', 404);
@@ -151,35 +169,35 @@ export async function selectMyRole(request: Request, env: any) {
   }
 
   const currentUser = await env.DB.prepare(
-    'SELECT id, role, phone, language, created_at FROM users WHERE id = ?1 LIMIT 1'
+    'SELECT id, role, email, language, created_at FROM users WHERE id = ?1 LIMIT 1'
   ).bind(currentUserId).first();
 
   if (!currentUser) return jsonError('User not found', 404);
 
-  const basePhone = String(currentUser.phone ?? '').replace(/:master$/, '');
+  const baseEmail = String(currentUser.email ?? '').replace(/:master$/, '');
 
-  if (!ROLE_SWITCHER_PHONES.has(basePhone)) {
-    return jsonError('Role switching is not allowed for this phone', 403);
+  if (!ROLE_SWITCHER_EMAILS.has(baseEmail)) {
+    return jsonError('Role switching is not allowed for this account', 403);
   }
 
   const now = new Date().toISOString();
-  const targetPhone = role === 'master' ? `${basePhone}:master` : basePhone;
+  const targetEmail = role === 'master' ? `${baseEmail}:master` : baseEmail;
 
   let user = await env.DB.prepare(
-    'SELECT id, role, phone, language, created_at FROM users WHERE phone = ?1 LIMIT 1'
-  ).bind(targetPhone).first();
+    'SELECT id, role, email, language, created_at FROM users WHERE email = ?1 LIMIT 1'
+  ).bind(targetEmail).first();
 
   if (!user) {
     const id = crypto.randomUUID();
 
     await env.DB.prepare(
-      'INSERT INTO users (id, role, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)'
-    ).bind(id, role, targetPhone, currentUser.language ?? 'ru', now).run();
+      'INSERT INTO users (id, role, email, phone, language, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)'
+    ).bind(id, role, targetEmail, `email:${targetEmail}`, currentUser.language ?? 'ru', now).run();
 
     user = {
       id,
       role,
-      phone: targetPhone,
+      email: targetEmail,
       language: currentUser.language ?? 'ru',
       created_at: now,
     };
@@ -230,4 +248,3 @@ export async function selectMyRole(request: Request, env: any) {
     },
   });
 }
-

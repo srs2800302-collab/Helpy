@@ -6,7 +6,7 @@ enum UserRole {
 
 class AuthSession {
   final String userId;
-  final String phone;
+  final String email;
   final UserRole? role;
   final bool isNewUser;
   final bool needsRoleSelection;
@@ -15,7 +15,7 @@ class AuthSession {
 
   const AuthSession({
     required this.userId,
-    required this.phone,
+    required this.email,
     required this.role,
     required this.isNewUser,
     required this.needsRoleSelection,

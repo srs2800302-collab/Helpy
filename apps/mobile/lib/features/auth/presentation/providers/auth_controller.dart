@@ -63,82 +63,30 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
-  void setPhone(String value) {
-    state = state.copyWith(
-      phone: value,
-      clearError: true,
-    );
-  }
-
-  void setOtpCode(String value) {
-    state = state.copyWith(
-      otpCode: value,
-      clearError: true,
-    );
-  }
-
-  Future<bool> requestOtp() async {
-    final normalizedPhone = _normalizePhone(state.phone);
-
-    if (!_isPhoneValid(normalizedPhone)) {
-      state = state.copyWith(
-        errorMessage: _t('validation_phone_invalid'),
-      );
-      return false;
-    }
-
-    state = state.copyWith(
-      isLoading: true,
-      clearError: true,
-      phone: normalizedPhone,
-    );
+  Future<bool> signInWithGoogle() async {
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
+      final googleSignIn = ref.read(googleSignInProvider);
+      final account = await googleSignIn.signIn();
 
-      await ref.read(authApiProvider).requestOtp(normalizedPhone);
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      final appError = ApiErrorMapper.map(e);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: appError.message,
-      );
-      return false;
-    }
-  }
+      if (account == null) {
+        state = state.copyWith(isLoading: false);
+        return false;
+      }
 
-  Future<bool> verifyOtp() async {
-    final normalizedPhone = _normalizePhone(state.phone);
-    final normalizedOtp = _normalizeOtp(state.otpCode);
+      final googleAuth = await account.authentication;
+      final idToken = googleAuth.idToken;
 
-    if (!_isPhoneValid(normalizedPhone)) {
-      state = state.copyWith(
-        errorMessage: _t('validation_phone_invalid'),
-      );
-      return false;
-    }
+      if (idToken == null) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'google_sign_in_failed',
+        );
+        return false;
+      }
 
-    if (!_isOtpValid(normalizedOtp)) {
-      state = state.copyWith(
-        errorMessage: _t('validation_otp_invalid'),
-      );
-      return false;
-    }
-
-    state = state.copyWith(
-      isLoading: true,
-      clearError: true,
-      phone: normalizedPhone,
-      otpCode: normalizedOtp,
-    );
-
-    try {
-      final session = await ref.read(authApiProvider).verifyOtp(
-            normalizedPhone,
-            normalizedOtp,
-          );
-
+      final session = await ref.read(authApiProvider).signInWithGoogle(idToken);
       await _activateSession(session);
       return true;
     } catch (e) {
@@ -171,6 +119,7 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    await ref.read(googleSignInProvider).signOut();
     await _storage.clearAll();
     state = const AuthState(initialized: true);
   }
@@ -197,43 +146,8 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(
       isLoading: false,
       initialized: true,
-      phone: '',
-      otpCode: '',
       clearSession: true,
       clearError: true,
     );
-  }
-
-  String _normalizePhone(String value) {
-    final trimmed = value.trim();
-    if (trimmed.startsWith('+')) {
-      final digits = trimmed.substring(1).replaceAll(RegExp(r'\D'), '');
-      return '+$digits';
-    }
-    return trimmed.replaceAll(RegExp(r'\D'), '');
-  }
-
-  String _normalizeOtp(String value) {
-    return value.replaceAll(RegExp(r'\D'), '');
-  }
-
-  bool _isPhoneValid(String value) {
-    final digits = value.replaceAll(RegExp(r'\D'), '');
-    return digits.length >= 9 && digits.length <= 15;
-  }
-
-  bool _isOtpValid(String value) {
-    return value.length == 6;
-  }
-
-  String _t(String key) {
-    switch (key) {
-      case 'validation_phone_invalid':
-        return 'validation_phone_invalid';
-      case 'validation_otp_invalid':
-        return 'validation_otp_invalid';
-      default:
-        return key;
-    }
   }
 }
