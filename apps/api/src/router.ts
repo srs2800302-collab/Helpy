@@ -309,9 +309,19 @@ async function processTranslationTasks(request: Request, env: any) {
 }
 
 
-export async function handleRequest(request: Request, env: any, ctx?: any) {
+import { logger } from './logger';
+import { captureException } from './sentry';
 
+export async function handleRequest(request: Request, env: any, ctx?: any) {
   const url = new URL(request.url);
+
+  logger.info('Incoming request', {
+    method: request.method,
+    path: url.pathname,
+    ip: request.headers.get('x-forwarded-for') || 'unknown',
+  });
+
+
   const path = url.pathname;
   const method = request.method;
   const parts = path.split('/').filter(Boolean);

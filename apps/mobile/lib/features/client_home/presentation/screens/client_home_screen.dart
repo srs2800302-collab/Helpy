@@ -212,6 +212,18 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            // New placeholder button on Dashboard
+            DashboardActionButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const AlertDialog(
+                    title: Text('Скоро будет!'),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
             if (jobsWithOffers.isNotEmpty) ...[
               Card(
                 color: Colors.amber.shade50,

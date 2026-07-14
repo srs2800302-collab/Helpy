@@ -1,4 +1,8 @@
 import { handleRequest } from './router';
+import { initSentry } from './sentry';
+
+initSentry(process.env.SENTRY_DSN);
+
 
 export default {
   fetch(request: Request, env: any, ctx: any) {

@@ -1,4 +1,5 @@
-import { assertRequiredTable } from './schema-guards';
+import { logger } from './logger';
+import { captureException } from './sentry';
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { buildInitialTranslationsJson, deferTranslations, processPendingTranslationTasks } from './translation';

@@ -178,10 +178,11 @@ export async function createOffer(jobId: string, request: Request, env: any, ctx
       { status: 201 }
     );
   } catch (error: any) {
+    logger.error('Error in offers handling', { error });
+    captureException(error);
     if (String(error?.message || '').toLowerCase().includes('unique')) {
       return fail('Master already has an offer for this job', 409);
     }
-
     return fail(error?.message ?? 'Failed to create offer', 500);
   }
 }
