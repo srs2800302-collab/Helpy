@@ -1,4 +1,6 @@
-import { assertRequiredTable } from './schema-guards';
+import { logger } from './logger';
+import { captureException } from './sentry';
+
 import { JOB_STATUS, assertTransition } from './job-status';
 import { requireAuth } from './auth-context';
 import { selectJobById } from './job-enrichment';
@@ -90,6 +92,8 @@ export async function cancelJob(jobId: string, request: Request, env: any) {
   try {
     assertTransition(job.status, JOB_STATUS.cancelled);
   } catch (error: any) {
+    logger.error('Error cancelling job', { error, jobId });
+    captureException(error);
     return Response.json(
       { success: false, error: error?.message ?? 'Invalid status transition' },
       { status: 400 }

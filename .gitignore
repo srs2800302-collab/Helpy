@@ -59,3 +59,7 @@ helpy-debug-apk/
 # Build artifacts
 apps/api/dist/
 *.tsbuildinfo
+
+# Wrangler local dev state
+.wrangler/
+.aider*

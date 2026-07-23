@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../core/config/app_config.dart';
 import '../core/network/api_client.dart';
@@ -91,6 +92,13 @@ final apiClientProvider = Provider<ApiClient>((ref) {
 
 final authApiProvider = Provider<AuthApi>((ref) {
   return AuthApi(ref.read(apiClientProvider));
+});
+
+final googleSignInProvider = Provider<GoogleSignIn>((ref) {
+  return GoogleSignIn(
+    scopes: const ['email'],
+    serverClientId: ref.read(appConfigProvider).googleServerClientId,
+  );
 });
 
 final categoriesApiProvider = Provider<CategoriesApi>((ref) {

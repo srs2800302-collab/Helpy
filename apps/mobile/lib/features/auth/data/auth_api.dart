@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/auth_session.dart';
 
-const _roleSwitcherPhones = <String>{
-  '+79152800302',
+const _roleSwitcherEmails = <String>{
+  'tester@fixi.dev',
 };
 
-bool canSwitchRoleForPhone(String phone) {
-  final normalized = phone.trim().replaceAll(RegExp(r'[^+0-9]'), '');
-  return _roleSwitcherPhones.contains(normalized);
+bool canSwitchRoleForEmail(String email) {
+  final normalized = email.trim().toLowerCase();
+  return _roleSwitcherEmails.contains(normalized);
 }
 
 class AuthApi {
@@ -16,37 +16,11 @@ class AuthApi {
 
   AuthApi(this.apiClient);
 
-  Future<void> requestOtp(String phone) async {
-    try {
-      await apiClient.post(
-        '/auth/request-otp',
-        data: {
-          'phone': phone,
-        },
-      );
-    } on DioException catch (e) {
-      final retryable =
-          e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout ||
-          e.type == DioExceptionType.connectionError;
-
-      if (!retryable) rethrow;
-
-      await apiClient.post(
-        '/auth/request-otp',
-        data: {
-          'phone': phone,
-        },
-      );
-    }
-  }
-
-  Future<AuthSession> verifyOtp(String phone, String code) async {
+  Future<AuthSession> signInWithGoogle(String idToken) async {
     final response = await apiClient.post(
-      '/auth/verify-otp',
+      '/auth/google',
       data: {
-        'phone': phone,
-        'code': code,
+        'id_token': idToken,
       },
     );
 
@@ -96,13 +70,13 @@ class AuthApi {
     final tokens = json['tokens'] as Map<String, dynamic>;
 
     final role = _mapRole(user['role']?.toString());
-    final phone = user['phone'].toString();
-    final canSwitchRole = canSwitchRoleForPhone(phone);
+    final email = user['email'].toString();
+    final canSwitchRole = canSwitchRoleForEmail(email);
     final isNewUser = role == null;
 
     return AuthSession(
       userId: user['id'].toString(),
-      phone: phone,
+      email: email,
       role: role,
       isNewUser: isNewUser,
       needsRoleSelection: canSwitchRole || isNewUser,

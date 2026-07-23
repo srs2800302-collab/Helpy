@@ -5,12 +5,12 @@ import { AdminNav } from '@/components/admin-nav';
 import {
   fetchAdminDisputes,
   hasAdminApiBaseUrl,
-  updateDisputeStatus,
+  resolveDispute,
 } from '@/lib/admin-api';
 
 export const dynamic = 'force-dynamic';
 
-const disputeStatuses = ['open', 'in_review', 'resolved', 'rejected'];
+const disputeStatuses = ['open', 'resolved'] as const;
 
 export default async function AdminDisputesPage({
   searchParams,
@@ -19,29 +19,25 @@ export default async function AdminDisputesPage({
 }) {
   const params = (await searchParams) ?? {};
   const status = params.status?.trim() || '';
-  const disputes = await fetchAdminDisputes(status || undefined);
+  const allDisputes = await fetchAdminDisputes();
+  const disputes = status
+    ? allDisputes.filter((dispute) => dispute.status === status)
+    : allDisputes;
   const hasApiBaseUrl = hasAdminApiBaseUrl();
 
-  async function changeDisputeStatus(formData: FormData) {
+  async function resolveDisputeAction(formData: FormData) {
     'use server';
 
-    const disputeId = formData.get('disputeId')?.toString() ?? '';
-    const nextStatus = formData.get('nextStatus')?.toString() as
-      | 'open'
-      | 'in_review'
-      | 'resolved'
-      | 'rejected';
-    const resolutionNote = formData.get('resolutionNote')?.toString() ?? '';
+    const jobId = formData.get('jobId')?.toString() ?? '';
+    const resolution = formData.get('resolution')?.toString() as
+      | 'refund'
+      | 'no_refund';
 
-    if (!disputeId || !nextStatus) {
+    if (!jobId || !resolution) {
       return;
     }
 
-    await updateDisputeStatus({
-      disputeId,
-      status: nextStatus,
-      resolutionNote,
-    });
+    await resolveDispute({ jobId, resolution });
 
     revalidatePath('/disputes');
   }
@@ -102,61 +98,37 @@ export default async function AdminDisputesPage({
           <tbody>
             {disputes.map((dispute) => (
               <tr key={dispute.id}>
-                <td style={tdStyle}>{dispute.job?.title || dispute.jobId}</td>
-                <td style={tdStyle}>{dispute.openedBy?.phone || dispute.openedByUserId}</td>
+                <td style={tdStyle}>{dispute.job_title || dispute.job_id}</td>
+                <td style={tdStyle}>{dispute.created_by_user_id}</td>
                 <td style={tdStyle}>{dispute.reason || '-'}</td>
                 <td style={tdStyle}>{dispute.status || '-'}</td>
-                <td style={tdStyle}>{formatDate(dispute.createdAt)}</td>
+                <td style={tdStyle}>{formatDate(dispute.created_at)}</td>
                 <td style={tdStyle}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {dispute.status === 'open' && (
-                      <form action={changeDisputeStatus}>
-                        <input type="hidden" name="disputeId" value={dispute.id} />
-                        <input type="hidden" name="nextStatus" value="in_review" />
+                  {dispute.status === 'open' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <form action={resolveDisputeAction}>
+                        <input type="hidden" name="jobId" value={dispute.job_id} />
+                        <input type="hidden" name="resolution" value="refund" />
                         <button type="submit" style={buttonStyle}>
-                          Move to in_review
+                          Resolve with refund
                         </button>
                       </form>
-                    )}
 
-                    {dispute.status === 'in_review' && (
-                      <>
-                        <form action={changeDisputeStatus}>
-                          <input type="hidden" name="disputeId" value={dispute.id} />
-                          <input type="hidden" name="nextStatus" value="resolved" />
-                          <input
-                            type="text"
-                            name="resolutionNote"
-                            placeholder="Resolution note"
-                            style={inputStyle}
-                          />
-                          <div style={{ height: 8 }} />
-                          <button type="submit" style={buttonStyle}>
-                            Resolve
-                          </button>
-                        </form>
+                      <form action={resolveDisputeAction}>
+                        <input type="hidden" name="jobId" value={dispute.job_id} />
+                        <input type="hidden" name="resolution" value="no_refund" />
+                        <button type="submit" style={buttonStyleSecondary}>
+                          Resolve without refund
+                        </button>
+                      </form>
+                    </div>
+                  )}
 
-                        <form action={changeDisputeStatus}>
-                          <input type="hidden" name="disputeId" value={dispute.id} />
-                          <input type="hidden" name="nextStatus" value="rejected" />
-                          <input
-                            type="text"
-                            name="resolutionNote"
-                            placeholder="Rejection note"
-                            style={inputStyle}
-                          />
-                          <div style={{ height: 8 }} />
-                          <button type="submit" style={buttonStyleSecondary}>
-                            Reject
-                          </button>
-                        </form>
-                      </>
-                    )}
-
-                    {(dispute.status === 'resolved' || dispute.status === 'rejected') && (
-                      <span style={{ color: '#6b7280', fontSize: 13 }}>No actions</span>
-                    )}
-                  </div>
+                  {dispute.status === 'resolved' && (
+                    <span style={{ color: '#6b7280', fontSize: 13 }}>
+                      Resolved ({dispute.resolution ?? '-'})
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}
@@ -213,16 +185,6 @@ const tdStyle = {
   borderBottom: '1px solid #e5e7eb',
   fontSize: 14,
   verticalAlign: 'top' as const,
-};
-
-const inputStyle = {
-  width: '100%',
-  minWidth: 180,
-  padding: '8px 10px',
-  border: '1px solid #d1d5db',
-  borderRadius: 8,
-  fontSize: 13,
-  boxSizing: 'border-box' as const,
 };
 
 const buttonStyle = {

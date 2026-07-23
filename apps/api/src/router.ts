@@ -10,7 +10,7 @@ import { deleteJob } from './delete-job';
 import { createDispute, getDispute, resolveDispute } from './disputes';
 import { addJobPhoto, getJobPhotos } from './job-photos';
 import { createUser, getUser, getUserFull } from './users';
-import { getMe, refresh, requestOtp, selectMyRole, verifyOtp } from './auth';
+import { getMe, refresh, selectMyRole, signInWithGoogle } from './auth';
 import { createClientProfile, createMasterProfile } from './profiles';
 import { getUserJobDetails } from './job-details';
 import { getJobActions } from './job-actions';
@@ -309,9 +309,19 @@ async function processTranslationTasks(request: Request, env: any) {
 }
 
 
-export async function handleRequest(request: Request, env: any, ctx?: any) {
+import { logger } from './logger';
+import { captureException } from './sentry';
 
+export async function handleRequest(request: Request, env: any, ctx?: any) {
   const url = new URL(request.url);
+
+  logger.info('Incoming request', {
+    method: request.method,
+    path: url.pathname,
+    ip: request.headers.get('x-forwarded-for') || 'unknown',
+  });
+
+
   const path = url.pathname;
   const method = request.method;
   const parts = path.split('/').filter(Boolean);
@@ -360,12 +370,8 @@ export async function handleRequest(request: Request, env: any, ctx?: any) {
     return getAdminDashboard(request, env);
   }
 
-  if (path === '/api/v1/auth/request-otp' && method === 'POST') {
-    return requestOtp(request, env);
-  }
-
-  if (path === '/api/v1/auth/verify-otp' && method === 'POST') {
-    return verifyOtp(request, env);
+  if (path === '/api/v1/auth/google' && method === 'POST') {
+    return signInWithGoogle(request, env);
   }
 
   if (path === '/api/v1/auth/select-my-role' && method === 'POST') {

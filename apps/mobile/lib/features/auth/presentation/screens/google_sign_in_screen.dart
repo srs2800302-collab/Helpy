@@ -5,8 +5,8 @@ import '../../../../app/providers.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_language_menu_button.dart';
 
-class VerifyOtpScreen extends ConsumerWidget {
-  const VerifyOtpScreen({super.key});
+class GoogleSignInScreen extends ConsumerWidget {
+  const GoogleSignInScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,13 +16,9 @@ class VerifyOtpScreen extends ConsumerWidget {
 
     final isBusy = state.isLoading;
 
-    Future<void> submit() async {
-      await controller.verifyOtp();
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.t('verify_title')),
+        title: Text(l10n.t('login_title')),
         actions: const [
           AppLanguageMenuButton(),
         ],
@@ -30,33 +26,8 @@ class VerifyOtpScreen extends ConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 24),
-            Text(
-              l10n.t('enter_otp'),
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
-              onChanged: controller.setOtpCode,
-              onSubmitted: (_) {
-                if (!isBusy) {
-                  submit();
-                }
-              },
-              enabled: !isBusy,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintText: l10n.t('otp_hint'),
-                labelText: l10n.t('enter_otp'),
-              ),
-            ),
-            const SizedBox(height: 16),
             if (state.errorMessage != null) ...[
               Container(
                 width: double.infinity,
@@ -75,14 +46,14 @@ class VerifyOtpScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isBusy ? null : submit,
+                onPressed: isBusy ? null : controller.signInWithGoogle,
                 child: isBusy
                     ? const SizedBox(
                         height: 18,
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(l10n.t('verify')),
+                    : Text(l10n.t('sign_in_with_google')),
               ),
             ),
           ],

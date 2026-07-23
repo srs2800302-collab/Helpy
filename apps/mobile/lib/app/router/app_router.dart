@@ -2,9 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/providers/auth_state.dart';
-import '../../features/auth/presentation/screens/login_phone_screen.dart';
+import '../../features/auth/presentation/screens/google_sign_in_screen.dart';
 import '../../features/auth/presentation/screens/role_selection_screen.dart';
-import '../../features/auth/presentation/screens/verify_otp_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 
@@ -21,13 +20,12 @@ GoRouter createRouter(ValueNotifier<AuthState> authNotifier) {
       }
 
       final isAuthenticated = auth.session != null;
-      final isAuthRoute =
-          location == '/login' || location == '/verify-otp' || location == '/splash';
+      final isAuthRoute = location == '/login' || location == '/splash';
       final isRoleRoute = location == '/select-role';
       final needsRoleSelection = auth.session?.needsRoleSelection == true;
 
       if (!isAuthenticated) {
-        return location == '/login' || location == '/verify-otp' ? null : '/login';
+        return location == '/login' ? null : '/login';
       }
 
       if (isRoleRoute) {
@@ -47,11 +45,7 @@ GoRouter createRouter(ValueNotifier<AuthState> authNotifier) {
       ),
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginPhoneScreen(),
-      ),
-      GoRoute(
-        path: '/verify-otp',
-        builder: (context, state) => const VerifyOtpScreen(),
+        builder: (context, state) => const GoogleSignInScreen(),
       ),
       GoRoute(
         path: '/select-role',
