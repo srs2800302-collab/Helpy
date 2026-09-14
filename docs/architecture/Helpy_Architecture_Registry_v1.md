@@ -9368,7 +9368,7 @@ Safety Boundary:
 - Перед началом работ мастер обязан отключить электропитание соответствующего участка.
 
 ### Electrical → Socket
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 Standard Compliance: Electrical Mini-Scope Standard ✅
 
 Назначение:
@@ -9397,7 +9397,7 @@ Add More Rule:
 - Количество точек определяется количеством созданных mini-ТЗ.
 
 #### Socket → Установить и подключить
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 
 Definition:
 - Установка = монтаж и подключение.
@@ -9430,7 +9430,7 @@ Required Photos — Установить и подключить:
 - До 2 дополнительных фотографий.
 
 #### Socket → Заменить
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 
 Definition:
 - Замена = демонтаж + установка и подключение.
@@ -9463,7 +9463,7 @@ Required Photos — Заменить:
 - До 2 дополнительных фотографий.
 
 #### Socket → Перенести
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 
 Definition:
 - Перенос = демонтаж + установка и подключение в другой зоне.
@@ -9592,7 +9592,7 @@ Admin Dependencies:
 - Chat Evidence Rules.
 
 ### Electrical → Switch
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 Standard Compliance: Electrical Mini-Scope Standard ✅
 
 Назначение:
@@ -9621,7 +9621,7 @@ Add More Rule:
 - Количество точек определяется количеством созданных mini-ТЗ.
 
 #### Switch → Установить и подключить
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 
 Definition:
 - Установка = монтаж и подключение.
@@ -9654,7 +9654,7 @@ Required Photos — Установить и подключить:
 - До 2 дополнительных фотографий.
 
 #### Switch → Заменить
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 
 Definition:
 - Замена = демонтаж + установка и подключение.
@@ -9687,7 +9687,7 @@ Required Photos — Заменить:
 - До 2 дополнительных фотографий.
 
 #### Switch → Перенести
-Status: IN PROGRESS / QUALITY REWORK
+Status: APPROVED / STORED ✅
 
 Definition:
 - Перенос = демонтаж + установка и подключение в другой зоне.
