@@ -10597,7 +10597,6 @@ Conserved Branches:
 - Не набирается вода в бачок.
 - Вода постоянно течёт в чашу.
 
-Status: APPROVED / DISABLED ON LAUNCH / STORED + DOCS ✅
 
 Stored Documentation:
 - Дополнительных вопросов нет.
