@@ -9241,7 +9241,6 @@ Relocation combines removal and installation of the same air conditioner in a ne
 Status: APPROVED / STORED ✅
 
 Decision Summary:
-- Electrical использует mini-scope architecture по модели add-more.
 - Одна электрическая точка = одно mini-ТЗ внутри одного заказа.
 - Клиент может добавить несколько электрических точек в один заказ.
 - Каждая электрическая точка содержит собственный Work Type, Equipment Type, вопросы и фотографии.
